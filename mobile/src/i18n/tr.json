@@ -1,0 +1,172 @@
+{
+  "common": {
+    "save": "Kaydet",
+    "cancel": "\u0130ptal",
+    "delete": "Sil",
+    "edit": "D\u00fczenle",
+    "add": "Ekle",
+    "search": "Ara",
+    "loading": "Y\u00fckleniyor...",
+    "error": "Hata",
+    "success": "Ba\u015far\u0131l\u0131",
+    "confirm": "Onayla",
+    "back": "Geri",
+    "next": "\u0130leri",
+    "done": "Tamam",
+    "close": "Kapat",
+    "retry": "Tekrar Dene",
+    "seeAll": "T\u00fcm\u00fcn\u00fc G\u00f6r",
+    "today": "Bug\u00fcn",
+    "yesterday": "D\u00fcn",
+    "tomorrow": "Yar\u0131n",
+    "yes": "Evet",
+    "no": "Hay\u0131r"
+  },
+  "auth": {
+    "login": "Giri\u015f Yap",
+    "register": "Kay\u0131t Ol",
+    "logout": "\u00c7\u0131k\u0131\u015f Yap",
+    "email": "E-posta",
+    "password": "\u015eifre",
+    "name": "Ad Soyad",
+    "forgotPassword": "\u015eifremi Unuttum",
+    "noAccount": "Hesab\u0131n\u0131z yok mu?",
+    "hasAccount": "Zaten hesab\u0131n\u0131z var m\u0131?",
+    "welcome": "Ho\u015f Geldiniz!"
+  },
+  "tabs": {
+    "home": "Ana Sayfa",
+    "meals": "\u00d6\u011f\u00fcnler",
+    "plan": "Plan",
+    "progress": "\u0130lerleme",
+    "profile": "Profil"
+  },
+  "home": {
+    "greeting": "Merhaba",
+    "todaySummary": "Bug\u00fcn\u00fcn \u00d6zeti",
+    "calories": "Kalori",
+    "remaining": "Kalan",
+    "consumed": "Al\u0131nan",
+    "burned": "Yak\u0131lan",
+    "water": "Su",
+    "exercise": "Egzersiz",
+    "quickAdd": "H\u0131zl\u0131 Ekle"
+  },
+  "meals": {
+    "breakfast": "Kahvalt\u0131",
+    "lunch": "\u00d6\u011fle Yeme\u011fi",
+    "dinner": "Ak\u015fam Yeme\u011fi",
+    "snack": "Ara \u00d6\u011f\u00fcn",
+    "addMeal": "\u00d6\u011f\u00fcn Ekle",
+    "scanFood": "Yiyecek Tara",
+    "searchFood": "Yiyecek Ara",
+    "recentFoods": "Son Yiyecekler",
+    "favorites": "Favoriler",
+    "noMeals": "Hen\u00fcz \u00f6\u011f\u00fcn eklenmedi"
+  },
+  "tracking": {
+    "weight": "Kilo",
+    "water": "Su",
+    "exercise": "Egzersiz",
+    "sleep": "Uyku",
+    "mood": "Ruh Hali",
+    "addWater": "Su Ekle",
+    "addWeight": "Kilo Gir",
+    "addExercise": "Egzersiz Ekle",
+    "glasses": "bardak",
+    "minutes": "dakika",
+    "hours": "saat",
+    "steps": "Ad\u0131m"
+  },
+  "plan": {
+    "weeklyPlan": "Haftal\u0131k Plan",
+    "todayPlan": "Bug\u00fcn\u00fcn Plan\u0131",
+    "noPlan": "Hen\u00fcz plan olu\u015fturulmad\u0131",
+    "createdBy": "Haz\u0131rlayan"
+  },
+  "dietitian": {
+    "myDietitian": "Diyetisyenim",
+    "pair": "E\u015fle\u015ftir",
+    "unpair": "E\u015fle\u015fmeyi Kald\u0131r",
+    "pairingCode": "E\u015fle\u015fme Kodu",
+    "noDietitian": "Hen\u00fcz bir diyetisyen ile e\u015fle\u015fmediniz",
+    "specializations": "Uzmanl\u0131k Alanlar\u0131",
+    "experience": "Deneyim",
+    "years": "y\u0131l"
+  },
+  "messages": {
+    "title": "Mesajlar",
+    "typeMessage": "Mesaj yaz\u0131n...",
+    "send": "G\u00f6nder",
+    "noMessages": "Hen\u00fcz mesaj yok"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "markAllRead": "T\u00fcm\u00fcn\u00fc Okundu \u0130\u015faretle",
+    "noNotifications": "Bildirim bulunmuyor"
+  },
+  "appointments": {
+    "title": "Randevular",
+    "book": "Randevu Al",
+    "cancel": "Randevu \u0130ptal Et",
+    "upcoming": "Yakla\u015fan",
+    "past": "Ge\u00e7mi\u015f",
+    "online": "Online",
+    "inPerson": "Y\u00fcz Y\u00fcze",
+    "noAppointments": "Randevu bulunmuyor"
+  },
+  "gamification": {
+    "level": "Seviye",
+    "xp": "XP",
+    "streak": "Seri",
+    "badges": "Rozetler",
+    "challenges": "\u00d6devler",
+    "days": "g\u00fcn"
+  },
+  "recipes": {
+    "title": "Tarifler",
+    "favorites": "Favori Tarifler",
+    "prepTime": "Haz\u0131rl\u0131k",
+    "cookTime": "Pi\u015firme",
+    "servings": "Porsiyon",
+    "ingredients": "Malzemeler",
+    "instructions": "Tarif",
+    "difficulty": {
+      "easy": "Kolay",
+      "medium": "Orta",
+      "hard": "Zor"
+    }
+  },
+  "shopping": {
+    "title": "Al\u0131\u015fveri\u015f Listesi",
+    "newList": "Yeni Liste",
+    "addItem": "\u00dcr\u00fcn Ekle",
+    "share": "Listeyi Payla\u015f",
+    "noLists": "Hen\u00fcz liste olu\u015fturulmad\u0131"
+  },
+  "profile": {
+    "title": "Profil",
+    "editProfile": "Profili D\u00fczenle",
+    "allergies": "Alerjiler",
+    "preferences": "Tercihler",
+    "family": "Aile \u00dcyeleri",
+    "settings": "Ayarlar",
+    "theme": "Tema",
+    "language": "Dil",
+    "darkMode": "Karanl\u0131k Mod",
+    "notifications": "Bildirimler",
+    "about": "Hakk\u0131nda",
+    "help": "Yard\u0131m",
+    "privacy": "Gizlilik"
+  },
+  "ai": {
+    "title": "NutriAI Asistan",
+    "placeholder": "Bir soru sorun...",
+    "suggestions": [
+      "Bug\u00fcn ne yemeliyim?",
+      "Kalori hesaplamas\u0131 yapar m\u0131s\u0131n?",
+      "Sa\u011fl\u0131kl\u0131 at\u0131\u015ft\u0131rmal\u0131k \u00f6ner",
+      "Protein kaynaklar\u0131 nelerdir?"
+    ]
+  }
+}

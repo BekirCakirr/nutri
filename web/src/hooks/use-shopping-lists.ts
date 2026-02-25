@@ -1,0 +1,157 @@
+import { useState, useCallback, useMemo } from "react";
+import { mockShoppingLists, simulateApiCall } from "@/mock";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface ShoppingListItem {
+  id: string;
+  name: string;
+  quantity: string;
+  category: string;
+  checked: boolean;
+}
+
+export interface ShoppingList {
+  id: string;
+  patientId: string;
+  mealPlanId: string;
+  name: string;
+  status: "active" | "completed" | "archived";
+  items: ShoppingListItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+
+/**
+ * Shopping list operations.
+ */
+export function useShoppingLists(patientId?: string) {
+  const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchShoppingLists = useCallback(
+    async (targetPatientId?: string) => {
+      const pid = targetPatientId ?? patientId;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const all = await simulateApiCall(mockShoppingLists, 600);
+        const filtered = pid
+          ? all.filter((sl) => sl.patientId === pid)
+          : all;
+        setShoppingLists(filtered as ShoppingList[]);
+      } catch {
+        setError("Failed to fetch shopping lists");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [patientId],
+  );
+
+  const toggleItem = useCallback(
+    async (listId: string, itemId: string) => {
+      setError(null);
+      try {
+        await simulateApiCall(null, 200);
+        setShoppingLists((prev) =>
+          prev.map((sl) =>
+            sl.id === listId
+              ? {
+                  ...sl,
+                  items: sl.items.map((item) =>
+                    item.id === itemId
+                      ? { ...item, checked: !item.checked }
+                      : item,
+                  ),
+                  updatedAt: new Date().toISOString(),
+                }
+              : sl,
+          ),
+        );
+      } catch {
+        setError("Failed to update item");
+      }
+    },
+    [],
+  );
+
+  const addItem = useCallback(
+    async (
+      listId: string,
+      item: Omit<ShoppingListItem, "id" | "checked">,
+    ) => {
+      setError(null);
+      try {
+        const newItem: ShoppingListItem = {
+          ...item,
+          id: `sli_${Date.now()}`,
+          checked: false,
+        };
+        await simulateApiCall(newItem, 300);
+        setShoppingLists((prev) =>
+          prev.map((sl) =>
+            sl.id === listId
+              ? {
+                  ...sl,
+                  items: [...sl.items, newItem],
+                  updatedAt: new Date().toISOString(),
+                }
+              : sl,
+          ),
+        );
+        return newItem;
+      } catch {
+        setError("Failed to add item");
+        return null;
+      }
+    },
+    [],
+  );
+
+  const removeItem = useCallback(
+    async (listId: string, itemId: string) => {
+      setError(null);
+      try {
+        await simulateApiCall(null, 200);
+        setShoppingLists((prev) =>
+          prev.map((sl) =>
+            sl.id === listId
+              ? {
+                  ...sl,
+                  items: sl.items.filter((i) => i.id !== itemId),
+                  updatedAt: new Date().toISOString(),
+                }
+              : sl,
+          ),
+        );
+      } catch {
+        setError("Failed to remove item");
+      }
+    },
+    [],
+  );
+
+  const activeList = useMemo(
+    () => shoppingLists.find((sl) => sl.status === "active") ?? null,
+    [shoppingLists],
+  );
+
+  return {
+    shoppingLists,
+    activeList,
+    isLoading,
+    error,
+    fetchShoppingLists,
+    toggleItem,
+    addItem,
+    removeItem,
+  };
+}

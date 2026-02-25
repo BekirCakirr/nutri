@@ -1,0 +1,63 @@
+import type { AppNotification } from '@/types';
+
+export const mockNotifications: AppNotification[] = [
+  {
+    id: 'notif-1',
+    title: 'Su \u0130\u00e7me Vakti!',
+    body: 'Bug\u00fcn 1.600 ml su i\u00e7tiniz. Hedefinize ula\u015fmak i\u00e7in 900 ml daha i\u00e7in.',
+    type: 'water_reminder',
+    read: false,
+    createdAt: '2026-02-25T14:00:00Z',
+  },
+  {
+    id: 'notif-2',
+    title: '\u00d6\u011fle Yeme\u011fi Hat\u0131rlatmas\u0131',
+    body: '\u00d6\u011fle yeme\u011finizi kaydetmeyi unutmay\u0131n!',
+    type: 'meal_reminder',
+    read: false,
+    createdAt: '2026-02-25T12:00:00Z',
+  },
+  {
+    id: 'notif-3',
+    title: 'Yeni Mesaj',
+    body: 'Dyt. Zeynep Kaya size bir mesaj g\u00f6nderdi.',
+    type: 'message',
+    read: true,
+    data: { conversationId: 'conv-1' },
+    createdAt: '2026-02-25T09:35:00Z',
+  },
+  {
+    id: 'notif-4',
+    title: 'Rozet Kazan\u0131ld\u0131! \ud83c\udfc6',
+    body: '"7 G\u00fcn Seri" rozetini kazand\u0131n\u0131z! Tebrikler!',
+    type: 'achievement',
+    read: true,
+    data: { badgeId: 'badge-2' },
+    createdAt: '2026-02-24T20:00:00Z',
+  },
+  {
+    id: 'notif-5',
+    title: 'Randevu Hat\u0131rlatmas\u0131',
+    body: 'Yar\u0131n saat 14:00\'da Dyt. Zeynep Kaya ile randevunuz var.',
+    type: 'appointment',
+    read: true,
+    data: { appointmentId: 'apt-1' },
+    createdAt: '2026-02-24T18:00:00Z',
+  },
+  {
+    id: 'notif-6',
+    title: 'Plan G\u00fcncellendi',
+    body: 'Haftal\u0131k beslenme plan\u0131n\u0131z g\u00fcncellendi.',
+    type: 'plan_update',
+    read: true,
+    createdAt: '2026-02-23T10:00:00Z',
+  },
+  {
+    id: 'notif-7',
+    title: 'Ho\u015f Geldiniz!',
+    body: 'NutriAI\'ya ho\u015f geldiniz! Sa\u011fl\u0131kl\u0131 ya\u015fam yolculu\u011funuz ba\u015fl\u0131yor.',
+    type: 'system',
+    read: true,
+    createdAt: '2025-11-01T10:00:00Z',
+  },
+];

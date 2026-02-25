@@ -1,0 +1,172 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "close": "Close",
+    "retry": "Retry",
+    "seeAll": "See All",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "forgotPassword": "Forgot Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "welcome": "Welcome!"
+  },
+  "tabs": {
+    "home": "Home",
+    "meals": "Meals",
+    "plan": "Plan",
+    "progress": "Progress",
+    "profile": "Profile"
+  },
+  "home": {
+    "greeting": "Hello",
+    "todaySummary": "Today's Summary",
+    "calories": "Calories",
+    "remaining": "Remaining",
+    "consumed": "Consumed",
+    "burned": "Burned",
+    "water": "Water",
+    "exercise": "Exercise",
+    "quickAdd": "Quick Add"
+  },
+  "meals": {
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "snack": "Snack",
+    "addMeal": "Add Meal",
+    "scanFood": "Scan Food",
+    "searchFood": "Search Food",
+    "recentFoods": "Recent Foods",
+    "favorites": "Favorites",
+    "noMeals": "No meals added yet"
+  },
+  "tracking": {
+    "weight": "Weight",
+    "water": "Water",
+    "exercise": "Exercise",
+    "sleep": "Sleep",
+    "mood": "Mood",
+    "addWater": "Add Water",
+    "addWeight": "Log Weight",
+    "addExercise": "Add Exercise",
+    "glasses": "glasses",
+    "minutes": "minutes",
+    "hours": "hours",
+    "steps": "Steps"
+  },
+  "plan": {
+    "weeklyPlan": "Weekly Plan",
+    "todayPlan": "Today's Plan",
+    "noPlan": "No plan created yet",
+    "createdBy": "Created by"
+  },
+  "dietitian": {
+    "myDietitian": "My Dietitian",
+    "pair": "Pair",
+    "unpair": "Unpair",
+    "pairingCode": "Pairing Code",
+    "noDietitian": "You haven't paired with a dietitian yet",
+    "specializations": "Specializations",
+    "experience": "Experience",
+    "years": "years"
+  },
+  "messages": {
+    "title": "Messages",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "noMessages": "No messages yet"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark All as Read",
+    "noNotifications": "No notifications"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "book": "Book Appointment",
+    "cancel": "Cancel Appointment",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "online": "Online",
+    "inPerson": "In Person",
+    "noAppointments": "No appointments"
+  },
+  "gamification": {
+    "level": "Level",
+    "xp": "XP",
+    "streak": "Streak",
+    "badges": "Badges",
+    "challenges": "Challenges",
+    "days": "days"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "favorites": "Favorite Recipes",
+    "prepTime": "Prep Time",
+    "cookTime": "Cook Time",
+    "servings": "Servings",
+    "ingredients": "Ingredients",
+    "instructions": "Instructions",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    }
+  },
+  "shopping": {
+    "title": "Shopping List",
+    "newList": "New List",
+    "addItem": "Add Item",
+    "share": "Share List",
+    "noLists": "No lists created yet"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "allergies": "Allergies",
+    "preferences": "Preferences",
+    "family": "Family Members",
+    "settings": "Settings",
+    "theme": "Theme",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "notifications": "Notifications",
+    "about": "About",
+    "help": "Help",
+    "privacy": "Privacy"
+  },
+  "ai": {
+    "title": "NutriAI Assistant",
+    "placeholder": "Ask a question...",
+    "suggestions": [
+      "What should I eat today?",
+      "Can you calculate calories?",
+      "Suggest healthy snacks",
+      "What are protein sources?"
+    ]
+  }
+}
