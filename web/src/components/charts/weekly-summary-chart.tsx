@@ -64,7 +64,7 @@ export function WeeklySummaryChart({
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
               }}
-              formatter={(value: number) => [`${value}g`, '']}
+              formatter={(value: number | undefined) => [`${value ?? 0}g`, '']}
             />
             <Legend />
             <Bar

@@ -3,12 +3,15 @@ import {
   Search,
   CheckCircle2,
   XCircle,
-  Shield,
   Ban,
   Eye,
   Filter,
+  UserCheck,
+  Clock,
+  UserX,
+  Star,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +31,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { PageContainer } from '@/components/shared/page-container'
+import { StatCard } from '@/components/shared/stat-card'
+import { cn } from '@/lib/utils'
 
 interface DietitianRow {
   id: string
@@ -52,9 +58,23 @@ const mockDietitians: DietitianRow[] = [
 ]
 
 const verificationMap = {
-  verified: { label: 'Onaylı', variant: 'default' as const, icon: CheckCircle2 },
-  pending: { label: 'Bekliyor', variant: 'outline' as const, icon: Shield },
+  verified: { label: 'Onaylı', variant: 'success' as const, icon: CheckCircle2 },
+  pending: { label: 'Bekliyor', variant: 'warning' as const, icon: Clock },
   rejected: { label: 'Reddedildi', variant: 'destructive' as const, icon: XCircle },
+}
+
+function getInitialColor(name: string): string {
+  const colors = [
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  ]
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return colors[Math.abs(hash) % colors.length]
 }
 
 export default function AdminDietitians() {
@@ -67,129 +87,160 @@ export default function AdminDietitians() {
     return matchesSearch && matchesStatus
   })
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Diyetisyen Yönetimi</h1>
-        <p className="text-muted-foreground">Diyetisyenleri doğrulayın ve yönetin.</p>
-      </div>
+  const verifiedCount = mockDietitians.filter(d => d.verificationStatus === 'verified').length
+  const pendingCount = mockDietitians.filter(d => d.verificationStatus === 'pending').length
+  const suspendedCount = mockDietitians.filter(d => d.status === 'suspended').length
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Toplam</p>
-            <p className="text-2xl font-bold">{mockDietitians.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Onaylı</p>
-            <p className="text-2xl font-bold text-green-500">{mockDietitians.filter(d => d.verificationStatus === 'verified').length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Bekleyen</p>
-            <p className="text-2xl font-bold text-orange-500">{mockDietitians.filter(d => d.verificationStatus === 'pending').length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Askıya Alınan</p>
-            <p className="text-2xl font-bold text-red-500">{mockDietitians.filter(d => d.status === 'suspended').length}</p>
-          </CardContent>
-        </Card>
+  return (
+    <PageContainer
+      title="Diyetisyen Yönetimi"
+      description="Diyetisyenleri doğrulayın ve yönetin."
+    >
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
+        <StatCard
+          title="Toplam Diyetisyen"
+          value={mockDietitians.length}
+          icon={UserCheck}
+          color="blue"
+          featured
+        />
+        <StatCard
+          title="Onaylı"
+          value={verifiedCount}
+          icon={CheckCircle2}
+          color="green"
+        />
+        <StatCard
+          title="Bekleyen"
+          value={pendingCount}
+          icon={Clock}
+          color="yellow"
+        />
+        <StatCard
+          title="Askıya Alınan"
+          value={suspendedCount}
+          icon={UserX}
+          color="red"
+        />
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Diyetisyen ara..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Doğrulama" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tümü</SelectItem>
-              <SelectItem value="verified">Onaylı</SelectItem>
-              <SelectItem value="pending">Bekleyen</SelectItem>
-              <SelectItem value="rejected">Reddedilen</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Diyetisyen</TableHead>
-                <TableHead>Uzmanlık</TableHead>
-                <TableHead>Lisans No</TableHead>
-                <TableHead className="text-center">Hasta</TableHead>
-                <TableHead className="text-center">Puan</TableHead>
-                <TableHead className="text-center">Doğrulama</TableHead>
-                <TableHead className="text-right">İşlem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((dietitian) => {
-                const verification = verificationMap[dietitian.verificationStatus]
-                return (
-                  <TableRow key={dietitian.id} className={dietitian.status === 'suspended' ? 'opacity-60' : ''}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">
-                            {dietitian.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-sm">{dietitian.name}</p>
-                          <p className="text-xs text-muted-foreground">{dietitian.email}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">{dietitian.specialization}</TableCell>
-                    <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{dietitian.licenseNumber}</code></TableCell>
-                    <TableCell className="text-center">{dietitian.patients}</TableCell>
-                    <TableCell className="text-center">{dietitian.rating > 0 ? dietitian.rating.toFixed(1) : '-'}</TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={verification.variant}>
-                        {verification.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Eye className="h-3 w-3" />
-                        </Button>
-                        {dietitian.verificationStatus === 'pending' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600">
-                            <CheckCircle2 className="h-3 w-3" />
-                          </Button>
-                        )}
-                        {dietitian.status === 'active' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                            <Ban className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+      <Card className="py-0 gap-0 mb-6 animate-fade-up">
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Diyetisyen ara..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Doğrulama" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tüm Durumlar</SelectItem>
+                  <SelectItem value="verified">Onaylı</SelectItem>
+                  <SelectItem value="pending">Bekleyen</SelectItem>
+                  <SelectItem value="rejected">Reddedilen</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardContent>
       </Card>
-    </div>
+
+      {/* Table */}
+      <Card className="py-0 gap-0 overflow-hidden animate-fade-up">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Diyetisyen</TableHead>
+              <TableHead className="hidden md:table-cell">Uzmanlık</TableHead>
+              <TableHead className="hidden lg:table-cell">Lisans No</TableHead>
+              <TableHead className="text-center">Hasta</TableHead>
+              <TableHead className="text-center hidden md:table-cell">Puan</TableHead>
+              <TableHead className="text-center">Doğrulama</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((dietitian) => {
+              const verification = verificationMap[dietitian.verificationStatus]
+              return (
+                <TableRow
+                  key={dietitian.id}
+                  className={cn(dietitian.status === 'suspended' && 'opacity-60')}
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(dietitian.name))}>
+                          {dietitian.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium leading-tight">{dietitian.name}</p>
+                        <p className="text-xs text-muted-foreground">{dietitian.email}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm hidden md:table-cell">{dietitian.specialization}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{dietitian.licenseNumber}</code>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="text-sm font-semibold tabular-nums">{dietitian.patients}</span>
+                  </TableCell>
+                  <TableCell className="text-center hidden md:table-cell">
+                    {dietitian.rating > 0 ? (
+                      <div className="inline-flex items-center gap-1">
+                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                        <span className="text-sm font-semibold tabular-nums">{dietitian.rating.toFixed(1)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={verification.variant}>
+                      <verification.icon className="h-3 w-3" />
+                      {verification.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                      {dietitian.verificationStatus === 'pending' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {dietitian.status === 'active' && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                          <Ban className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </Card>
+    </PageContainer>
   )
 }

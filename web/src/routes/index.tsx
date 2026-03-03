@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/layouts/root-layout'
 import { AuthLayout } from '@/layouts/auth-layout'
@@ -5,46 +6,64 @@ import { DashboardLayout } from '@/layouts/dashboard-layout'
 import { AdminLayout } from '@/layouts/admin-layout'
 import { ProtectedRoute } from './protected-route'
 import { AdminRoute } from './admin-route'
+import { Loader2 } from 'lucide-react'
+
+// Lazy loading wrapper
+function PageLoader() {
+  return (
+    <div className="flex h-[50vh] items-center justify-center">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    </div>
+  )
+}
+
+function L({ C }: { C: React.LazyExoticComponent<React.ComponentType> }) {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <C />
+    </Suspense>
+  )
+}
 
 // Auth Pages
-import LoginPage from '@/pages/auth/login'
-import RegisterPage from '@/pages/auth/register'
+const LoginPage = lazy(() => import('@/pages/auth/login'))
+const RegisterPage = lazy(() => import('@/pages/auth/register'))
 
 // Main Pages
-import DashboardPage from '@/pages/dashboard'
-import PatientListPage from '@/pages/patient-list'
-import PatientDetailPage from '@/pages/patient-detail'
-import MealReviewPage from '@/pages/meal-review'
-import PlanCreatorPage from '@/pages/plan-creator'
-import LiveTrackingPage from '@/pages/live-tracking'
+const DashboardPage = lazy(() => import('@/pages/dashboard'))
+const PatientListPage = lazy(() => import('@/pages/patient-list'))
+const PatientDetailPage = lazy(() => import('@/pages/patient-detail'))
+const MealReviewPage = lazy(() => import('@/pages/meal-review'))
+const PlanCreatorPage = lazy(() => import('@/pages/plan-creator'))
+const LiveTrackingPage = lazy(() => import('@/pages/live-tracking'))
 
 // Communication Pages
-import MessagesPage from '@/pages/messages'
-import AppointmentsPage from '@/pages/appointments'
-import VideoCallPage from '@/pages/video-call'
+const MessagesPage = lazy(() => import('@/pages/messages'))
+const AppointmentsPage = lazy(() => import('@/pages/appointments'))
+const VideoCallPage = lazy(() => import('@/pages/video-call'))
 
 // Feature Pages
-import InviteCodePage from '@/pages/invite-code'
-import RecipesPage from '@/pages/recipes'
-import RecipeDetailPage from '@/pages/recipe-detail'
-import ShoppingListsPage from '@/pages/shopping-lists'
-import ReportsPage from '@/pages/reports'
-import PatientReportPage from '@/pages/patient-report'
-import ReviewsPage from '@/pages/reviews'
-import AIAssistantPage from '@/pages/ai-assistant'
-import NotificationsPage from '@/pages/notifications'
-import SettingsPage from '@/pages/settings'
+const InviteCodePage = lazy(() => import('@/pages/invite-code'))
+const RecipesPage = lazy(() => import('@/pages/recipes'))
+const RecipeDetailPage = lazy(() => import('@/pages/recipe-detail'))
+const ShoppingListsPage = lazy(() => import('@/pages/shopping-lists'))
+const ReportsPage = lazy(() => import('@/pages/reports'))
+const PatientReportPage = lazy(() => import('@/pages/patient-report'))
+const ReviewsPage = lazy(() => import('@/pages/reviews'))
+const AIAssistantPage = lazy(() => import('@/pages/ai-assistant'))
+const NotificationsPage = lazy(() => import('@/pages/notifications'))
+const SettingsPage = lazy(() => import('@/pages/settings'))
 
 // Admin Pages
-import AdminDashboardPage from '@/pages/admin/dashboard'
-import AdminFoodDBPage from '@/pages/admin/food-db'
-import AdminAllergensPage from '@/pages/admin/allergens'
-import AdminRecipesPage from '@/pages/admin/recipes'
-import AdminDietitians from '@/pages/admin/dietitians'
-import AdminUsersPage from '@/pages/admin/users'
-import AdminReportsPage from '@/pages/admin/reports'
+const AdminDashboardPage = lazy(() => import('@/pages/admin/dashboard'))
+const AdminFoodDBPage = lazy(() => import('@/pages/admin/food-db'))
+const AdminAllergensPage = lazy(() => import('@/pages/admin/allergens'))
+const AdminRecipesPage = lazy(() => import('@/pages/admin/recipes'))
+const AdminDietitians = lazy(() => import('@/pages/admin/dietitians'))
+const AdminUsersPage = lazy(() => import('@/pages/admin/users'))
+const AdminReportsPage = lazy(() => import('@/pages/admin/reports'))
 
-import NotFoundPage from '@/pages/not-found'
+const NotFoundPage = lazy(() => import('@/pages/not-found'))
 
 export const router = createBrowserRouter([
   {
@@ -54,8 +73,8 @@ export const router = createBrowserRouter([
       {
         element: <AuthLayout />,
         children: [
-          { path: '/login', element: <LoginPage /> },
-          { path: '/register', element: <RegisterPage /> },
+          { path: '/login', element: <L C={LoginPage} /> },
+          { path: '/register', element: <L C={RegisterPage} /> },
         ],
       },
       // Protected routes
@@ -65,30 +84,30 @@ export const router = createBrowserRouter([
           {
             element: <DashboardLayout />,
             children: [
-              { path: '/', element: <DashboardPage /> },
-              { path: '/patients', element: <PatientListPage /> },
-              { path: '/patients/:id', element: <PatientDetailPage /> },
-              { path: '/meal-review', element: <MealReviewPage /> },
-              { path: '/plans/create', element: <PlanCreatorPage /> },
-              { path: '/plans/create/:patientId', element: <PlanCreatorPage /> },
-              { path: '/live-tracking', element: <LiveTrackingPage /> },
-              { path: '/messages', element: <MessagesPage /> },
-              { path: '/messages/:conversationId', element: <MessagesPage /> },
-              { path: '/appointments', element: <AppointmentsPage /> },
-              { path: '/invite-code', element: <InviteCodePage /> },
-              { path: '/recipes', element: <RecipesPage /> },
-              { path: '/recipes/:id', element: <RecipeDetailPage /> },
-              { path: '/shopping-lists', element: <ShoppingListsPage /> },
-              { path: '/reports', element: <ReportsPage /> },
-              { path: '/reports/patient/:id', element: <PatientReportPage /> },
-              { path: '/reviews', element: <ReviewsPage /> },
-              { path: '/ai-assistant', element: <AIAssistantPage /> },
-              { path: '/notifications', element: <NotificationsPage /> },
-              { path: '/settings', element: <SettingsPage /> },
+              { path: '/', element: <L C={DashboardPage} /> },
+              { path: '/patients', element: <L C={PatientListPage} /> },
+              { path: '/patients/:id', element: <L C={PatientDetailPage} /> },
+              { path: '/meal-review', element: <L C={MealReviewPage} /> },
+              { path: '/plans/create', element: <L C={PlanCreatorPage} /> },
+              { path: '/plans/create/:patientId', element: <L C={PlanCreatorPage} /> },
+              { path: '/live-tracking', element: <L C={LiveTrackingPage} /> },
+              { path: '/messages', element: <L C={MessagesPage} /> },
+              { path: '/messages/:conversationId', element: <L C={MessagesPage} /> },
+              { path: '/appointments', element: <L C={AppointmentsPage} /> },
+              { path: '/invite-code', element: <L C={InviteCodePage} /> },
+              { path: '/recipes', element: <L C={RecipesPage} /> },
+              { path: '/recipes/:id', element: <L C={RecipeDetailPage} /> },
+              { path: '/shopping-lists', element: <L C={ShoppingListsPage} /> },
+              { path: '/reports', element: <L C={ReportsPage} /> },
+              { path: '/reports/patient/:id', element: <L C={PatientReportPage} /> },
+              { path: '/reviews', element: <L C={ReviewsPage} /> },
+              { path: '/ai-assistant', element: <L C={AIAssistantPage} /> },
+              { path: '/notifications', element: <L C={NotificationsPage} /> },
+              { path: '/settings', element: <L C={SettingsPage} /> },
             ],
           },
           // Video call (fullscreen, no sidebar)
-          { path: '/video-call/:id', element: <VideoCallPage /> },
+          { path: '/video-call/:id', element: <L C={VideoCallPage} /> },
           // Admin routes
           {
             element: <AdminRoute />,
@@ -96,13 +115,13 @@ export const router = createBrowserRouter([
               {
                 element: <AdminLayout />,
                 children: [
-                  { path: '/admin', element: <AdminDashboardPage /> },
-                  { path: '/admin/food-db', element: <AdminFoodDBPage /> },
-                  { path: '/admin/allergens', element: <AdminAllergensPage /> },
-                  { path: '/admin/recipes', element: <AdminRecipesPage /> },
-                  { path: '/admin/dietitians', element: <AdminDietitians /> },
-                  { path: '/admin/users', element: <AdminUsersPage /> },
-                  { path: '/admin/reports', element: <AdminReportsPage /> },
+                  { path: '/admin', element: <L C={AdminDashboardPage} /> },
+                  { path: '/admin/food-db', element: <L C={AdminFoodDBPage} /> },
+                  { path: '/admin/allergens', element: <L C={AdminAllergensPage} /> },
+                  { path: '/admin/recipes', element: <L C={AdminRecipesPage} /> },
+                  { path: '/admin/dietitians', element: <L C={AdminDietitians} /> },
+                  { path: '/admin/users', element: <L C={AdminUsersPage} /> },
+                  { path: '/admin/reports', element: <L C={AdminReportsPage} /> },
                 ],
               },
             ],
@@ -110,7 +129,7 @@ export const router = createBrowserRouter([
         ],
       },
       // 404
-      { path: '*', element: <NotFoundPage /> },
+      { path: '*', element: <L C={NotFoundPage} /> },
     ],
   },
 ])

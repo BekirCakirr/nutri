@@ -18,7 +18,7 @@ export async function markAsRead(
   const notif =
     mockNotifications.find((n) => n.id === notificationId) ??
     mockNotifications[0];
-  return simulateApiCall({ ...notif, read: true }, 300);
+  return simulateApiCall({ ...notif, isRead: true }, 300);
 }
 
 export async function markAllRead(): Promise<{ success: boolean }> {
@@ -26,6 +26,6 @@ export async function markAllRead(): Promise<{ success: boolean }> {
 }
 
 export async function getUnreadCount(): Promise<{ count: number }> {
-  const count = mockNotifications.filter((n) => !n.read).length;
+  const count = mockNotifications.filter((n) => !n.isRead).length;
   return simulateApiCall({ count }, 300);
 }

@@ -32,8 +32,8 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>()((set, get) => ({
-  notifications: mockNotifications as Notification[],
-  unreadCount: mockNotifications.filter((n) => !n.read).length,
+  notifications: mockNotifications as unknown as Notification[],
+  unreadCount: mockNotifications.filter((n) => !(n as unknown as { read: boolean }).read).length,
 
   setNotifications: (notifications) => {
     set({ notifications });

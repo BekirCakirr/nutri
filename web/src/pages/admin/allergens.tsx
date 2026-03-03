@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import {
   Plus,
-  Edit,
+  Pencil,
   Trash2,
   AlertTriangle,
   Search,
+  ShieldAlert,
+  Users,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -36,6 +38,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { PageContainer } from '@/components/shared/page-container'
+import { StatCard } from '@/components/shared/stat-card'
+import { cn } from '@/lib/utils'
 
 interface Allergen {
   id: string
@@ -59,8 +64,8 @@ const mockAllergens: Allergen[] = [
 ]
 
 const severityMap = {
-  low: { label: 'Düşük', variant: 'secondary' as const },
-  medium: { label: 'Orta', variant: 'default' as const },
+  low: { label: 'Düşük', variant: 'success' as const },
+  medium: { label: 'Orta', variant: 'warning' as const },
   high: { label: 'Yüksek', variant: 'destructive' as const },
 }
 
@@ -72,17 +77,18 @@ export default function AdminAllergensPage() {
     a.name.toLowerCase().includes(search.toLowerCase())
   )
 
+  const highCount = mockAllergens.filter(a => a.severity === 'high').length
+  const totalAffected = mockAllergens.reduce((sum, a) => sum + a.affectedPatients, 0)
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Alerjen Yönetimi</h1>
-          <p className="text-muted-foreground">Sistemdeki alerjenleri yönetin ve düzenleyin.</p>
-        </div>
+    <PageContainer
+      title="Alerjen Yönetimi"
+      description="Sistemdeki alerjenleri yönetin ve düzenleyin."
+      actions={
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button size="sm">
+              <Plus className="h-3.5 w-3.5" />
               Yeni Alerjen Ekle
             </Button>
           </DialogTrigger>
@@ -128,63 +134,106 @@ export default function AdminAllergensPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      }
+    >
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 animate-in-stagger">
+        <StatCard
+          title="Toplam Alerjen"
+          value={mockAllergens.length}
+          icon={ShieldAlert}
+          color="blue"
+        />
+        <StatCard
+          title="Yüksek Şiddet"
+          value={highCount}
+          icon={AlertTriangle}
+          color="red"
+        />
+        <StatCard
+          title="Etkilenen Hasta"
+          value={totalAffected}
+          icon={Users}
+          color="purple"
+        />
       </div>
 
       {/* Search */}
-      <div className="relative max-w-sm">
+      <div className="relative max-w-sm mb-6 animate-fade-up">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Alerjen ara..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        <Input
+          placeholder="Alerjen ara..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9"
+        />
       </div>
 
       {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Kod</TableHead>
-                <TableHead>Alerjen</TableHead>
-                <TableHead>Şiddet</TableHead>
-                <TableHead>Yaygın Besinler</TableHead>
-                <TableHead className="text-center">Etkilenen Hasta</TableHead>
-                <TableHead className="text-right">İşlem</TableHead>
+      <Card className="py-0 gap-0 overflow-hidden animate-fade-up">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Kod</TableHead>
+              <TableHead>Alerjen</TableHead>
+              <TableHead>Şiddet</TableHead>
+              <TableHead className="hidden md:table-cell">Yaygın Besinler</TableHead>
+              <TableHead className="text-center">Etkilenen Hasta</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((allergen) => (
+              <TableRow key={allergen.id}>
+                <TableCell>
+                  <code className="rounded bg-muted px-2 py-0.5 text-xs font-mono font-semibold">
+                    {allergen.code}
+                  </code>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
+                      allergen.severity === 'high'
+                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        : allergen.severity === 'medium'
+                          ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    )}>
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">{allergen.name}</span>
+                      <p className="text-xs text-muted-foreground line-clamp-1 md:hidden">{allergen.commonFoods}</p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={severityMap[allergen.severity].variant}>
+                    {severityMap[allergen.severity].label}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate hidden md:table-cell">
+                  {allergen.commonFoods}
+                </TableCell>
+                <TableCell className="text-center">
+                  <span className="text-sm font-semibold tabular-nums">{allergen.affectedPatients}</span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((allergen) => (
-                <TableRow key={allergen.id}>
-                  <TableCell>
-                    <code className="bg-muted px-2 py-0.5 rounded text-xs font-mono">{allergen.code}</code>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-orange-500" />
-                      <span className="font-medium">{allergen.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={severityMap[allergen.severity].variant}>
-                      {severityMap[allergen.severity].label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{allergen.commonFoods}</TableCell>
-                  <TableCell className="text-center">{allergen.affectedPatients}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

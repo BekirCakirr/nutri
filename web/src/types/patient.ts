@@ -6,7 +6,6 @@ import type {
   ActivityLevel,
   DateRange,
   Gender,
-  GenericStatus,
   PaginationParams,
   Timestamps,
 } from "./common";

@@ -84,7 +84,7 @@ export async function getUsers(
     lastName: p.lastName,
     role: "patient",
     status: p.status,
-    createdAt: typeof p.createdAt === "string" ? p.createdAt : new Date().toISOString(),
+    createdAt: typeof (p as unknown as { createdAt?: string }).createdAt === "string" ? (p as unknown as { createdAt: string }).createdAt : new Date().toISOString(),
     lastLoginAt: null,
   }));
 

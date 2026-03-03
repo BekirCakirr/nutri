@@ -1,5 +1,24 @@
 import { Outlet, Navigate } from 'react-router-dom'
+import { Leaf, BarChart3, Calendar, Activity } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+
+const features = [
+  {
+    icon: Activity,
+    title: 'AI Destekli Analiz',
+    desc: 'Yapay zeka ile öğün değerlendirme',
+  },
+  {
+    icon: BarChart3,
+    title: 'Canlı Takip',
+    desc: 'Hasta ilerlemesini gerçek zamanlı izleyin',
+  },
+  {
+    icon: Calendar,
+    title: 'Akıllı Planlama',
+    desc: 'Kişiselleştirilmiş beslenme planları',
+  },
+]
 
 export function AuthLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -10,62 +29,52 @@ export function AuthLayout() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left panel - branding with gradient */}
-      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden items-center justify-center p-12"
-        style={{
-          background: 'linear-gradient(135deg, #1A5C37 0%, #2D8C4E 50%, #1A5C37 100%)',
-        }}
-      >
-        {/* Decorative circles */}
-        <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #4ECDC4, transparent)' }}
-        />
-        <div className="absolute bottom-[-15%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-8"
-          style={{ background: 'radial-gradient(circle, #4ECDC4, transparent)' }}
-        />
+      {/* Left panel — brand showcase */}
+      <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden items-center justify-center p-12 bg-primary">
+        {/* Decorative shapes */}
+        <div className="absolute top-[-8%] right-[-4%] w-[360px] h-[360px] rounded-full bg-white/[0.04]" />
+        <div className="absolute bottom-[-12%] left-[-8%] w-[440px] h-[440px] rounded-full bg-white/[0.03]" />
+        <div className="absolute top-[40%] right-[15%] w-[120px] h-[120px] rounded-full bg-[var(--color-nutriai-mint)]/[0.08]" />
 
-        <div className="relative z-10 max-w-lg text-center text-white">
-          <div className="flex items-center justify-center mb-10">
-            <img
-              src="/logo-full.png"
-              alt="NutriAI"
-              className="h-20 brightness-0 invert drop-shadow-lg"
-            />
+        <div className="relative z-10 max-w-md text-center text-primary-foreground">
+          {/* Logo */}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
+              <Leaf className="h-7 w-7 text-white" />
+            </div>
+            <span className="text-3xl font-bold tracking-tight">NutriAI</span>
           </div>
-          <h2 className="text-2xl font-semibold mb-4 opacity-95">
+
+          <h2 className="text-xl font-semibold mb-3 opacity-95 leading-snug">
             Akıllı Beslenme Yönetim Platformu
           </h2>
-          <p className="text-base leading-relaxed opacity-80 max-w-md mx-auto">
+          <p className="text-sm leading-relaxed opacity-70 max-w-sm mx-auto">
             AI destekli araçlarla hastalarınızı takip edin, kişiselleştirilmiş beslenme planları oluşturun ve sağlık hedeflerine birlikte ulaşın.
           </p>
 
           {/* Feature highlights */}
-          <div className="mt-10 grid grid-cols-3 gap-6 text-sm">
-            <div className="flex flex-col items-center gap-2 opacity-80">
-              <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
-                <span className="text-lg">🤖</span>
+          <div className="mt-12 space-y-4">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className="flex items-center gap-4 text-left rounded-xl bg-white/[0.06] px-5 py-3.5 backdrop-blur-sm"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <f.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{f.title}</p>
+                  <p className="text-xs opacity-60">{f.desc}</p>
+                </div>
               </div>
-              <span>AI Analiz</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 opacity-80">
-              <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
-                <span className="text-lg">📊</span>
-              </div>
-              <span>Canlı Takip</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 opacity-80">
-              <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
-                <span className="text-lg">🍽️</span>
-              </div>
-              <span>Diyet Planı</span>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Right panel - auth form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md">
+      {/* Right panel — auth form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-background">
+        <div className="w-full max-w-[420px] animate-fade-up">
           <Outlet />
         </div>
       </div>

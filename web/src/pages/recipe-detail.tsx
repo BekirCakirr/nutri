@@ -1,13 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import {
-  ArrowLeft,
-  Clock,
-  Flame,
-  Users,
-  Plus,
-  ImageIcon,
-  Printer,
-} from 'lucide-react'
+import { ArrowLeft, Clock, Flame, Users, Plus, ImageIcon, Printer } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -55,117 +47,78 @@ const mockRecipe = {
 }
 
 export default function RecipeDetailPage() {
-  const { id } = useParams()
+  const { id: _id } = useParams()
   const navigate = useNavigate()
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl space-y-6 animate-fade-up">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/recipes')}>
-          <ArrowLeft className="h-5 w-5" />
+      <div className="flex items-start gap-4">
+        <Button variant="ghost" size="icon-sm" onClick={() => navigate('/recipes')} className="mt-1">
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
             <Badge variant="outline">{mockRecipe.category}</Badge>
-            <Badge variant="secondary">{mockRecipe.difficulty}</Badge>
+            <Badge variant="success">{mockRecipe.difficulty}</Badge>
           </div>
-          <h1 className="text-3xl font-bold">{mockRecipe.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{mockRecipe.title}</h1>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon">
-            <Printer className="h-4 w-4" />
-          </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Plana Ekle
-          </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button variant="outline" size="icon-sm"><Printer className="h-4 w-4" /></Button>
+          <Button size="sm"><Plus className="h-3.5 w-3.5" />Plana Ekle</Button>
         </div>
       </div>
 
-      {/* Image */}
-      <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-        <div className="text-center text-muted-foreground">
-          <ImageIcon className="h-12 w-12 mx-auto mb-2" />
-          <p className="text-sm">Tarif Görseli</p>
-        </div>
+      {/* Image placeholder */}
+      <div className="h-56 bg-secondary/50 rounded-xl flex items-center justify-center">
+        <ImageIcon className="h-10 w-10 text-muted-foreground/20" />
       </div>
 
       {/* Description */}
-      <p className="text-muted-foreground">{mockRecipe.description}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">{mockRecipe.description}</p>
 
-      {/* Quick Info */}
-      <div className="flex items-center gap-6 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">Hazırlık: {mockRecipe.prepTime} dk</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">Pişirme: {mockRecipe.cookTime} dk</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">{mockRecipe.servings} kişilik</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Flame className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">{mockRecipe.calories} kcal / porsiyon</span>
-        </div>
+      {/* Quick info */}
+      <div className="flex items-center gap-6 flex-wrap text-sm">
+        <span className="flex items-center gap-1.5 text-muted-foreground"><Clock className="h-4 w-4" />Hazırlık: {mockRecipe.prepTime} dk</span>
+        <span className="flex items-center gap-1.5 text-muted-foreground"><Clock className="h-4 w-4" />Pişirme: {mockRecipe.cookTime} dk</span>
+        <span className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4" />{mockRecipe.servings} kişilik</span>
+        <span className="flex items-center gap-1.5 text-muted-foreground"><Flame className="h-4 w-4" />{mockRecipe.calories} kcal</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Ingredients + Nutrition */}
+        {/* Left column */}
         <div className="space-y-6">
-          {/* Nutrition Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Besin Değerleri</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Kalori</span>
-                <span className="font-medium">{mockRecipe.calories} kcal</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Protein</span>
-                <span className="font-medium">{mockRecipe.protein}g</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Karbonhidrat</span>
-                <span className="font-medium">{mockRecipe.carbs}g</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Yağ</span>
-                <span className="font-medium">{mockRecipe.fat}g</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Lif</span>
-                <span className="font-medium">{mockRecipe.fiber}g</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Sodyum</span>
-                <span className="font-medium">{mockRecipe.sodium}mg</span>
-              </div>
+            <CardHeader><CardTitle className="text-sm">Besin Değerleri</CardTitle></CardHeader>
+            <CardContent className="space-y-2.5">
+              {[
+                ['Kalori', `${mockRecipe.calories} kcal`],
+                ['Protein', `${mockRecipe.protein}g`],
+                ['Karbonhidrat', `${mockRecipe.carbs}g`],
+                ['Yağ', `${mockRecipe.fat}g`],
+                ['Lif', `${mockRecipe.fiber}g`],
+                ['Sodyum', `${mockRecipe.sodium}mg`],
+              ].map(([label, val], i) => (
+                <div key={label}>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className="font-medium tabular-nums">{val}</span>
+                  </div>
+                  {i < 5 && <Separator className="mt-2.5" />}
+                </div>
+              ))}
             </CardContent>
           </Card>
 
-          {/* Ingredients */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Malzemeler</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-sm">Malzemeler</CardTitle></CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 {mockRecipe.ingredients.map((ing, i) => (
                   <li key={i} className="flex items-center justify-between text-sm">
                     <span>{ing.name}</span>
-                    <span className="text-muted-foreground">{ing.amount}</span>
+                    <span className="text-muted-foreground tabular-nums">{ing.amount}</span>
                   </li>
                 ))}
               </ul>
@@ -173,20 +126,18 @@ export default function RecipeDetailPage() {
           </Card>
         </div>
 
-        {/* Right: Steps */}
+        {/* Right column — Steps */}
         <div className="lg:col-span-2">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Hazırlanışı</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-sm">Hazırlanışı</CardTitle></CardHeader>
             <CardContent>
               <ol className="space-y-4">
                 {mockRecipe.steps.map((step, i) => (
                   <li key={i} className="flex gap-4">
-                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary">{i + 1}</span>
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                      {i + 1}
                     </div>
-                    <p className="text-sm pt-1">{step}</p>
+                    <p className="text-sm pt-0.5 leading-relaxed">{step}</p>
                   </li>
                 ))}
               </ol>

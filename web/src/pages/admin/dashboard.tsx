@@ -7,22 +7,22 @@ import {
   Server,
   Database,
   HardDrive,
-  TrendingUp,
-  Clock,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
   ArrowRight,
   RefreshCcw,
   Settings,
   FileText,
   ShieldCheck,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { PageContainer } from '@/components/shared/page-container'
+import { StatCard } from '@/components/shared/stat-card'
+import { cn } from '@/lib/utils'
 
 interface SystemHealth {
   name: string
@@ -61,17 +61,10 @@ const mockRegistrations: RecentRegistration[] = [
   { id: '6', name: 'Canan Demir', email: 'canan.d@mail.com', role: 'patient', date: '3 saat önce' },
 ]
 
-const statCards = [
-  { title: 'Toplam Kullanıcı', value: mockStats.totalUsers, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
-  { title: 'Diyetisyenler', value: mockStats.totalDietitians, icon: UserCheck, color: 'text-green-500', bgColor: 'bg-green-50' },
-  { title: 'Hastalar', value: mockStats.totalPatients, icon: UserPlus, color: 'text-purple-500', bgColor: 'bg-purple-50' },
-  { title: 'Aktif Oturum', value: mockStats.activeSessions, icon: Activity, color: 'text-orange-500', bgColor: 'bg-orange-50' },
-]
-
 const statusConfig = {
-  operational: { label: 'Aktif', icon: CheckCircle2, color: 'text-green-500', badge: 'default' as const },
-  degraded: { label: 'Yavaş', icon: AlertTriangle, color: 'text-yellow-500', badge: 'secondary' as const },
-  down: { label: 'Kapalı', icon: XCircle, color: 'text-red-500', badge: 'destructive' as const },
+  operational: { label: 'Aktif', icon: CheckCircle2, badge: 'success' as const },
+  degraded: { label: 'Yavaş', icon: AlertTriangle, badge: 'warning' as const },
+  down: { label: 'Kapalı', icon: XCircle, badge: 'destructive' as const },
 }
 
 const healthIcons: Record<string, typeof Server> = {
@@ -89,59 +82,73 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Yönetim Paneli</h1>
-          <p className="text-muted-foreground">Sistem durumu ve genel istatistikler.</p>
-        </div>
-        <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
-          <RefreshCcw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+    <PageContainer
+      title="Yönetim Paneli"
+      description="Sistem durumu ve genel istatistikler."
+      actions={
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+          <RefreshCcw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
           Yenile
         </Button>
-      </div>
-
+      }
+    >
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold mt-1">{stat.value.toLocaleString('tr-TR')}</p>
-                </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
+        <StatCard
+          title="Toplam Kullanıcı"
+          value={mockStats.totalUsers.toLocaleString('tr-TR')}
+          icon={Users}
+          color="blue"
+          featured
+        />
+        <StatCard
+          title="Diyetisyenler"
+          value={mockStats.totalDietitians.toLocaleString('tr-TR')}
+          icon={UserCheck}
+          color="green"
+        />
+        <StatCard
+          title="Hastalar"
+          value={mockStats.totalPatients.toLocaleString('tr-TR')}
+          icon={UserPlus}
+          color="purple"
+        />
+        <StatCard
+          title="Aktif Oturum"
+          value={mockStats.activeSessions.toLocaleString('tr-TR')}
+          icon={Activity}
+          color="yellow"
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* System Health */}
-        <Card>
+        <Card className="animate-fade-up">
           <CardHeader>
-            <CardTitle>Sistem Durumu</CardTitle>
+            <CardTitle className="text-base">Sistem Durumu</CardTitle>
             <CardDescription>Servis sağlık kontrolleri</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {mockHealth.map((service) => {
                 const config = statusConfig[service.status]
                 const ServiceIcon = healthIcons[service.name] ?? Server
                 return (
-                  <div key={service.name} className="flex items-center gap-3 p-3 rounded-lg border">
-                    <ServiceIcon className="h-5 w-5 text-muted-foreground" />
+                  <div
+                    key={service.name}
+                    className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-secondary/50"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <ServiceIcon className="h-4 w-4 text-muted-foreground" />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{service.name}</p>
-                      <p className="text-xs text-muted-foreground">Çalışma süresi: {service.uptime} | {service.latency}</p>
+                      <p className="text-sm font-medium leading-tight">{service.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Çalışma: {service.uptime} | {service.latency}
+                      </p>
                     </div>
                     <Badge variant={config.badge}>
-                      <config.icon className={`mr-1 h-3 w-3 ${config.color}`} />
+                      <config.icon className="h-3 w-3" />
                       {config.label}
                     </Badge>
                   </div>
@@ -152,36 +159,41 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Recent Registrations */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 animate-fade-up">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Son Kayıtlar</CardTitle>
-                <CardDescription>Yeni kullanıcı kayıtları</CardDescription>
-              </div>
-              <Button variant="ghost" size="sm">
-                Tümünü Gör
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
+            <div>
+              <CardTitle className="text-base">Son Kayıtlar</CardTitle>
+              <CardDescription>Yeni kullanıcı kayıtları</CardDescription>
             </div>
+            <CardAction>
+              <Button variant="ghost" size="xs" className="text-muted-foreground">
+                Tümünü Gör
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-1">
               {mockRegistrations.map((reg) => (
-                <div key={reg.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
+                <div
+                  key={reg.id}
+                  className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-secondary/50"
+                >
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="text-xs">
-                      {reg.name.split(' ').map(n => n[0]).join('')}
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                      {reg.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{reg.name}</p>
+                    <p className="text-sm font-medium leading-tight">{reg.name}</p>
                     <p className="text-xs text-muted-foreground">{reg.email}</p>
                   </div>
-                  <Badge variant={reg.role === 'dietitian' ? 'default' : 'secondary'}>
+                  <Badge variant={reg.role === 'dietitian' ? 'info' : 'secondary'}>
                     {reg.role === 'dietitian' ? 'Diyetisyen' : 'Hasta'}
                   </Badge>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">{reg.date}</span>
+                  <span className="text-[11px] text-muted-foreground whitespace-nowrap tabular-nums">
+                    {reg.date}
+                  </span>
                 </div>
               ))}
             </div>
@@ -190,32 +202,33 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="animate-fade-up">
         <CardHeader>
-          <CardTitle>Hızlı İşlemler</CardTitle>
+          <CardTitle className="text-base">Hızlı İşlemler</CardTitle>
           <CardDescription>Sık kullanılan yönetim işlemleri</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button variant="outline" className="h-auto py-4 flex flex-col gap-2">
-              <UserPlus className="h-5 w-5" />
-              <span>Kullanıcı Ekle</span>
-            </Button>
-            <Button variant="outline" className="h-auto py-4 flex flex-col gap-2">
-              <ShieldCheck className="h-5 w-5" />
-              <span>Diyetisyen Onayla</span>
-            </Button>
-            <Button variant="outline" className="h-auto py-4 flex flex-col gap-2">
-              <FileText className="h-5 w-5" />
-              <span>Rapor Oluştur</span>
-            </Button>
-            <Button variant="outline" className="h-auto py-4 flex flex-col gap-2">
-              <Settings className="h-5 w-5" />
-              <span>Sistem Ayarları</span>
-            </Button>
+            {[
+              { icon: UserPlus, label: 'Kullanıcı Ekle', color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30' },
+              { icon: ShieldCheck, label: 'Diyetisyen Onayla', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30' },
+              { icon: FileText, label: 'Rapor Oluştur', color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/30' },
+              { icon: Settings, label: 'Sistem Ayarları', color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30' },
+            ].map((action) => (
+              <Button
+                key={action.label}
+                variant="outline"
+                className="h-auto py-4 flex flex-col gap-2.5 transition-all hover:shadow-sm"
+              >
+                <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', action.color)}>
+                  <action.icon className="h-5 w-5" />
+                </div>
+                <span className="text-sm font-medium">{action.label}</span>
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

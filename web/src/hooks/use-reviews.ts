@@ -34,7 +34,7 @@ export function useReviews() {
     setError(null);
     try {
       const data = await simulateApiCall(mockReviews, 600);
-      setReviews(data as Review[]);
+      setReviews(data as unknown as Review[]);
     } catch {
       setError("Failed to fetch reviews");
     } finally {

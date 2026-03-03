@@ -6,13 +6,14 @@ import type { PaginationParams, Timestamps } from "./common";
 import type { UserRole } from "./auth";
 
 /** Invite code status. */
-export enum InviteCodeStatus {
-  Active = "active",
-  Used = "used",
-  Expired = "expired",
-  Revoked = "revoked",
-  Exhausted = "exhausted",
-}
+export const InviteCodeStatus = {
+  Active: "active",
+  Used: "used",
+  Expired: "expired",
+  Revoked: "revoked",
+  Exhausted: "exhausted",
+} as const
+export type InviteCodeStatus = (typeof InviteCodeStatus)[keyof typeof InviteCodeStatus]
 
 /** Invite code type / purpose. */
 export type InviteCodeType =

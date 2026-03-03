@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { DateRange } from "react-day-picker";
-
 interface CalendarAppointment {
   id: string;
   date: Date;

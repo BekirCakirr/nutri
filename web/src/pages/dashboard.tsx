@@ -1,25 +1,31 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Users,
   CalendarDays,
   UtensilsCrossed,
   AlertTriangle,
-  TrendingUp,
   ArrowRight,
+  UserPlus,
+  ClipboardList,
+  Bot,
+  Clock,
+  MessageSquare,
+  Activity,
+  Utensils,
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-
-interface DashboardStats {
-  totalPatients: number
-  todayAppointments: number
-  pendingMealReviews: number
-  criticalAlerts: number
-}
+import { StatCard } from '@/components/shared/stat-card'
+import { TrendSparkline } from '@/components/charts/trend-sparkline'
+import { CalorieChart } from '@/components/charts/calorie-chart'
+import { PatientActivityChart } from '@/components/charts/patient-activity-chart'
+import { MacroPieChart } from '@/components/charts/macro-pie-chart'
+import { useAuthStore } from '@/stores/auth-store'
+import { cn } from '@/lib/utils'
 
 interface RecentActivity {
   id: string
@@ -27,13 +33,6 @@ interface RecentActivity {
   patient: string
   description: string
   time: string
-}
-
-const mockStats: DashboardStats = {
-  totalPatients: 47,
-  todayAppointments: 6,
-  pendingMealReviews: 12,
-  criticalAlerts: 3,
 }
 
 const mockActivities: RecentActivity[] = [
@@ -45,124 +44,255 @@ const mockActivities: RecentActivity[] = [
 ]
 
 const mockAttentionPatients = [
-  { id: '1', name: 'Fatma Demir', reason: 'Kalori hedefi aşımı', severity: 'high' as const },
+  { id: '1', name: 'Fatma Demir', reason: 'Kalori hedefi aşımı — son 3 gün üst üste', severity: 'high' as const },
   { id: '2', name: 'Hasan Yıldız', reason: '3 gündür öğün kaydı yok', severity: 'medium' as const },
   { id: '3', name: 'Elif Arslan', reason: 'Su tüketimi düşük', severity: 'low' as const },
 ]
 
-const statCards = [
-  { title: 'Toplam Hasta', value: mockStats.totalPatients, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
-  { title: "Bugünkü Randevu", value: mockStats.todayAppointments, icon: CalendarDays, color: 'text-green-500', bgColor: 'bg-green-50' },
-  { title: 'Bekleyen Öğün', value: mockStats.pendingMealReviews, icon: UtensilsCrossed, color: 'text-orange-500', bgColor: 'bg-orange-50' },
-  { title: 'Kritik Uyarı', value: mockStats.criticalAlerts, icon: AlertTriangle, color: 'text-red-500', bgColor: 'bg-red-50' },
+const mockUpcomingAppointments = [
+  { id: '1', patient: 'Mehmet Kaya', time: '10:00', type: 'Kontrol' },
+  { id: '2', patient: 'Ayşe Yılmaz', time: '11:30', type: 'İlk Görüşme' },
+  { id: '3', patient: 'Zeynep Çelik', time: '14:00', type: 'Video Görüşme' },
 ]
+
+const activityIcons = {
+  meal: Utensils,
+  appointment: CalendarDays,
+  message: MessageSquare,
+  alert: AlertTriangle,
+}
+
+const activityColors = {
+  meal: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30',
+  appointment: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30',
+  message: 'text-violet-500 bg-violet-50 dark:bg-violet-950/30',
+  alert: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30',
+}
+
+const severityBorder = {
+  high: 'border-l-red-500',
+  medium: 'border-l-amber-500',
+  low: 'border-l-emerald-500',
+}
+
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Günaydın'
+  if (hour < 18) return 'İyi günler'
+  return 'İyi akşamlar'
+}
 
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const user = useAuthStore((s) => s.user)
   const [isLoading, setIsLoading] = useState(true)
 
+  const greeting = useMemo(() => getGreeting(), [])
+  const displayName = user ? `${user.firstName}` : 'Diyetisyen'
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500)
+    const timer = setTimeout(() => setIsLoading(false), 400)
     return () => clearTimeout(timer)
   }, [])
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         <div>
-          <Skeleton className="h-8 w-48 mb-2" />
-          <Skeleton className="h-4 w-72" />
+          <Skeleton className="h-8 w-56 mb-2" />
+          <Skeleton className="h-4 w-80" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-32" />
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-96" />
-          <Skeleton className="h-96" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-80 rounded-xl lg:col-span-2" />
+          <Skeleton className="h-80 rounded-xl" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Hoş geldiniz! İşte bugünkü genel bakış.</p>
+    <div className="mx-auto max-w-7xl space-y-8">
+      {/* Greeting + Quick actions */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {greeting}, {displayName}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Bugün {mockUpcomingAppointments.length} randevunuz var. İşte günlük özetiniz.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate('/patients')}>
+            <UserPlus className="h-3.5 w-3.5" />
+            Yeni Hasta
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/meal-review')}>
+            <ClipboardList className="h-3.5 w-3.5" />
+            Öğün İncele
+          </Button>
+          <Button size="sm" onClick={() => navigate('/ai-assistant')}>
+            <Bot className="h-3.5 w-3.5" />
+            AI Asistan
+          </Button>
+        </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in-stagger">
+        <StatCard
+          title="Toplam Hasta"
+          value={47}
+          icon={Users}
+          trend="up"
+          trendLabel="Bu hafta +3"
+          color="blue"
+          featured
+          sparkline={<TrendSparkline data={[40, 42, 41, 44, 45, 47, 47]} height={28} width={100} />}
+        />
+        <StatCard
+          title="Bugünkü Randevu"
+          value={6}
+          icon={CalendarDays}
+          color="green"
+        />
+        <StatCard
+          title="Bekleyen Öğün"
+          value={12}
+          icon={UtensilsCrossed}
+          trend="down"
+          trendLabel="%8 azalış"
+          color="yellow"
+        />
+        <StatCard
+          title="Kritik Uyarı"
+          value={3}
+          icon={AlertTriangle}
+          color="red"
+        />
+      </div>
+
+      {/* Upcoming appointments mini-bar */}
+      <Card className="py-0 gap-0">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Sonraki Randevular</span>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {mockUpcomingAppointments.map((apt) => (
+              <div
+                key={apt.id}
+                className="flex items-center gap-3 rounded-lg border bg-card px-4 py-2.5 transition-colors hover:bg-secondary/50 cursor-pointer"
+                onClick={() => navigate('/appointments')}
+              >
+                <span className="text-sm font-semibold tabular-nums text-primary">{apt.time}</span>
                 <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold mt-1">{stat.value}</p>
-                </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                  <p className="text-sm font-medium leading-tight">{apt.patient}</p>
+                  <p className="text-xs text-muted-foreground">{apt.type}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Charts section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <CalorieChart className="lg:col-span-2" title="Haftalık Kalori Trend'i" />
+        <MacroPieChart title="Ortalama Makro Dağılımı" />
       </div>
 
+      {/* Activity chart + timeline */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
+        <PatientActivityChart title="Hasta Aktivite Dağılımı" />
+
+        {/* Recent activities timeline */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Son Aktiviteler</CardTitle>
-                <CardDescription>Hastalarınızın son etkinlikleri</CardDescription>
-              </div>
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
-            </div>
+            <CardTitle className="text-base">Son Aktiviteler</CardTitle>
+            <CardAction>
+              <Button variant="ghost" size="xs" className="text-muted-foreground">
+                Tümü
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center gap-3">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="text-xs">
-                      {activity.patient.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{activity.patient}</p>
-                    <p className="text-xs text-muted-foreground">{activity.description}</p>
+            <div className="space-y-1">
+              {mockActivities.map((activity, index) => {
+                const Icon = activityIcons[activity.type]
+                return (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-secondary/50"
+                  >
+                    {/* Timeline dot + line */}
+                    <div className="flex flex-col items-center gap-1 pt-0.5">
+                      <div
+                        className={cn(
+                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
+                          activityColors[activity.type]
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      {index < mockActivities.length - 1 && (
+                        <div className="w-px flex-1 bg-border min-h-[16px]" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 pt-1">
+                      <p className="text-sm font-medium leading-tight">{activity.patient}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{activity.description}</p>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground whitespace-nowrap pt-1 tabular-nums">
+                      {activity.time}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">{activity.time}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Attention Required */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Dikkat Gerektiren Hastalar</CardTitle>
-                <CardDescription>Acil takip gerektiren durumlar</CardDescription>
-              </div>
-              <AlertTriangle className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+      {/* Attention required patients */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-amber-500" />
+            <CardTitle className="text-base">Dikkat Gerektiren Hastalar</CardTitle>
+          </div>
+          <CardAction>
+            <Button variant="ghost" size="xs" className="text-muted-foreground" onClick={() => navigate('/patients')}>
+              Tüm Hastalar
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          {mockAttentionPatients.length > 0 ? (
+            <div className="space-y-2">
               {mockAttentionPatients.map((patient) => (
-                <div key={patient.id} className="flex items-center gap-3 p-3 rounded-lg border">
+                <div
+                  key={patient.id}
+                  className={cn(
+                    'flex items-center gap-4 rounded-lg border border-l-4 px-4 py-3 transition-all hover:shadow-sm cursor-pointer',
+                    severityBorder[patient.severity]
+                  )}
+                  onClick={() => navigate(`/patients/${patient.id}`)}
+                >
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="text-xs">
-                      {patient.name.split(' ').map(n => n[0]).join('')}
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                      {patient.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
@@ -170,19 +300,39 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground">{patient.reason}</p>
                   </div>
                   <Badge
-                    variant={patient.severity === 'high' ? 'destructive' : patient.severity === 'medium' ? 'default' : 'secondary'}
+                    variant={
+                      patient.severity === 'high'
+                        ? 'destructive'
+                        : patient.severity === 'medium'
+                          ? 'warning'
+                          : 'success'
+                    }
                   >
-                    {patient.severity === 'high' ? 'Yüksek' : patient.severity === 'medium' ? 'Orta' : 'Düşük'}
+                    {patient.severity === 'high'
+                      ? 'Yüksek'
+                      : patient.severity === 'medium'
+                        ? 'Orta'
+                        : 'Düşük'}
                   </Badge>
-                  <Button variant="ghost" size="icon" onClick={() => navigate(`/patients/${patient.id}`)}>
-                    <ArrowRight className="h-4 w-4" />
+                  <Button variant="ghost" size="icon-xs">
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          ) : (
+            <div className="py-8 text-center">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/30">
+                <Activity className="h-6 w-6 text-emerald-500" />
+              </div>
+              <p className="text-sm font-medium">Tüm hastalar yolunda!</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Dikkat gerektiren hasta bulunmuyor.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

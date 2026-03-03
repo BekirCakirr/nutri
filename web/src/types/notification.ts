@@ -5,38 +5,39 @@
 import type { PaginationParams, Timestamps } from "./common";
 
 /** Notification category. */
-export enum NotificationType {
+export const NotificationType = {
   /** Appointment reminders & updates. */
-  Appointment = "appointment",
+  Appointment: "appointment",
   /** New message received. */
-  Message = "message",
+  Message: "message",
   /** Diet plan assigned, updated, or reviewed. */
-  PlanUpdate = "plan_update",
+  PlanUpdate: "plan_update",
   /** Goal milestone reached. */
-  GoalProgress = "goal_progress",
+  GoalProgress: "goal_progress",
   /** Meal logging reminders. */
-  MealReminder = "meal_reminder",
+  MealReminder: "meal_reminder",
   /** Weight / metric logging reminder. */
-  TrackingReminder = "tracking_reminder",
+  TrackingReminder: "tracking_reminder",
   /** Patient activity for the dietitian. */
-  PatientActivity = "patient_activity",
+  PatientActivity: "patient_activity",
   /** Gamification badge, level up, streak. */
-  Achievement = "achievement",
+  Achievement: "achievement",
   /** System announcements. */
-  System = "system",
+  System: "system",
   /** Billing / subscription. */
-  Billing = "billing",
+  Billing: "billing",
   /** Review request or received. */
-  Review = "review",
+  Review: "review",
   /** Invite code redeemed. */
-  InviteCode = "invite_code",
+  InviteCode: "invite_code",
   /** AI-generated insight or suggestion. */
-  AiInsight = "ai_insight",
+  AiInsight: "ai_insight",
   /** Report is ready. */
-  Report = "report",
+  Report: "report",
   /** Shopping list reminder. */
-  ShoppingList = "shopping_list",
-}
+  ShoppingList: "shopping_list",
+} as const
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
 
 /** Notification priority. */
 export type NotificationPriority = "low" | "normal" | "high" | "urgent";

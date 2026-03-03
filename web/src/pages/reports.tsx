@@ -5,16 +5,20 @@ import {
   Download,
   Calendar,
   Users,
-  TrendingUp,
   BarChart3,
-  PieChart,
+  ArrowRight,
+  ClipboardList,
+  Activity,
+  Target,
+  Utensils,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Progress } from '@/components/ui/progress'
 import {
   Select,
   SelectContent,
@@ -22,7 +26,83 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+import { PageContainer } from '@/components/shared/page-container'
+import { StatCard } from '@/components/shared/stat-card'
+import { CalorieChart } from '@/components/charts/calorie-chart'
+import { WeeklySummaryChart } from '@/components/charts/weekly-summary-chart'
+import { MealComplianceChart } from '@/components/charts/meal-compliance-chart'
+import { TrendSparkline } from '@/components/charts/trend-sparkline'
+import { cn } from '@/lib/utils'
+
+/* ------------------------------------------------------------------ */
+/*  Mock data                                                          */
+/* ------------------------------------------------------------------ */
+
+const reportTypes = [
+  {
+    id: 'weekly',
+    label: 'Haftalik Rapor',
+    description: 'Son 7 gunluk ozet',
+    icon: Calendar,
+    color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+  },
+  {
+    id: 'monthly',
+    label: 'Aylik Rapor',
+    description: '30 gunluk detayli analiz',
+    icon: BarChart3,
+    color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+  },
+  {
+    id: 'custom',
+    label: 'Ozel Tarih',
+    description: 'Istediginiz aralik',
+    icon: ClipboardList,
+    color: 'bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400',
+  },
+] as const
+
+const patientSummary = [
+  { id: '1', name: 'Ayse Yilmaz', adherence: 87, avgCalories: 1720, meals: 28, weight: '-0.5 kg', status: 'active' as const },
+  { id: '2', name: 'Mehmet Kaya', adherence: 72, avgCalories: 1580, meals: 24, weight: '-0.3 kg', status: 'active' as const },
+  { id: '3', name: 'Fatma Demir', adherence: 95, avgCalories: 2150, meals: 30, weight: '+0.2 kg', status: 'active' as const },
+  { id: '5', name: 'Zeynep Celik', adherence: 81, avgCalories: 1650, meals: 26, weight: '-0.4 kg', status: 'active' as const },
+  { id: '4', name: 'Ali Ozturk', adherence: 60, avgCalories: 1480, meals: 20, weight: '-0.1 kg', status: 'paused' as const },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+function getInitialColor(name: string): string {
+  const colors = [
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  ]
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return colors[Math.abs(hash) % colors.length]
+}
+
+function getAdherenceColor(value: number): string {
+  if (value >= 80) return 'text-emerald-600 dark:text-emerald-400'
+  if (value >= 50) return 'text-amber-600 dark:text-amber-400'
+  return 'text-red-600 dark:text-red-400'
+}
+
+function getAdherenceBadge(value: number) {
+  if (value >= 80) return { variant: 'success' as const, label: 'Iyi' }
+  if (value >= 50) return { variant: 'warning' as const, label: 'Orta' }
+  return { variant: 'destructive' as const, label: 'Dusuk' }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 
 export default function ReportsPage() {
   const navigate = useNavigate()
@@ -30,49 +110,80 @@ export default function ReportsPage() {
   const [selectedPatient, setSelectedPatient] = useState('all')
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Raporlar</h1>
-        <p className="text-muted-foreground">Hasta ilerlemesi ve beslenme raporlarını oluşturun.</p>
+    <PageContainer
+      title="Raporlar"
+      description="Hasta ilerlemesi ve beslenme raporlarini olusturun."
+      actions={
+        <Button size="sm">
+          <Download className="h-3.5 w-3.5" />
+          PDF Olarak Indir
+        </Button>
+      }
+    >
+      {/* Report Type Selection — Visual Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 animate-in-stagger">
+        {reportTypes.map((type) => {
+          const Icon = type.icon
+          const isSelected = reportType === type.id
+          return (
+            <Card
+              key={type.id}
+              className={cn(
+                'cursor-pointer py-0 gap-0 transition-all duration-[var(--duration-fast)] hover:shadow-md',
+                isSelected && 'ring-2 ring-primary shadow-md'
+              )}
+              onClick={() => setReportType(type.id)}
+            >
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  <div
+                    className={cn(
+                      'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors',
+                      isSelected ? 'bg-primary text-primary-foreground' : type.color
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn('text-sm font-semibold', isSelected && 'text-primary')}>
+                      {type.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{type.description}</p>
+                  </div>
+                  {isSelected && (
+                    <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0 mt-1 animate-fade-up" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
-      {/* Report Config */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Rapor Ayarları</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label>Rapor Tipi</Label>
-              <Tabs value={reportType} onValueChange={setReportType}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="weekly">Haftalık</TabsTrigger>
-                  <TabsTrigger value="monthly">Aylık</TabsTrigger>
-                  <TabsTrigger value="custom">Özel</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-            <div className="space-y-2">
-              <Label>Başlangıç Tarihi</Label>
+      {/* Date Range & Patient Filters */}
+      <Card className="py-0 gap-0 mb-6">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Baslangic Tarihi</Label>
               <Input type="date" defaultValue="2026-02-18" />
             </div>
-            <div className="space-y-2">
-              <Label>Bitiş Tarihi</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Bitis Tarihi</Label>
               <Input type="date" defaultValue="2026-02-25" />
             </div>
-            <div className="space-y-2">
-              <Label>Hasta</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Hasta</Label>
               <Select value={selectedPatient} onValueChange={setSelectedPatient}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Hasta seçin" />
+                  <SelectValue placeholder="Hasta secin" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tüm Hastalar</SelectItem>
-                  <SelectItem value="1">Ayşe Yılmaz</SelectItem>
+                  <SelectItem value="all">Tum Hastalar</SelectItem>
+                  <SelectItem value="1">Ayse Yilmaz</SelectItem>
                   <SelectItem value="2">Mehmet Kaya</SelectItem>
                   <SelectItem value="3">Fatma Demir</SelectItem>
-                  <SelectItem value="5">Zeynep Çelik</SelectItem>
+                  <SelectItem value="5">Zeynep Celik</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -80,126 +191,143 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
 
-      {/* Preview Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-blue-50">
-                <Users className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Aktif Hasta</p>
-                <p className="text-xl font-bold">42</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-green-50">
-                <TrendingUp className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Ort. Uyum</p>
-                <p className="text-xl font-bold">%78</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-orange-50">
-                <BarChart3 className="h-5 w-5 text-orange-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Toplam Öğün</p>
-                <p className="text-xl font-bold">856</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-purple-50">
-                <PieChart className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Randevu</p>
-                <p className="text-xl font-bold">24</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
+        <StatCard
+          title="Aktif Hasta"
+          value={42}
+          icon={Users}
+          trend="up"
+          trendLabel="+5 bu ay"
+          color="blue"
+          featured
+          sparkline={<TrendSparkline data={[35, 37, 38, 40, 41, 42, 42]} height={28} width={100} />}
+        />
+        <StatCard
+          title="Ort. Uyum"
+          value="%78"
+          icon={Target}
+          trend="up"
+          trendLabel="%3 artis"
+          color="green"
+        />
+        <StatCard
+          title="Toplam Ogun"
+          value={856}
+          icon={Utensils}
+          color="yellow"
+        />
+        <StatCard
+          title="Randevu"
+          value={24}
+          icon={Activity}
+          trend="down"
+          trendLabel="2 iptal"
+          color="purple"
+        />
       </div>
 
-      {/* Report Preview */}
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <CalorieChart title="Haftalik Kalori Takibi" />
+        <MealComplianceChart title="Ogun Uyum Orani" />
+      </div>
+
+      <WeeklySummaryChart title="Haftalik Besin Dagilimi" className="mb-6" />
+
+      {/* Patient Summary Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Rapor Önizleme</CardTitle>
-              <CardDescription>18 Şubat - 25 Şubat 2026</CardDescription>
-            </div>
-            <Button>
-              <Download className="mr-2 h-4 w-4" />
-              PDF Olarak İndir
-            </Button>
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-base">Hasta Ozeti</CardTitle>
           </div>
+          <CardAction>
+            <Badge variant="secondary" className="tabular-nums">
+              {patientSummary.length} hasta
+            </Badge>
+          </CardAction>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Chart Placeholder */}
-          <div className="h-48 bg-muted/30 rounded-lg border-2 border-dashed flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <BarChart3 className="h-10 w-10 mx-auto mb-2" />
-              <p className="text-sm">Haftalık Kalori Takip Grafiği</p>
-            </div>
-          </div>
+        <CardContent>
+          <div className="space-y-2 animate-in-stagger">
+            {patientSummary.map((patient) => {
+              const initials = patient.name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+              const adherenceBadge = getAdherenceBadge(patient.adherence)
+              return (
+                <div
+                  key={patient.id}
+                  className="flex items-center gap-4 rounded-xl border px-4 py-3 transition-all duration-[var(--duration-fast)] hover:shadow-sm hover:bg-secondary/30 cursor-pointer animate-fade-up"
+                  onClick={() => navigate(`/reports/patient/${patient.id}`)}
+                >
+                  {/* Avatar */}
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarFallback
+                      className={cn('text-xs font-semibold', getInitialColor(patient.name))}
+                    >
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
 
-          <Separator />
-
-          {/* Patient Summary Table */}
-          <div>
-            <h3 className="font-semibold mb-3">Hasta Özeti</h3>
-            <div className="space-y-3">
-              {[
-                { name: 'Ayşe Yılmaz', adherence: 87, avgCalories: 1720, meals: 28, weight: '-0.5 kg' },
-                { name: 'Mehmet Kaya', adherence: 72, avgCalories: 1580, meals: 24, weight: '-0.3 kg' },
-                { name: 'Fatma Demir', adherence: 95, avgCalories: 2150, meals: 30, weight: '+0.2 kg' },
-                { name: 'Zeynep Çelik', adherence: 81, avgCalories: 1650, meals: 26, weight: '-0.4 kg' },
-              ].map((patient, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-lg border">
-                  <span className="font-medium flex-1">{patient.name}</span>
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Uyum</p>
-                    <p className="text-sm font-medium">%{patient.adherence}</p>
+                  {/* Name */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-tight">{patient.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {patient.meals} ogun kaydi
+                    </p>
                   </div>
-                  <div className="text-center">
+
+                  {/* Adherence */}
+                  <div className="hidden sm:flex items-center gap-2 w-32">
+                    <Progress value={patient.adherence} className="h-1.5 flex-1" />
+                    <span
+                      className={cn(
+                        'text-xs font-semibold tabular-nums',
+                        getAdherenceColor(patient.adherence)
+                      )}
+                    >
+                      %{patient.adherence}
+                    </span>
+                  </div>
+
+                  {/* Calories */}
+                  <div className="hidden md:block text-center w-20">
                     <p className="text-xs text-muted-foreground">Ort. Kalori</p>
-                    <p className="text-sm font-medium">{patient.avgCalories}</p>
+                    <p className="text-sm font-semibold tabular-nums">{patient.avgCalories}</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Öğün</p>
-                    <p className="text-sm font-medium">{patient.meals}</p>
-                  </div>
-                  <div className="text-center">
+
+                  {/* Weight change */}
+                  <div className="hidden md:block text-center w-16">
                     <p className="text-xs text-muted-foreground">Kilo</p>
-                    <p className={`text-sm font-medium ${patient.weight.startsWith('-') ? 'text-green-600' : 'text-orange-600'}`}>
+                    <p
+                      className={cn(
+                        'text-sm font-semibold tabular-nums',
+                        patient.weight.startsWith('-')
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-amber-600 dark:text-amber-400'
+                      )}
+                    >
                       {patient.weight}
                     </p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => navigate(`/reports/patient/${i + 1}`)}>
-                    Detay
+
+                  {/* Badge */}
+                  <Badge variant={adherenceBadge.variant} className="hidden sm:inline-flex">
+                    {adherenceBadge.label}
+                  </Badge>
+
+                  {/* Arrow */}
+                  <Button variant="ghost" size="icon-xs">
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-              ))}
-            </div>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

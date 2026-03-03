@@ -36,7 +36,7 @@ export function useMessages() {
       try {
         const all = await simulateApiCall(mockMessages, 500);
         const filtered = all.filter((m) => m.conversationId === conversationId);
-        setMessages(filtered as Message[]);
+        setMessages(filtered as unknown as Message[]);
       } catch {
         setError("Failed to fetch messages");
       } finally {

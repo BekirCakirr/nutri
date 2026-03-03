@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Send,
   Sparkles,
@@ -9,7 +9,7 @@ import {
   FileText,
   Loader2,
 } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -65,6 +65,13 @@ export default function AIAssistantPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages, isLoading])
 
   const handleSend = (text?: string) => {
     const messageText = text || input
@@ -77,11 +84,10 @@ export default function AIAssistantPage() {
       timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
     }
 
-    setMessages(prev => [...prev, userMessage])
+    setMessages((prev) => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
 
-    // Simulate AI response
     setTimeout(() => {
       const aiMessage: ChatMessage = {
         id: String(messages.length + 2),
@@ -89,44 +95,59 @@ export default function AIAssistantPage() {
         content: mockAIResponse,
         timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
       }
-      setMessages(prev => [...prev, aiMessage])
+      setMessages((prev) => [...prev, aiMessage])
       setIsLoading(false)
     }, 1500)
   }
 
   return (
-    <div className="h-[calc(100vh-120px)] flex flex-col">
+    <div className="mx-auto max-w-4xl h-[calc(100vh-140px)] flex flex-col">
       {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" />
-          <h1 className="text-3xl font-bold">AI Asistan</h1>
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+          <Sparkles className="h-5 w-5 text-primary" />
         </div>
-        <p className="text-muted-foreground">Yapay zeka destekli beslenme asistanınız.</p>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">AI Asistan</h1>
+          <p className="text-xs text-muted-foreground">Yapay zeka destekli beslenme asistanınız</p>
+        </div>
       </div>
 
-      {/* Chat Area */}
-      <Card className="flex-1 flex flex-col overflow-hidden">
-        <ScrollArea className="flex-1 p-4">
+      {/* Chat area */}
+      <Card className="flex-1 flex flex-col overflow-hidden py-0 gap-0">
+        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((msg) => (
-              <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div
+                key={msg.id}
+                className={`flex gap-3 animate-fade-up ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
                 {msg.role === 'assistant' && (
-                  <Avatar className="h-8 w-8 mt-1">
+                  <Avatar className="h-8 w-8 mt-1 shrink-0">
                     <AvatarFallback className="bg-primary/10 text-primary">
                       <Bot className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
                 )}
-                <div className={`max-w-[80%] rounded-lg p-3 ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                  <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
-                  <p className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                    msg.role === 'user'
+                      ? 'bg-primary text-primary-foreground rounded-br-md'
+                      : 'bg-secondary rounded-bl-md'
+                  }`}
+                >
+                  <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                  <p
+                    className={`text-[10px] mt-1.5 ${
+                      msg.role === 'user' ? 'text-primary-foreground/60' : 'text-muted-foreground'
+                    }`}
+                  >
                     {msg.timestamp}
                   </p>
                 </div>
                 {msg.role === 'user' && (
-                  <Avatar className="h-8 w-8 mt-1">
-                    <AvatarFallback>
+                  <Avatar className="h-8 w-8 mt-1 shrink-0">
+                    <AvatarFallback className="bg-secondary">
                       <User className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
@@ -135,15 +156,16 @@ export default function AIAssistantPage() {
             ))}
             {isLoading && (
               <div className="flex gap-3">
-                <Avatar className="h-8 w-8 mt-1">
+                <Avatar className="h-8 w-8 mt-1 shrink-0">
                   <AvatarFallback className="bg-primary/10 text-primary">
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="bg-muted rounded-lg p-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Yanıt hazırlanıyor...
+                <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:0ms]" />
+                    <span className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:150ms]" />
+                    <span className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:300ms]" />
                   </div>
                 </div>
               </div>
@@ -153,23 +175,23 @@ export default function AIAssistantPage() {
 
         {/* Suggestions */}
         {messages.length <= 1 && (
-          <div className="px-4 pb-2">
-            <div className="max-w-3xl mx-auto">
-              <p className="text-xs text-muted-foreground mb-2">Öneriler</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestedPrompts.map((prompt, i) => (
-                  <Button
-                    key={i}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSend(prompt.prompt)}
-                    className="text-xs"
-                  >
-                    <prompt.icon className="mr-1 h-3 w-3" />
-                    {prompt.label}
-                  </Button>
-                ))}
-              </div>
+          <div className="px-4 pb-3 border-t">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60 mb-2 mt-3">
+              Öneriler
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedPrompts.map((prompt, i) => (
+                <Button
+                  key={i}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSend(prompt.prompt)}
+                  className="text-xs h-8"
+                >
+                  <prompt.icon className="h-3 w-3" />
+                  {prompt.label}
+                </Button>
+              ))}
             </div>
           </div>
         )}
@@ -181,12 +203,16 @@ export default function AIAssistantPage() {
               placeholder="Mesajınızı yazın..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               disabled={isLoading}
               className="flex-1"
             />
-            <Button size="icon" onClick={() => handleSend()} disabled={!input.trim() || isLoading}>
-              <Send className="h-4 w-4" />
+            <Button
+              size="icon"
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isLoading}
+            >
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </div>
         </div>

@@ -9,10 +9,16 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   Select,
   SelectContent,
@@ -20,6 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { PageContainer } from '@/components/shared/page-container'
+import { StatCard } from '@/components/shared/stat-card'
+import { cn } from '@/lib/utils'
 
 const monthlyStats = [
   { month: 'Eylül', users: 856, meals: 12400, appointments: 340, revenue: 45200 },
@@ -32,149 +41,135 @@ const monthlyStats = [
 
 export default function AdminReportsPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Sistem Raporları</h1>
-          <p className="text-muted-foreground">Platform analitikleri ve istatistikleri.</p>
-        </div>
-        <Button>
-          <Download className="mr-2 h-4 w-4" />
+    <PageContainer
+      title="Sistem Raporları"
+      description="Platform analitikleri ve istatistikleri."
+      actions={
+        <Button size="sm">
+          <Download className="h-3.5 w-3.5" />
           Rapor İndir
         </Button>
+      }
+    >
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
+        <StatCard
+          title="Toplam Kullanıcı"
+          value="1.247"
+          icon={Users}
+          color="blue"
+          trend="up"
+          trendLabel="+79 bu ay"
+          featured
+        />
+        <StatCard
+          title="Aylık Öğün Kaydı"
+          value="17.800"
+          icon={UtensilsCrossed}
+          color="green"
+          trend="down"
+          trendLabel="-2.2%"
+        />
+        <StatCard
+          title="Aylık Randevu"
+          value="445"
+          icon={CalendarDays}
+          color="purple"
+          trend="up"
+          trendLabel="+5.9%"
+        />
+        <StatCard
+          title="Ort. Uyum Skoru"
+          value="%76"
+          icon={TrendingUp}
+          color="yellow"
+          trend="up"
+          trendLabel="+3%"
+        />
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-blue-50">
-                <Users className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Toplam Kullanıcı</p>
-                <p className="text-xl font-bold">1,247</p>
-                <p className="text-xs text-green-600">+79 bu ay</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-green-50">
-                <UtensilsCrossed className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Aylık Öğün Kaydı</p>
-                <p className="text-xl font-bold">17,800</p>
-                <p className="text-xs text-red-600">-2.2% geçen aya göre</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-purple-50">
-                <CalendarDays className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Aylık Randevu</p>
-                <p className="text-xl font-bold">445</p>
-                <p className="text-xs text-green-600">+5.9% geçen aya göre</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-orange-50">
-                <TrendingUp className="h-5 w-5 text-orange-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Ort. Uyum Skoru</p>
-                <p className="text-xl font-bold">%76</p>
-                <p className="text-xs text-green-600">+3% geçen aya göre</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts Placeholder */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+      {/* Chart Placeholders */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Card className="animate-fade-up">
           <CardHeader>
-            <CardTitle>Kullanıcı Büyümesi</CardTitle>
+            <CardTitle className="text-base">Kullanıcı Büyümesi</CardTitle>
             <CardDescription>Son 6 aylık kullanıcı artışı</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-48 bg-muted/30 rounded-lg border-2 border-dashed flex items-center justify-center">
+            <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed bg-muted/30">
               <div className="text-center text-muted-foreground">
-                <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-                <p className="text-sm">Kullanıcı Büyüme Grafiği</p>
-                <p className="text-xs">856 &rarr; 1,247 (+45.7%)</p>
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/30">
+                  <TrendingUp className="h-6 w-6 text-blue-500" />
+                </div>
+                <p className="text-sm font-medium">Kullanıcı Büyüme Grafiği</p>
+                <p className="mt-0.5 text-xs">856 &rarr; 1.247 (+45.7%)</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-fade-up">
           <CardHeader>
-            <CardTitle>Öğün Kayıtları</CardTitle>
+            <CardTitle className="text-base">Öğün Kayıtları</CardTitle>
             <CardDescription>Aylık öğün kayıt trendi</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-48 bg-muted/30 rounded-lg border-2 border-dashed flex items-center justify-center">
+            <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed bg-muted/30">
               <div className="text-center text-muted-foreground">
-                <BarChart3 className="h-8 w-8 mx-auto mb-2" />
-                <p className="text-sm">Öğün Kayıt Grafiği</p>
-                <p className="text-xs">Ort. günlük 593 kayıt</p>
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/30">
+                  <BarChart3 className="h-6 w-6 text-emerald-500" />
+                </div>
+                <p className="text-sm font-medium">Öğün Kayıt Grafiği</p>
+                <p className="mt-0.5 text-xs">Ort. günlük 593 kayıt</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Monthly Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Aylık Özet</CardTitle>
+      {/* Monthly Summary Table */}
+      <Card className="py-0 gap-0 overflow-hidden mb-6 animate-fade-up">
+        <CardHeader className="px-6 pt-6 pb-4">
+          <CardTitle className="text-base">Aylık Özet</CardTitle>
           <CardDescription>Son 6 aylık platform istatistikleri</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-3 text-sm font-medium text-muted-foreground">Ay</th>
-                  <th className="text-center p-3 text-sm font-medium text-muted-foreground">Kullanıcı</th>
-                  <th className="text-center p-3 text-sm font-medium text-muted-foreground">Öğün Kaydı</th>
-                  <th className="text-center p-3 text-sm font-medium text-muted-foreground">Randevu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {monthlyStats.map((stat) => (
-                  <tr key={stat.month} className="border-b">
-                    <td className="p-3 font-medium">{stat.month}</td>
-                    <td className="p-3 text-center">{stat.users.toLocaleString()}</td>
-                    <td className="p-3 text-center">{stat.meals.toLocaleString()}</td>
-                    <td className="p-3 text-center">{stat.appointments}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Ay</TableHead>
+              <TableHead className="text-center">Kullanıcı</TableHead>
+              <TableHead className="text-center">Öğün Kaydı</TableHead>
+              <TableHead className="text-center">Randevu</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {monthlyStats.map((stat, index) => (
+              <TableRow key={stat.month}>
+                <TableCell>
+                  <span className={cn('text-sm font-medium', index === monthlyStats.length - 1 && 'text-primary')}>
+                    {stat.month}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <span className="text-sm tabular-nums">{stat.users.toLocaleString('tr-TR')}</span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <span className="text-sm tabular-nums">{stat.meals.toLocaleString('tr-TR')}</span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <span className="text-sm tabular-nums">{stat.appointments}</span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
 
       {/* Report Generation */}
-      <Card>
+      <Card className="animate-fade-up">
         <CardHeader>
-          <CardTitle>Özel Rapor Oluştur</CardTitle>
+          <CardTitle className="text-base">Özel Rapor Oluştur</CardTitle>
+          <CardDescription>Belirli tarih aralığı ve rapor tipi seçerek özel rapor oluşturun.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -200,13 +195,13 @@ export default function AdminReportsPage() {
             </div>
             <div className="flex items-end">
               <Button className="w-full">
-                <Activity className="mr-2 h-4 w-4" />
+                <Activity className="h-4 w-4" />
                 Rapor Oluştur
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

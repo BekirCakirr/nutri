@@ -46,7 +46,7 @@ export function useShoppingLists(patientId?: string) {
         const filtered = pid
           ? all.filter((sl) => sl.patientId === pid)
           : all;
-        setShoppingLists(filtered as ShoppingList[]);
+        setShoppingLists(filtered as unknown as ShoppingList[]);
       } catch {
         setError("Failed to fetch shopping lists");
       } finally {

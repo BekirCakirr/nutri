@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Bell, LogOut, Settings, User, Moon, Sun } from 'lucide-react'
+import { Bell, Moon, Sun, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -8,89 +8,108 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { useAuthStore } from '@/stores/auth-store'
+import { Separator } from '@/components/ui/separator'
 import { useUiStore } from '@/stores/ui-store'
 import { useNotificationStore } from '@/stores/notification-store'
+import { Breadcrumbs } from './breadcrumbs'
 
 export function AppHeader() {
   const navigate = useNavigate()
-  const user = useAuthStore((s) => s.user)
-  const logout = useAuthStore((s) => s.logout)
   const { theme, setTheme } = useUiStore()
   const unreadCount = useNotificationStore((s) => s.unreadCount)
+  const notifications = useNotificationStore((s) => s.notifications)
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+  const recentUnread = notifications
+    .filter((n) => !n.read)
+    .slice(0, 3)
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-background px-4">
-      <SidebarTrigger />
+    <header className="flex h-14 items-center gap-3 border-b border-border/60 bg-background/80 backdrop-blur-sm px-4 sticky top-0 z-10">
+      <SidebarTrigger className="shrink-0" />
+      <Separator orientation="vertical" className="h-5" />
+
+      {/* Breadcrumbs */}
+      <Breadcrumbs />
 
       <div className="flex-1" />
+
+      {/* Search trigger */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="hidden md:inline-flex gap-2 text-muted-foreground font-normal h-8 px-3 w-56 justify-start"
+        onClick={() => {
+          // cmdk integration point
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+        }}
+      >
+        <Search className="h-3.5 w-3.5" />
+        <span className="text-xs">Hızlı arama...</span>
+        <kbd className="ml-auto pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
+          ⌘K
+        </kbd>
+      </Button>
 
       {/* Theme Toggle */}
       <Button
         variant="ghost"
-        size="icon"
+        size="icon-sm"
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="text-muted-foreground hover:text-foreground"
       >
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
 
-      {/* Notifications */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="relative"
-        onClick={() => navigate('/notifications')}
-      >
-        <Bell className="h-4 w-4" />
-        {unreadCount > 0 && (
-          <Badge
-            variant="destructive"
-            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-          >
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </Badge>
-        )}
-      </Button>
-
-      {/* User Menu */}
+      {/* Notifications dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>
-                {user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : 'DY'}
-              </AvatarFallback>
-            </Avatar>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="relative text-muted-foreground hover:text-foreground"
+          >
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <div className="flex items-center justify-start gap-2 p-2">
-            <div className="flex flex-col space-y-1 leading-none">
-              <p className="font-medium">{user ? `${user.firstName} ${user.lastName}` : 'Diyetisyen'}</p>
-              <p className="text-xs text-muted-foreground">{user?.email || ''}</p>
-            </div>
+        <DropdownMenuContent align="end" className="w-80">
+          <div className="flex items-center justify-between px-3 py-2">
+            <p className="text-sm font-semibold">Bildirimler</p>
+            {unreadCount > 0 && (
+              <Badge variant="secondary" className="text-[10px]">
+                {unreadCount} yeni
+              </Badge>
+            )}
           </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate('/settings')}>
-            <User className="mr-2 h-4 w-4" />
-            Profil
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
-            Ayarlar
-          </DropdownMenuItem>
+          {recentUnread.length > 0 ? (
+            recentUnread.map((n) => (
+              <DropdownMenuItem
+                key={n.id}
+                className="flex flex-col items-start gap-1 px-3 py-2.5 cursor-pointer"
+                onClick={() => n.actionUrl && navigate(n.actionUrl)}
+              >
+                <p className="text-sm font-medium leading-tight">{n.title}</p>
+                <p className="text-xs text-muted-foreground line-clamp-1">{n.message}</p>
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+              Yeni bildirim yok
+            </div>
+          )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-            <LogOut className="mr-2 h-4 w-4" />
-            Çıkış Yap
+          <DropdownMenuItem
+            className="justify-center text-sm font-medium text-primary cursor-pointer"
+            onClick={() => navigate('/notifications')}
+          >
+            Tümünü Gör
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

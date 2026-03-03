@@ -8,6 +8,7 @@ import {
   Users,
   BarChart3,
   ArrowLeft,
+  Shield,
 } from 'lucide-react'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import {
@@ -46,17 +47,27 @@ export function AdminLayout() {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="border-b px-4 py-3">
+        <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => navigate('/')}
+              className="text-muted-foreground hover:text-foreground"
+            >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <span className="text-lg font-bold">Admin Paneli</span>
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              <span className="text-base font-bold tracking-tight">Admin Paneli</span>
+            </div>
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-2">
           <SidebarGroup>
-            <SidebarGroupLabel>Yönetim</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-3">
+              Yönetim
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminNavItems.map((item) => (
@@ -65,6 +76,7 @@ export function AdminLayout() {
                       isActive={isActive(item.path)}
                       onClick={() => navigate(item.path)}
                       tooltip={item.title}
+                      className="transition-colors duration-[var(--duration-fast)]"
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -78,8 +90,10 @@ export function AdminLayout() {
       </Sidebar>
       <SidebarInset>
         <AppHeader />
-        <main className="flex-1 overflow-auto p-6">
-          <Outlet />
+        <main className="flex-1 overflow-auto">
+          <div className="animate-fade-up px-4 py-6 sm:px-6 lg:px-8">
+            <Outlet />
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

@@ -63,7 +63,7 @@ export function WeightProgressChart({
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
               }}
-              formatter={(value: number) => [`${value} kg`, '']}
+              formatter={(value: number | undefined) => [`${value ?? 0} kg`, '']}
             />
             <Area
               type="monotone"

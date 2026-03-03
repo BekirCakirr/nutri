@@ -62,7 +62,7 @@ export function MealComplianceChart({
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
               }}
-              formatter={(value: number) => [`%${value}`, 'Uyum']}
+              formatter={(value: number | undefined) => [`%${value ?? 0}`, 'Uyum']}
             />
             <Bar
               dataKey="compliance"

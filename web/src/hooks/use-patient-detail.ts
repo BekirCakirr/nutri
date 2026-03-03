@@ -20,7 +20,7 @@ export function usePatientDetail(patientId: string | undefined) {
         const patients = await simulateApiCall(mockPatients, 600);
         const found = patients.find((p) => p.id === id);
         if (found) {
-          selectPatient(found as Patient);
+          selectPatient(found as unknown as Patient);
         } else {
           setError("Patient not found");
           selectPatient(null);

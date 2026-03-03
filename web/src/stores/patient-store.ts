@@ -62,7 +62,7 @@ const defaultFilters: PatientFilters = {
 };
 
 export const usePatientStore = create<PatientState>()((set) => ({
-  patients: mockPatients as Patient[],
+  patients: mockPatients as unknown as Patient[],
   selectedPatient: null,
   filters: defaultFilters,
   isLoading: false,

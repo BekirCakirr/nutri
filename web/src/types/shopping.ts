@@ -11,27 +11,28 @@ export type ShoppingListStatus = "active" | "completed" | "archived";
 export type ShoppingItemStatus = "pending" | "purchased" | "skipped" | "unavailable";
 
 /** Shopping item category (aisle grouping). */
-export enum ShoppingCategory {
-  FruitsVegetables = "fruits_vegetables",
-  MeatSeafood = "meat_seafood",
-  Dairy = "dairy",
-  Bakery = "bakery",
-  GrainsAndCereals = "grains_cereals",
-  CannedGoods = "canned_goods",
-  FrozenFoods = "frozen_foods",
-  Snacks = "snacks",
-  Beverages = "beverages",
-  Condiments = "condiments",
-  Spices = "spices",
-  Oils = "oils",
-  NutsSeeds = "nuts_seeds",
-  HealthFoods = "health_foods",
-  Supplements = "supplements",
-  BabyFood = "baby_food",
-  Household = "household",
-  PersonalCare = "personal_care",
-  Other = "other",
-}
+export const ShoppingCategory = {
+  FruitsVegetables: "fruits_vegetables",
+  MeatSeafood: "meat_seafood",
+  Dairy: "dairy",
+  Bakery: "bakery",
+  GrainsAndCereals: "grains_cereals",
+  CannedGoods: "canned_goods",
+  FrozenFoods: "frozen_foods",
+  Snacks: "snacks",
+  Beverages: "beverages",
+  Condiments: "condiments",
+  Spices: "spices",
+  Oils: "oils",
+  NutsSeeds: "nuts_seeds",
+  HealthFoods: "health_foods",
+  Supplements: "supplements",
+  BabyFood: "baby_food",
+  Household: "household",
+  PersonalCare: "personal_care",
+  Other: "other",
+} as const
+export type ShoppingCategory = (typeof ShoppingCategory)[keyof typeof ShoppingCategory]
 
 /** How the shopping list was generated. */
 export type ShoppingListSource = "manual" | "diet_plan" | "recipe" | "ai_suggested" | "recurring";

@@ -64,7 +64,7 @@ export function WaterIntakeChart({
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
               }}
-              formatter={(value: number) => [`${value} L`, 'Su']}
+              formatter={(value: number | undefined) => [`${value ?? 0} L`, 'Su']}
             />
             <ReferenceLine
               y={target}

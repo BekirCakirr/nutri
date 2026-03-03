@@ -40,8 +40,8 @@ export function MacroPieChart({
               outerRadius={100}
               paddingAngle={4}
               dataKey="value"
-              label={({ name, percent }) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
+              label={({ name, percent }: { name?: string; percent?: number }) =>
+                `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
               }
             >
               {data.map((entry, index) => (
@@ -55,7 +55,7 @@ export function MacroPieChart({
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
               }}
-              formatter={(value: number) => [`${value}g`, '']}
+              formatter={(value: number | undefined) => [`${value ?? 0}g`, '']}
             />
             <Legend />
           </PieChart>

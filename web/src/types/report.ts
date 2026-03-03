@@ -5,24 +5,25 @@
 import type { DateRange, Timestamps } from "./common";
 
 /** Report type. */
-export enum ReportType {
-  NutritionSummary = "nutrition_summary",
-  WeightProgress = "weight_progress",
-  MealCompliance = "meal_compliance",
-  PlanAdherence = "plan_adherence",
-  GoalProgress = "goal_progress",
-  PatientOverview = "patient_overview",
-  HealthMetrics = "health_metrics",
-  ExerciseSummary = "exercise_summary",
-  WaterIntake = "water_intake",
-  SleepAnalysis = "sleep_analysis",
-  MoodWellness = "mood_wellness",
-  BloodValues = "blood_values",
-  DietitianPerformance = "dietitian_performance",
-  RevenueAnalytics = "revenue_analytics",
-  PlatformUsage = "platform_usage",
-  Custom = "custom",
-}
+export const ReportType = {
+  NutritionSummary: "nutrition_summary",
+  WeightProgress: "weight_progress",
+  MealCompliance: "meal_compliance",
+  PlanAdherence: "plan_adherence",
+  GoalProgress: "goal_progress",
+  PatientOverview: "patient_overview",
+  HealthMetrics: "health_metrics",
+  ExerciseSummary: "exercise_summary",
+  WaterIntake: "water_intake",
+  SleepAnalysis: "sleep_analysis",
+  MoodWellness: "mood_wellness",
+  BloodValues: "blood_values",
+  DietitianPerformance: "dietitian_performance",
+  RevenueAnalytics: "revenue_analytics",
+  PlatformUsage: "platform_usage",
+  Custom: "custom",
+} as const
+export type ReportType = (typeof ReportType)[keyof typeof ReportType]
 
 /** Time period granularity. */
 export type ReportPeriod = "daily" | "weekly" | "biweekly" | "monthly" | "quarterly" | "yearly" | "custom";

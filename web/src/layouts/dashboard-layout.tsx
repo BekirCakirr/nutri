@@ -9,8 +9,10 @@ export function DashboardLayout() {
       <AppSidebar />
       <SidebarInset>
         <AppHeader />
-        <main className="flex-1 overflow-auto p-6">
-          <Outlet />
+        <main className="flex-1 overflow-auto">
+          <div className="animate-fade-up px-4 py-6 sm:px-6 lg:px-8">
+            <Outlet />
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

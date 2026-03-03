@@ -22,7 +22,7 @@ export async function getReports(
   let items = [...mockReports];
 
   if (filters?.type) {
-    items = items.filter((r) => r.type === filters.type);
+    items = items.filter((r) => (r as unknown as { type?: string }).type === filters.type);
   }
   if (filters?.patientId) {
     items = items.filter((r) => r.patientId === filters.patientId);
@@ -37,14 +37,13 @@ export async function generateReport(params: {
   startDate: string;
   endDate: string;
 }): Promise<Report> {
-  const newReport: Report = {
+  const newReport = {
     ...mockReports[0],
     id: `rpt_${Date.now()}`,
-    type: params.type as Report["type"],
-    period: { startDate: params.startDate, endDate: params.endDate },
-    generatedAt: new Date().toISOString(),
-    status: "ready",
-  };
+    weekStartDate: params.startDate,
+    weekEndDate: params.endDate,
+    createdAt: new Date().toISOString(),
+  } satisfies Report;
   return simulateApiCall(newReport, 500);
 }
 

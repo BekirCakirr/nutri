@@ -54,7 +54,7 @@ export function useMeals(patientId?: string) {
         const filtered = pid
           ? allMeals.filter((m) => m.patientId === pid)
           : allMeals;
-        setMeals(filtered as Meal[]);
+        setMeals(filtered as unknown as Meal[]);
       } catch {
         setError("Failed to fetch meals");
       } finally {

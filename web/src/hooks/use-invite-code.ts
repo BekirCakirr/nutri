@@ -37,7 +37,7 @@ export function useInviteCode() {
     setError(null);
     try {
       const data = await simulateApiCall(mockInviteCodes, 600);
-      setInviteCodes(data as InviteCode[]);
+      setInviteCodes(data as unknown as InviteCode[]);
     } catch {
       setError("Failed to fetch invite codes");
     } finally {

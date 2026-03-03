@@ -14,37 +14,39 @@ export type FoodSource =
   | "brand";
 
 /** Food category. */
-export enum FoodCategory {
-  Fruits = "fruits",
-  Vegetables = "vegetables",
-  Grains = "grains",
-  Protein = "protein",
-  Dairy = "dairy",
-  Fats = "fats",
-  Sweets = "sweets",
-  Beverages = "beverages",
-  Condiments = "condiments",
-  Snacks = "snacks",
-  Legumes = "legumes",
-  NutsSeeds = "nuts_seeds",
-  Seafood = "seafood",
-  Poultry = "poultry",
-  RedMeat = "red_meat",
-  ProcessedMeat = "processed_meat",
-  Eggs = "eggs",
-  Supplements = "supplements",
-  Other = "other",
-}
+export const FoodCategory = {
+  Fruits: "fruits",
+  Vegetables: "vegetables",
+  Grains: "grains",
+  Protein: "protein",
+  Dairy: "dairy",
+  Fats: "fats",
+  Sweets: "sweets",
+  Beverages: "beverages",
+  Condiments: "condiments",
+  Snacks: "snacks",
+  Legumes: "legumes",
+  NutsSeeds: "nuts_seeds",
+  Seafood: "seafood",
+  Poultry: "poultry",
+  RedMeat: "red_meat",
+  ProcessedMeat: "processed_meat",
+  Eggs: "eggs",
+  Supplements: "supplements",
+  Other: "other",
+} as const
+export type FoodCategory = (typeof FoodCategory)[keyof typeof FoodCategory]
 
 /** Nutrient category grouping. */
-export enum NutrientCategory {
-  Macronutrient = "macronutrient",
-  Vitamin = "vitamin",
-  Mineral = "mineral",
-  Amino = "amino_acid",
-  FattyAcid = "fatty_acid",
-  Other = "other",
-}
+export const NutrientCategory = {
+  Macronutrient: "macronutrient",
+  Vitamin: "vitamin",
+  Mineral: "mineral",
+  Amino: "amino_acid",
+  FattyAcid: "fatty_acid",
+  Other: "other",
+} as const
+export type NutrientCategory = (typeof NutrientCategory)[keyof typeof NutrientCategory]
 
 // ── Core entities ──────────────────────────────────────────────────────────
 

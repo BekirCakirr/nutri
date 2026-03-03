@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { DayOfWeek, Timestamps, PaginationParams, DateRange } from "./common";
-import type { NutritionInfo, FoodItemSummary } from "./food";
+import type { NutritionInfo } from "./food";
 import type { MealType } from "./meal";
 import type { MacroTargets } from "./patient";
 

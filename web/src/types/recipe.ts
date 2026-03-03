@@ -3,25 +3,26 @@
 // ---------------------------------------------------------------------------
 
 import type { PaginationParams, Timestamps } from "./common";
-import type { NutritionInfo, FoodItemSummary, ServingSize } from "./food";
+import type { NutritionInfo } from "./food";
 
 /** Recipe category. */
-export enum RecipeCategory {
-  Breakfast = "breakfast",
-  Lunch = "lunch",
-  Dinner = "dinner",
-  Snack = "snack",
-  Dessert = "dessert",
-  Appetizer = "appetizer",
-  Soup = "soup",
-  Salad = "salad",
-  Smoothie = "smoothie",
-  Baking = "baking",
-  SideDish = "side_dish",
-  Sauce = "sauce",
-  Beverage = "beverage",
-  Other = "other",
-}
+export const RecipeCategory = {
+  Breakfast: "breakfast",
+  Lunch: "lunch",
+  Dinner: "dinner",
+  Snack: "snack",
+  Dessert: "dessert",
+  Appetizer: "appetizer",
+  Soup: "soup",
+  Salad: "salad",
+  Smoothie: "smoothie",
+  Baking: "baking",
+  SideDish: "side_dish",
+  Sauce: "sauce",
+  Beverage: "beverage",
+  Other: "other",
+} as const
+export type RecipeCategory = (typeof RecipeCategory)[keyof typeof RecipeCategory]
 
 /** Difficulty level. */
 export type RecipeDifficulty = "easy" | "medium" | "hard" | "expert";

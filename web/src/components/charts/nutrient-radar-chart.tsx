@@ -62,7 +62,7 @@ export function NutrientRadarChart({
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
               }}
-              formatter={(value: number) => [`%${value}`, 'Oran']}
+              formatter={(value: number | undefined) => [`%${value ?? 0}`, 'Oran']}
             />
             <Radar
               name="Besin"

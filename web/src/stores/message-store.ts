@@ -44,9 +44,9 @@ interface MessageState {
 }
 
 export const useMessageStore = create<MessageState>()((set) => ({
-  conversations: mockConversations as Conversation[],
+  conversations: mockConversations as unknown as Conversation[],
   activeConversation: null,
-  messages: mockMessages as Message[],
+  messages: mockMessages as unknown as Message[],
 
   setConversations: (conversations) => {
     set({ conversations });

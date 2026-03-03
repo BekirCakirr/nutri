@@ -58,7 +58,7 @@ export function useAppointments(patientId?: string) {
         const filtered = pid
           ? all.filter((a) => a.patientId === pid)
           : all;
-        setAppointments(filtered as Appointment[]);
+        setAppointments(filtered as unknown as Appointment[]);
       } catch {
         setError("Failed to fetch appointments");
       } finally {

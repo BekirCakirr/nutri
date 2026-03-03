@@ -5,18 +5,19 @@
 import type { PaginationParams, Timestamps } from "./common";
 
 /** Message content type. */
-export enum MessageType {
-  Text = "text",
-  Image = "image",
-  File = "file",
-  Audio = "audio",
-  Video = "video",
-  MealLog = "meal_log",
-  PlanUpdate = "plan_update",
-  Appointment = "appointment",
-  System = "system",
-  AiSuggestion = "ai_suggestion",
-}
+export const MessageType = {
+  Text: "text",
+  Image: "image",
+  File: "file",
+  Audio: "audio",
+  Video: "video",
+  MealLog: "meal_log",
+  PlanUpdate: "plan_update",
+  Appointment: "appointment",
+  System: "system",
+  AiSuggestion: "ai_suggestion",
+} as const
+export type MessageType = (typeof MessageType)[keyof typeof MessageType]
 
 /** Conversation type. */
 export type ConversationType = "direct" | "group" | "support" | "ai_assistant";

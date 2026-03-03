@@ -2,13 +2,14 @@ import { useState } from 'react'
 import {
   Search,
   Plus,
-  Edit,
+  Pencil,
   Trash2,
   Filter,
   CheckCircle2,
   XCircle,
+  Apple,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { PageContainer } from '@/components/shared/page-container'
 
 interface FoodDBItem {
   id: string
@@ -77,16 +79,14 @@ export default function AdminFoodDBPage() {
   const categories = [...new Set(mockFoods.map(f => f.category))]
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Besin Veritabanı</h1>
-          <p className="text-muted-foreground">Besin veritabanını yönetin ve güncelleyin.</p>
-        </div>
+    <PageContainer
+      title="Besin Veritabanı"
+      description="Besin veritabanını yönetin ve güncelleyin."
+      actions={
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button size="sm">
+              <Plus className="h-3.5 w-3.5" />
               Yeni Besin Ekle
             </Button>
           </DialogTrigger>
@@ -149,15 +149,20 @@ export default function AdminFoodDBPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-
+      }
+    >
       {/* Filters */}
-      <Card>
+      <Card className="py-0 gap-0 mb-6 animate-fade-up">
         <CardContent className="p-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Besin ara..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+              <Input
+                placeholder="Besin ara..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
             </div>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
@@ -166,68 +171,81 @@ export default function AdminFoodDBPage() {
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tümü</SelectItem>
+                  <SelectItem value="all">Tüm Kategoriler</SelectItem>
                   {categories.map(cat => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <Badge variant="secondary" className="ml-auto">{filtered.length} besin</Badge>
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <Apple className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground tabular-nums">{filtered.length} besin</span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Besin Adı</TableHead>
-                <TableHead>Kategori</TableHead>
-                <TableHead className="text-center">Kalori</TableHead>
-                <TableHead className="text-center">Protein</TableHead>
-                <TableHead className="text-center">Karb.</TableHead>
-                <TableHead className="text-center">Yağ</TableHead>
-                <TableHead>Kaynak</TableHead>
-                <TableHead className="text-center">Doğrulanmış</TableHead>
-                <TableHead className="text-right">İşlem</TableHead>
+      <Card className="py-0 gap-0 overflow-hidden animate-fade-up">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Besin Adı</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead className="text-center">Kalori</TableHead>
+              <TableHead className="text-center">Protein</TableHead>
+              <TableHead className="text-center hidden md:table-cell">Karb.</TableHead>
+              <TableHead className="text-center hidden md:table-cell">Yağ</TableHead>
+              <TableHead className="hidden lg:table-cell">Kaynak</TableHead>
+              <TableHead className="text-center">Durum</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((food) => (
+              <TableRow key={food.id}>
+                <TableCell>
+                  <span className="text-sm font-medium">{food.name}</span>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{food.category}</Badge>
+                </TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{food.caloriesPer100g}</TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{food.protein}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.carbs}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.fat}g</TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <span className="text-xs text-muted-foreground">{food.source}</span>
+                </TableCell>
+                <TableCell className="text-center">
+                  {food.isVerified ? (
+                    <Badge variant="success" className="gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Onaylı
+                    </Badge>
+                  ) : (
+                    <Badge variant="warning" className="gap-1">
+                      <XCircle className="h-3 w-3" />
+                      Bekliyor
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((food) => (
-                <TableRow key={food.id}>
-                  <TableCell className="font-medium">{food.name}</TableCell>
-                  <TableCell><Badge variant="outline">{food.category}</Badge></TableCell>
-                  <TableCell className="text-center">{food.caloriesPer100g}</TableCell>
-                  <TableCell className="text-center">{food.protein}g</TableCell>
-                  <TableCell className="text-center">{food.carbs}g</TableCell>
-                  <TableCell className="text-center">{food.fat}g</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{food.source}</TableCell>
-                  <TableCell className="text-center">
-                    {food.isVerified ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-gray-400 mx-auto" />
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

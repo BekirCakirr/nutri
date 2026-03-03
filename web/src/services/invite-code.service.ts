@@ -23,15 +23,19 @@ export async function generateCode(params: {
   note?: string;
 }): Promise<InviteCode> {
   void params;
-  const newCode: InviteCode = {
+  const newCode = {
     id: `inv_${Date.now()}`,
     code: `NUTRI-${Date.now().toString(36).toUpperCase()}`,
-    nutritionistId: "usr_001",
+    dietitianId: "usr_001",
+    dietitianName: "",
+    patientName: null,
     patientEmail: "",
-    status: "pending",
+    status: "active" as const,
     expiresAt: params.expiresAt ?? new Date(Date.now() + 30 * 86_400_000).toISOString(),
     createdAt: new Date().toISOString(),
-  };
+    usedAt: null,
+    notes: params.note ?? "",
+  } satisfies InviteCode;
   return simulateApiCall(newCode, 400);
 }
 
@@ -47,8 +51,8 @@ export async function deactivateCode(
 }
 
 export async function getCodeStats(): Promise<InviteCodeStats> {
-  const pending = mockInviteCodes.filter((c) => c.status === "pending").length;
-  const accepted = mockInviteCodes.filter((c) => c.status === "accepted").length;
+  const pending = mockInviteCodes.filter((c) => c.status === "active").length;
+  const accepted = mockInviteCodes.filter((c) => c.status === "used").length;
 
   return simulateApiCall(
     {

@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Clock, Flame, ChefHat, Users } from "lucide-react";
 import { RecipeIngredientList } from "./recipe-ingredient-list";
 import { RecipeNutritionInfo } from "./recipe-nutrition-info";

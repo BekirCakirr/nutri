@@ -7,6 +7,10 @@ import {
   Ban,
   Eye,
   Mail,
+  Users,
+  UserCheck,
+  UserCog,
+  UserX,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -35,6 +39,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { PageContainer } from '@/components/shared/page-container'
+import { StatCard } from '@/components/shared/stat-card'
+import { cn } from '@/lib/utils'
 
 interface UserRow {
   id: string
@@ -61,14 +68,28 @@ const mockUsers: UserRow[] = [
 
 const roleMap = {
   admin: { label: 'Admin', variant: 'destructive' as const },
-  dietitian: { label: 'Diyetisyen', variant: 'default' as const },
+  dietitian: { label: 'Diyetisyen', variant: 'info' as const },
   patient: { label: 'Hasta', variant: 'secondary' as const },
 }
 
 const statusMap = {
-  active: { label: 'Aktif', variant: 'default' as const },
-  inactive: { label: 'Pasif', variant: 'outline' as const },
+  active: { label: 'Aktif', variant: 'success' as const },
+  inactive: { label: 'Pasif', variant: 'warning' as const },
   suspended: { label: 'Askıda', variant: 'destructive' as const },
+}
+
+function getInitialColor(name: string): string {
+  const colors = [
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  ]
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return colors[Math.abs(hash) % colors.length]
 }
 
 export default function AdminUsersPage() {
@@ -83,48 +104,56 @@ export default function AdminUsersPage() {
     return matchesSearch && matchesRole && matchesStatus
   })
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Kullanıcı Yönetimi</h1>
-        <p className="text-muted-foreground">Tüm sistem kullanıcılarını yönetin.</p>
-      </div>
+  const adminCount = mockUsers.filter(u => u.role === 'admin').length
+  const dietitianCount = mockUsers.filter(u => u.role === 'dietitian').length
+  const patientCount = mockUsers.filter(u => u.role === 'patient').length
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Toplam Kullanıcı</p>
-            <p className="text-2xl font-bold">{mockUsers.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Admin</p>
-            <p className="text-2xl font-bold">{mockUsers.filter(u => u.role === 'admin').length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Diyetisyen</p>
-            <p className="text-2xl font-bold">{mockUsers.filter(u => u.role === 'dietitian').length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Hasta</p>
-            <p className="text-2xl font-bold">{mockUsers.filter(u => u.role === 'patient').length}</p>
-          </CardContent>
-        </Card>
+  return (
+    <PageContainer
+      title="Kullanıcı Yönetimi"
+      description="Tüm sistem kullanıcılarını yönetin."
+    >
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
+        <StatCard
+          title="Toplam Kullanıcı"
+          value={mockUsers.length}
+          icon={Users}
+          color="blue"
+          featured
+        />
+        <StatCard
+          title="Admin"
+          value={adminCount}
+          icon={UserCog}
+          color="red"
+        />
+        <StatCard
+          title="Diyetisyen"
+          value={dietitianCount}
+          icon={UserCheck}
+          color="green"
+        />
+        <StatCard
+          title="Hasta"
+          value={patientCount}
+          icon={UserX}
+          color="purple"
+        />
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="py-0 gap-0 mb-6 animate-fade-up">
         <CardContent className="p-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Kullanıcı ara..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+              <Input
+                placeholder="Kullanıcı ara..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
             </div>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
@@ -156,65 +185,79 @@ export default function AdminUsersPage() {
       </Card>
 
       {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Kullanıcı</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead>Durum</TableHead>
-                <TableHead>Son Giriş</TableHead>
-                <TableHead>Kayıt Tarihi</TableHead>
-                <TableHead className="text-right">İşlem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
-                          {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                      </div>
+      <Card className="py-0 gap-0 overflow-hidden animate-fade-up">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Kullanıcı</TableHead>
+              <TableHead>Rol</TableHead>
+              <TableHead>Durum</TableHead>
+              <TableHead className="hidden md:table-cell">Son Giriş</TableHead>
+              <TableHead className="hidden lg:table-cell">Kayıt Tarihi</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(user.name))}>
+                        {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium leading-tight">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={roleMap[user.role].variant}>{roleMap[user.role].label}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusMap[user.status].variant}>{statusMap[user.status].label}</Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{user.lastLogin}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{user.registeredAt}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem><Eye className="mr-2 h-4 w-4" /> Profili Görüntüle</DropdownMenuItem>
-                        <DropdownMenuItem><Mail className="mr-2 h-4 w-4" /> E-posta Gönder</DropdownMenuItem>
-                        <DropdownMenuItem><Shield className="mr-2 h-4 w-4" /> Rol Değiştir</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive"><Ban className="mr-2 h-4 w-4" /> Askıya Al</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={roleMap[user.role].variant}>{roleMap[user.role].label}</Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={statusMap[user.status].variant}>{statusMap[user.status].label}</Badge>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <span className="text-sm text-muted-foreground">{user.lastLogin}</span>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <span className="text-sm text-muted-foreground">{user.registeredAt}</span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Profili Görüntüle
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Mail className="mr-2 h-4 w-4" />
+                        E-posta Gönder
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Shield className="mr-2 h-4 w-4" />
+                        Rol Değiştir
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-destructive focus:text-destructive">
+                        <Ban className="mr-2 h-4 w-4" />
+                        Askıya Al
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

@@ -18,7 +18,7 @@ export function usePatients() {
     setIsLoading(true);
     try {
       const data = await simulateApiCall(mockPatients);
-      setPatients(data as typeof patients);
+      setPatients(data as unknown as typeof patients);
     } finally {
       setIsLoading(false);
     }

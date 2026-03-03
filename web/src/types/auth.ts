@@ -5,28 +5,31 @@
 import type { ContactInfo, Gender, LocalePreference, Timestamps, ThemeMode } from "./common";
 
 /** Roles available in the platform. */
-export enum UserRole {
-  Admin = "admin",
-  Dietitian = "dietitian",
-  Patient = "patient",
-  Support = "support",
-}
+export const UserRole = {
+  Admin: "admin",
+  Dietitian: "dietitian",
+  Patient: "patient",
+  Support: "support",
+} as const
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 /** Account verification status. */
-export enum VerificationStatus {
-  Unverified = "unverified",
-  Pending = "pending",
-  Verified = "verified",
-  Rejected = "rejected",
-}
+export const VerificationStatus = {
+  Unverified: "unverified",
+  Pending: "pending",
+  Verified: "verified",
+  Rejected: "rejected",
+} as const
+export type VerificationStatus = (typeof VerificationStatus)[keyof typeof VerificationStatus]
 
 /** Subscription tier. */
-export enum SubscriptionTier {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise",
-}
+export const SubscriptionTier = {
+  Free: "free",
+  Basic: "basic",
+  Premium: "premium",
+  Enterprise: "enterprise",
+} as const
+export type SubscriptionTier = (typeof SubscriptionTier)[keyof typeof SubscriptionTier]
 
 /** Two-factor authentication method. */
 export type TwoFactorMethod = "totp" | "sms" | "email";
@@ -93,7 +96,7 @@ export interface RegisterRequest {
   confirmPassword: string;
   firstName: string;
   lastName: string;
-  role: UserRole.Dietitian | UserRole.Patient;
+  role: typeof UserRole.Dietitian | typeof UserRole.Patient;
   gender?: Gender;
   dateOfBirth?: string;
   phone?: string;

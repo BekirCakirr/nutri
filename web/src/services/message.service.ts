@@ -30,8 +30,12 @@ export async function sendMessage(
     id: `msg_${Date.now()}`,
     conversationId,
     senderId: "usr_001",
+    senderType: "dietitian",
+    senderName: "",
     content,
     type: "text",
+    attachmentUrl: null,
+    attachmentName: null,
     createdAt: new Date().toISOString(),
     readAt: null,
   };

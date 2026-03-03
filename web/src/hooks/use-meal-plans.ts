@@ -52,8 +52,8 @@ export function useMealPlans(patientId?: string) {
       setError(null);
       try {
         const all = await simulateApiCall(mockMealPlans, 700);
-        const filtered = pid ? all.filter((mp) => mp.patientId === pid) : all;
-        setMealPlans(filtered as MealPlan[]);
+        const filtered = pid ? all.filter((mp) => (mp as unknown as { patientId?: string }).patientId === pid) : all;
+        setMealPlans(filtered as unknown as MealPlan[]);
       } catch {
         setError("Failed to fetch meal plans");
       } finally {

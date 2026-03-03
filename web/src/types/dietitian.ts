@@ -7,31 +7,31 @@ import type {
   ContactInfo,
   DayOfWeek,
   GenericStatus,
-  ImageSet,
   TimeRange,
   Timestamps,
 } from "./common";
 import type { VerificationStatus, SubscriptionTier } from "./auth";
 
 /** Specialization area for a dietitian. */
-export enum Specialization {
-  WeightManagement = "weight_management",
-  SportsNutrition = "sports_nutrition",
-  ClinicalNutrition = "clinical_nutrition",
-  PediatricNutrition = "pediatric_nutrition",
-  GeriatricNutrition = "geriatric_nutrition",
-  DiabetesManagement = "diabetes_management",
-  RenalNutrition = "renal_nutrition",
-  OncologyNutrition = "oncology_nutrition",
-  EatingDisorders = "eating_disorders",
-  GastrointestinalHealth = "gastrointestinal_health",
-  FoodAllergies = "food_allergies",
-  VeganVegetarian = "vegan_vegetarian",
-  PregnancyLactation = "pregnancy_lactation",
-  HeartHealth = "heart_health",
-  MentalHealthNutrition = "mental_health_nutrition",
-  Other = "other",
-}
+export const Specialization = {
+  WeightManagement: "weight_management",
+  SportsNutrition: "sports_nutrition",
+  ClinicalNutrition: "clinical_nutrition",
+  PediatricNutrition: "pediatric_nutrition",
+  GeriatricNutrition: "geriatric_nutrition",
+  DiabetesManagement: "diabetes_management",
+  RenalNutrition: "renal_nutrition",
+  OncologyNutrition: "oncology_nutrition",
+  EatingDisorders: "eating_disorders",
+  GastrointestinalHealth: "gastrointestinal_health",
+  FoodAllergies: "food_allergies",
+  VeganVegetarian: "vegan_vegetarian",
+  PregnancyLactation: "pregnancy_lactation",
+  HeartHealth: "heart_health",
+  MentalHealthNutrition: "mental_health_nutrition",
+  Other: "other",
+} as const
+export type Specialization = (typeof Specialization)[keyof typeof Specialization]
 
 /** Professional credential / certification. */
 export interface Credential {

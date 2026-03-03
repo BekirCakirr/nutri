@@ -39,7 +39,7 @@ export async function getMeals(
     items = items.filter((m) => m.patientId === filters.patientId);
   }
   if (filters?.type) {
-    items = items.filter((m) => m.type === filters.type);
+    items = items.filter((m) => (m as unknown as { type?: string }).type === filters.type);
   }
 
   const page = filters?.page ?? 1;

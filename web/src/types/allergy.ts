@@ -5,21 +5,23 @@
 import type { Timestamps } from "./common";
 
 /** Top-level allergen category. */
-export enum AllergenCategory {
-  FoodAllergen = "food_allergen",
-  FoodIntolerance = "food_intolerance",
-  DrugAllergen = "drug_allergen",
-  Environmental = "environmental",
-  Other = "other",
-}
+export const AllergenCategory = {
+  FoodAllergen: "food_allergen",
+  FoodIntolerance: "food_intolerance",
+  DrugAllergen: "drug_allergen",
+  Environmental: "environmental",
+  Other: "other",
+} as const
+export type AllergenCategory = (typeof AllergenCategory)[keyof typeof AllergenCategory]
 
 /** Severity classification. */
-export enum AllergySeverity {
-  Mild = "mild",
-  Moderate = "moderate",
-  Severe = "severe",
-  Anaphylactic = "anaphylactic",
-}
+export const AllergySeverity = {
+  Mild: "mild",
+  Moderate: "moderate",
+  Severe: "severe",
+  Anaphylactic: "anaphylactic",
+} as const
+export type AllergySeverity = (typeof AllergySeverity)[keyof typeof AllergySeverity]
 
 /** How the allergy was identified. */
 export type AllergyDiagnosisMethod =

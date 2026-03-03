@@ -45,7 +45,7 @@ export function useReports() {
       const filtered = patientId
         ? all.filter((r) => r.patientId === patientId)
         : all;
-      setReports(filtered as Report[]);
+      setReports(filtered as unknown as Report[]);
     } catch {
       setError("Failed to fetch reports");
     } finally {

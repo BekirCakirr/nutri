@@ -3,18 +3,19 @@
 // ---------------------------------------------------------------------------
 
 import type { Timestamps } from "./common";
-import type { NutritionInfo, FoodItem } from "./food";
+import type { NutritionInfo } from "./food";
 
 /** Type of meal within the day. */
-export enum MealType {
-  Breakfast = "breakfast",
-  MorningSnack = "morning_snack",
-  Lunch = "lunch",
-  AfternoonSnack = "afternoon_snack",
-  Dinner = "dinner",
-  EveningSnack = "evening_snack",
-  Other = "other",
-}
+export const MealType = {
+  Breakfast: "breakfast",
+  MorningSnack: "morning_snack",
+  Lunch: "lunch",
+  AfternoonSnack: "afternoon_snack",
+  Dinner: "dinner",
+  EveningSnack: "evening_snack",
+  Other: "other",
+} as const
+export type MealType = (typeof MealType)[keyof typeof MealType]
 
 /** How the meal entry was logged. */
 export type MealLogSource =

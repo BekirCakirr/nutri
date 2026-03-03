@@ -61,7 +61,7 @@ export function useRecipes() {
     setError(null);
     try {
       const data = await simulateApiCall(mockRecipes, 600);
-      setRecipes(data as Recipe[]);
+      setRecipes(data as unknown as Recipe[]);
     } catch {
       setError("Failed to fetch recipes");
     } finally {

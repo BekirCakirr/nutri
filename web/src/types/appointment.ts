@@ -5,15 +5,16 @@
 import type { DateRange, DayOfWeek, PaginationParams, TimeRange, Timestamps } from "./common";
 
 /** Appointment lifecycle status. */
-export enum AppointmentStatus {
-  Pending = "pending",
-  Confirmed = "confirmed",
-  InProgress = "in_progress",
-  Completed = "completed",
-  Cancelled = "cancelled",
-  NoShow = "no_show",
-  Rescheduled = "rescheduled",
-}
+export const AppointmentStatus = {
+  Pending: "pending",
+  Confirmed: "confirmed",
+  InProgress: "in_progress",
+  Completed: "completed",
+  Cancelled: "cancelled",
+  NoShow: "no_show",
+  Rescheduled: "rescheduled",
+} as const
+export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus]
 
 /** How the appointment is conducted. */
 export type AppointmentMode = "video" | "phone" | "in_person" | "chat";

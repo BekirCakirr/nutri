@@ -48,10 +48,10 @@ export const registerSchema = z
     phone: phoneSchema,
     inviteCode: z.string().optional(),
     acceptedTerms: z.literal(true, {
-      errorMap: () => ({ message: "Kullanim kosullarini kabul etmelisiniz" }),
+      error: "Kullanim kosullarini kabul etmelisiniz",
     }),
     acceptedPrivacy: z.literal(true, {
-      errorMap: () => ({ message: "Gizlilik politikasini kabul etmelisiniz" }),
+      error: "Gizlilik politikasini kabul etmelisiniz",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {

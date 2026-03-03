@@ -62,7 +62,7 @@ export async function getPlans(
   let items = [...mockMealPlans];
 
   if (filters?.patientId) {
-    items = items.filter((p) => p.patientId === filters.patientId);
+    items = items.filter((p) => p.assignedPatientIds.includes(filters.patientId!));
   }
   if (filters?.status) {
     items = items.filter((p) => p.status === filters.status);
@@ -123,7 +123,7 @@ export async function assignPlan(
   patientId: string,
 ): Promise<MealPlan> {
   const existing = mockMealPlans.find((p) => p.id === planId) ?? mockMealPlans[0];
-  return simulateApiCall({ ...existing, patientId }, 400);
+  return simulateApiCall({ ...existing, assignedPatientIds: [...existing.assignedPatientIds, patientId] }, 400);
 }
 
 export async function getTemplates(): Promise<PlanTemplate[]> {
