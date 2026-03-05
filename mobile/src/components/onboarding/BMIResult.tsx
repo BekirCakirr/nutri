@@ -13,10 +13,10 @@ interface BMIResultProps {
 }
 
 function getBMICategory(bmi: number): { label: string; color: string } {
-  if (bmi < 18.5) return { label: 'Underweight', color: '#42A5F5' }
+  if (bmi < 18.5) return { label: 'Zayif', color: '#42A5F5' }
   if (bmi < 25) return { label: 'Normal', color: colors.success }
-  if (bmi < 30) return { label: 'Overweight', color: colors.warning }
-  return { label: 'Obese', color: colors.error }
+  if (bmi < 30) return { label: 'Fazla Kilolu', color: colors.warning }
+  return { label: 'Obez', color: colors.error }
 }
 
 export const BMIResult: React.FC<BMIResultProps> = ({
@@ -31,7 +31,7 @@ export const BMIResult: React.FC<BMIResultProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.title}>Your BMI</Text>
+      <Text style={styles.title}>VKI Degeriniz</Text>
       <Text style={[styles.bmiValue, { color: category.color }]}>
         {bmi.toFixed(1)}
       </Text>
@@ -56,13 +56,13 @@ export const BMIResult: React.FC<BMIResultProps> = ({
       </View>
       <View style={styles.details}>
         <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Height</Text>
+          <Text style={styles.detailLabel}>Boy</Text>
           <Text style={styles.detailValue}>
             {height} {unit === 'metric' ? 'cm' : 'in'}
           </Text>
         </View>
         <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Weight</Text>
+          <Text style={styles.detailLabel}>Kilo</Text>
           <Text style={styles.detailValue}>
             {weight} {unit === 'metric' ? 'kg' : 'lbs'}
           </Text>

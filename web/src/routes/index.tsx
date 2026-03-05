@@ -55,6 +55,7 @@ const NotificationsPage = lazy(() => import('@/pages/notifications'))
 const SettingsPage = lazy(() => import('@/pages/settings'))
 
 // Admin Pages
+const AdminLoginPage = lazy(() => import('@/pages/admin/login'))
 const AdminDashboardPage = lazy(() => import('@/pages/admin/dashboard'))
 const AdminFoodDBPage = lazy(() => import('@/pages/admin/food-db'))
 const AdminAllergensPage = lazy(() => import('@/pages/admin/allergens'))
@@ -77,6 +78,8 @@ export const router = createBrowserRouter([
           { path: '/register', element: <L C={RegisterPage} /> },
         ],
       },
+      // Admin login (standalone, outside auth layout)
+      { path: '/admin/login', element: <L C={AdminLoginPage} /> },
       // Protected routes
       {
         element: <ProtectedRoute />,

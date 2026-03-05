@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -20,11 +21,18 @@ interface MealCardProps {
   style?: ViewStyle
 }
 
-const mealIcons: Record<MealType, string> = {
-  breakfast: 'Breakfast',
-  lunch: 'Lunch',
-  dinner: 'Dinner',
-  snack: 'Snack',
+const mealLabels: Record<MealType, string> = {
+  breakfast: 'Kahvalti',
+  lunch: 'Ogle',
+  dinner: 'Aksam',
+  snack: 'Ara Ogun',
+}
+
+const mealIconNames: Record<MealType, keyof typeof Ionicons.glyphMap> = {
+  breakfast: 'cafe-outline',
+  lunch: 'restaurant-outline',
+  dinner: 'moon-outline',
+  snack: 'nutrition-outline',
 }
 
 const mealColors: Record<MealType, string> = {
@@ -51,14 +59,12 @@ export const MealCard: React.FC<MealCardProps> = ({
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View
-            style={[styles.iconContainer, { backgroundColor: mealColors[mealType] + '20' }]}
+            style={[styles.iconContainer, { backgroundColor: mealColors[mealType] + '18' }]}
           >
-            <Text style={[styles.mealIcon, { color: mealColors[mealType] }]}>
-              {mealIcons[mealType].charAt(0)}
-            </Text>
+            <Ionicons name={mealIconNames[mealType]} size={20} color={mealColors[mealType]} />
           </View>
           <View>
-            <Text style={styles.mealType}>{mealIcons[mealType]}</Text>
+            <Text style={styles.mealType}>{mealLabels[mealType]}</Text>
             {time && <Text style={styles.time}>{time}</Text>}
           </View>
         </View>
@@ -85,11 +91,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -107,10 +110,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.sm,
-  },
-  mealIcon: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
   },
   mealType: {
     fontSize: fontSizes.lg,

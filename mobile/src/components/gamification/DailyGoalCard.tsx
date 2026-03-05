@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet, ViewStyle } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -27,10 +28,17 @@ export const DailyGoalCard: React.FC<DailyGoalCardProps> = ({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Daily Goals</Text>
-        <Text style={styles.counter}>
-          {completed}/{goals.length} Complete
-        </Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.headerIcon}>
+            <Ionicons name="flag" size={16} color={colors.primary.main} />
+          </View>
+          <Text style={styles.title}>Gunluk Hedefler</Text>
+        </View>
+        <View style={styles.counterBadge}>
+          <Text style={styles.counter}>
+            {completed}/{goals.length}
+          </Text>
+        </View>
       </View>
       {goals.map((goal) => {
         const progress = Math.min(goal.current / goal.target, 1)
@@ -38,7 +46,12 @@ export const DailyGoalCard: React.FC<DailyGoalCardProps> = ({
         return (
           <View key={goal.id} style={styles.goalItem}>
             <View style={styles.goalHeader}>
-              <Text style={styles.goalLabel}>{goal.label}</Text>
+              <View style={styles.goalLabelRow}>
+                {isComplete && (
+                  <Ionicons name="checkmark-circle" size={16} color={colors.success} style={{ marginRight: 4 }} />
+                )}
+                <Text style={styles.goalLabel}>{goal.label}</Text>
+              </View>
               <Text style={[styles.goalValue, isComplete && { color: colors.success }]}>
                 {goal.current}/{goal.target} {goal.unit}
               </Text>
@@ -66,6 +79,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -73,24 +88,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  headerIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
-    fontSize: fontSizes.xl,
+    fontSize: fontSizes.lg,
     fontWeight: fontWeights.semibold,
     color: colors.text.primary,
   },
+  counterBadge: {
+    backgroundColor: colors.primary[50],
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: borderRadius.full,
+  },
   counter: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.medium,
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.bold,
     color: colors.primary.main,
   },
   goalItem: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   goalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: 4,
+  },
+  goalLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   goalLabel: {
     fontSize: fontSizes.md,
@@ -98,12 +136,12 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   goalValue: {
-    fontSize: fontSizes.sm,
+    fontSize: fontSizes.xs,
     fontWeight: fontWeights.medium,
     color: colors.text.secondary,
   },
   barTrack: {
-    height: 8,
+    height: 6,
     backgroundColor: colors.background.default,
     borderRadius: borderRadius.full,
     overflow: 'hidden',

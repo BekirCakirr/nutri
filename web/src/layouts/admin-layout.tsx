@@ -7,13 +7,14 @@ import {
   Stethoscope,
   Users,
   BarChart3,
-  ArrowLeft,
   Shield,
+  LogOut,
 } from 'lucide-react'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -23,7 +24,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { AppHeader } from '@/components/layout/app-header'
-import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/stores/auth-store'
 
 const adminNavItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -38,29 +39,29 @@ const adminNavItems = [
 export function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
 
   const isActive = (path: string) => {
     if (path === '/admin') return location.pathname === '/admin'
     return location.pathname.startsWith(path)
   }
 
+  const handleLogout = () => {
+    logout()
+    navigate('/admin/login')
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => navigate('/')}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <span className="text-base font-bold tracking-tight">Admin Paneli</span>
-            </div>
+        <SidebarHeader className="border-b border-sidebar-border px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <Shield className="h-5 w-5 text-primary" />
+            <span className="text-lg font-bold tracking-tight">
+              Nutri<span className="text-primary">AI</span>{' '}
+              <span className="text-sm font-medium text-muted-foreground">Admin</span>
+            </span>
           </div>
         </SidebarHeader>
         <SidebarContent className="px-2">
@@ -87,6 +88,26 @@ export function AdminLayout() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter className="border-t border-sidebar-border p-3">
+          <div className="flex items-center gap-3 rounded-lg px-2 py-1.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+              <Shield className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate leading-tight">
+                {user ? `${user.firstName} ${user.lastName}` : 'Admin'}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate">{user?.email || ''}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="shrink-0 rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-[var(--duration-fast)]"
+              title="Çıkış Yap"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <AppHeader />

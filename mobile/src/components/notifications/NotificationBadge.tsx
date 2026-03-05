@@ -55,6 +55,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: borderRadius.full,
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    borderWidth: 2,
+    borderColor: colors.background.paper,
   },
   badgeSm: {
     minWidth: 16,

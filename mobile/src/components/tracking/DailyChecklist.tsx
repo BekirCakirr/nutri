@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -18,7 +19,7 @@ interface DailyChecklistProps {
 }
 
 export const DailyChecklist: React.FC<DailyChecklistProps> = ({
-  title = 'Daily Checklist',
+  title = 'Gunluk Kontrol Listesi',
   items,
   onToggle,
   style,
@@ -46,7 +47,7 @@ export const DailyChecklist: React.FC<DailyChecklistProps> = ({
               item.completed && styles.checkboxChecked,
             ]}
           >
-            {item.completed && <Text style={styles.checkmark}>{'\\u2713'}</Text>}
+            {item.completed && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
           </View>
           <Text
             style={[
@@ -104,11 +105,6 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     backgroundColor: colors.primary.main,
     borderColor: colors.primary.main,
-  },
-  checkmark: {
-    color: '#FFFFFF',
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
   },
   label: {
     fontSize: fontSizes.lg,

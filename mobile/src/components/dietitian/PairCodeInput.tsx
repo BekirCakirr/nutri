@@ -44,9 +44,9 @@ export const PairCodeInput: React.FC<PairCodeInputProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.title}>Enter Pairing Code</Text>
+      <Text style={styles.title}>Eslestirme Kodu</Text>
       <Text style={styles.description}>
-        Enter the code provided by your dietitian to pair your accounts.
+        Diyetisyeninizin size verdigi kodu girerek hesaplarinizi eslestirin.
       </Text>
       <View style={styles.codeDisplay}>
         {Array.from({ length: codeLength }).map((_, index) => (
@@ -75,7 +75,7 @@ export const PairCodeInput: React.FC<PairCodeInputProps> = ({
       />
       {error && <Text style={styles.error}>{error}</Text>}
       <Button
-        title="Pair Account"
+        title="Hesabi Esle"
         onPress={handleSubmit}
         disabled={code.length !== codeLength}
         loading={loading}

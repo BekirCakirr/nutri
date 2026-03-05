@@ -15,7 +15,6 @@ import {
   Bot,
   Bell,
   Settings,
-  Shield,
   LogOut,
 } from 'lucide-react'
 import {
@@ -173,17 +172,6 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(systemItems)}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={isActive('/admin')}
-                  onClick={() => navigate('/admin')}
-                  tooltip="Admin Paneli"
-                  className="transition-colors duration-[var(--duration-fast)]"
-                >
-                  <Shield className="h-4 w-4" />
-                  <span>Admin Paneli</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

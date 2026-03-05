@@ -17,7 +17,7 @@ export const CalorieRing: React.FC<CalorieRingProps> = ({
   consumed,
   target,
   size = 160,
-  strokeWidth = 12,
+  strokeWidth = 14,
   color = colors.primary.main,
   style,
 }) => {
@@ -30,14 +30,16 @@ export const CalorieRing: React.FC<CalorieRingProps> = ({
   return (
     <View style={[styles.container, { width: size, height: size }, style]}>
       <Svg width={size} height={size}>
+        {/* Track */}
         <Circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.border}
+          stroke={colors.primary[50]}
           strokeWidth={strokeWidth}
           fill="none"
         />
+        {/* Progress */}
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -54,7 +56,11 @@ export const CalorieRing: React.FC<CalorieRingProps> = ({
       </Svg>
       <View style={styles.centerText}>
         <Text style={styles.remaining}>{remaining}</Text>
-        <Text style={styles.label}>kcal left</Text>
+        <Text style={styles.label}>kcal kaldi</Text>
+        <View style={styles.consumedRow}>
+          <Text style={styles.consumed}>{consumed}</Text>
+          <Text style={styles.consumedLabel}> tuketildi</Text>
+        </View>
       </View>
     </View>
   )
@@ -70,12 +76,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   remaining: {
-    fontSize: fontSizes.h2,
+    fontSize: fontSizes.h1,
     fontWeight: fontWeights.bold,
     color: colors.text.primary,
   },
   label: {
     fontSize: fontSizes.sm,
     color: colors.text.secondary,
+    fontWeight: fontWeights.medium,
+  },
+  consumedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  consumed: {
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.semibold,
+    color: colors.primary.main,
+  },
+  consumedLabel: {
+    fontSize: fontSizes.xs,
+    color: colors.text.disabled,
   },
 })

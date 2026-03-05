@@ -94,7 +94,7 @@ export const mockUser = {
   email: "dr.ayse@nutriai.com",
   firstName: "Ayse",
   lastName: "Yilmaz",
-  role: "admin" as const,
+  role: "nutritionist" as const,
   avatar: "",
   phone: "+90 532 123 4567",
   bio: "10 yillik deneyimli klinik diyetisyen. Obezite, diyabet ve sporcu beslenmesi uzmani.",
@@ -105,7 +105,28 @@ export const mockUser = {
   updatedAt: "2026-02-25T00:00:00",
 };
 
+export const mockAdminUser = {
+  id: "usr_admin_001",
+  email: "admin@nutriai.com",
+  firstName: "Sistem",
+  lastName: "Yoneticisi",
+  role: "admin" as const,
+  avatar: "",
+  phone: "+90 532 000 0001",
+  bio: "NutriAI platform yoneticisi.",
+  specializations: [],
+  licenseNumber: "",
+  status: "active" as const,
+  createdAt: "2025-01-01T00:00:00",
+  updatedAt: "2026-02-25T00:00:00",
+};
+
 export const mockToken = "mock-jwt-token-nutriai-2026";
+
+export function getMockUserByEmail(email: string) {
+  if (email === mockAdminUser.email) return mockAdminUser;
+  return mockUser;
+}
 
 // ---------------------------------------------------------------------------
 // Additional mock data: Live Tracking

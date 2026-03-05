@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -11,6 +12,13 @@ interface WaterTrackerProps {
   onAddGlass: () => void
   onRemoveGlass: () => void
   style?: ViewStyle
+}
+
+const waterBlue = {
+  main: '#1E88E5',
+  light: '#E3F2FD',
+  medium: '#42A5F5',
+  dark: '#1565C0',
 }
 
 export const WaterTracker: React.FC<WaterTrackerProps> = ({
@@ -27,9 +35,16 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Water Intake</Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.headerIcon}>
+            <Ionicons name="water" size={18} color={waterBlue.main} />
+          </View>
+          <Text style={styles.title}>Su Takibi</Text>
+        </View>
         <Text style={styles.total}>{totalMl} ml</Text>
       </View>
+
+      {/* Glass grid */}
       <View style={styles.glassRow}>
         {Array.from({ length: targetGlasses }).map((_, index) => (
           <View
@@ -39,36 +54,39 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
               index < currentGlasses && styles.glassFilled,
             ]}
           >
-            <Text
-              style={[
-                styles.glassIcon,
-                index < currentGlasses && styles.glassIconFilled,
-              ]}
-            >
-              {index < currentGlasses ? 'W' : 'W'}
-            </Text>
+            <Ionicons
+              name={index < currentGlasses ? 'water' : 'water-outline'}
+              size={14}
+              color={index < currentGlasses ? '#FFFFFF' : waterBlue.medium}
+            />
           </View>
         ))}
       </View>
+
+      {/* Progress bar */}
       <View style={styles.progressBar}>
         <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
       </View>
+
+      {/* Controls */}
       <View style={styles.buttons}>
         <TouchableOpacity
           onPress={onRemoveGlass}
           disabled={currentGlasses <= 0}
           style={[styles.button, currentGlasses <= 0 && styles.buttonDisabled]}
+          activeOpacity={0.7}
         >
-          <Text style={styles.buttonText}>-</Text>
+          <Ionicons name="remove" size={20} color={colors.text.secondary} />
         </TouchableOpacity>
         <Text style={styles.count}>
-          {currentGlasses} / {targetGlasses} glasses
+          {currentGlasses} / {targetGlasses} bardak
         </Text>
         <TouchableOpacity
           onPress={onAddGlass}
           style={[styles.button, styles.buttonPrimary]}
+          activeOpacity={0.7}
         >
-          <Text style={[styles.buttonText, styles.buttonTextPrimary]}>+</Text>
+          <Ionicons name="add" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -80,6 +98,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -87,55 +107,60 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  headerIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: waterBlue.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
-    fontSize: fontSizes.xl,
+    fontSize: fontSizes.lg,
     fontWeight: fontWeights.semibold,
     color: colors.text.primary,
   },
   total: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.semibold,
-    color: '#1565C0',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.bold,
+    color: waterBlue.dark,
   },
   glassRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     marginBottom: spacing.md,
-    gap: spacing.sm,
+    gap: 6,
   },
   glass: {
-    width: 32,
-    height: 40,
-    borderRadius: borderRadius.xs,
+    width: 30,
+    height: 36,
+    borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: '#90CAF9',
+    borderColor: waterBlue.light,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E3F2FD',
+    backgroundColor: waterBlue.light,
   },
   glassFilled: {
-    backgroundColor: '#42A5F5',
-    borderColor: '#1E88E5',
-  },
-  glassIcon: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: '#90CAF9',
-  },
-  glassIconFilled: {
-    color: '#FFFFFF',
+    backgroundColor: waterBlue.medium,
+    borderColor: waterBlue.main,
   },
   progressBar: {
-    height: 6,
-    backgroundColor: '#E3F2FD',
+    height: 4,
+    backgroundColor: waterBlue.light,
     borderRadius: borderRadius.full,
     overflow: 'hidden',
     marginBottom: spacing.md,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#42A5F5',
+    backgroundColor: waterBlue.main,
     borderRadius: borderRadius.full,
   },
   buttons: {
@@ -146,26 +171,19 @@ const styles = StyleSheet.create({
   button: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    borderWidth: 1.5,
+    borderRadius: 12,
+    borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.background.default,
   },
   buttonPrimary: {
-    backgroundColor: '#42A5F5',
-    borderColor: '#42A5F5',
+    backgroundColor: waterBlue.main,
+    borderColor: waterBlue.main,
   },
   buttonDisabled: {
     opacity: 0.3,
-  },
-  buttonText: {
-    fontSize: fontSizes.h3,
-    fontWeight: fontWeights.medium,
-    color: colors.text.primary,
-  },
-  buttonTextPrimary: {
-    color: '#FFFFFF',
   },
   count: {
     fontSize: fontSizes.md,

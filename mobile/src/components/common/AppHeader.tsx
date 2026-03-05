@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -34,7 +35,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       <View style={styles.left}>
         {onBack ? (
           <TouchableOpacity onPress={onBack} style={styles.backButton} activeOpacity={0.7}>
-            <Text style={styles.backArrow}>{'\u2190'}</Text>
+            <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
           </TouchableOpacity>
         ) : leftAction ? (
           <View>{leftAction}</View>
@@ -85,10 +86,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: spacing.xs,
-  },
-  backArrow: {
-    fontSize: fontSizes.h3,
-    color: colors.text.primary,
   },
   title: {
     fontSize: fontSizes.xl,

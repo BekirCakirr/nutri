@@ -53,11 +53,11 @@ export const MacroBar: React.FC<MacroBarProps> = ({
           </View>
           <View style={styles.labelItem}>
             <View style={[styles.dot, { backgroundColor: macroColors.carbs }]} />
-            <Text style={styles.labelText}>Carbs {Math.round(carbsPct)}%</Text>
+            <Text style={styles.labelText}>Karb. {Math.round(carbsPct)}%</Text>
           </View>
           <View style={styles.labelItem}>
             <View style={[styles.dot, { backgroundColor: macroColors.fat }]} />
-            <Text style={styles.labelText}>Fat {Math.round(fatPct)}%</Text>
+            <Text style={styles.labelText}>Yag {Math.round(fatPct)}%</Text>
           </View>
         </View>
       )}

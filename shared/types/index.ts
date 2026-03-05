@@ -310,10 +310,52 @@ export interface LoginRequest {
   twoFactorCode?: string;
 }
 
+/** Patient registration request. */
+export interface RegisterPatientRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  inviteCode?: string;
+}
+
+/** Dietitian registration request. */
+export interface RegisterDietitianRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  title?: string;
+  licenseNumber: string;
+  specializations?: string[];
+  university?: string;
+  experienceYears?: number;
+  bio?: string;
+  city?: string;
+}
+
 /** Refresh token request. */
 export interface RefreshTokenRequest {
   refreshToken: string;
 }
+
+/** Auth response (returned after login/register). */
+export interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    role: UserRole;
+    firstName: string;
+    lastName: string;
+  };
+  tokens: AuthTokens;
+}
+
+/** Entry method for meal logging. */
+export type MealEntryMethod = "manual" | "photo_ai" | "barcode" | "voice" | "ocr" | "text_ai";
+
+/** Usage mode for patient (AI-only vs with dietitian). */
+export type UsageMode = "ai_independent" | "with_dietitian";
 
 /** Lightweight patient reference. */
 export interface SharedPatientRef {

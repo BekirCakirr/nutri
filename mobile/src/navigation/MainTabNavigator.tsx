@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Platform } from 'react-native'
 import type { MainTabParamList } from './types'
 import { colors } from '../theme/colors'
 
@@ -17,19 +17,23 @@ export default function MainTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary.main,
-        tabBarInactiveTintColor: colors.text.secondary,
+        tabBarActiveTintColor: colors.primary[700],
+        tabBarInactiveTintColor: colors.text.disabled,
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
+        tabBarItemStyle: styles.tabBarItem,
       }}
     >
       <Tab.Screen
         name="HomeTab"
         component={HomeStack}
         options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          tabBarLabel: 'Ana Sayfa',
+          tabBarIcon: ({ focused, color }) => (
+            <View style={styles.iconWrap}>
+              <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />
+              {focused && <View style={styles.activeIndicator} />}
+            </View>
           ),
         }}
       />
@@ -37,9 +41,12 @@ export default function MainTabNavigator() {
         name="MealsTab"
         component={MealsStack}
         options={{
-          tabBarLabel: 'Meals',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="restaurant-outline" size={size} color={color} />
+          tabBarLabel: 'Ogunler',
+          tabBarIcon: ({ focused, color }) => (
+            <View style={styles.iconWrap}>
+              <Ionicons name={focused ? 'restaurant' : 'restaurant-outline'} size={22} color={color} />
+              {focused && <View style={styles.activeIndicator} />}
+            </View>
           ),
         }}
       />
@@ -48,13 +55,11 @@ export default function MainTabNavigator() {
         component={CameraStack}
         options={{
           tabBarLabel: '',
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: () => (
             <View style={styles.cameraButton}>
-              <Ionicons
-                name="camera"
-                size={28}
-                color={focused ? colors.primary.main : '#FFFFFF'}
-              />
+              <View style={styles.cameraInner}>
+                <Ionicons name="scan-outline" size={26} color="#FFFFFF" />
+              </View>
             </View>
           ),
         }}
@@ -63,9 +68,12 @@ export default function MainTabNavigator() {
         name="ProgressTab"
         component={ProgressStack}
         options={{
-          tabBarLabel: 'Progress',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bar-chart-outline" size={size} color={color} />
+          tabBarLabel: 'Ilerleme',
+          tabBarIcon: ({ focused, color }) => (
+            <View style={styles.iconWrap}>
+              <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={22} color={color} />
+              {focused && <View style={styles.activeIndicator} />}
+            </View>
           ),
         }}
       />
@@ -73,9 +81,12 @@ export default function MainTabNavigator() {
         name="ProfileTab"
         component={ProfileStack}
         options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+          tabBarLabel: 'Profil',
+          tabBarIcon: ({ focused, color }) => (
+            <View style={styles.iconWrap}>
+              <Ionicons name={focused ? 'person' : 'person-outline'} size={22} color={color} />
+              {focused && <View style={styles.activeIndicator} />}
+            </View>
           ),
         }}
       />
@@ -85,29 +96,55 @@ export default function MainTabNavigator() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 60,
-    paddingBottom: 8,
-    paddingTop: 4,
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 24 : 16,
+    left: 16,
+    right: 16,
+    height: 64,
     backgroundColor: colors.background.paper,
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
+    borderRadius: 20,
+    borderTopWidth: 0,
+    shadowColor: colors.primary[900],
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 12,
+    paddingBottom: 0,
   },
   tabBarLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
+    marginTop: -2,
+  },
+  tabBarItem: {
+    paddingTop: 8,
+  },
+  iconWrap: {
+    alignItems: 'center',
+  },
+  activeIndicator: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.primary.main,
+    marginTop: 3,
   },
   cameraButton: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: 16,
     backgroundColor: colors.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    marginBottom: 28,
+    shadowColor: colors.primary[700],
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  cameraInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

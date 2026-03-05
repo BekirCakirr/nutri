@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -38,12 +39,12 @@ export const DietitianCard: React.FC<DietitianCardProps> = ({
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.specialty}>{specialty}</Text>
         <View style={styles.ratingRow}>
-          <Text style={styles.star}>{'\u2605'}</Text>
+          <Ionicons name="star" size={14} color="#FFB300" />
           <Text style={styles.rating}>{rating.toFixed(1)}</Text>
-          <Text style={styles.reviews}>({reviewCount} reviews)</Text>
+          <Text style={styles.reviews}>({reviewCount} degerlendirme)</Text>
         </View>
       </View>
-      {isAvailable && <Badge label="Available" variant="success" size="sm" />}
+      {isAvailable && <Badge label="Musait" variant="success" size="sm" />}
     </TouchableOpacity>
   )
 }
@@ -55,11 +56,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   content: {
     flex: 1,
@@ -79,11 +77,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: spacing.xs,
-  },
-  star: {
-    fontSize: fontSizes.md,
-    color: '#FFD54F',
-    marginRight: 2,
   },
   rating: {
     fontSize: fontSizes.sm,

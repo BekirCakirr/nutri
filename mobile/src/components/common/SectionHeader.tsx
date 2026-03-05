@@ -13,7 +13,7 @@ interface SectionHeaderProps {
 
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
   title,
-  actionLabel = 'See All',
+  actionLabel = 'Tumunu Gor',
   onAction,
   style,
 }) => {

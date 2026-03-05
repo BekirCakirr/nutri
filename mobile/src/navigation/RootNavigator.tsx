@@ -1,5 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack'
 import type { RootStackParamList } from './types'
+import { useAuthStore } from '../stores/authStore'
 
 import AuthStack from './AuthStack'
 import OnboardingStack from './OnboardingStack'
@@ -19,13 +20,9 @@ import AllergenScannerScreen from '../screens/modals/AllergenScannerScreen'
 
 const Stack = createStackNavigator<RootStackParamList>()
 
-// TODO: Replace with actual auth store check
-const useIsAuthenticated = () => true
-const useIsOnboarded = () => true
-
 export default function RootNavigator() {
-  const isAuthenticated = useIsAuthenticated()
-  const isOnboarded = useIsOnboarded()
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const isOnboarded = useAuthStore((s) => s.isOnboarded)
 
   return (
     <Stack.Navigator
