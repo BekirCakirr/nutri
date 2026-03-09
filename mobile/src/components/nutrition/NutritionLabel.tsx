@@ -27,16 +27,16 @@ export const NutritionLabel: React.FC<NutritionLabelProps> = ({
 }) => {
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.title}>Nutrition Facts</Text>
+      <Text style={styles.title}>Besin Degerleri</Text>
       <View style={styles.thickDivider} />
-      <Text style={styles.serving}>Serving Size {servingSize}</Text>
+      <Text style={styles.serving}>Porsiyon {servingSize}</Text>
       <View style={styles.thickDivider} />
       <View style={styles.calorieRow}>
-        <Text style={styles.calorieLabel}>Calories</Text>
+        <Text style={styles.calorieLabel}>Kalori</Text>
         <Text style={styles.calorieValue}>{calories}</Text>
       </View>
       <View style={styles.thinDivider} />
-      <Text style={styles.dvHeader}>% Daily Value*</Text>
+      <Text style={styles.dvHeader}>% Gunluk Deger*</Text>
       <View style={styles.thinDivider} />
       {nutrients.map((nutrient, index) => (
         <View key={index}>
@@ -64,9 +64,9 @@ export const NutritionLabel: React.FC<NutritionLabelProps> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.background.paper,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: colors.text.primary,
-    borderRadius: borderRadius.xs,
+    borderRadius: borderRadius.md,
     padding: spacing.sm,
   },
   title: {

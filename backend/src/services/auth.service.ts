@@ -383,7 +383,8 @@ async function storeRefreshToken(userId: string, token: string) {
   // Expires in 7 days
   await query(
     `INSERT INTO refresh_tokens (user_id, token, expires_at)
-     VALUES ($1, $2, NOW() + INTERVAL '7 days')`,
+     VALUES ($1, $2, NOW() + INTERVAL '7 days')
+     ON CONFLICT (token) DO UPDATE SET expires_at = NOW() + INTERVAL '7 days'`,
     [userId, token]
   );
 

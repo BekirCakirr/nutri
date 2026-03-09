@@ -4,12 +4,20 @@ import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
+type Difficulty = 'Easy' | 'Medium' | 'Hard'
+
+const difficultyLabels: Record<Difficulty, string> = {
+  Easy: 'Kolay',
+  Medium: 'Orta',
+  Hard: 'Zor',
+}
+
 interface RecipeCardProps {
   title: string
   cookTime: string
   calories: number
   servings: number
-  difficulty?: 'Easy' | 'Medium' | 'Hard'
+  difficulty?: Difficulty
   tags?: string[]
   onPress?: () => void
   style?: ViewStyle
@@ -38,7 +46,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
       style={[styles.card, style]}
     >
       <View style={styles.imagePlaceholder}>
-        <Text style={styles.placeholderText}>Recipe Image</Text>
+        <Text style={styles.placeholderText}>Tarif Gorseli</Text>
       </View>
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={2}>
@@ -49,11 +57,11 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
           <Text style={styles.metaDot}>{'\u2022'}</Text>
           <Text style={styles.meta}>{calories} kcal</Text>
           <Text style={styles.metaDot}>{'\u2022'}</Text>
-          <Text style={styles.meta}>{servings} servings</Text>
+          <Text style={styles.meta}>{servings} porsiyon</Text>
         </View>
         <View style={styles.footer}>
           <Text style={[styles.difficulty, { color: difficultyColors[difficulty] }]}>
-            {difficulty}
+            {difficultyLabels[difficulty]}
           </Text>
           {tags.length > 0 && (
             <View style={styles.tags}>
@@ -75,11 +83,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowColor: '#0F3D23',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 4,
   },
   imagePlaceholder: {
     height: 160,

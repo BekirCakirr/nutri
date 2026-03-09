@@ -1,9 +1,10 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from '../../theme/colors'
+import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
+import { shadows } from '../../theme/shadows'
 
 interface WaterTrackerProps {
   currentGlasses: number
@@ -14,12 +15,7 @@ interface WaterTrackerProps {
   style?: ViewStyle
 }
 
-const waterBlue = {
-  main: '#1E88E5',
-  light: '#E3F2FD',
-  medium: '#42A5F5',
-  dark: '#1565C0',
-}
+const waterBlue = nutritionColors.water
 
 export const WaterTracker: React.FC<WaterTrackerProps> = ({
   currentGlasses,
@@ -98,8 +94,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...shadows.sm,
   },
   header: {
     flexDirection: 'row',

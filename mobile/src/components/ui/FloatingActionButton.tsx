@@ -1,7 +1,9 @@
-import React from 'react'
-import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import React, { useRef, useEffect, useCallback, memo } from 'react'
+import { TouchableOpacity, StyleSheet, ViewStyle, Animated } from 'react-native'
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
+import { shadows } from '../../theme/shadows'
+import { spring as springConfig } from '../../theme/animations'
 
 interface FloatingActionButtonProps {
   icon: React.ReactNode
@@ -13,7 +15,7 @@ interface FloatingActionButtonProps {
   style?: ViewStyle
 }
 
-export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
+export const FloatingActionButton: React.FC<FloatingActionButtonProps> = memo(({
   icon,
   onPress,
   color = colors.primary.main,
@@ -22,11 +24,31 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   disabled = false,
   style,
 }) => {
+  const scale = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      ...springConfig.bouncy,
+    }).start()
+  }, [])
+
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 0.85,
+      ...springConfig.default,
+    }).start()
+  }, [scale])
+
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      ...springConfig.bouncy,
+    }).start()
+  }, [scale])
+
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      activeOpacity={0.8}
+    <Animated.View
       style={[
         styles.fab,
         {
@@ -34,6 +56,7 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
           width: size,
           height: size,
           borderRadius: size / 2,
+          transform: [{ scale }],
         },
         position === 'bottom-right' && styles.bottomRight,
         position === 'bottom-center' && styles.bottomCenter,
@@ -41,22 +64,33 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
         style,
       ]}
     >
-      {icon}
-    </TouchableOpacity>
+      <TouchableOpacity
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        activeOpacity={1}
+        style={styles.touchable}
+      >
+        {icon}
+      </TouchableOpacity>
+    </Animated.View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
+    ...shadows.lg,
     zIndex: 100,
+  },
+  touchable: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomRight: {
     bottom: spacing.lg,

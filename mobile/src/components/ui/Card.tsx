@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ViewStyle } from 'react-native'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
+import { shadows } from '../../theme/shadows'
 
 interface CardProps {
   children: React.ReactNode
@@ -55,11 +56,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   shadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.md,
   },
   bordered: {
     borderWidth: 1,

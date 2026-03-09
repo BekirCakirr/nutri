@@ -53,3 +53,36 @@ export const colors = {
     border: '#2D4A3A',
   },
 } as const
+
+export const nutritionColors = {
+  mealType: {
+    breakfast: '#E8A040',
+    lunch: '#2D8C4E',
+    dinner: '#4A7FB5',
+    snack: '#8B6BAA',
+  },
+  macro: {
+    protein: '#C75B4A',
+    carbs: '#4A7FB5',
+    fat: '#D4A843',
+    fiber: '#5DA06B',
+  },
+  water: {
+    main: '#4A90B8',
+    light: '#E4F0F7',
+    medium: '#6BAFE0',
+    dark: '#2E6F8E',
+  },
+  category: {
+    fruit: '#E8A040',
+    vegetable: '#4AA564',
+    grain: '#C77A4A',
+    protein: '#C75B4A',
+    dairy: '#4A90B8',
+    fat: '#D4A843',
+    snack: '#8B6BAA',
+    beverage: '#4AAFB8',
+    prepared: '#8D6E63',
+    other: '#7A8F84',
+  },
+} as const

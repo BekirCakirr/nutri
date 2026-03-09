@@ -7,14 +7,14 @@
 -- Password: admin123 (bcrypt hash)
 INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
   ('a0000000-0000-0000-0000-000000000001', 'admin@nutriai.com',
-   '$2b$10$8K1p/FEH7B1eSR7s1y3Kj.qPWMKHJWr3rG6d7X4vN8E0R2f5fy0xi',
+   '$2b$10$vN5pslOAApJ5k5GsWLr/R.eOCf2cNiFUeXqz44EcCcyZQxp.0y7F2',
    'admin', true, true);
 
 -- ── Dietitian: Dyt. Elif Kaya ────────────────────────────────────────────────
 -- Password: elif1234 (bcrypt hash)
 INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
   ('d0000000-0000-0000-0000-000000000001', 'elif.kaya@nutriai.com',
-   '$2b$10$8K1p/FEH7B1eSR7s1y3Kj.qPWMKHJWr3rG6d7X4vN8E0R2f5fy0xi',
+   '$2b$10$xRBFqlxlDavZydeFiXdK6e4XcKELu.XYnBj1b5lPX89BZDvAQy7sS',
    'dietitian', true, true);
 
 INSERT INTO dietitian_profiles (
@@ -24,7 +24,7 @@ INSERT INTO dietitian_profiles (
   session_price_tl, invite_code, max_patients,
   available_days, session_duration_min, is_approved, approval_date
 ) VALUES (
-  'dp000000-0000-0000-0000-000000000001',
+  'de000000-0000-0000-0000-000000000001',
   'd0000000-0000-0000-0000-000000000001',
   'Elif', 'Kaya', 'Uzm. Dyt.', 'DYT-34-2019-0042',
   ARRAY['kilo_yonetimi', 'sporcu_beslenmesi', 'diyabet'],
@@ -39,8 +39,8 @@ INSERT INTO dietitian_profiles (
 -- ── Patient: Ayse Yilmaz ─────────────────────────────────────────────────────
 -- Password: ayse1234 (bcrypt hash)
 INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
-  ('p0000000-0000-0000-0000-000000000001', 'ayse.yilmaz@email.com',
-   '$2b$10$8K1p/FEH7B1eSR7s1y3Kj.qPWMKHJWr3rG6d7X4vN8E0R2f5fy0xi',
+  ('b0000000-0000-0000-0000-000000000001', 'ayse.yilmaz@email.com',
+   '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',
    'patient', true, true);
 
 INSERT INTO patient_profiles (
@@ -52,8 +52,8 @@ INSERT INTO patient_profiles (
   protein_target_g, carb_target_g, fat_target_g,
   onboarding_completed, xp_points, level, current_streak
 ) VALUES (
-  'pp000000-0000-0000-0000-000000000001',
-  'p0000000-0000-0000-0000-000000000001',
+  'bb000000-0000-0000-0000-000000000001',
+  'b0000000-0000-0000-0000-000000000001',
   'Ayse', 'Yilmaz', '1990-05-15', 'female',
   165, 72.5, 62.0,
   'moderately_active', 'weight_loss', 12,
@@ -67,8 +67,8 @@ INSERT INTO patient_profiles (
 INSERT INTO dietitian_patients (
   dietitian_id, patient_id, status, paired_via
 ) VALUES (
-  'dp000000-0000-0000-0000-000000000001',
-  'pp000000-0000-0000-0000-000000000001',
+  'de000000-0000-0000-0000-000000000001',
+  'bb000000-0000-0000-0000-000000000001',
   'active', 'invite_code'
 );
 
@@ -93,30 +93,11 @@ INSERT INTO allergens (name, name_en, category, icon) VALUES
 
 -- ── Ayse'nin alerjileri ──────────────────────────────────────────────────────
 INSERT INTO patient_allergies (patient_id, allergen_id, severity, is_self_reported) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 15, 'moderate', true);
+  ('bb000000-0000-0000-0000-000000000001', 15, 'moderate', true);
 
--- ── Sample foods (Turk mutfagi) ──────────────────────────────────────────────
-INSERT INTO foods (name, name_en, category, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g, fiber_per_100g, sugar_per_100g, sodium_per_100g, serving_size_g, serving_description, is_verified) VALUES
-  ('Tavuk Gogsu (Izgara)', 'Grilled Chicken Breast', 'protein', 165.0, 31.0, 0.0, 3.6, 0.0, 0.0, 74.0, 150, '1 porsiyon', true),
-  ('Pirinc Pilavi', 'Rice Pilaf', 'tahil', 130.0, 2.7, 28.0, 1.0, 0.4, 0.1, 1.0, 150, '1 porsiyon', true),
-  ('Mercimek Corbasi', 'Lentil Soup', 'corba', 56.0, 3.6, 9.0, 0.8, 2.0, 0.5, 300.0, 250, '1 kase', true),
-  ('Coban Salata', 'Shepherd Salad', 'salata', 25.0, 1.0, 4.0, 0.5, 1.2, 2.5, 5.0, 200, '1 porsiyon', true),
-  ('Yulaf Ezmesi', 'Oatmeal', 'tahil', 68.0, 2.5, 12.0, 1.4, 1.7, 0.3, 2.0, 250, '1 kase', true),
-  ('Yumurta (Haslanmis)', 'Boiled Egg', 'protein', 155.0, 13.0, 1.1, 11.0, 0.0, 1.1, 124.0, 50, '1 adet', true),
-  ('Tam Bugday Ekmek', 'Whole Wheat Bread', 'tahil', 247.0, 13.0, 41.0, 3.4, 7.0, 6.0, 400.0, 30, '1 dilim', true),
-  ('Beyaz Peynir', 'White Cheese', 'sut_urunleri', 264.0, 17.0, 0.5, 21.0, 0.0, 0.5, 917.0, 30, '1 dilim', true),
-  ('Zeytin (Siyah)', 'Black Olives', 'meyve_sebze', 115.0, 0.8, 6.0, 11.0, 3.2, 0.0, 735.0, 20, '5 adet', true),
-  ('Domates', 'Tomato', 'meyve_sebze', 18.0, 0.9, 3.9, 0.2, 1.2, 2.6, 5.0, 120, '1 orta boy', true),
-  ('Salatalik', 'Cucumber', 'meyve_sebze', 15.0, 0.7, 3.6, 0.1, 0.5, 1.7, 2.0, 100, '1 orta boy', true),
-  ('Yogurt (Tam Yagli)', 'Full Fat Yogurt', 'sut_urunleri', 61.0, 3.5, 4.7, 3.3, 0.0, 4.7, 46.0, 200, '1 kase', true),
-  ('Muz', 'Banana', 'meyve_sebze', 89.0, 1.1, 23.0, 0.3, 2.6, 12.0, 1.0, 120, '1 orta boy', true),
-  ('Elma', 'Apple', 'meyve_sebze', 52.0, 0.3, 14.0, 0.2, 2.4, 10.0, 1.0, 150, '1 orta boy', true),
-  ('Ceviz', 'Walnut', 'kuruyemis', 654.0, 15.0, 14.0, 65.0, 6.7, 2.6, 2.0, 30, '1 avuc', true),
-  ('Badem', 'Almond', 'kuruyemis', 579.0, 21.0, 22.0, 50.0, 12.5, 4.4, 1.0, 30, '1 avuc', true),
-  ('Zeytinyagi', 'Olive Oil', 'yag', 884.0, 0.0, 0.0, 100.0, 0.0, 0.0, 2.0, 15, '1 yemek kasigi', true),
-  ('Kuru Fasulye (Pisirilmis)', 'Cooked White Beans', 'bakliyat', 127.0, 8.7, 23.0, 0.5, 6.3, 0.3, 2.0, 200, '1 porsiyon', true),
-  ('Bulgur Pilavi', 'Bulgur Pilaf', 'tahil', 83.0, 3.1, 18.6, 0.2, 4.5, 0.1, 1.0, 150, '1 porsiyon', true),
-  ('Ispanak (Sote)', 'Sauteed Spinach', 'meyve_sebze', 23.0, 2.9, 3.6, 0.4, 2.2, 0.4, 79.0, 150, '1 porsiyon', true);
+-- ── Foods: see seed-foods.sql for 150+ entries ─────────────────────────────
+-- Import seed-foods.sql separately or run it after this file
+-- To use inline: \i seed-foods.sql
 
 -- ── Badges ───────────────────────────────────────────────────────────────────
 INSERT INTO badges (name, description, icon, category, requirement_type, requirement_value, xp_reward) VALUES
@@ -138,9 +119,9 @@ INSERT INTO badges (name, description, icon, category, requirement_type, require
 
 -- ── Ayse'nin rozetleri ───────────────────────────────────────────────────────
 INSERT INTO patient_badges (patient_id, badge_id) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 1),
-  ('pp000000-0000-0000-0000-000000000001', 2),
-  ('pp000000-0000-0000-0000-000000000001', 14);
+  ('bb000000-0000-0000-0000-000000000001', 1),
+  ('bb000000-0000-0000-0000-000000000001', 2),
+  ('bb000000-0000-0000-0000-000000000001', 14);
 
 -- ── Weekly challenge ─────────────────────────────────────────────────────────
 INSERT INTO weekly_challenges (title, description, challenge_type, target_value, xp_reward, start_date, end_date) VALUES
@@ -150,27 +131,27 @@ INSERT INTO weekly_challenges (title, description, challenge_type, target_value,
 
 -- ── Ayse'nin mevcut challenge'i ──────────────────────────────────────────────
 INSERT INTO patient_challenges (patient_id, challenge_id, current_progress) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 1, 3);
+  ('bb000000-0000-0000-0000-000000000001', 1, 3);
 
 -- ── Sample meal logs for Ayse ────────────────────────────────────────────────
 INSERT INTO meal_logs (patient_id, meal_type, log_date, entry_method, total_calories, total_protein, total_carbs, total_fat, mood, hunger_level, sent_to_dietitian) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 'breakfast', CURRENT_DATE, 'manual', 420, 18, 52, 15, 'happy', 3, true),
-  ('pp000000-0000-0000-0000-000000000001', 'lunch', CURRENT_DATE, 'photo_ai', 650, 35, 60, 22, 'neutral', 4, true);
+  ('bb000000-0000-0000-0000-000000000001', 'breakfast', CURRENT_DATE, 'manual', 420, 18, 52, 15, 'happy', 3, true),
+  ('bb000000-0000-0000-0000-000000000001', 'lunch', CURRENT_DATE, 'photo_ai', 650, 35, 60, 22, 'neutral', 4, true);
 
 -- ── Sample weight logs for Ayse ──────────────────────────────────────────────
 INSERT INTO weight_logs (patient_id, weight_kg) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 75.0),
-  ('pp000000-0000-0000-0000-000000000001', 74.5),
-  ('pp000000-0000-0000-0000-000000000001', 74.0),
-  ('pp000000-0000-0000-0000-000000000001', 73.5),
-  ('pp000000-0000-0000-0000-000000000001', 73.0),
-  ('pp000000-0000-0000-0000-000000000001', 72.5);
+  ('bb000000-0000-0000-0000-000000000001', 75.0),
+  ('bb000000-0000-0000-0000-000000000001', 74.5),
+  ('bb000000-0000-0000-0000-000000000001', 74.0),
+  ('bb000000-0000-0000-0000-000000000001', 73.5),
+  ('bb000000-0000-0000-0000-000000000001', 73.0),
+  ('bb000000-0000-0000-0000-000000000001', 72.5);
 
 -- ── Sample water logs ────────────────────────────────────────────────────────
 INSERT INTO water_logs (patient_id, glasses) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 6),
-  ('pp000000-0000-0000-0000-000000000001', 8),
-  ('pp000000-0000-0000-0000-000000000001', 7);
+  ('bb000000-0000-0000-0000-000000000001', 6),
+  ('bb000000-0000-0000-0000-000000000001', 8),
+  ('bb000000-0000-0000-0000-000000000001', 7);
 
 -- ── Conversation between Elif and Ayse ───────────────────────────────────────
 INSERT INTO conversations (id) VALUES
@@ -178,31 +159,31 @@ INSERT INTO conversations (id) VALUES
 
 INSERT INTO conversation_participants (conversation_id, user_id) VALUES
   ('c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001'),
-  ('c0000000-0000-0000-0000-000000000001', 'p0000000-0000-0000-0000-000000000001');
+  ('c0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001');
 
 INSERT INTO messages (conversation_id, sender_id, receiver_id, content) VALUES
-  ('c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'p0000000-0000-0000-0000-000000000001',
+  ('c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001',
    'Merhaba Ayse Hanim, beslenme planinizi hazirliyorum. Bu hafta ozellikle protein alimina dikkat edelim.'),
-  ('c0000000-0000-0000-0000-000000000001', 'p0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001',
+  ('c0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001',
    'Merhaba Elif Hanim, tesekkur ederim! Protein konusunda biraz zorlaniyorum, onerilerinizi bekliyorum.');
 
 -- ── XP history for Ayse ──────────────────────────────────────────────────────
 INSERT INTO xp_history (patient_id, xp_amount, reason) VALUES
-  ('pp000000-0000-0000-0000-000000000001', 10, 'photo_uploaded'),
-  ('pp000000-0000-0000-0000-000000000001', 5, 'meal_logged'),
-  ('pp000000-0000-0000-0000-000000000001', 5, 'meal_logged'),
-  ('pp000000-0000-0000-0000-000000000001', 50, 'badge_earned'),
-  ('pp000000-0000-0000-0000-000000000001', 50, 'badge_earned'),
-  ('pp000000-0000-0000-0000-000000000001', 25, 'badge_earned'),
-  ('pp000000-0000-0000-0000-000000000001', 5, 'water_goal_reached'),
-  ('pp000000-0000-0000-0000-000000000001', 10, 'weight_logged'),
-  ('pp000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
-  ('pp000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
-  ('pp000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
-  ('pp000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
-  ('pp000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
-  ('pp000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
-  ('pp000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
-  ('pp000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
-  ('pp000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
-  ('pp000000-0000-0000-0000-000000000001', 20, 'exercise_logged');
+  ('bb000000-0000-0000-0000-000000000001', 10, 'photo_uploaded'),
+  ('bb000000-0000-0000-0000-000000000001', 5, 'meal_logged'),
+  ('bb000000-0000-0000-0000-000000000001', 5, 'meal_logged'),
+  ('bb000000-0000-0000-0000-000000000001', 50, 'badge_earned'),
+  ('bb000000-0000-0000-0000-000000000001', 50, 'badge_earned'),
+  ('bb000000-0000-0000-0000-000000000001', 25, 'badge_earned'),
+  ('bb000000-0000-0000-0000-000000000001', 5, 'water_goal_reached'),
+  ('bb000000-0000-0000-0000-000000000001', 10, 'weight_logged'),
+  ('bb000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
+  ('bb000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
+  ('bb000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
+  ('bb000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
+  ('bb000000-0000-0000-0000-000000000001', 15, 'plan_followed'),
+  ('bb000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
+  ('bb000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
+  ('bb000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
+  ('bb000000-0000-0000-0000-000000000001', 25, 'streak_bonus'),
+  ('bb000000-0000-0000-0000-000000000001', 20, 'exercise_logged');

@@ -1,8 +1,9 @@
 import React from 'react'
 import { View, Text, StyleSheet, ViewStyle } from 'react-native'
-import { colors } from '../../theme/colors'
+import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
+import { mealTypeConfig } from '../../theme/icons'
 
 interface TimelineMeal {
   id: string
@@ -17,12 +18,7 @@ interface MealTimelineProps {
   style?: ViewStyle
 }
 
-const mealColors: Record<string, string> = {
-  breakfast: '#FF9800',
-  lunch: '#4CAF50',
-  dinner: '#2196F3',
-  snack: '#9C27B0',
-}
+const mealColors = nutritionColors.mealType as Record<string, string>
 
 export const MealTimeline: React.FC<MealTimelineProps> = ({
   meals,
@@ -45,7 +41,9 @@ export const MealTimeline: React.FC<MealTimelineProps> = ({
                 <Text style={styles.time}>{meal.time}</Text>
                 <Text style={styles.calories}>{meal.calories} kcal</Text>
               </View>
-              <Text style={styles.mealType}>{meal.mealType}</Text>
+              <Text style={styles.mealType}>
+                {(mealTypeConfig as any)[meal.mealType]?.label ?? meal.mealType}
+              </Text>
               <Text style={styles.description} numberOfLines={2}>
                 {meal.description}
               </Text>
@@ -100,7 +98,6 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.lg,
     fontWeight: fontWeights.semibold,
     color: colors.text.primary,
-    textTransform: 'capitalize',
     marginTop: 2,
   },
   description: {

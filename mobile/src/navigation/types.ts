@@ -58,9 +58,9 @@ export type HomeStackParamList = {
 // ─── Meals Stack ─────────────────────────────────────────────────────
 export type MealsStackParamList = {
   MealLog: undefined
-  AddMeal: undefined
-  FoodSearch: undefined
-  FoodDetail: { foodId: string }
+  AddMeal: { selectedFood?: import('@/types').Food; selectedQuantity?: number; selectedUnit?: string } | undefined
+  FoodSearch: { returnTo?: 'AddMeal' } | undefined
+  FoodDetail: { foodId: string; returnTo?: 'AddMeal' }
   MealDetail: { mealId: string }
   MealPlanView: undefined
   MealPlanDayDetail: { date: string }

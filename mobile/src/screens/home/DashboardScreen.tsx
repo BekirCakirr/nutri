@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, Animated } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -18,9 +18,13 @@ import { NotificationBadge } from '../../components/notifications/NotificationBa
 import { mockMeals } from '../../mock/meals'
 import { mockDietitian } from '../../mock/dietitian'
 import { mockGamificationData } from '../../mock/gamification'
-import { colors } from '../../theme/colors'
+import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
+import { shadows } from '../../theme/shadows'
+import { AnimatedPressable } from '../../components/ui/AnimatedPressable'
+import { useFadeIn } from '../../components/ui/useFadeIn'
+import { useStaggeredList } from '../../components/ui/useStaggeredList'
 
 type Nav = StackNavigationProp<HomeStackParamList, 'Dashboard'>
 
@@ -32,8 +36,8 @@ const totalFat = todayMeals.reduce((s, m) => s + m.totalNutrition.fat, 0)
 
 const dailyGoals = [
   { id: 'cal', label: 'Kalori', current: totalConsumed, target: 1650, unit: 'kcal', color: colors.primary.main },
-  { id: 'water', label: 'Su', current: 6, target: 10, unit: 'bardak', color: '#42A5F5' },
-  { id: 'protein', label: 'Protein', current: Math.round(totalProtein), target: 82, unit: 'g', color: '#E53935' },
+  { id: 'water', label: 'Su', current: 6, target: 10, unit: 'bardak', color: nutritionColors.water.main },
+  { id: 'protein', label: 'Protein', current: Math.round(totalProtein), target: 82, unit: 'g', color: nutritionColors.macro.protein },
   { id: 'exercise', label: 'Egzersiz', current: 35, target: 45, unit: 'dk', color: '#F59E0B' },
 ]
 
@@ -47,6 +51,8 @@ const mealTypeMap: Record<string, 'breakfast' | 'lunch' | 'dinner' | 'snack'> = 
 export default function DashboardScreen() {
   const navigation = useNavigation<Nav>()
   const [waterGlasses, setWaterGlasses] = useState(6)
+  const heroFadeIn = useFadeIn(0)
+  const mealAnimStyles = useStaggeredList(todayMeals.length, 200)
 
   return (
     <ScreenWrapper contentStyle={{ paddingBottom: 100 }}>
@@ -62,32 +68,31 @@ export default function DashboardScreen() {
             <Text style={styles.name}>Ayse</Text>
           </View>
         </View>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => navigation.navigate('Notifications')}
           style={styles.notifButton}
-          activeOpacity={0.7}
         >
           <Ionicons name="notifications-outline" size={22} color={colors.text.primary} />
           <NotificationBadge count={2} size="sm" />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       {/* Hero: Calorie Ring + Macros */}
-      <View style={styles.heroCard}>
+      <Animated.View style={[styles.heroCard, heroFadeIn.style]}>
         <CalorieRing consumed={totalConsumed} target={1650} size={160} strokeWidth={14} />
         <View style={styles.macroRow}>
           <View style={styles.macroItem}>
-            <View style={[styles.macroDot, { backgroundColor: '#E53935' }]} />
+            <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.protein }]} />
             <Text style={styles.macroValue}>{Math.round(totalProtein)}g</Text>
             <Text style={styles.macroLabel}>Protein</Text>
           </View>
           <View style={styles.macroItem}>
-            <View style={[styles.macroDot, { backgroundColor: '#1E88E5' }]} />
+            <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.carbs }]} />
             <Text style={styles.macroValue}>{Math.round(totalCarbs)}g</Text>
             <Text style={styles.macroLabel}>Karb.</Text>
           </View>
           <View style={styles.macroItem}>
-            <View style={[styles.macroDot, { backgroundColor: '#FDD835' }]} />
+            <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.fat }]} />
             <Text style={styles.macroValue}>{Math.round(totalFat)}g</Text>
             <Text style={styles.macroLabel}>Yag</Text>
           </View>
@@ -100,7 +105,7 @@ export default function DashboardScreen() {
           height={6}
           style={{ width: '100%', marginTop: spacing.sm }}
         />
-      </View>
+      </Animated.View>
 
       {/* Streak + XP Row */}
       <View style={styles.gamificationRow}>
@@ -122,17 +127,18 @@ export default function DashboardScreen() {
       {/* Today's Meals */}
       <SectionHeader title="Bugunun Ogunleri" />
       <View style={{ gap: spacing.sm, marginBottom: spacing.lg }}>
-        {todayMeals.map((meal) => (
-          <MealCard
-            key={meal.id}
-            mealType={mealTypeMap[meal.type] || 'snack'}
-            time={meal.time}
-            totalCalories={meal.totalNutrition.calories}
-            foods={meal.items.map((i) => ({
-              name: i.food.name,
-              calories: Math.round(i.food.nutrition.calories * i.quantity),
-            }))}
-          />
+        {todayMeals.map((meal, index) => (
+          <Animated.View key={meal.id} style={mealAnimStyles[index]}>
+            <MealCard
+              mealType={mealTypeMap[meal.type] || 'snack'}
+              time={meal.time}
+              totalCalories={meal.totalNutrition.calories}
+              foods={meal.items.map((i) => ({
+                name: i.food.name,
+                calories: Math.round(i.food.nutrition.calories * i.quantity),
+              }))}
+            />
+          </Animated.View>
         ))}
       </View>
 
@@ -160,10 +166,9 @@ export default function DashboardScreen() {
       {/* Quick Reports */}
       <SectionHeader title="Raporlar" />
       <View style={styles.reportRow}>
-        <TouchableOpacity
+        <AnimatedPressable
           style={styles.reportCard}
           onPress={() => navigation.navigate('WeeklyReport')}
-          activeOpacity={0.7}
         >
           <View style={[styles.reportIconWrap, { backgroundColor: colors.primary[50] }]}>
             <Ionicons name="bar-chart-outline" size={20} color={colors.primary.main} />
@@ -173,11 +178,10 @@ export default function DashboardScreen() {
             <Text style={styles.reportSub}>7 gunluk ozet</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text.disabled} />
-        </TouchableOpacity>
-        <TouchableOpacity
+        </AnimatedPressable>
+        <AnimatedPressable
           style={styles.reportCard}
           onPress={() => navigation.navigate('MonthlyReport')}
-          activeOpacity={0.7}
         >
           <View style={[styles.reportIconWrap, { backgroundColor: colors.secondary[50] }]}>
             <Ionicons name="trending-up-outline" size={20} color={colors.secondary[700]} />
@@ -187,7 +191,7 @@ export default function DashboardScreen() {
             <Text style={styles.reportSub}>Trend analizi</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text.disabled} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </ScreenWrapper>
   )
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.xl,
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.xxl,
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
     shadowColor: colors.primary[900],
@@ -294,8 +298,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     padding: spacing.md,
     gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...shadows.sm,
   },
   reportIconWrap: {
     width: 40,

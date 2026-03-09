@@ -4,6 +4,10 @@ import http from "http";
 import { env, pool } from "./config";
 import { initSocket } from "./socket";
 import authRoutes from "./routes/auth.routes";
+import foodRoutes from "./routes/food.routes";
+import mealRoutes from "./routes/meal.routes";
+import patientRoutes from "./routes/patient.routes";
+import dietitianRoutes from "./routes/dietitian.routes";
 import { sendError } from "./utils";
 
 const app = express();
@@ -44,6 +48,10 @@ app.get("/api/health", async (_req, res) => {
 // ── Routes ───────────────────────────────────────────────────────────────────
 
 app.use("/api/auth", authRoutes);
+app.use("/api/foods", foodRoutes);
+app.use("/api/meals", mealRoutes);
+app.use("/api/patients", patientRoutes);
+app.use("/api/dietitians", dietitianRoutes);
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 
@@ -76,8 +84,9 @@ initSocket(server);
 
 // ── Start server ─────────────────────────────────────────────────────────────
 
-server.listen(env.port, () => {
-  console.log(`
+if (require.main === module || !process.env.JEST_WORKER_ID) {
+  server.listen(env.port, () => {
+    console.log(`
 ╔══════════════════════════════════════════╗
 ║   NutriAI Backend v1.0.0                 ║
 ║   Port: ${env.port}                            ║
@@ -85,7 +94,8 @@ server.listen(env.port, () => {
 ║   DB:   PostgreSQL                       ║
 ║   WS:   Socket.io                        ║
 ╚══════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
 
 export default app;

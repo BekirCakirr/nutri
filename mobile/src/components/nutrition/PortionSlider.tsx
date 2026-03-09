@@ -22,8 +22,8 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({
   minimumValue = 0.5,
   maximumValue = 5,
   step = 0.5,
-  unit = 'serving',
-  label = 'Portion Size',
+  unit = 'porsiyon',
+  label = 'Porsiyon Boyutu',
   style,
 }) => {
   return (
@@ -32,7 +32,6 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.value}>
           {value} {unit}
-          {value !== 1 ? 's' : ''}
         </Text>
       </View>
       <Slider
@@ -51,7 +50,7 @@ export const PortionSlider: React.FC<PortionSliderProps> = ({
           {minimumValue} {unit}
         </Text>
         <Text style={styles.rangeText}>
-          {maximumValue} {unit}s
+          {maximumValue} {unit}
         </Text>
       </View>
     </View>

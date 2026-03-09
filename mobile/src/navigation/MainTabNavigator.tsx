@@ -3,6 +3,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StyleSheet, View, Platform } from 'react-native'
 import type { MainTabParamList } from './types'
 import { colors } from '../theme/colors'
+import { fontSizes, fontWeights } from '../theme/typography'
+import { borderRadius } from '../theme/spacing'
 
 import HomeStack from './HomeStack'
 import MealsStack from './MealsStack'
@@ -102,18 +104,18 @@ const styles = StyleSheet.create({
     right: 16,
     height: 64,
     backgroundColor: colors.background.paper,
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     borderTopWidth: 0,
     shadowColor: colors.primary[900],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 6,
     paddingBottom: 0,
   },
   tabBarLabel: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.semibold,
     marginTop: -2,
   },
   tabBarItem: {
@@ -136,12 +138,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 24,
     shadowColor: colors.primary[700],
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
     shadowRadius: 12,
-    elevation: 8,
+    elevation: 6,
   },
   cameraInner: {
     alignItems: 'center',

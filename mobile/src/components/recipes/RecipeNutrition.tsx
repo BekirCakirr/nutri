@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet, ViewStyle } from 'react-native'
-import { colors } from '../../theme/colors'
+import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
@@ -28,19 +28,19 @@ export const RecipeNutrition: React.FC<RecipeNutritionProps> = ({
   style,
 }) => {
   const items: NutritionInfo[] = [
-    { label: 'Calories', value: `${calories} kcal`, color: colors.primary.main },
-    { label: 'Protein', value: `${protein}g`, color: '#E53935' },
-    { label: 'Carbs', value: `${carbs}g`, color: '#1E88E5' },
-    { label: 'Fat', value: `${fat}g`, color: '#FDD835' },
+    { label: 'Kalori', value: `${calories} kcal`, color: colors.primary.main },
+    { label: 'Protein', value: `${protein}g`, color: nutritionColors.macro.protein },
+    { label: 'Karb.', value: `${carbs}g`, color: nutritionColors.macro.carbs },
+    { label: 'Yag', value: `${fat}g`, color: nutritionColors.macro.fat },
   ]
 
   if (fiber !== undefined) {
-    items.push({ label: 'Fiber', value: `${fiber}g`, color: '#66BB6A' })
+    items.push({ label: 'Lif', value: `${fiber}g`, color: nutritionColors.macro.fiber })
   }
 
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.title}>Nutrition per Serving</Text>
+      <Text style={styles.title}>Porsiyon Basina Besin</Text>
       <View style={styles.grid}>
         {items.map((item) => (
           <View key={item.label} style={styles.item}>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ViewStyle } from 'react-native'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
+import { shadows } from '../../theme/shadows'
 
 interface CalorieSummaryProps {
   consumed: number
@@ -25,19 +26,19 @@ export const CalorieSummary: React.FC<CalorieSummaryProps> = ({
       <View style={styles.row}>
         <View style={styles.item}>
           <Text style={styles.value}>{consumed}</Text>
-          <Text style={styles.label}>Eaten</Text>
+          <Text style={styles.label}>Tuketilen</Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.item}>
           <Text style={[styles.value, { color: colors.primary.main }]}>{remaining}</Text>
-          <Text style={styles.label}>Remaining</Text>
+          <Text style={styles.label}>Kalan</Text>
         </View>
         {burned > 0 && (
           <>
             <View style={styles.divider} />
             <View style={styles.item}>
               <Text style={[styles.value, { color: colors.secondary.main }]}>{burned}</Text>
-              <Text style={styles.label}>Burned</Text>
+              <Text style={styles.label}>Yakilan</Text>
             </View>
           </>
         )}
@@ -55,7 +56,7 @@ export const CalorieSummary: React.FC<CalorieSummaryProps> = ({
         />
       </View>
       <Text style={styles.targetText}>
-        Daily Target: {target} kcal
+        Gunluk Hedef: {target} kcal
       </Text>
     </View>
   )
@@ -66,6 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.paper,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
+    ...shadows.sm,
   },
   row: {
     flexDirection: 'row',

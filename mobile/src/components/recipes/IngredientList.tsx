@@ -25,10 +25,10 @@ export const IngredientList: React.FC<IngredientListProps> = ({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Ingredients</Text>
+        <Text style={styles.title}>Malzemeler</Text>
         {servings && (
           <Text style={styles.servings}>
-            {servings} serving{servings > 1 ? 's' : ''}
+            {servings} porsiyon
           </Text>
         )}
       </View>
@@ -41,7 +41,7 @@ export const IngredientList: React.FC<IngredientListProps> = ({
             </Text>
             {'  '}
             {item.name}
-            {item.optional ? ' (optional)' : ''}
+            {item.optional ? ' (istege bagli)' : ''}
           </Text>
         </View>
       ))}

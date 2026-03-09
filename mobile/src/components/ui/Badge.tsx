@@ -16,10 +16,10 @@ interface BadgeProps {
 
 const variantColors: Record<BadgeVariant, { bg: string; text: string }> = {
   default: { bg: colors.primary[100], text: colors.primary[800] },
-  success: { bg: '#E8F5E9', text: '#2E7D32' },
-  warning: { bg: '#FFF3E0', text: '#E65100' },
-  error: { bg: '#FFEBEE', text: '#C62828' },
-  info: { bg: '#E3F2FD', text: '#1565C0' },
+  success: { bg: colors.primary[50], text: colors.primary[700] },
+  warning: { bg: '#FFF8E1', text: '#F57F17' },
+  error: { bg: '#FBE9E7', text: '#BF360C' },
+  info: { bg: colors.secondary[50], text: colors.secondary[700] },
 }
 
 export const Badge: React.FC<BadgeProps> = ({

@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet, ViewStyle } from 'react-native'
-import { colors } from '../../theme/colors'
+import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
@@ -13,11 +13,7 @@ interface MacroBarProps {
   style?: ViewStyle
 }
 
-const macroColors = {
-  protein: '#E53935',
-  carbs: '#1E88E5',
-  fat: '#FDD835',
-}
+const macroColors = nutritionColors.macro
 
 export const MacroBar: React.FC<MacroBarProps> = ({
   protein,
