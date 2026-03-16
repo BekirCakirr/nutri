@@ -1,8 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, ViewStyle } from 'react-native'
-import { colors } from '../../theme/colors'
-import { spacing } from '../../theme/spacing'
-import { fontSizes, fontWeights } from '../../theme/typography'
+import { View, Text, ViewStyle } from 'react-native'
 import { StepIndicator } from './StepIndicator'
 
 interface OnboardingStepProps {
@@ -23,34 +20,13 @@ export const OnboardingStep: React.FC<OnboardingStepProps> = ({
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <View className="flex-1 px-6 pt-4 pb-6 bg-[#F8FAF9]" style={style}>
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
-      <Text style={styles.title}>{title}</Text>
-      {description && <Text style={styles.description}>{description}</Text>}
-      <View style={styles.content}>{children}</View>
+      <Text className="text-3xl font-bold text-[#1A2E23] mt-6 mb-2">{title}</Text>
+      {description && (
+        <Text className="text-base text-[#5A7264] leading-relaxed mb-6">{description}</Text>
+      )}
+      <View className="flex-1">{children}</View>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing.lg,
-  },
-  title: {
-    fontSize: fontSizes.h2,
-    fontWeight: fontWeights.bold,
-    color: colors.text.primary,
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  description: {
-    fontSize: fontSizes.lg,
-    color: colors.text.secondary,
-    lineHeight: fontSizes.lg * 1.5,
-    marginBottom: spacing.lg,
-  },
-  content: {
-    flex: 1,
-  },
-})

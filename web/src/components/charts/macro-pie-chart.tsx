@@ -14,9 +14,9 @@ interface MacroPieChartProps {
 }
 
 const defaultData: MacroData[] = [
-  { name: 'Protein', value: 30, color: 'hsl(210, 100%, 50%)' },
-  { name: 'Karbonhidrat', value: 50, color: 'hsl(45, 100%, 50%)' },
-  { name: 'Yağ', value: 20, color: 'hsl(140, 70%, 45%)' },
+  { name: 'Protein', value: 30, color: 'hsl(175, 94%, 55%)' }, // Teal
+  { name: 'Karbonhidrat', value: 50, color: 'hsl(140, 70%, 45%)' }, // Primary Green
+  { name: 'Yağ', value: 20, color: 'hsl(155, 40%, 80%)' }, // Light Green
 ]
 
 export function MacroPieChart({
@@ -36,13 +36,15 @@ export function MacroPieChart({
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={60}
+              innerRadius={70}
               outerRadius={100}
-              paddingAngle={4}
+              paddingAngle={5}
               dataKey="value"
+              stroke="none"
               label={({ name, percent }: { name?: string; percent?: number }) =>
                 `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
               }
+              labelLine={false}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
@@ -54,10 +56,18 @@ export function MacroPieChart({
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
               }}
+              itemStyle={{ fontWeight: 600 }}
+              labelStyle={{ display: 'none' }}
               formatter={(value: number | undefined) => [`${value ?? 0}g`, '']}
             />
-            <Legend />
+            <Legend 
+               verticalAlign="bottom" 
+               height={36} 
+               iconType="circle"
+               wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>

@@ -30,8 +30,8 @@ import { mealTypeConfig } from '../../theme/icons'
 type Nav = NativeStackNavigationProp<MealsStackParamList>
 
 const turkishMonths = [
-  'Ocak', 'Subat', 'Mart', 'Nisan', 'Mayis', 'Haziran',
-  'Temmuz', 'Agustos', 'Eylul', 'Ekim', 'Kasim', 'Aralik',
+  'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
 ]
 
 const CALORIE_TARGET = 2000
@@ -46,7 +46,7 @@ function formatDate(date: Date): string {
     date.getDate() === today.getDate() &&
     date.getMonth() === today.getMonth() &&
     date.getFullYear() === today.getFullYear()
-  return isToday ? `Bugun ${day} ${month} ${year}` : `${day} ${month} ${year}`
+  return isToday ? `Bugün ${day} ${month} ${year}` : `${day} ${month} ${year}`
 }
 
 export default function MealLogScreen() {
@@ -126,7 +126,7 @@ export default function MealLogScreen() {
       <CalorieSummary consumed={totals.calories} target={CALORIE_TARGET} style={styles.summary} />
 
       {/* Meals Section */}
-      <SectionHeader title="Ogunler" />
+      <SectionHeader title="Öğünler" />
 
       {MEAL_TYPES.map((type) => {
         const mealsForType = mealsByType[type]

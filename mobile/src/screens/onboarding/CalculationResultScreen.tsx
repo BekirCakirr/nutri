@@ -1,14 +1,11 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { BMIResult } from '../../components/onboarding/BMIResult'
 import { Button } from '../../components/ui/Button'
 import { useAuthStore } from '../../stores/authStore'
-import { colors } from '../../theme/colors'
-import { borderRadius, spacing } from '../../theme/spacing'
-import { fontSizes, fontWeights } from '../../theme/typography'
 
 // Mock calculation values
 const mockBMI = 25.0
@@ -26,10 +23,10 @@ export default function CalculationResultScreen() {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper padded={false}>
       <OnboardingStep
-        title="Sonuclariniz"
-        description="Bilgilerinize gore hesaplanan beslenme hedefleriniz."
+        title="Sonuçlarınız"
+        description="Bilgilerinize göre hesaplanan beslenme hedefleriniz."
         currentStep={7}
         totalSteps={7}
       >
@@ -37,104 +34,45 @@ export default function CalculationResultScreen() {
           bmi={mockBMI}
           height={mockHeight}
           weight={mockWeight}
-          style={{ marginBottom: spacing.lg }}
+          style={{ marginBottom: 16 }}
         />
 
         {/* Daily calorie target */}
-        <View style={styles.calorieCard}>
-          <Text style={styles.calorieLabel}>Gunluk Kalori Hedefi</Text>
-          <Text style={styles.calorieValue}>{mockDailyCalories}</Text>
-          <Text style={styles.calorieUnit}>kcal</Text>
+        <View className="bg-[#E8F5EC] rounded-2xl p-6 items-center mb-4 border border-[#C8E6CF]/50">
+          <Text className="text-sm font-medium text-[#5A7264] mb-1">Günlük Kalori Hedefi</Text>
+          <Text className="text-5xl font-extrabold text-[#1A5C37]">{mockDailyCalories}</Text>
+          <Text className="text-base text-[#5A7264] -mt-1">kcal</Text>
         </View>
 
         {/* Macro distribution */}
-        <View style={styles.macroRow}>
-          <View style={styles.macroItem}>
-            <View style={[styles.macroIndicator, { backgroundColor: '#EF4444' }]} />
-            <Text style={styles.macroLabel}>Protein</Text>
-            <Text style={styles.macroValue}>{mockMacros.protein}g</Text>
+        <View className="flex-row gap-3 mb-6">
+          <View className="flex-1 bg-white rounded-xl p-4 items-center border border-[#D4E2DA]">
+            <View className="w-3 h-3 rounded-full bg-[#EF4444] mb-2" />
+            <Text className="text-xs text-[#5A7264] mb-1">Protein</Text>
+            <Text className="text-xl font-bold text-[#1A2E23]">{mockMacros.protein}g</Text>
           </View>
-          <View style={styles.macroItem}>
-            <View style={[styles.macroIndicator, { backgroundColor: '#3B82F6' }]} />
-            <Text style={styles.macroLabel}>Karbonhidrat</Text>
-            <Text style={styles.macroValue}>{mockMacros.carbs}g</Text>
+          <View className="flex-1 bg-white rounded-xl p-4 items-center border border-[#D4E2DA]">
+            <View className="w-3 h-3 rounded-full bg-[#3B82F6] mb-2" />
+            <Text className="text-xs text-[#5A7264] mb-1">Karbonhidrat</Text>
+            <Text className="text-xl font-bold text-[#1A2E23]">{mockMacros.carbs}g</Text>
           </View>
-          <View style={styles.macroItem}>
-            <View style={[styles.macroIndicator, { backgroundColor: '#F59E0B' }]} />
-            <Text style={styles.macroLabel}>Yag</Text>
-            <Text style={styles.macroValue}>{mockMacros.fat}g</Text>
+          <View className="flex-1 bg-white rounded-xl p-4 items-center border border-[#D4E2DA]">
+            <View className="w-3 h-3 rounded-full bg-[#F59E0B] mb-2" />
+            <Text className="text-xs text-[#5A7264] mb-1">Yağ</Text>
+            <Text className="text-xl font-bold text-[#1A2E23]">{mockMacros.fat}g</Text>
           </View>
         </View>
 
-        <View style={styles.spacer} />
+        <View className="flex-1 min-h-[16px]" />
 
         <Button
-          title="Basla"
+          title="Başla 🎉"
           onPress={handleComplete}
           fullWidth
           size="lg"
+          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
         />
       </OnboardingStep>
     </ScreenWrapper>
   )
 }
-
-const styles = StyleSheet.create({
-  calorieCard: {
-    backgroundColor: colors.primary[50],
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  calorieLabel: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.medium,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  calorieValue: {
-    fontSize: fontSizes.display,
-    fontWeight: fontWeights.extrabold,
-    color: colors.primary.main,
-  },
-  calorieUnit: {
-    fontSize: fontSizes.lg,
-    color: colors.text.secondary,
-    marginTop: -spacing.xs,
-  },
-  macroRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  macroItem: {
-    flex: 1,
-    backgroundColor: colors.background.paper,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  macroIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginBottom: spacing.xs,
-  },
-  macroLabel: {
-    fontSize: fontSizes.xs,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  macroValue: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: colors.text.primary,
-  },
-  spacer: {
-    flex: 1,
-    minHeight: spacing.lg,
-  },
-})

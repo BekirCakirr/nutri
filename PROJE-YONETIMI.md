@@ -1,7 +1,7 @@
 # NutriAI - Proje Yönetimi
 
-> Son Güncelleme: 2026-02-25
-> Durum: Geliştirme Aşaması - Faz 1 tamamlandı, Faz 2 devam ediyor
+> Son Güncelleme: 2026-03-17 (Oturum 2)
+> Durum: Geliştirme Aşaması - Faz 1 tamamlandı, Faz 2 devam ediyor, Faz 3 başladı
 
 ---
 
@@ -11,8 +11,8 @@ NutriAI, AI destekli bir beslenme takip ve yönetim platformu. Üç ana bileşen
 
 | Bileşen | Teknoloji | Durum |
 |---------|-----------|-------|
-| **web/** — Diyetisyen Paneli | React + Vite + TailwindCSS + shadcn/ui | ✅ Çalışıyor (build geçiyor) |
-| **mobile/** — Hasta Uygulaması | Expo + React Native + TypeScript | ⚠️ Altyapı tamam, ekranlar placeholder |
+| **web/** — Diyetisyen Paneli | React + Vite + TailwindCSS + shadcn/ui | ✅ Çalışıyor (grafikler güncellendi) |
+| **mobile/** — Hasta Uygulaması | Expo + React Native + NativeWind | ⚠️ Auth + Onboarding tamamlandı, diğer ekranlar placeholder |
 | **shared/** — Ortak Tipler | TypeScript | ✅ Tamamlandı |
 
 ---
@@ -45,7 +45,12 @@ NutriAI, AI destekli bir beslenme takip ve yönetim platformu. Üç ana bileşen
 - [x] i18n (TR + EN)
 - [x] 109 gerçek bileşen (ui, nutrition, tracking, gamification, chat, recipes vb.)
 - [x] TypeScript hataları düzeltildi, Expo çalışıyor
-- [ ] **82 ekranın hepsi placeholder** (sadece View + Text)
+- [x] Auth ekranları (5 adet) — NativeWind ile yeniden tasarlandı
+- [x] Onboarding ekranları (7 adet) — NativeWind ile yeniden tasarlandı
+- [x] NativeWind (Tailwind CSS for RN) entegrasyonu tamamlandı
+- [x] Meals ekranları (10 adet) — 5 gerçek implementasyon + 5 placeholder kodlandı
+- [x] Camera ekranları (8 adet) — Tümü gerçek UI ile kodlandı
+- [ ] **Kalan ~55 ekran hâlâ placeholder**
 
 ### Ortak
 - [x] shared/types/index.ts (691 satır, 8 enum, 30+ interface)
@@ -62,7 +67,7 @@ Her sayfa çalışıyor ama profesyonellik seviyesi artırılmalı:
 |-------|-------|-------|--------|
 | Login | ~110 | ✅ Çalışıyor | Gradient arkaplan, logo, form validation |
 | Register | ~100 | ⚠️ Temel | Fonksiyonel ama basit |
-| Dashboard | ~188 | ⚠️ Temel | Stat kartları + aktivite listesi var ama grafik yok |
+| Dashboard | ~339 | ✅ İyi | Stat kartları + AreaChart kalori grafiği + Donut makro + BarChart aktivite |
 | Hasta Listesi | ~215 | ✅ İyi | Tablo, arama, filtreleme, pagination |
 | Hasta Detay | ~382 | ✅ İyi | 7 tab'lı detay sayfası |
 | Öğün İnceleme | ~221 | ⚠️ Temel | Onay/red workflow'u var |
@@ -91,22 +96,15 @@ Her sayfa çalışıyor ama profesyonellik seviyesi artırılmalı:
 
 ### Mobil — 82 Ekranın Durumu
 
-**HEPSİ PLACEHOLDER.** Her ekran sadece:
-```tsx
-<View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-  <Text>Ekran Adı</Text>
-</View>
-```
-
 Öncelikli ekranlar (implementasyon sırası):
 
 | Öncelik | Ekran Grubu | Ekran Sayısı | Durum |
 |---------|-------------|-------------|-------|
-| 🔴 P0 | Auth (Login, Register, Welcome) | 3 | ❌ Placeholder |
-| 🔴 P0 | Onboarding (7 adım) | 7 | ❌ Placeholder |
-| 🔴 P0 | Home Dashboard | 1 | ❌ Placeholder |
-| 🟠 P1 | Meal (MealLog, AddMeal, FoodSearch) | 5 | ❌ Placeholder |
-| 🟠 P1 | Camera (CameraCapture, PhotoAnalysis) | 3 | ❌ Placeholder |
+| 🔴 P0 | Auth (Welcome, Login, Register, ForgotPassword, EmailVerification) | 5 | ✅ NativeWind ile tamamlandı |
+| 🔴 P0 | Onboarding (7 adım wizard) | 7 | ✅ NativeWind ile tamamlandı |
+| 🔴 P0 | Home Dashboard | 1 | ⚠️ StyleSheet ile çalışıyor, Türkçe düzeltildi |
+| 🟠 P1 | Meal (MealLog, AddMeal, FoodSearch + 5 alt ekran) | 10 | ✅ Tamamlandı (5 gerçek impl. + 5 yeni kodlandı) |
+| 🟠 P1 | Camera (CameraCapture, PhotoAnalysis + 6 alt ekran) | 8 | ✅ Tamamlandı (tümü NativeWind) |
 | 🟡 P2 | Progress (Weight, Water, Exercise) | 5 | ❌ Placeholder |
 | 🟡 P2 | Profile (Profile, Settings) | 3 | ❌ Placeholder |
 | 🟢 P3 | Dietitian (Chat, Appointments) | 4 | ❌ Placeholder |
@@ -115,10 +113,10 @@ Her sayfa çalışıyor ama profesyonellik seviyesi artırılmalı:
 
 ---
 
-## Faz 3: Profesyonelleştirme 📋 PLANLANMIŞ
+## Faz 3: Profesyonelleştirme 🔄 BAŞLADI
 
 ### Web İyileştirmeleri
-- [ ] Dashboard'a Recharts grafikleri ekle (kalori uyumu, hasta dağılımı, aylık büyüme)
+- [x] Dashboard'a Recharts grafikleri eklendi (AreaChart kalori, Donut makro, BarChart aktivite)
 - [ ] Dark mode'un tam çalışması
 - [ ] Responsive tasarım iyileştirmeleri (mobil/tablet)
 - [ ] Loading skeleton'ları her sayfaya
@@ -130,7 +128,14 @@ Her sayfa çalışıyor ama profesyonellik seviyesi artırılmalı:
 - [ ] PDF/CSV export fonksiyonelliği
 
 ### Mobil İyileştirmeleri
-- [ ] 82 placeholder ekranı gerçek UI ile değiştir
+- [x] NativeWind (Tailwind CSS for RN) entegrasyonu tamamlandı
+- [x] Auth ekranları (5 adet) NativeWind ile yeniden tasarlandı
+- [x] Onboarding ekranları (7 adet) NativeWind ile yeniden tasarlandı
+- [x] OnboardingStep + StepIndicator bileşenleri güncellendi
+- [x] Dashboard Türkçe karakter düzeltmeleri yapıldı
+- [x] Kalan Meals placeholder ekranları kodlandı (RecentFoods, Favorites, CustomFood, MealPlanView, MealPlanDayDetail)
+- [x] Tüm Camera ekranları kodlandı (CameraCapture, PhotoAnalysis, AdjustPortions, Barcode, OCR, Voice, TextInput, MenuScan)
+- [ ] Kalan ~55 placeholder ekranı gerçek UI ile değiştir
 - [ ] Animasyonlar (Reanimated, Lottie)
 - [ ] Dark mode desteği
 - [ ] Offline desteği (AsyncStorage cache)
@@ -201,8 +206,69 @@ Dark Green:            #0F3D23  — Dark mode
 
 ## Sonraki Adımlar (Önerilen)
 
-1. **Web dashboard'u zenginleştir** — Recharts grafikleri, daha iyi layout
-2. **Mobil P0 ekranları implemente et** — Login, Register, Dashboard, Onboarding
-3. **Web'deki temel sayfaları iyileştir** — Grafik ekle, UX geliştir
-4. **Mobil P1 ekranları** — Meal logging, camera, food search
-5. **Backend başlangıcı** — Auth API + basic CRUD endpoints
+1. ~~**Web dashboard'u zenginleştir**~~ ✅ Tamamlandı
+2. ~~**Mobil P0 ekranları implemente et**~~ ✅ Auth + Onboarding tamamlandı
+3. **Mobil Home Dashboard'u NativeWind'e geçir** — Mevcut bileşenler (CalorieRing vb.) korunarak
+4. **Mobil P1 ekranları** — Öğün takibi, Kamera/AI, Besin arama
+5. **Web Plan Oluşturucu** — Sürükle-bırak (drag-and-drop) entegrasyonu
+6. **Web Skeleton/Empty State** — Tüm sayfalara loading ve boş durum bileşenleri
+7. **Backend başlangıcı** — Auth API + basic CRUD endpoints
+
+---
+
+## Günlük Geliştirme Kaydı
+
+### 2026-03-17 — Oturum 1
+
+**Web Paneli:**
+- `calorie-chart.tsx` → LineChart'tan AreaChart'a dönüştürüldü (gradient + NutriAI yeşil renkleri)
+- `macro-pie-chart.tsx` → Renk paleti NutriAI'a uyarlandı (Teal/Green tonları), Donut chart iyileştirildi
+- `patient-activity-chart.tsx` → LineChart'tan BarChart'a dönüştürüldü (rounded corners + modern renk paleti)
+- Dashboard'daki 3 grafik artık profesyonel görünüyor
+
+**Mobil Uygulama:**
+- NativeWind v4 entegrasyonu: `babel.config.js`, `tailwind.config.js`, `global.css`, `nativewind-env.d.ts` oluşturuldu
+- `tsconfig.json` güncellendi: `jsx: "react"` + `types: ["nativewind/types"]`
+- `App.tsx` içine `import './global.css'` eklendi
+- Auth ekranları (5 adet) StyleSheet → NativeWind Tailwind class'larına dönüştürüldü:
+  - `WelcomeScreen.tsx` — Logo container, marka, shadow buton
+  - `LoginScreen.tsx` — Modern form layout, hata kutusu, shadow buton
+  - `RegisterScreen.tsx` — 4 input'lu form, footer link
+  - `ForgotPasswordScreen.tsx` — Başarı durumu ile emoji icon
+  - (EmailVerification mevcut haliyle bırakıldı)
+- Onboarding ekranları (7 adet) StyleSheet → NativeWind'e dönüştürüldü:
+  - `BasicInfoScreen.tsx` — Emoji'li cinsiyet kartları, yan yana boy/kilo inputları
+  - `GoalScreen.tsx` — Türkçe karakter düzeltmesi
+  - `AllergyScreen.tsx` — Türkçe karakter düzeltmesi
+  - `DietPreferenceScreen.tsx` — Türkçe karakter düzeltmesi
+  - `LifestyleScreen.tsx` — Türkçe karakter düzeltmesi
+  - `DietitianCodeScreen.tsx` — Emoji'li tab seçiciler (📝 Kod Gir / 📷 QR Tara), QR placeholder
+  - `CalculationResultScreen.tsx` — Modern kalori kartı, makro dağılım kartları, 🎉 buton
+- Ortak bileşenler güncellendi:
+  - `OnboardingStep.tsx` → NativeWind class'ları
+  - `StepIndicator.tsx` → NativeWind class'ları, aktif adım bar genişliği artırıldı
+- `DashboardScreen.tsx` — Türkçe karakter düzeltmeleri (Ayşe, Yağ, Haftalık vb.)
+
+### 2026-03-17 — Oturum 2
+
+**Mobil — Meals Ekranları (P1):**
+- Ana 5 ekran (MealLog, AddMeal, FoodSearch, FoodDetail, MealDetail) zaten gerçek implementasyon — sadece Türkçe düzeltmeler yapıldı
+- `MealLogScreen.tsx` — Türkçe ay adları (Şubat, Ağustos vb.) ve Öğünler düzeltmesi
+- `AddMealScreen.tsx` — "Henüz yiyecek eklenmedi" ve "isteğe bağlı" düzeltmeleri
+- 5 placeholder ekran gerçek UI'a dönüştürüldü:
+  - `RecentFoodsScreen.tsx` — Son kullanılan besinler listesi (FlatList + NativeWind)
+  - `FavoritesScreen.tsx` — Favori besinler listesi (kalp icon + NativeWind)
+  - `CustomFoodScreen.tsx` — Manuel besin ekleme formu (ad, marka, porsiyon, makrolar)
+  - `MealPlanViewScreen.tsx` — Haftalık beslenme planı görünümü (tarihe göre gruplu)
+  - `MealPlanDayDetailScreen.tsx` — Günlük plan detayı (makro özet kartı + öğün kartları)
+
+**Mobil — Camera Ekranları (P1):**
+- 8 placeholder ekranın tümü gerçek UI'a dönüştürüldü:
+  - `CameraCaptureScreen.tsx` — Kamera viewfinder, fotoğraf/barkod mod seçici, capture butonu, kısayollar
+  - `PhotoAnalysisScreen.tsx` — AI analiz ekranı: loading animasyonu, güvenilirlik kartı, tespit edilen besinler + makro detayları
+  - `AdjustPortionsScreen.tsx` — Porsiyon ayarlama: +/- butonlarla miktar kontrolü, toplam kalori
+  - `BarcodeScreen.tsx` — Barkod tarama kamera arayüzü
+  - `OCRScreen.tsx` — Besin etiketi okuma kamera arayüzü
+  - `TextInputScreen.tsx` — Yazı ile besin girişi (AI'a metin gönderme)
+  - `VoiceScreen.tsx` — Sesli besin girişi (mikrofon kayıt simülasyonu)
+  - `MenuScanScreen.tsx` — Restoran menüsü tarama kamera arayüzü

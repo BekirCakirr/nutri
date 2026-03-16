@@ -65,7 +65,7 @@ export default function DashboardScreen() {
           />
           <View>
             <Text style={styles.greeting}>Merhaba,</Text>
-            <Text style={styles.name}>Ayse</Text>
+            <Text style={styles.name}>Ayşe</Text>
           </View>
         </View>
         <AnimatedPressable
@@ -94,7 +94,7 @@ export default function DashboardScreen() {
           <View style={styles.macroItem}>
             <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.fat }]} />
             <Text style={styles.macroValue}>{Math.round(totalFat)}g</Text>
-            <Text style={styles.macroLabel}>Yag</Text>
+            <Text style={styles.macroLabel}>Yağ</Text>
           </View>
         </View>
         <MacroBar
@@ -125,7 +125,7 @@ export default function DashboardScreen() {
       <DailyGoalCard goals={dailyGoals} style={{ marginBottom: spacing.lg }} />
 
       {/* Today's Meals */}
-      <SectionHeader title="Bugunun Ogunleri" />
+      <SectionHeader title="Bugünün Öğünleri" />
       <View style={{ gap: spacing.sm, marginBottom: spacing.lg }}>
         {todayMeals.map((meal, index) => (
           <Animated.View key={meal.id} style={mealAnimStyles[index]}>
@@ -174,8 +174,8 @@ export default function DashboardScreen() {
             <Ionicons name="bar-chart-outline" size={20} color={colors.primary.main} />
           </View>
           <View>
-            <Text style={styles.reportLabel}>Haftalik</Text>
-            <Text style={styles.reportSub}>7 gunluk ozet</Text>
+            <Text style={styles.reportLabel}>Haftalık</Text>
+            <Text style={styles.reportSub}>7 günlük özet</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text.disabled} />
         </AnimatedPressable>
@@ -187,7 +187,7 @@ export default function DashboardScreen() {
             <Ionicons name="trending-up-outline" size={20} color={colors.secondary[700]} />
           </View>
           <View>
-            <Text style={styles.reportLabel}>Aylik</Text>
+            <Text style={styles.reportLabel}>Aylık</Text>
             <Text style={styles.reportSub}>Trend analizi</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text.disabled} />

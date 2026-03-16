@@ -1,6 +1,6 @@
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -43,16 +43,28 @@ export function CalorieChart({
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="colorCalories" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(140, 70%, 45%)" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="hsl(140, 70%, 45%)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
             <XAxis
               dataKey="date"
               className="text-xs"
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+              dy={10}
             />
             <YAxis
               className="text-xs"
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+              dx={-10}
             />
             <Tooltip
               contentStyle={{
@@ -60,26 +72,32 @@ export function CalorieChart({
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
               }}
+              itemStyle={{ color: 'hsl(140, 70%, 45%)', fontWeight: 500 }}
+              labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600, marginBottom: '4px' }}
             />
-            <Line
-              type="monotone"
-              dataKey="calories"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={{ r: 4, fill: 'hsl(var(--primary))' }}
-              name="Kalori"
-            />
-            <Line
+            <Area
               type="monotone"
               dataKey="target"
               stroke="hsl(var(--muted-foreground))"
-              strokeWidth={1}
-              strokeDasharray="5 5"
-              dot={false}
+              strokeWidth={2}
+              strokeDasharray="4 4"
+              fill="transparent"
               name="Hedef"
+              activeDot={false}
             />
-          </LineChart>
+            <Area
+              type="monotone"
+              dataKey="calories"
+              stroke="hsl(140, 70%, 45%)"
+              strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#colorCalories)"
+              name="Kalori"
+              activeDot={{ r: 6, fill: 'hsl(140, 70%, 45%)', stroke: 'hsl(var(--background))', strokeWidth: 2 }}
+            />
+          </AreaChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>

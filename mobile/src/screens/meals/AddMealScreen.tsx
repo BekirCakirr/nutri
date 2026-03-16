@@ -103,7 +103,7 @@ export default function AddMealScreen() {
       {items.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="fast-food-outline" size={48} color={colors.text.disabled} />
-          <Text style={styles.emptyText}>Henuz yiyecek eklenmedi</Text>
+          <Text style={styles.emptyText}>Henüz yiyecek eklenmedi</Text>
         </View>
       ) : (
         <View style={styles.itemsList}>
@@ -144,7 +144,7 @@ export default function AddMealScreen() {
       {/* Notes */}
       <TextInput
         style={styles.notesInput}
-        placeholder="Notlar (istege bagli)..."
+        placeholder="Notlar (isteğe bağlı)..."
         placeholderTextColor={colors.text.disabled}
         value={notes}
         onChangeText={setNotes}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OnboardingStackParamList } from '../../navigation/types'
@@ -7,9 +7,6 @@ import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { PairCodeInput } from '../../components/dietitian/PairCodeInput'
 import { Button } from '../../components/ui/Button'
-import { colors } from '../../theme/colors'
-import { borderRadius, spacing } from '../../theme/spacing'
-import { fontSizes, fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<OnboardingStackParamList, 'DietitianCode'>
 
@@ -26,31 +23,39 @@ export default function DietitianCodeScreen() {
   }
 
   return (
-    <ScreenWrapper keyboardAvoiding>
+    <ScreenWrapper keyboardAvoiding padded={false}>
       <OnboardingStep
-        title="Diyetisyen Eslestirme"
-        description="Diyetisyeninizin size verdigi kodu girin veya QR kodu okutun."
+        title="Diyetisyen Eşleştirme"
+        description="Diyetisyeninizin size verdiği kodu girin veya QR kodu okutun."
         currentStep={6}
         totalSteps={7}
       >
         {/* Mode selector */}
-        <View style={styles.modeRow}>
+        <View className="flex-row gap-3 mb-6">
           <TouchableOpacity
             onPress={() => setMode('code')}
-            style={[styles.modeTab, mode === 'code' && styles.modeTabActive]}
+            className={`flex-1 py-3.5 rounded-xl border-2 items-center ${
+              mode === 'code'
+                ? 'border-[#1A5C37] bg-[#E8F5EC]'
+                : 'border-[#D4E2DA] bg-white'
+            }`}
             activeOpacity={0.7}
           >
-            <Text style={[styles.modeText, mode === 'code' && styles.modeTextActive]}>
-              Kod Gir
+            <Text className={`text-sm font-semibold ${mode === 'code' ? 'text-[#1A5C37]' : 'text-[#5A7264]'}`}>
+              📝 Kod Gir
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setMode('qr')}
-            style={[styles.modeTab, mode === 'qr' && styles.modeTabActive]}
+            className={`flex-1 py-3.5 rounded-xl border-2 items-center ${
+              mode === 'qr'
+                ? 'border-[#1A5C37] bg-[#E8F5EC]'
+                : 'border-[#D4E2DA] bg-white'
+            }`}
             activeOpacity={0.7}
           >
-            <Text style={[styles.modeText, mode === 'qr' && styles.modeTextActive]}>
-              QR Tara
+            <Text className={`text-sm font-semibold ${mode === 'qr' ? 'text-[#1A5C37]' : 'text-[#5A7264]'}`}>
+              📷 QR Tara
             </Text>
           </TouchableOpacity>
         </View>
@@ -62,17 +67,20 @@ export default function DietitianCodeScreen() {
             style={{ padding: 0 }}
           />
         ) : (
-          <View style={styles.qrPlaceholder}>
-            <View style={styles.qrFrame}>
-              <Text style={styles.qrText}>Kamera ile QR kodu tarayin</Text>
+          <View className="items-center py-10">
+            <View className="w-56 h-56 border-2 border-dashed border-[#D4E2DA] rounded-2xl items-center justify-center bg-white">
+              <Text className="text-5xl mb-3">📷</Text>
+              <Text className="text-sm text-[#5A7264] text-center px-6">
+                Kamera ile QR kodu tarayın
+              </Text>
             </View>
           </View>
         )}
 
-        <View style={styles.spacer} />
+        <View className="flex-1 min-h-[16px]" />
 
         <Button
-          title="Simdilik Atla"
+          title="Şimdilik Atla"
           onPress={() => navigation.navigate('CalculationResult')}
           variant="ghost"
           fullWidth
@@ -82,57 +90,3 @@ export default function DietitianCodeScreen() {
     </ScreenWrapper>
   )
 }
-
-const styles = StyleSheet.create({
-  modeRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  modeTab: {
-    flex: 1,
-    paddingVertical: spacing.sm + 2,
-    borderRadius: borderRadius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: 'center',
-  },
-  modeTabActive: {
-    borderColor: colors.primary.main,
-    backgroundColor: colors.primary[50],
-  },
-  modeText: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.medium,
-    color: colors.text.secondary,
-  },
-  modeTextActive: {
-    color: colors.primary.main,
-    fontWeight: fontWeights.semibold,
-  },
-  qrPlaceholder: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-  },
-  qrFrame: {
-    width: 220,
-    height: 220,
-    borderWidth: 2,
-    borderColor: colors.border,
-    borderRadius: borderRadius.lg,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background.paper,
-  },
-  qrText: {
-    fontSize: fontSizes.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  spacer: {
-    flex: 1,
-    minHeight: spacing.lg,
-  },
-})

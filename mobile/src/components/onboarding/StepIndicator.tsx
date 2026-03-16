@@ -1,7 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, ViewStyle } from 'react-native'
-import { colors } from '../../theme/colors'
-import { borderRadius, spacing } from '../../theme/spacing'
+import { View, ViewStyle } from 'react-native'
 
 interface StepIndicatorProps {
   currentStep: number
@@ -14,45 +12,27 @@ interface StepIndicatorProps {
 export const StepIndicator: React.FC<StepIndicatorProps> = ({
   currentStep,
   totalSteps,
-  activeColor = colors.primary.main,
-  inactiveColor = colors.border,
+  activeColor = '#1A5C37',
+  inactiveColor = '#D4E2DA',
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <View className="flex-row items-center justify-center gap-2" style={style}>
       {Array.from({ length: totalSteps }).map((_, index) => {
         const isActive = index <= currentStep
+        const isCurrent = index === currentStep
         return (
           <View
             key={index}
-            style={[
-              styles.dot,
-              isActive
-                ? { backgroundColor: activeColor }
-                : { backgroundColor: inactiveColor },
-              index === currentStep && styles.activeDot,
-            ]}
+            style={{
+              width: isCurrent ? 28 : 8,
+              height: 8,
+              borderRadius: 99,
+              backgroundColor: isActive ? activeColor : inactiveColor,
+            }}
           />
         )
       })}
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  activeDot: {
-    width: 24,
-    borderRadius: borderRadius.full,
-  },
-})

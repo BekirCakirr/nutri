@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OnboardingStackParamList } from '../../navigation/types'
@@ -7,7 +7,6 @@ import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { AllergySelector } from '../../components/onboarding/AllergySelector'
 import { Button } from '../../components/ui/Button'
-import { spacing } from '../../theme/spacing'
 
 type Nav = StackNavigationProp<OnboardingStackParamList, 'Allergy'>
 
@@ -22,10 +21,10 @@ export default function AllergyScreen() {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper padded={false}>
       <OnboardingStep
         title="Alerjiler"
-        description="Varsa besin alerjilerinizi secin. Bu bilgi guvenliginiz icin onemlidir."
+        description="Varsa besin alerjilerinizi seçin. Bu bilgi güvenliğiniz için önemlidir."
         currentStep={3}
         totalSteps={7}
       >
@@ -37,21 +36,15 @@ export default function AllergyScreen() {
           subtitle=""
           style={{ padding: 0 }}
         />
-        <View style={styles.spacer} />
+        <View className="flex-1 min-h-[16px]" />
         <Button
           title="Devam Et"
           onPress={() => navigation.navigate('DietPreference')}
           fullWidth
           size="lg"
+          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
         />
       </OnboardingStep>
     </ScreenWrapper>
   )
 }
-
-const styles = StyleSheet.create({
-  spacer: {
-    flex: 1,
-    minHeight: spacing.lg,
-  },
-})

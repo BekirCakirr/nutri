@@ -1,6 +1,6 @@
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -44,16 +44,22 @@ export function PatientActivityChart({
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
             <XAxis
               dataKey="date"
               className="text-xs"
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+              dy={10}
             />
             <YAxis
               className="text-xs"
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+              dx={-10}
             />
             <Tooltip
               contentStyle={{
@@ -61,31 +67,39 @@ export function PatientActivityChart({
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
                 color: 'hsl(var(--popover-foreground))',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
               }}
+              labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600, marginBottom: '4px' }}
+              cursor={{ fill: 'hsl(var(--muted))' }}
             />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="logins"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              name="Giriş"
+            <Legend 
+               verticalAlign="bottom" 
+               height={36} 
+               iconType="circle"
+               wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
             />
-            <Line
-              type="monotone"
+            <Bar
               dataKey="mealLogs"
-              stroke="hsl(45, 100%, 50%)"
-              strokeWidth={2}
+              fill="hsl(140, 70%, 45%)"
               name="Öğün Kaydı"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={40}
             />
-            <Line
-              type="monotone"
+            <Bar
+              dataKey="logins"
+              fill="hsl(175, 94%, 55%)"
+              name="Giriş"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={40}
+            />
+            <Bar
               dataKey="messages"
-              stroke="hsl(140, 70%, 45%)"
-              strokeWidth={2}
+              fill="hsl(155, 40%, 80%)"
               name="Mesaj"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={40}
             />
-          </LineChart>
+          </BarChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>

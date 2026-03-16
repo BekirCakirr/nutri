@@ -48,109 +48,69 @@ export default function RegisterScreen() {
   }
 
   return (
-    <ScreenWrapper keyboardAvoiding>
+    <ScreenWrapper keyboardAvoiding padded={false}>
       <AppHeader title="" onBack={() => navigation.goBack()} transparent />
-      <View style={styles.form}>
-        <Text style={styles.title}>Hesap Olusturun</Text>
-        <Text style={styles.subtitle}>Saglikli yasama ilk adiminizi atin</Text>
+      <View className="flex-1 px-6 pt-2 bg-[#F8FAF9]">
+        <Text className="text-3xl font-bold text-[#1A2E23] mb-2">Hesap Oluşturun</Text>
+        <Text className="text-base text-[#5A7264] mb-6">Sağlıklı yaşama ilk adımınızı atın</Text>
 
         {error ? (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+            <Text className="text-base text-red-500">{error}</Text>
           </View>
         ) : null}
 
-        <Input
-          label="Ad Soyad"
-          placeholder="Adiniz ve soyadiniz"
-          value={name}
-          onChangeText={setName}
-          autoCapitalize="words"
-        />
-        <Input
-          label="E-posta"
-          placeholder="ornek@nutriai.com"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        <Input
-          label="Sifre"
-          placeholder="En az 6 karakter"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <Input
-          label="Sifre Tekrar"
-          placeholder="Sifrenizi tekrar girin"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
+        <View className="gap-4 mb-8">
+          <Input
+            label="Ad Soyad"
+            placeholder="Adınız ve soyadınız"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+          />
+          <Input
+            label="E-posta"
+            placeholder="ornek@nutriai.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <Input
+            label="Şifre"
+            placeholder="En az 6 karakter"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <Input
+            label="Şifre Tekrar"
+            placeholder="Şifrenizi tekrar girin"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+          />
+        </View>
 
         <Button
-          title="Kayit Ol"
+          title="Kayıt Ol"
           onPress={handleRegister}
           loading={isLoading}
           fullWidth
           size="lg"
+          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
         />
       </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Zaten hesabiniz var mi? </Text>
+      <View className="flex-row justify-center py-8 bg-[#F8FAF9]">
+        <Text className="text-base text-[#5A7264]">Zaten hesabınız var mı? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.footerLink}>Giris Yap</Text>
+          <Text className="text-base font-semibold text-[#1A5C37]">Giriş Yap</Text>
         </TouchableOpacity>
       </View>
     </ScreenWrapper>
   )
 }
 
-const styles = StyleSheet.create({
-  form: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-  },
-  title: {
-    fontSize: fontSizes.h2,
-    fontWeight: fontWeights.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: fontSizes.lg,
-    color: colors.text.secondary,
-    marginBottom: spacing.xl,
-  },
-  errorBox: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  errorText: {
-    fontSize: fontSizes.md,
-    color: colors.error,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: spacing.lg,
-  },
-  footerText: {
-    fontSize: fontSizes.md,
-    color: colors.text.secondary,
-  },
-  footerLink: {
-    fontSize: fontSizes.md,
-    color: colors.primary.main,
-    fontWeight: fontWeights.semibold,
-  },
-})
+// Stylesheet replaced with Tailwind CSS classes

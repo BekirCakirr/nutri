@@ -25,50 +25,54 @@ export default function ForgotPasswordScreen() {
   }
 
   return (
-    <ScreenWrapper keyboardAvoiding>
-      <AppHeader title="Sifremi Unuttum" onBack={() => navigation.goBack()} />
-      <View style={styles.content}>
+    <ScreenWrapper keyboardAvoiding padded={false}>
+      <AppHeader title="Şifremi Unuttum" onBack={() => navigation.goBack()} />
+      <View className="flex-1 px-6 pt-8 bg-[#F8FAF9]">
         {sent ? (
-          <View style={styles.successContainer}>
-            <View style={styles.successIcon}>
-              <Text style={styles.successEmoji}>{'\u2709\uFE0F'}</Text>
+          <View className="flex-1 justify-center items-center px-4">
+            <View className="w-20 h-20 rounded-full bg-[#E8F5EC] items-center justify-center mb-6">
+              <Text className="text-4xl">💌</Text>
             </View>
-            <Text style={styles.successTitle}>E-posta Gonderildi</Text>
-            <Text style={styles.successText}>
-              Sifre sifirlama baglantisi {email} adresine gonderildi.
-              Lutfen e-postanizi kontrol edin.
+            <Text className="text-2xl font-bold text-[#1A2E23] mb-2">E-posta Gönderildi</Text>
+            <Text className="text-base text-[#5A7264] text-center leading-relaxed">
+              Şifre sıfırlama bağlantısı {email} adresine gönderildi.
+              Lütfen e-postanızı kontrol edin.
             </Text>
             <Button
-              title="Giris Sayfasina Don"
+              title="Giriş Sayfasına Dön"
               onPress={() => navigation.goBack()}
               fullWidth
               size="lg"
-              style={{ marginTop: spacing.xl }}
+              style={{ marginTop: 32 }}
             />
           </View>
         ) : (
           <>
-            <Text style={styles.title}>Sifrenizi mi unuttunuz?</Text>
-            <Text style={styles.description}>
-              Kayitli e-posta adresinizi girin. Sifre sifirlama baglantisi
-              gonderecegiz.
+            <Text className="text-3xl font-bold text-[#1A2E23] mb-3">Şifrenizi mi unuttunuz?</Text>
+            <Text className="text-lg text-[#5A7264] leading-relaxed mb-8">
+              Kayıtlı e-posta adresinizi girin. Şifre sıfırlama bağlantısı göndereceğiz.
             </Text>
-            <Input
-              label="E-posta"
-              placeholder="ornek@nutriai.com"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+            
+            <View className="mb-6">
+              <Input
+                label="E-posta"
+                placeholder="ornek@nutriai.com"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            
             <Button
-              title="Sifirlama Linki Gonder"
+              title="Sıfırlama Linki Gönder"
               onPress={handleSend}
               loading={loading}
               disabled={!email.trim()}
               fullWidth
               size="lg"
+              style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
             />
           </>
         )}
@@ -77,52 +81,4 @@ export default function ForgotPasswordScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-  },
-  title: {
-    fontSize: fontSizes.h2,
-    fontWeight: fontWeights.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  description: {
-    fontSize: fontSizes.lg,
-    color: colors.text.secondary,
-    lineHeight: fontSizes.lg * 1.6,
-    marginBottom: spacing.xl,
-  },
-  successContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  successIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.primary[50],
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
-  },
-  successEmoji: {
-    fontSize: 32,
-  },
-  successTitle: {
-    fontSize: fontSizes.h3,
-    fontWeight: fontWeights.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  successText: {
-    fontSize: fontSizes.lg,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: fontSizes.lg * 1.6,
-  },
-})
+// Stylesheet replaced with Tailwind CSS classes

@@ -3,8 +3,10 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
+    "jsx": "react",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["nativewind/types"]
   }
 }

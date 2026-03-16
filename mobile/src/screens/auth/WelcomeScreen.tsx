@@ -15,47 +15,53 @@ export default function WelcomeScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper scrollable={false} padded={false} backgroundColor={colors.background.paper}>
-      <View style={styles.container}>
+    <ScreenWrapper scrollable={false} padded={false}>
+      <View className="flex-1 justify-between px-6 pt-16 pb-12 bg-[#F8FAF9]">
         {/* Top brand area */}
-        <View style={styles.hero}>
-          <View style={styles.logoContainer}>
+        <View className="items-center mt-8">
+          <View className="w-28 h-28 rounded-3xl bg-[#E8F5EC] items-center justify-center mb-6 shadow-sm border border-[#C8E6CF]/30">
             <Image
               source={require('../../../assets/logo-icon.png')}
-              style={styles.logo}
+              className="w-16 h-16"
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.brand}>
-            Nutri<Text style={styles.brandAccent}>AI</Text>
+          <Text className="text-4xl font-extrabold text-[#154D2E] tracking-tight">
+            Nutri<Text className="text-[#4ECDC4]">AI</Text>
           </Text>
-          <View style={styles.divider} />
-          <Text style={styles.tagline}>Akilli Beslenme Asistani</Text>
+          <View className="w-10 h-1.5 rounded-full bg-[#A0D4AD] my-5" />
+          <Text className="text-sm font-medium text-[#5A7264] tracking-widest uppercase">
+            Akıllı Beslenme Asistanı
+          </Text>
         </View>
 
         {/* Middle content */}
-        <View style={styles.content}>
-          <Text style={styles.title}>Saglikli yasam{'\n'}yolculugunuz basliyor</Text>
-          <Text style={styles.description}>
-            Diyetisyeninizle birlikte beslenme hedeflerinize ulasin.
-            AI destekli kisisel beslenme takibi.
+        <View className="px-2 mt-4">
+          <Text className="text-3xl font-bold text-[#1A2E23] mb-4 leading-snug">
+            Sağlıklı yaşam{'\n'}yolculuğunuz başlıyor
+          </Text>
+          <Text className="text-lg text-[#5A7264] leading-relaxed">
+            Diyetisyeninizle birlikte beslenme hedeflerinize ulaşın.
+            AI destekli kişisel takip artık çok kolay.
           </Text>
         </View>
 
         {/* Bottom actions */}
-        <View style={styles.actions}>
+        <View className="gap-4 mt-8">
           <Button
-            title="Giris Yap"
+            title="Giriş Yap"
             onPress={() => navigation.navigate('Login')}
             fullWidth
             size="lg"
+            style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
           />
           <Button
-            title="Yeni Hesap Olustur"
+            title="Yeni Hesap Oluştur"
             onPress={() => navigation.navigate('Register')}
             variant="outline"
             fullWidth
             size="lg"
+            style={{ backgroundColor: 'white' }}
           />
         </View>
       </View>
@@ -63,69 +69,4 @@ export default function WelcomeScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xxl * 1.5,
-    paddingBottom: spacing.xxl,
-  },
-  hero: {
-    alignItems: 'center',
-  },
-  logoContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 24,
-    backgroundColor: colors.primary[50],
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
-  },
-  logo: {
-    width: 64,
-    height: 64,
-  },
-  brand: {
-    fontSize: fontSizes.h1,
-    fontWeight: fontWeights.bold,
-    color: colors.primary[800],
-    letterSpacing: -0.5,
-  },
-  brandAccent: {
-    color: colors.secondary.main,
-  },
-  divider: {
-    width: 32,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: colors.primary[200],
-    marginVertical: spacing.md,
-  },
-  tagline: {
-    fontSize: fontSizes.md,
-    color: colors.text.secondary,
-    fontWeight: fontWeights.medium,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  content: {
-    paddingHorizontal: spacing.sm,
-  },
-  title: {
-    fontSize: fontSizes.h2,
-    fontWeight: fontWeights.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-    lineHeight: fontSizes.h2 * 1.3,
-  },
-  description: {
-    fontSize: fontSizes.lg,
-    color: colors.text.secondary,
-    lineHeight: fontSizes.lg * 1.7,
-  },
-  actions: {
-    gap: spacing.sm,
-  },
-})
+// Stylesheet completely removed, refactored to Nativewind tailwind classes
