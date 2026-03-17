@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Sparkles, Clock, Flame, UtensilsCrossed, ImageIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/shared/empty-state'
 import { PageContainer } from '@/components/shared/page-container'
 
 interface Recipe {
@@ -46,6 +48,12 @@ export default function RecipesPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('Tümü')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 700)
+    return () => clearTimeout(t)
+  }, [])
 
   const filtered = useMemo(
     () =>
@@ -87,52 +95,81 @@ export default function RecipesPage() {
         </CardContent>
       </Card>
 
-      {/* Recipe Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in-stagger">
-        {filtered.map((recipe) => (
-          <Card
-            key={recipe.id}
-            className="cursor-pointer hover:shadow-md transition-all py-0 gap-0 overflow-hidden"
-            onClick={() => navigate(`/recipes/${recipe.id}`)}
-          >
-            <div className="h-36 bg-secondary/50 flex items-center justify-center">
-              <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
-            </div>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="text-[10px]">{recipe.category}</Badge>
-                <Badge variant={difficultyColor[recipe.difficulty]} className="text-[10px]">{recipe.difficulty}</Badge>
-              </div>
-              <h3 className="font-semibold text-sm leading-tight">{recipe.title}</h3>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Flame className="h-3 w-3" />{recipe.calories} kcal</span>
-                <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{recipe.prepTime} dk</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
-                <div className="rounded-md bg-secondary/50 px-1 py-1.5">
-                  <p className="text-muted-foreground">Protein</p>
-                  <p className="font-semibold tabular-nums">{recipe.protein}g</p>
+      {/* Skeleton loading */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="py-0 gap-0 overflow-hidden">
+              <Skeleton className="h-36 w-full rounded-none" />
+              <CardContent className="p-4 space-y-3">
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-5 w-14 rounded-full" />
                 </div>
-                <div className="rounded-md bg-secondary/50 px-1 py-1.5">
-                  <p className="text-muted-foreground">Karb.</p>
-                  <p className="font-semibold tabular-nums">{recipe.carbs}g</p>
+                <Skeleton className="h-4 w-3/4" />
+                <div className="flex gap-4">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-16" />
                 </div>
-                <div className="rounded-md bg-secondary/50 px-1 py-1.5">
-                  <p className="text-muted-foreground">Yağ</p>
-                  <p className="font-semibold tabular-nums">{recipe.fat}g</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <Skeleton className="h-10 rounded-md" />
+                  <Skeleton className="h-10 rounded-md" />
+                  <Skeleton className="h-10 rounded-md" />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="py-16 text-center">
-          <UtensilsCrossed className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="font-medium">Tarif bulunamadı</p>
-          <p className="text-sm text-muted-foreground mt-1">Farklı bir arama terimi veya kategori deneyin.</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      ) : (
+        <>
+          {/* Recipe Grid */}
+          {filtered.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in-stagger">
+              {filtered.map((recipe) => (
+                <Card
+                  key={recipe.id}
+                  className="cursor-pointer hover:shadow-md transition-all py-0 gap-0 overflow-hidden"
+                  onClick={() => navigate(`/recipes/${recipe.id}`)}
+                >
+                  <div className="h-36 bg-secondary/50 flex items-center justify-center">
+                    <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
+                  </div>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant="outline" className="text-[10px]">{recipe.category}</Badge>
+                      <Badge variant={difficultyColor[recipe.difficulty]} className="text-[10px]">{recipe.difficulty}</Badge>
+                    </div>
+                    <h3 className="font-semibold text-sm leading-tight">{recipe.title}</h3>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1"><Flame className="h-3 w-3" />{recipe.calories} kcal</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{recipe.prepTime} dk</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
+                      <div className="rounded-md bg-secondary/50 px-1 py-1.5">
+                        <p className="text-muted-foreground">Protein</p>
+                        <p className="font-semibold tabular-nums">{recipe.protein}g</p>
+                      </div>
+                      <div className="rounded-md bg-secondary/50 px-1 py-1.5">
+                        <p className="text-muted-foreground">Karb.</p>
+                        <p className="font-semibold tabular-nums">{recipe.carbs}g</p>
+                      </div>
+                      <div className="rounded-md bg-secondary/50 px-1 py-1.5">
+                        <p className="text-muted-foreground">Yağ</p>
+                        <p className="font-semibold tabular-nums">{recipe.fat}g</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={UtensilsCrossed}
+              title="Tarif bulunamadı"
+              description="Farklı bir arama terimi veya kategori deneyin."
+            />
+          )}
+        </>
       )}
     </PageContainer>
   )

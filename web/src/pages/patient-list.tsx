@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Search,
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   LayoutGrid,
   List,
+  Users,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -29,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { EmptyState } from '@/components/shared/empty-state'
 import { PageContainer } from '@/components/shared/page-container'
 import { cn } from '@/lib/utils'
 
@@ -96,6 +99,12 @@ export default function PatientListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
 
   const filtered = useMemo(() => {
     let result = mockPatients
@@ -151,7 +160,85 @@ export default function PatientListPage() {
         </CardContent>
       </Card>
 
-      {viewMode === 'table' ? (
+      {/* Skeleton loading state */}
+      {isLoading ? (
+        viewMode === 'table' ? (
+          <Card className="py-0 gap-0 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[250px]">Hasta</TableHead>
+                  <TableHead>Durum</TableHead>
+                  <TableHead>Uyum</TableHead>
+                  <TableHead className="hidden md:table-cell">BMI</TableHead>
+                  <TableHead className="hidden lg:table-cell">Son Ziyaret</TableHead>
+                  <TableHead className="hidden lg:table-cell">Sonraki Randevu</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-28" />
+                          <Skeleton className="h-3 w-12" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-10" /></TableCell>
+                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="py-0 gap-0">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-3 mb-4">
+                    <Skeleton className="h-11 w-11 rounded-full" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Skeleton className="h-10 rounded-md" />
+                    <Skeleton className="h-10 rounded-md" />
+                    <Skeleton className="h-10 rounded-md" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title={search || statusFilter !== 'all' ? 'Hasta bulunamadı' : 'Henüz hasta eklenmedi'}
+          description={
+            search || statusFilter !== 'all'
+              ? 'Farklı bir arama terimi veya filtre deneyin.'
+              : 'Yeni hasta ekleyerek başlayın.'
+          }
+          action={
+            !search && statusFilter === 'all' ? (
+              <Button onClick={() => navigate('/patients/new')} size="sm">
+                <Plus className="h-3.5 w-3.5" />
+                Yeni Hasta Ekle
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : viewMode === 'table' ? (
         <Card className="py-0 gap-0 overflow-hidden">
           <Table>
             <TableHeader>
