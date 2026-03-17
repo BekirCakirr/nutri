@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Save,
@@ -19,6 +19,24 @@ import {
   User,
   FileText,
 } from 'lucide-react'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCorners,
+  type DragStartEvent,
+  type DragOverEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -149,6 +167,101 @@ const dailyTargets = {
 }
 
 /* ------------------------------------------------------------------ */
+/*  SortableItem component                                             */
+/* ------------------------------------------------------------------ */
+
+interface SortableItemProps {
+  item: PlanItem
+  onRemove: (id: string) => void
+}
+
+function SortableItem({ item, onRemove }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'group flex items-center gap-2 rounded-lg bg-background/70 border border-transparent hover:border-border px-3 py-2 transition-all',
+        isDragging && 'opacity-40 shadow-lg ring-2 ring-primary/30'
+      )}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="touch-none cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+        aria-label="Sürükle"
+      >
+        <GripVertical className="h-3.5 w-3.5" />
+      </button>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium leading-tight truncate">
+          {item.name}
+        </p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[11px] text-muted-foreground">
+            {item.portion}
+          </span>
+          <span className="text-[10px] text-muted-foreground/60">&middot;</span>
+          <span className="text-[11px] font-mono tabular-nums text-muted-foreground">
+            {item.calories} kcal
+          </span>
+        </div>
+      </div>
+      {/* Micro macro pills */}
+      <div className="hidden sm:flex items-center gap-1">
+        <span className="text-[9px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 font-mono tabular-nums">
+          P:{item.protein}
+        </span>
+        <span className="text-[9px] px-1 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 font-mono tabular-nums">
+          K:{item.carbs}
+        </span>
+        <span className="text-[9px] px-1 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 font-mono tabular-nums">
+          Y:{item.fat}
+        </span>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+        onClick={() => onRemove(item.id)}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  DragOverlay preview card                                           */
+/* ------------------------------------------------------------------ */
+
+function DragPreviewItem({ item }: { item: PlanItem }) {
+  return (
+    <div className="flex items-center gap-2 rounded-lg bg-background border border-border shadow-xl px-3 py-2 w-[280px] cursor-grabbing">
+      <GripVertical className="h-3.5 w-3.5 text-muted-foreground/60" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium leading-tight truncate">{item.name}</p>
+        <p className="text-[11px] text-muted-foreground">{item.portion} &middot; {item.calories} kcal</p>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -157,14 +270,39 @@ export default function PlanCreatorPage() {
   const [selectedPatient, setSelectedPatient] = useState(patientId || '')
   const [selectedDay, setSelectedDay] = useState<string>('Pazartesi')
   const [planTitle, setPlanTitle] = useState('Kilo Verme Programı - Hafta 1')
+  const [planItems, setPlanItems] = useState<Record<string, PlanItem[]>>(sampleItems)
+  const [activeItem, setActiveItem] = useState<PlanItem | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  )
 
   /* ---------- helpers ---------- */
 
-  const getItemsForSlot = (day: string, meal: string): PlanItem[] => {
-    return sampleItems[`${day}-${meal}`] || []
-  }
+  const getSlotKey = (day: string, meal: string) => `${day}-${meal}`
 
-  const getDaySummary = (day: string) => {
+  const getItemsForSlot = useCallback((day: string, meal: string): PlanItem[] => {
+    return planItems[getSlotKey(day, meal)] || []
+  }, [planItems])
+
+  /** Find which slot key contains a given item id */
+  const findSlotByItemId = useCallback((itemId: string): string | null => {
+    for (const [key, items] of Object.entries(planItems)) {
+      if (items.some((i) => i.id === itemId)) return key
+    }
+    return null
+  }, [planItems])
+
+  const removeItem = useCallback((itemId: string) => {
+    const slotKey = findSlotByItemId(itemId)
+    if (!slotKey) return
+    setPlanItems((prev) => ({
+      ...prev,
+      [slotKey]: prev[slotKey].filter((i) => i.id !== itemId),
+    }))
+  }, [findSlotByItemId])
+
+  const getDaySummary = useCallback((day: string) => {
     let calories = 0, protein = 0, carbs = 0, fat = 0
     mealSlots.forEach((meal) => {
       const items = getItemsForSlot(day, meal)
@@ -176,7 +314,7 @@ export default function PlanCreatorPage() {
       })
     })
     return { calories, protein, carbs, fat }
-  }
+  }, [getItemsForSlot])
 
   const weekSummary = useMemo(() => {
     let calories = 0, protein = 0, carbs = 0, fat = 0, filledDays = 0
@@ -189,7 +327,7 @@ export default function PlanCreatorPage() {
       if (s.calories > 0) filledDays++
     })
     return { calories, protein, carbs, fat, filledDays }
-  }, [])
+  }, [getDaySummary])
 
   const currentSummary = getDaySummary(selectedDay)
 
@@ -200,6 +338,82 @@ export default function PlanCreatorPage() {
   const navigateDay = (dir: -1 | 1) => {
     const next = dayIndex + dir
     if (next >= 0 && next < days.length) setSelectedDay(days[next])
+  }
+
+  /* ---------- drag-and-drop handlers ---------- */
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event
+    const slotKey = findSlotByItemId(String(active.id))
+    if (!slotKey) return
+    const item = planItems[slotKey]?.find((i) => i.id === active.id)
+    if (item) setActiveItem(item)
+  }
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event
+    if (!over) return
+
+    const activeId = String(active.id)
+    const overId = String(over.id)
+    if (activeId === overId) return
+
+    const activeSlot = findSlotByItemId(activeId)
+    // overId might be a slot key itself OR an item id in another slot
+    const overSlot = planItems[overId] !== undefined
+      ? overId
+      : findSlotByItemId(overId)
+
+    if (!activeSlot || !overSlot || activeSlot === overSlot) return
+
+    // Move item from activeSlot to overSlot
+    setPlanItems((prev) => {
+      const activeItems = [...(prev[activeSlot] || [])]
+      const overItems = [...(prev[overSlot] || [])]
+      const activeIndex = activeItems.findIndex((i) => i.id === activeId)
+      if (activeIndex === -1) return prev
+      const [movedItem] = activeItems.splice(activeIndex, 1)
+
+      const overIndex = overItems.findIndex((i) => i.id === overId)
+      if (overIndex !== -1) {
+        overItems.splice(overIndex, 0, movedItem)
+      } else {
+        overItems.push(movedItem)
+      }
+
+      return {
+        ...prev,
+        [activeSlot]: activeItems,
+        [overSlot]: overItems,
+      }
+    })
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveItem(null)
+    if (!over) return
+
+    const activeId = String(active.id)
+    const overId = String(over.id)
+    if (activeId === overId) return
+
+    const activeSlot = findSlotByItemId(activeId)
+    const overSlot = findSlotByItemId(overId)
+
+    if (!activeSlot || !overSlot || activeSlot !== overSlot) return
+
+    // Reorder within same slot
+    setPlanItems((prev) => {
+      const items = [...(prev[activeSlot] || [])]
+      const oldIndex = items.findIndex((i) => i.id === activeId)
+      const newIndex = items.findIndex((i) => i.id === overId)
+      if (oldIndex === -1 || newIndex === -1) return prev
+      return {
+        ...prev,
+        [activeSlot]: arrayMove(items, oldIndex, newIndex),
+      }
+    })
   }
 
   /* ---------- macro helper ---------- */
@@ -297,6 +511,13 @@ export default function PlanCreatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 mt-5">
 
         {/* ---- Left: Day planner ---- */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
         <div className="space-y-4 animate-fade-up" style={{ animationDelay: '80ms' }}>
           {/* Day navigation tabs */}
           <Tabs value={selectedDay} onValueChange={setSelectedDay}>
@@ -393,6 +614,7 @@ export default function PlanCreatorPage() {
                 {/* Meal slot cards - 2x2 grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in-stagger">
                   {mealSlots.map((meal) => {
+                    const slotKey = getSlotKey(day, meal)
                     const items = getItemsForSlot(day, meal)
                     const mealCalories = items.reduce((sum, i) => sum + i.calories, 0)
                     const mealProtein = items.reduce((sum, i) => sum + i.protein, 0)
@@ -424,62 +646,34 @@ export default function PlanCreatorPage() {
                           </div>
                         </div>
 
-                        {/* Meal items */}
+                        {/* Meal items — sortable drop zone */}
                         <div className="px-3 py-2 min-h-[100px]">
-                          <ScrollArea className="max-h-[200px]">
-                            {items.length > 0 ? (
-                              <div className="space-y-1.5">
-                                {items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="group flex items-center gap-2 rounded-lg bg-background/70 border border-transparent hover:border-border px-3 py-2 transition-all"
-                                  >
-                                    <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium leading-tight truncate">
-                                        {item.name}
-                                      </p>
-                                      <div className="flex items-center gap-2 mt-0.5">
-                                        <span className="text-[11px] text-muted-foreground">
-                                          {item.portion}
-                                        </span>
-                                        <span className="text-[10px] text-muted-foreground/60">&middot;</span>
-                                        <span className="text-[11px] font-mono tabular-nums text-muted-foreground">
-                                          {item.calories} kcal
-                                        </span>
-                                      </div>
-                                    </div>
-                                    {/* Micro macro pills */}
-                                    <div className="hidden sm:flex items-center gap-1">
-                                      <span className="text-[9px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 font-mono tabular-nums">
-                                        P:{item.protein}
-                                      </span>
-                                      <span className="text-[9px] px-1 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 font-mono tabular-nums">
-                                        K:{item.carbs}
-                                      </span>
-                                      <span className="text-[9px] px-1 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 font-mono tabular-nums">
-                                        Y:{item.fat}
-                                      </span>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon-xs"
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="h-[80px] rounded-lg border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center gap-1">
-                                <Plus className="h-4 w-4 text-muted-foreground/40" />
-                                <p className="text-[11px] text-muted-foreground/60">
-                                  Yiyecek eklemek için tıklayın
-                                </p>
-                              </div>
-                            )}
-                          </ScrollArea>
+                          <SortableContext
+                            id={slotKey}
+                            items={items.map((i) => i.id)}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            <ScrollArea className="max-h-[200px]">
+                              {items.length > 0 ? (
+                                <div className="space-y-1.5">
+                                  {items.map((item) => (
+                                    <SortableItem
+                                      key={item.id}
+                                      item={item}
+                                      onRemove={removeItem}
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="h-[80px] rounded-lg border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center gap-1">
+                                  <Plus className="h-4 w-4 text-muted-foreground/40" />
+                                  <p className="text-[11px] text-muted-foreground/60">
+                                    Yiyecek eklemek veya buraya sürükleyin
+                                  </p>
+                                </div>
+                              )}
+                            </ScrollArea>
+                          </SortableContext>
 
                           {/* Meal macro footer */}
                           {items.length > 0 && (
@@ -512,6 +706,12 @@ export default function PlanCreatorPage() {
             ))}
           </Tabs>
         </div>
+
+        {/* Drag overlay — floating preview while dragging */}
+        <DragOverlay>
+          {activeItem ? <DragPreviewItem item={activeItem} /> : null}
+        </DragOverlay>
+        </DndContext>
 
         {/* ---- Right: Real-time calorie/macro sidebar ---- */}
         <div className="space-y-4 animate-fade-up" style={{ animationDelay: '160ms' }}>
