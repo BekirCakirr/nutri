@@ -11,6 +11,8 @@ interface AppHeaderProps {
   onBack?: () => void
   leftAction?: React.ReactNode
   rightAction?: React.ReactNode
+  rightIcon?: string
+  onRightPress?: () => void
   transparent?: boolean
   style?: ViewStyle
 }
@@ -21,6 +23,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onBack,
   leftAction,
   rightAction,
+  rightIcon,
+  onRightPress,
   transparent = false,
   style,
 }) => {
@@ -50,7 +54,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         )}
       </View>
       <View style={styles.right}>
-        {rightAction || <View style={styles.placeholder} />}
+        {rightAction ? rightAction : (rightIcon && onRightPress) ? <TouchableOpacity onPress={onRightPress} style={styles.backButton}><Ionicons name={rightIcon as any} size={24} color={colors.text.primary} /></TouchableOpacity> : <View style={styles.placeholder} />}
       </View>
     </View>
   )
