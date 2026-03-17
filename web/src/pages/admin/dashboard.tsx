@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Users,
   UserCheck,
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { PageContainer } from '@/components/shared/page-container'
+import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 
@@ -75,6 +76,10 @@ const healthIcons: Record<string, typeof Server> = {
 
 export default function AdminDashboardPage() {
   const [refreshing, setRefreshing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isLoading) return <DashboardSkeleton />
 
   const handleRefresh = () => {
     setRefreshing(true)

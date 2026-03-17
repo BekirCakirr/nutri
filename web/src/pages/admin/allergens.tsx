@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Pencil,
@@ -39,6 +39,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 
@@ -72,6 +74,8 @@ const severityMap = {
 export default function AdminAllergensPage() {
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filtered = mockAllergens.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase())
@@ -79,6 +83,8 @@ export default function AdminAllergensPage() {
 
   const highCount = mockAllergens.filter(a => a.severity === 'high').length
   const totalAffected = mockAllergens.reduce((sum, a) => sum + a.affectedPatients, 0)
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
@@ -183,7 +189,13 @@ export default function AdminAllergensPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((allergen) => (
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <EmptyState icon={AlertTriangle} title="Alerjen bulunamadı" description="Kayıtlı alerjen bulunmuyor." />
+                </TableCell>
+              </TableRow>
+            ) : filtered.map((allergen) => (
               <TableRow key={allergen.id}>
                 <TableCell>
                   <code className="rounded bg-muted px-2 py-0.5 text-xs font-mono font-semibold">

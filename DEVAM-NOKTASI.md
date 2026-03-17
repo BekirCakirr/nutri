@@ -1,107 +1,176 @@
-# NutriAI — Devam Noktası
+# NutriAI — Devam Noktasi
 
-> 📅 Son Oturum: 2026-03-17 (sabah 11:20)
-> 🎯 Bu dosyayı bana okutarak kaldığımız yerden devam edebilirsin.
-
----
-
-## ✅ Bugün Tamamlananlar (5 Oturum)
-
-### Oturum 1 — Web Grafikleri + Mobil Auth/Onboarding
-- Web Dashboard'daki 3 grafik profesyonelleştirildi
-- Mobil'e NativeWind entegre edildi
-- **5 Auth** + **7 Onboarding** ekranı NativeWind ile yeniden tasarlandı
-
-### Oturum 2 — Meals + Camera Ekranları
-- **Meals (10):** 5 placeholder kodlandı + 5 mevcut düzeltildi
-- **Camera (8):** Tümü sıfırdan kodlandı
-
-### Oturum 3 — Progress Ekranları (18 ekran) ✅
-- **18 Progress ekranı** sıfırdan kodlandı (Overview, Weight, Water, Exercise, Sleep, Mood, BloodValues, Vitamins, ProgressPhotos, IntermittentFasting, CustomGoals, Measurements, NutrientBreakdown, CalorieHistory, MacroTracking, Steps, HeartRate, Stress)
-
-### Oturum 4 — Profile Ekranları (20 ekran) ✅
-- **20 Profile ekranı** sıfırdan kodlandı (Profile, EditProfile, Settings, AllergyManagement, FamilyMode, DataExport, Language, NotificationSettings, About, PrivacyPolicy, TermsOfService, Subscription, ConnectedDevices, HelpSupport, Achievements, DietitianConnection, Goals, PersonalData, Reminders, Theme)
-
-### Oturum 5 — Modal Ekranları (10 ekran) ✅ YENİ
-- **10 Root Modal ekranı** sıfırdan NativeWind ile kodlandı:
-  - `AIChatScreen` — Gerçek zamanlı chat arayüzü + quick suggestion'lar + simüle AI yanıtlar
-  - `DietitianProfileScreen` — Detaylı diyetisyen profili + eğitim + sertifikalar + seans ücreti
-  - `BookAppointmentScreen` — Görüşme türü seçici + tarih picker + saat slot'ları
-  - `VideoCallScreen` — Dark UI + kamera/mikrofon toggle + bitir butonu
-  - `BadgesScreen` — Kazanılan (5) + kilitli (5) rozet grid + rarity seviyeleri
-  - `ChallengesScreen` — Aktif (progress bar) + yaklaşan (katıl butonu) + tamamlanan meydan okumalar
-  - `LeaderboardScreen` — Top 3 podyum + 10 kişilik sıralama + dönem seçici
-  - `RecipeDetailScreen` — Malzemeler + adım adım tarif + makrolar + beğen butonu
-  - `ShoppingListDetailScreen` — Kategorize alışveriş listesi + check/uncheck + progress
-  - `AllergenScannerScreen` — Tarama alanı + alerjen kontrolü + güvenli/tehlikeli sonuçlar
-- **Home ekranları** (Notifications, WeeklyReport, MonthlyReport) zaten gerçek implementasyona sahipti — dokunulmadı.
+> Son Guncelleme: 2026-03-17
+> Bu dosyayi bana okutarak kaldigimiz yerden devam edebilirsin.
 
 ---
 
-## 📊 Genel Skor
+## Proje Ozeti
 
-| Ekran Grubu       | Toplam | Tamamlanan | Kalan |
-|-------------------|--------|------------|-------|
-| Auth              | 5      | 5 ✅       | 0     |
-| Onboarding        | 7      | 7 ✅       | 0     |
-| Home              | 4      | 4 ✅       | 0     |
-| Meals             | 10     | 10 ✅      | 0     |
-| Camera            | 8      | 8 ✅       | 0     |
-| Progress          | 18     | 18 ✅      | 0     |
-| Profile           | 20     | 20 ✅      | 0     |
-| **Modals (Root)** | **10** | **10 ✅**  | **0** |
-| **TOPLAM**        | **82** | **82 ✅**  | **0** |
+NutriAI, Turkce konusan diyetisyenler icin yapay zeka destekli beslenme takibi ve hasta yonetim platformu. Web paneli + mobil uygulama + backend olmak uzere 3 katmandan olusuyor.
 
-### 🎉 TÜM MOBİL EKRANLAR TAMAMLANDI! 🎉
+**Tech Stack:**
+- Web: React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui + Vite 7
+- Mobil: React Native + Expo + NativeWind v4
+- Backend: Node.js + Express (henuz baslangic asamasinda)
+- Ortak: Zustand (state), React Hook Form + Zod, Recharts, Lucide icons
 
 ---
 
-## 🧪 ŞİMDİ TEST ZAMANI!
+## Tamamlanan Calisma Gecmisi
 
-Aşağıdaki komutla uygulamayı başlat ve tüm ekranları kontrol et:
+### Adim 1: Proje Altyapisi (Commit: d088944 — 8fc711b)
+- Monorepo yapisi (`web/`, `mobile/`, `backend/`, `shared/`)
+- Web paneli icin tam sayfa yapisi, routing, layout sistemi
+- shadcn/ui bilesenleri, tema token'lari, dark mode
+- Zustand store'lari, mock data, TypeScript tipleri
+- Mobil uygulama icin Expo + NativeWind kurulumu
 
-```bash
-cd mobile
-npx expo start -c
-```
+### Adim 2: Mobil Uygulama Ekranlari (Commit: 7d862b7 — 47b2fee)
+Toplam **82 mobil ekran** sifirdan kodlandi:
 
-**Test kontrol listesi:**
-1. ✅ Auth ekranları (Login, Register, ForgotPassword...)
-2. ✅ Onboarding akışı (7 adım)
-3. ✅ Home dashboard
-4. ✅ Meals (öğün ekleme, geçmiş, favoriler)
-5. ✅ Camera (fotoğraf, barkod, OCR, sesli)
-6. ✅ Progress (18 alt ekran — overview'den girilebilir)
-7. ✅ Profile (ana profil ekranından tüm alt sayfalara ulaşılabilir)
-8. ✅ Modals (AI chat, rozetler, meydan okumalar, sıralama vs.)
+| Grup | Ekran Sayisi |
+|------|-------------|
+| Auth (Login, Register, Forgot...) | 5 |
+| Onboarding (7 adimli akis) | 7 |
+| Home (Dashboard, Bildirimler, Raporlar) | 4 |
+| Meals (Ogun ekleme, gecmis, favoriler) | 10 |
+| Camera (Fotograf, barkod, OCR, sesli) | 8 |
+| Progress (Kilo, su, egzersiz, uyku, makro...) | 18 |
+| Profile (Profil, ayarlar, alerji, cihazlar...) | 20 |
+| Modals (AI chat, rozetler, liderlik tablosu...) | 10 |
+| **TOPLAM** | **82** |
+
+### Adim 3: Web Panel — Faz 0 Temizlik (Commit: 53ca29c)
+- Yanlis silinen 10 mobil ekran geri yuklendi
+- Web tarafina `@hello-pangea/dnd` paketi eklendi
+- Dosya yapisi duzenlendi
+
+### Adim 4: Web Panel — Faz 1 + 2 + 3 Polish (SON OTURUM)
+
+#### Faz 1: Plan Creator Drag-and-Drop
+- `plan-creator.tsx` sayfasina tam drag-and-drop destegi eklendi
+- `sampleItems` const'tan `useState`'e donusturuldu (mutable state)
+- `DragDropContext` + `Droppable` + `Draggable` entegrasyonu
+- Ayni slot ici siralama + slotlar arasi tasima
+- Drop zone gorunumu: `bg-primary/5 border-dashed border-primary/20`
+- Bos slot'lara da surukleme destegi
+- `weekSummary` useMemo'nun items state'ine bagimli hale getirilmesi
+
+#### Faz 2A: Skeleton Bilesen Kutuphanesi
+Yeni dosya: `web/src/components/shared/page-skeletons.tsx`
+
+7 farkli skeleton bileseni olusturuldu:
+- `ListPageSkeleton` — Tablo/liste sayfalari icin
+- `DetailPageSkeleton` — Detay sayfalari icin
+- `DashboardSkeleton` — Dashboard/rapor sayfalari icin
+- `ChatSkeleton` — Mesajlasma sayfalari icin
+- `CalendarSkeleton` — Takvim sayfasi icin
+- `PlanCreatorSkeleton` — Plan olusturucu icin
+- `FormPageSkeleton` — Form sayfalari icin
+
+#### Faz 2B: Loading State (24 sayfa)
+Tum sayfalara 400ms skeleton loading pattern eklendi:
+
+| Skeleton Tipi | Sayfalar |
+|---------------|----------|
+| ListPageSkeleton | patient-list, recipes, shopping-lists, reviews, notifications, admin/users, admin/dietitians, admin/food-db, admin/allergens, admin/recipes |
+| DetailPageSkeleton | patient-detail, recipe-detail, patient-report, meal-review |
+| DashboardSkeleton | admin/dashboard, reports, admin/reports, live-tracking |
+| ChatSkeleton | messages, ai-assistant |
+| CalendarSkeleton | appointments |
+| PlanCreatorSkeleton | plan-creator |
+| FormPageSkeleton | invite-code, settings |
+
+#### Faz 2C: Empty State (13 sayfa)
+Filtreleme sonucu bos liste dondugunde `EmptyState` bileseni gosteriliyor:
+- patient-list, recipes, appointments, live-tracking, messages, meal-review
+- admin/users, admin/dietitians, admin/food-db, admin/allergens, admin/recipes
+
+#### Faz 3: Responsive Iyilestirmeler
+- **Messages:** Mobilde conversation list / chat toggle (mobileView state)
+- **Patient List:** Mobilde tablo yerine kart gorunumu (md altinda)
+- **Plan Creator:** TabsList yatay scroll (flex overflow-x-auto)
+
+**Build:** `vite build` hatasiz tamamlandi.
 
 ---
 
-## 🎯 Test Sonrası Yapılacaklar (Sırasıyla)
+## Dosya Degisiklikleri Ozeti (Son Oturum)
 
-### Adım 4: Web İyileştirmeleri
-- Plan Oluşturucu'ya Drag-and-Drop
-- Tüm sayfalara Skeleton/Loading state
-- Empty state bileşenleri
-- Responsive iyileştirmeler
-
-### Adım 5: Backend Başlangıcı
-- Node.js + Express API
-- PostgreSQL veritabanı şeması
-- JWT Auth
-- Temel CRUD endpoints
+| Islem | Dosya Sayisi |
+|-------|-------------|
+| Yeni dosya | 1 (page-skeletons.tsx) |
+| Degistirilen sayfa | 24 |
+| Responsive eklenen | 3 (messages, patient-list, plan-creator) |
+| **Toplam etkilenen** | **28** |
 
 ---
 
-## ⚙️ Teknik Notlar
+## Yol Haritasi — Bundan Sonra Yapilacaklar
 
-- **NativeWind v4** — Tüm yeni ekranlar `className` props ile Tailwind class'ları kullanıyor.
-- **Renk paleti:** `#1A5C37` (primary), `#1A2E23` (text dark), `#5A7264` (text secondary), `#E8F5EC` (bg accent), `#F8FAF9` (bg main)
-- **ScreenWrapper** `padded={false}` kullan.
-- **Pre-existing TS hatası:** `nativewind/types` type definition — NativeWind config ile ilgili, çalışmayı etkilemez.
+### Adim 5: Web Panel — Ileri Duzey Polish
+- [ ] Tema tutarliligi auditi (renk token'lari, spacing, radius)
+- [ ] Animasyon/mikro-etkilesim iyilestirmeleri
+- [ ] Accessibility auditi (WCAG AA, klavye navigasyonu, ARIA)
+- [ ] Performance optimizasyonu (lazy loading, bundle analizi)
+- [ ] Dark mode fine-tuning (tum sayfalarda test)
+
+### Adim 6: Backend Baslangici
+- [ ] Node.js + Express API yapilandirmasi
+- [ ] PostgreSQL veritabani semasi tasarimi
+- [ ] JWT Auth (login, register, token refresh)
+- [ ] Temel CRUD endpoint'leri:
+  - Hastalar (CRUD + filtreleme + sayfalama)
+  - Ogunler (kayit + onaylama + reddetme)
+  - Diyet planlari (olusturma + atama)
+  - Randevular (CRUD + takvim)
+  - Mesajlar (gonderme + alma + okundu bilgisi)
+- [ ] Dosya yukleme (ogun fotograflari)
+- [ ] WebSocket altyapisi (canli takip + mesajlasma)
+
+### Adim 7: Web + Backend Entegrasyon
+- [ ] Mock data'dan gercek API'ye gecis
+- [ ] Zustand store'larin API service'lere baglanmasi
+- [ ] Auth akisi (login/register/logout)
+- [ ] Form validasyon + hata yonetimi
+- [ ] Loading/error state'lerinin gercek API yanıtlarina baglanmasi
+
+### Adim 8: Mobil + Backend Entegrasyon
+- [ ] React Native tarafinda API service katmani
+- [ ] Mobil auth akisi
+- [ ] Push notification altyapisi
+- [ ] Offline-first stratejisi (AsyncStorage + sync)
+
+### Adim 9: AI Entegrasyonu
+- [ ] NutriAI asistan icin LLM API entegrasyonu
+- [ ] Ogun fotografi analizi (vision API)
+- [ ] Otomatik diyet plani onerisi
+- [ ] Barkod/OCR besin tespiti
+
+### Adim 10: Test + Deploy
+- [ ] Unit test'ler (Vitest + React Testing Library)
+- [ ] E2E test'ler (Playwright)
+- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] Docker containerization
+- [ ] Production deployment
 
 ---
 
-## 📝 Test Sonrası Bana Ne Söylemen Yeterli?
+## Teknik Notlar
 
-> "Bu dosyayı oku ve Adım 4'ten (Web iyileştirmeleri) devam et."
+- **Korunan dosyalar:** `stores/`, `hooks/`, `services/`, `mock/`, `types/`, `lib/`, `shared/types/` — bu dizinler degistirilmez
+- **UI dili:** Tum arayuz metinleri Turkce, profesyonel/medikal ton
+- **Tasarim felsefesi:** "Organik Profesyonel" — botanik referans kitabi + modern saglik dashboard'u
+- **Font:** Outfit | **Renkler:** OKLCH tabanli, orman yesili primary | **Radius:** 10px
+- **NativeWind v4:** Mobilde tum ekranlar `className` prop'u ile Tailwind kullaniyor
+
+---
+
+## Devam Etmek Icin
+
+> "Bu dosyayi oku ve Adim 5'ten (Web ileri duzey polish) devam et."
+
+veya
+
+> "Bu dosyayi oku ve Adim 6'dan (Backend baslangici) devam et."

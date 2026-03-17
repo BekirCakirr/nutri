@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Star,
   MessageSquare,
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 import { reviews as mockReviews, reviewStats as mockReviewStats } from '@/mock/reviews'
 
@@ -43,12 +44,16 @@ function getRatingBadge(rating: number) {
 export default function ReviewsPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const handleReply = (reviewId: string) => {
     console.log('Replying to', reviewId, replyText)
     setReplyingTo(null)
     setReplyText('')
   }
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer

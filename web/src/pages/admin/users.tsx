@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Search,
   Filter,
@@ -40,6 +40,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 
@@ -96,6 +98,8 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filtered = mockUsers.filter((u) => {
     const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
@@ -107,6 +111,8 @@ export default function AdminUsersPage() {
   const adminCount = mockUsers.filter(u => u.role === 'admin').length
   const dietitianCount = mockUsers.filter(u => u.role === 'dietitian').length
   const patientCount = mockUsers.filter(u => u.role === 'patient').length
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
@@ -198,7 +204,13 @@ export default function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((user) => (
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <EmptyState icon={Users} title="Kullanıcı bulunamadı" description="Arama kriterlerinize uygun kullanıcı yok." />
+                </TableCell>
+              </TableRow>
+            ) : filtered.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">

@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Sparkles, Clock, Flame, UtensilsCrossed, ImageIcon } from 'lucide-react'
+import { Search, Sparkles, Clock, Flame, ChefHat, ImageIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 
 interface Recipe {
   id: string
@@ -46,6 +48,8 @@ export default function RecipesPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('Tümü')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filtered = useMemo(
     () =>
@@ -56,6 +60,8 @@ export default function RecipesPage() {
       }),
     [search, category]
   )
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
@@ -128,11 +134,7 @@ export default function RecipesPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="py-16 text-center">
-          <UtensilsCrossed className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="font-medium">Tarif bulunamadı</p>
-          <p className="text-sm text-muted-foreground mt-1">Farklı bir arama terimi veya kategori deneyin.</p>
-        </div>
+        <EmptyState icon={ChefHat} title="Tarif bulunamadı" description="Arama kriterlerinize uygun tarif yok." />
       )}
     </PageContainer>
   )

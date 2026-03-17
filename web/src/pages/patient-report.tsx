@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -26,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { PageContainer } from '@/components/shared/page-container'
 import { StatCard } from '@/components/shared/stat-card'
 import { WeightProgressChart } from '@/components/charts/weight-progress-chart'
@@ -159,6 +161,11 @@ function getAdherenceLabel(value: number) {
 export default function PatientReportPage() {
   const { id: _id } = useParams()
   const navigate = useNavigate()
+
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isLoading) return <DetailPageSkeleton />
 
   const weightLost = mockReport.patient.startWeight - mockReport.patient.currentWeight
   const weightProgress =

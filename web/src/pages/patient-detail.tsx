@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -34,6 +34,7 @@ import { CalorieChart } from '@/components/charts/calorie-chart'
 import { WeightProgressChart } from '@/components/charts/weight-progress-chart'
 import { MacroPieChart } from '@/components/charts/macro-pie-chart'
 import { WaterIntakeChart } from '@/components/charts/water-intake-chart'
+import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 
 // ── Mock data ─────────────────────────────────────────────────────
@@ -177,6 +178,11 @@ export default function PatientDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabValue>('overview')
+
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isLoading) return <DetailPageSkeleton />
 
   const initials = mockPatient.fullName
     .split(' ')

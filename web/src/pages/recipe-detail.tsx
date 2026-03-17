@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Clock, Flame, Users, Plus, ImageIcon, Printer } from 'lucide-react'
+import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -49,6 +51,11 @@ const mockRecipe = {
 export default function RecipeDetailPage() {
   const { id: _id } = useParams()
   const navigate = useNavigate()
+
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isLoading) return <DetailPageSkeleton />
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 animate-fade-up">

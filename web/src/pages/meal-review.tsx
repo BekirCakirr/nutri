@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Search,
   Check,
@@ -33,6 +33,8 @@ import {
 } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
+import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { PageContainer } from '@/components/shared/page-container'
 import { cn } from '@/lib/utils'
 
@@ -594,6 +596,9 @@ export default function MealReviewPage() {
   const [mealTypeFilter, setMealTypeFilter] = useState('all')
   const [notes, setNotes] = useState<Record<string, string>>({})
 
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
   const handleApprove = (id: string) => {
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'approved' as const } : r)))
   }
@@ -619,6 +624,8 @@ export default function MealReviewPage() {
   const rejectedReviews = useMemo(() => filtered.filter((r) => r.status === 'rejected'), [filtered])
 
   const totalPending = reviews.filter((r) => r.status === 'pending').length
+
+  if (isLoading) return <DetailPageSkeleton />
 
   return (
     <PageContainer
@@ -710,17 +717,7 @@ export default function MealReviewPage() {
 
       {/* All reviewed empty state */}
       {filtered.length === 0 && (
-        <Card className="mt-6">
-          <CardContent className="py-12 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/30">
-              <UtensilsCrossed className="h-6 w-6 text-emerald-500" />
-            </div>
-            <h3 className="text-lg font-semibold">Sonuç bulunamadı</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Arama kriterlerinize uygun öğün bulunmuyor.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState icon={UtensilsCrossed} title="İncelenecek öğün yok" description="Hastaların gönderdiği öğünler burada görünecek." />
       )}
     </PageContainer>
   )

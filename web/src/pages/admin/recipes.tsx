@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Search,
   Check,
@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   XCircle,
   UtensilsCrossed,
+  ChefHat,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -31,6 +32,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 
 interface RecipeSubmission {
@@ -62,6 +65,8 @@ export default function AdminRecipesPage() {
   const [recipes, setRecipes] = useState(mockSubmissions)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filtered = recipes.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
@@ -80,6 +85,8 @@ export default function AdminRecipesPage() {
   const pendingCount = recipes.filter(r => r.status === 'pending').length
   const approvedCount = recipes.filter(r => r.status === 'approved').length
   const rejectedCount = recipes.filter(r => r.status === 'rejected').length
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
@@ -159,7 +166,13 @@ export default function AdminRecipesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((recipe) => (
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7}>
+                  <EmptyState icon={ChefHat} title="Tarif bulunamadı" description="Onay bekleyen tarif bulunmuyor." />
+                </TableCell>
+              </TableRow>
+            ) : filtered.map((recipe) => (
               <TableRow key={recipe.id}>
                 <TableCell>
                   <span className="text-sm font-medium">{recipe.title}</span>

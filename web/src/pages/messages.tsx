@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Search,
@@ -9,6 +9,8 @@ import {
   MoreVertical,
   Check,
   CheckCheck,
+  ArrowLeft,
+  MessageSquare,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,6 +20,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { ChatSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -192,8 +196,11 @@ function ChatBubble({ message }: { message: Message }) {
 export default function MessagesPage() {
   const { conversationId } = useParams()
   const [selectedConversation, setSelectedConversation] = useState(conversationId || '1')
+  const [mobileView, setMobileView] = useState<'list' | 'chat'>('list')
   const [search, setSearch] = useState('')
   const [newMessage, setNewMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filteredConversations = mockConversations.filter((c) =>
     c.patientName.toLowerCase().includes(search.toLowerCase())
@@ -208,11 +215,16 @@ export default function MessagesPage() {
     setNewMessage('')
   }
 
+  if (isLoading) return <ChatSkeleton />
+
   return (
     <div className="h-[calc(100vh-120px)]">
       <Card className="flex h-full overflow-hidden p-0">
         {/* ---- Left: Conversation List ---- */}
-        <div className="w-80 shrink-0 border-r flex flex-col">
+        <div className={cn(
+          'w-80 shrink-0 border-r flex flex-col',
+          mobileView === 'list' ? 'flex' : 'hidden md:flex'
+        )}>
           {/* Search header */}
           <div className="px-4 pt-5 pb-3 space-y-3">
             <h2 className="text-base font-semibold tracking-tight">Mesajlar</h2>
@@ -236,7 +248,7 @@ export default function MessagesPage() {
                 <button
                   key={conv.id}
                   type="button"
-                  onClick={() => setSelectedConversation(conv.id)}
+                  onClick={() => { setSelectedConversation(conv.id); setMobileView('chat') }}
                   className={cn(
                     'flex w-full items-center gap-3 px-4 py-3 text-left',
                     'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-quart)]',
@@ -305,20 +317,29 @@ export default function MessagesPage() {
               ))}
 
               {filteredConversations.length === 0 && (
-                <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                  Sonuc bulunamadi
-                </div>
+                <EmptyState icon={MessageSquare} title="Henüz mesaj yok" description="Hastalarınızla mesajlaşma burada görünecek." />
               )}
             </div>
           </ScrollArea>
         </div>
 
         {/* ---- Right: Chat Area ---- */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className={cn(
+          'flex-1 flex flex-col min-w-0',
+          mobileView === 'chat' ? 'flex' : 'hidden md:flex'
+        )}>
           {currentConversation ? (
             <>
               {/* Chat header */}
               <div className="flex items-center justify-between gap-3 px-5 py-3 border-b">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden shrink-0"
+                  onClick={() => setMobileView('list')}
+                >
+                  <ArrowLeft className="size-4" />
+                </Button>
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="relative shrink-0">
                     <Avatar className="size-9">

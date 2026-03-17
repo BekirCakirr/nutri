@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
 import {
   Save,
   Send,
@@ -41,6 +42,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { PageContainer } from '@/components/shared/page-container'
+import { PlanCreatorSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 
 /* ------------------------------------------------------------------ */
@@ -157,18 +159,23 @@ export default function PlanCreatorPage() {
   const [selectedPatient, setSelectedPatient] = useState(patientId || '')
   const [selectedDay, setSelectedDay] = useState<string>('Pazartesi')
   const [planTitle, setPlanTitle] = useState('Kilo Verme Programı - Hafta 1')
+  const [items, setItems] = useState<Record<string, PlanItem[]>>(sampleItems)
+  const [isPageLoading, setIsPageLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsPageLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isPageLoading) return <PlanCreatorSkeleton />
 
   /* ---------- helpers ---------- */
 
   const getItemsForSlot = (day: string, meal: string): PlanItem[] => {
-    return sampleItems[`${day}-${meal}`] || []
+    return items[`${day}-${meal}`] || []
   }
 
   const getDaySummary = (day: string) => {
     let calories = 0, protein = 0, carbs = 0, fat = 0
     mealSlots.forEach((meal) => {
-      const items = getItemsForSlot(day, meal)
-      items.forEach((item) => {
+      const slotItems = getItemsForSlot(day, meal)
+      slotItems.forEach((item) => {
         calories += item.calories
         protein += item.protein
         carbs += item.carbs
@@ -189,7 +196,34 @@ export default function PlanCreatorPage() {
       if (s.calories > 0) filledDays++
     })
     return { calories, protein, carbs, fat, filledDays }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items])
+
+  /* ---------- drag & drop ---------- */
+
+  const onDragEnd = (result: DropResult) => {
+    const { source, destination } = result
+    if (!destination) return
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return
+
+    setItems((prev) => {
+      const next = { ...prev }
+      const sourceItems = [...(next[source.droppableId] || [])]
+      const [moved] = sourceItems.splice(source.index, 1)
+
+      if (source.droppableId === destination.droppableId) {
+        sourceItems.splice(destination.index, 0, moved)
+        next[source.droppableId] = sourceItems
+      } else {
+        const destItems = [...(next[destination.droppableId] || [])]
+        destItems.splice(destination.index, 0, moved)
+        next[source.droppableId] = sourceItems
+        next[destination.droppableId] = destItems
+      }
+
+      return next
+    })
+  }
 
   const currentSummary = getDaySummary(selectedDay)
 
@@ -310,7 +344,7 @@ export default function PlanCreatorPage() {
                 <ChevronLeft className="h-3.5 w-3.5" />
               </Button>
 
-              <TabsList className="flex-1 grid grid-cols-7">
+              <TabsList className="flex-1 flex overflow-x-auto flex-nowrap md:grid md:grid-cols-7">
                 {days.map((day) => {
                   const s = getDaySummary(day)
                   const hasData = s.calories > 0
@@ -391,13 +425,15 @@ export default function PlanCreatorPage() {
                 </div>
 
                 {/* Meal slot cards - 2x2 grid */}
+                <DragDropContext onDragEnd={onDragEnd}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in-stagger">
                   {mealSlots.map((meal) => {
-                    const items = getItemsForSlot(day, meal)
-                    const mealCalories = items.reduce((sum, i) => sum + i.calories, 0)
-                    const mealProtein = items.reduce((sum, i) => sum + i.protein, 0)
-                    const mealCarbs = items.reduce((sum, i) => sum + i.carbs, 0)
-                    const mealFat = items.reduce((sum, i) => sum + i.fat, 0)
+                    const slotItems = getItemsForSlot(day, meal)
+                    const mealCalories = slotItems.reduce((sum, i) => sum + i.calories, 0)
+                    const mealProtein = slotItems.reduce((sum, i) => sum + i.protein, 0)
+                    const mealCarbs = slotItems.reduce((sum, i) => sum + i.carbs, 0)
+                    const mealFat = slotItems.reduce((sum, i) => sum + i.fat, 0)
+                    const droppableId = `${day}-${meal}`
 
                     return (
                       <Card
@@ -426,15 +462,33 @@ export default function PlanCreatorPage() {
 
                         {/* Meal items */}
                         <div className="px-3 py-2 min-h-[100px]">
+                          <Droppable droppableId={droppableId}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.droppableProps}
+                                className={cn(
+                                  'min-h-[80px] rounded-lg transition-colors',
+                                  snapshot.isDraggingOver && 'bg-primary/5 border-2 border-dashed border-primary/20'
+                                )}
+                              >
                           <ScrollArea className="max-h-[200px]">
-                            {items.length > 0 ? (
+                            {slotItems.length > 0 ? (
                               <div className="space-y-1.5">
-                                {items.map((item) => (
+                                {slotItems.map((item, index) => (
+                                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                                    {(dragProvided, dragSnapshot) => (
                                   <div
-                                    key={item.id}
-                                    className="group flex items-center gap-2 rounded-lg bg-background/70 border border-transparent hover:border-border px-3 py-2 transition-all"
+                                    ref={dragProvided.innerRef}
+                                    {...dragProvided.draggableProps}
+                                    className={cn(
+                                      'group flex items-center gap-2 rounded-lg bg-background/70 border border-transparent hover:border-border px-3 py-2 transition-all',
+                                      dragSnapshot.isDragging && 'shadow-lg border-primary/30 bg-background ring-2 ring-primary/20'
+                                    )}
                                   >
-                                    <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div {...dragProvided.dragHandleProps}>
+                                      <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-sm font-medium leading-tight truncate">
                                         {item.name}
@@ -469,20 +523,28 @@ export default function PlanCreatorPage() {
                                       <Trash2 className="h-3 w-3" />
                                     </Button>
                                   </div>
+                                    )}
+                                  </Draggable>
                                 ))}
                               </div>
                             ) : (
+                              !snapshot.isDraggingOver && (
                               <div className="h-[80px] rounded-lg border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center gap-1">
                                 <Plus className="h-4 w-4 text-muted-foreground/40" />
                                 <p className="text-[11px] text-muted-foreground/60">
-                                  Yiyecek eklemek için tıklayın
+                                  Yiyecek sürükleyin veya tıklayın
                                 </p>
                               </div>
+                              )
                             )}
                           </ScrollArea>
+                                {provided.placeholder}
+                              </div>
+                            )}
+                          </Droppable>
 
                           {/* Meal macro footer */}
-                          {items.length > 0 && (
+                          {slotItems.length > 0 && (
                             <>
                               <Separator className="my-2" />
                               <div className="flex items-center justify-between text-[10px] text-muted-foreground px-1">
@@ -508,6 +570,7 @@ export default function PlanCreatorPage() {
                     )
                   })}
                 </div>
+                </DragDropContext>
               </TabsContent>
             ))}
           </Tabs>

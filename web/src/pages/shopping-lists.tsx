@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, ShoppingCart, Share2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 
 interface ShoppingItem { id: string; name: string; amount: string; category: string; checked: boolean }
@@ -51,6 +52,8 @@ export default function ShoppingListsPage() {
   const [lists, setLists] = useState(mockLists)
   const [selectedList, setSelectedList] = useState<string | null>('1')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const currentList = lists.find((l) => l.id === selectedList)
 
@@ -72,6 +75,8 @@ export default function ShoppingListsPage() {
   const completedCount = currentList?.items.filter((i) => i.checked).length || 0
   const totalCount = currentList?.items.length || 0
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer

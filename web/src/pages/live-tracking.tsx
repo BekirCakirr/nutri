@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Wifi,
   WifiOff,
@@ -10,6 +10,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   CircleDot,
+  Activity,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
+import { DashboardSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 
@@ -67,6 +70,8 @@ const alertBadgeMap: Record<string, { label: string; variant: 'success' | 'warni
 
 export default function LiveTrackingPage() {
   const [alertFilter, setAlertFilter] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
   const isConnected = true
 
   const filtered = mockLivePatients.filter((p) => {
@@ -78,6 +83,8 @@ export default function LiveTrackingPage() {
   const highAlertCount = mockLivePatients.filter(p => p.alertLevel === 'high').length
   const mediumAlertCount = mockLivePatients.filter(p => p.alertLevel === 'medium').length
   const okCount = mockLivePatients.filter(p => p.alertLevel === 'none').length
+
+  if (isLoading) return <DashboardSkeleton />
 
   return (
     <PageContainer
@@ -255,6 +262,10 @@ export default function LiveTrackingPage() {
           )
         })}
       </div>
+
+      {filtered.length === 0 && (
+        <EmptyState icon={Activity} title="Aktif hasta yok" description="Aktif hastaların gerçek zamanlı verileri burada görünecek." />
+      )}
     </PageContainer>
   )
 }

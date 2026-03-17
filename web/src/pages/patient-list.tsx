@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Search,
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   LayoutGrid,
   List,
+  Users,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { cn } from '@/lib/utils'
 
 interface Patient {
@@ -96,6 +99,8 @@ export default function PatientListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filtered = useMemo(() => {
     let result = mockPatients
@@ -113,6 +118,8 @@ export default function PatientListPage() {
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
@@ -151,91 +158,129 @@ export default function PatientListPage() {
         </CardContent>
       </Card>
 
-      {viewMode === 'table' ? (
-        <Card className="py-0 gap-0 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[250px]">Hasta</TableHead>
-                <TableHead>Durum</TableHead>
-                <TableHead>Uyum</TableHead>
-                <TableHead className="hidden md:table-cell">BMI</TableHead>
-                <TableHead className="hidden lg:table-cell">Son Ziyaret</TableHead>
-                <TableHead className="hidden lg:table-cell">Sonraki Randevu</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+      {filtered.length === 0 ? (
+        <EmptyState icon={Users} title="Henüz hasta eklenmedi" description="Davet kodu oluşturarak ilk hastanızı ekleyin." />
+      ) : (
+        <>
+          {viewMode === 'table' ? (
+            <>
+              {/* Mobile card view */}
+              <div className="md:hidden space-y-3">
+                {paginated.map((patient) => {
+                  const fullName = `${patient.firstName} ${patient.lastName}`
+                  const initials = `${patient.firstName[0]}${patient.lastName[0]}`
+                  const status = statusConfig[patient.status]
+                  return (
+                    <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10"><AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium truncate">{fullName}</p>
+                              <Badge variant={status.variant}>{status.label}</Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">{patient.age} yaş</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 mt-3 text-center">
+                          <div><p className="text-xs text-muted-foreground">BMI</p><p className="text-sm font-semibold tabular-nums">{patient.bmi.toFixed(1)}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Uyum</p><p className={cn('text-sm font-semibold tabular-nums', getAdherenceColor(patient.adherence))}>%{patient.adherence}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Hedef</p><p className="text-sm font-semibold tabular-nums">{patient.targetWeight} kg</p></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+              {/* Desktop table view */}
+              <Card className="py-0 gap-0 overflow-hidden hidden md:block">
+                <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-[250px]">Hasta</TableHead>
+                    <TableHead>Durum</TableHead>
+                    <TableHead>Uyum</TableHead>
+                    <TableHead className="hidden md:table-cell">BMI</TableHead>
+                    <TableHead className="hidden lg:table-cell">Son Ziyaret</TableHead>
+                    <TableHead className="hidden lg:table-cell">Sonraki Randevu</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map((patient) => {
+                    const fullName = `${patient.firstName} ${patient.lastName}`
+                    const initials = `${patient.firstName[0]}${patient.lastName[0]}`
+                    const status = statusConfig[patient.status]
+                    return (
+                      <TableRow key={patient.id} className="cursor-pointer" onClick={() => navigate(`/patients/${patient.id}`)}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9"><AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
+                            <div>
+                              <p className="text-sm font-medium leading-tight">{fullName}</p>
+                              <p className="text-xs text-muted-foreground">{patient.age} yaş</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell><Badge variant={status.variant}>{status.label}</Badge></TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 w-24">
+                            <Progress value={patient.adherence} className="h-1.5 flex-1" />
+                            <span className={cn('text-xs font-semibold tabular-nums', getAdherenceColor(patient.adherence))}>%{patient.adherence}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell"><span className="text-sm tabular-nums">{patient.bmi.toFixed(1)}</span></TableCell>
+                        <TableCell className="hidden lg:table-cell"><span className="text-sm text-muted-foreground">{patient.lastVisit}</span></TableCell>
+                        <TableCell className="hidden lg:table-cell"><span className="text-sm text-muted-foreground">{patient.nextAppointment || '—'}</span></TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </Card>
+            </>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in-stagger">
               {paginated.map((patient) => {
                 const fullName = `${patient.firstName} ${patient.lastName}`
                 const initials = `${patient.firstName[0]}${patient.lastName[0]}`
                 const status = statusConfig[patient.status]
                 return (
-                  <TableRow key={patient.id} className="cursor-pointer" onClick={() => navigate(`/patients/${patient.id}`)}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9"><AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
-                        <div>
-                          <p className="text-sm font-medium leading-tight">{fullName}</p>
-                          <p className="text-xs text-muted-foreground">{patient.age} yaş</p>
+                  <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
+                    <CardContent className="p-5">
+                      <div className="flex items-start gap-3 mb-4">
+                        <Avatar className="h-11 w-11"><AvatarFallback className={cn('text-sm font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium leading-tight">{fullName}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{patient.age} yaş, {patient.weight} kg</p>
                         </div>
+                        <Badge variant={status.variant}>{status.label}</Badge>
                       </div>
-                    </TableCell>
-                    <TableCell><Badge variant={status.variant}>{status.label}</Badge></TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2 w-24">
-                        <Progress value={patient.adherence} className="h-1.5 flex-1" />
-                        <span className={cn('text-xs font-semibold tabular-nums', getAdherenceColor(patient.adherence))}>%{patient.adherence}</span>
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div><p className="text-xs text-muted-foreground">BMI</p><p className="text-sm font-semibold tabular-nums">{patient.bmi.toFixed(1)}</p></div>
+                        <div><p className="text-xs text-muted-foreground">Uyum</p><p className={cn('text-sm font-semibold tabular-nums', getAdherenceColor(patient.adherence))}>%{patient.adherence}</p></div>
+                        <div><p className="text-xs text-muted-foreground">Hedef</p><p className="text-sm font-semibold tabular-nums">{patient.targetWeight} kg</p></div>
                       </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell"><span className="text-sm tabular-nums">{patient.bmi.toFixed(1)}</span></TableCell>
-                    <TableCell className="hidden lg:table-cell"><span className="text-sm text-muted-foreground">{patient.lastVisit}</span></TableCell>
-                    <TableCell className="hidden lg:table-cell"><span className="text-sm text-muted-foreground">{patient.nextAppointment || '—'}</span></TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 )
               })}
-            </TableBody>
-          </Table>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in-stagger">
-          {paginated.map((patient) => {
-            const fullName = `${patient.firstName} ${patient.lastName}`
-            const initials = `${patient.firstName[0]}${patient.lastName[0]}`
-            const status = statusConfig[patient.status]
-            return (
-              <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-3 mb-4">
-                    <Avatar className="h-11 w-11"><AvatarFallback className={cn('text-sm font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium leading-tight">{fullName}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{patient.age} yaş, {patient.weight} kg</p>
-                    </div>
-                    <Badge variant={status.variant}>{status.label}</Badge>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 text-center">
-                    <div><p className="text-xs text-muted-foreground">BMI</p><p className="text-sm font-semibold tabular-nums">{patient.bmi.toFixed(1)}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Uyum</p><p className={cn('text-sm font-semibold tabular-nums', getAdherenceColor(patient.adherence))}>%{patient.adherence}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Hedef</p><p className="text-sm font-semibold tabular-nums">{patient.targetWeight} kg</p></div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+            </div>
+          )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
-          <p className="text-sm text-muted-foreground">{(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length}</p>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon-sm" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}><ChevronLeft className="h-4 w-4" /></Button>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <Button key={i} variant={currentPage === i + 1 ? 'default' : 'outline'} size="icon-sm" onClick={() => setCurrentPage(i + 1)}>{i + 1}</Button>
-            ))}
-            <Button variant="outline" size="icon-sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}><ChevronRight className="h-4 w-4" /></Button>
-          </div>
-        </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <p className="text-sm text-muted-foreground">{(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length}</p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon-sm" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <Button key={i} variant={currentPage === i + 1 ? 'default' : 'outline'} size="icon-sm" onClick={() => setCurrentPage(i + 1)}>{i + 1}</Button>
+                ))}
+                <Button variant="outline" size="icon-sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}><ChevronRight className="h-4 w-4" /></Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </PageContainer>
   )

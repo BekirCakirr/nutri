@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Copy,
@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { PageContainer } from '@/components/shared/page-container'
+import { FormPageSkeleton } from '@/components/shared/page-skeletons'
 import { StatCard } from '@/components/shared/stat-card'
 
 interface InviteCode {
@@ -63,6 +64,8 @@ export default function InviteCodePage() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [qrDialogOpen, setQrDialogOpen] = useState(false)
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code)
@@ -90,6 +93,8 @@ export default function InviteCodePage() {
     setSelectedCode(code)
     setQrDialogOpen(true)
   }
+
+  if (isLoading) return <FormPageSkeleton />
 
   const activeCodes = codes.filter(c => c.status === 'active').length
   const usedCodes = codes.filter(c => c.status === 'used').length

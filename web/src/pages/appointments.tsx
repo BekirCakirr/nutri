@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   CalendarDays,
   Plus,
@@ -37,6 +37,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { CalendarSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { PageContainer } from '@/components/shared/page-container'
 import { cn } from '@/lib/utils'
 
@@ -181,6 +183,9 @@ export default function AppointmentsPage() {
   const [view, setView] = useState<'week' | 'list'>('week')
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
   const upcomingAppointments = useMemo(
     () => mockAppointments.filter((a) => a.status === 'upcoming'),
     []
@@ -189,6 +194,8 @@ export default function AppointmentsPage() {
     () => mockAppointments.filter((a) => a.status !== 'upcoming'),
     []
   )
+
+  if (isLoading) return <CalendarSkeleton />
 
   return (
     <PageContainer
@@ -481,11 +488,15 @@ export default function AppointmentsPage() {
               </CardAction>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 animate-in-stagger">
-                {upcomingAppointments.map((apt) => (
-                  <AppointmentRow key={apt.id} appointment={apt} />
-                ))}
-              </div>
+              {upcomingAppointments.length === 0 ? (
+                <EmptyState icon={CalendarDays} title="Yaklaşan randevu yok" description="Yeni randevu oluşturmak için butona tıklayın." />
+              ) : (
+                <div className="space-y-2 animate-in-stagger">
+                  {upcomingAppointments.map((apt) => (
+                    <AppointmentRow key={apt.id} appointment={apt} />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 

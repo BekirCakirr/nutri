@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText,
@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { PageContainer } from '@/components/shared/page-container'
 import { StatCard } from '@/components/shared/stat-card'
 import { CalorieChart } from '@/components/charts/calorie-chart'
@@ -108,6 +109,11 @@ export default function ReportsPage() {
   const navigate = useNavigate()
   const [reportType, setReportType] = useState('weekly')
   const [selectedPatient, setSelectedPatient] = useState('all')
+
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isLoading) return <DashboardSkeleton />
 
   return (
     <PageContainer

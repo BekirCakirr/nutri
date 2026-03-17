@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import {
   BarChart3,
   TrendingUp,
@@ -27,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
+import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 
@@ -40,6 +42,11 @@ const monthlyStats = [
 ]
 
 export default function AdminReportsPage() {
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  if (isLoading) return <DashboardSkeleton />
+
   return (
     <PageContainer
       title="Sistem Raporları"

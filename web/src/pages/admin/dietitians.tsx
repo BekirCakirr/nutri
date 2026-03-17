@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Search,
   CheckCircle2,
@@ -32,6 +32,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 
@@ -80,6 +82,8 @@ function getInitialColor(name: string): string {
 export default function AdminDietitians() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const filtered = mockDietitians.filter((d) => {
     const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase()) || d.email.toLowerCase().includes(search.toLowerCase())
@@ -90,6 +94,8 @@ export default function AdminDietitians() {
   const verifiedCount = mockDietitians.filter(d => d.verificationStatus === 'verified').length
   const pendingCount = mockDietitians.filter(d => d.verificationStatus === 'pending').length
   const suspendedCount = mockDietitians.filter(d => d.status === 'suspended').length
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
@@ -171,7 +177,13 @@ export default function AdminDietitians() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((dietitian) => {
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7}>
+                  <EmptyState icon={UserCheck} title="Diyetisyen bulunamadı" description="Kayıtlı diyetisyen bulunmuyor." />
+                </TableCell>
+              </TableRow>
+            ) : filtered.map((dietitian) => {
               const verification = verificationMap[dietitian.verificationStatus]
               return (
                 <TableRow

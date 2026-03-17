@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Bell,
   Check,
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageContainer } from '@/components/shared/page-container'
+import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { cn } from '@/lib/utils'
 
@@ -52,6 +53,8 @@ const mockNotifications = [
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState(mockNotifications)
   const [activeTab, setActiveTab] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const markAllRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
@@ -68,6 +71,8 @@ export default function NotificationsPage() {
     : notifications.filter(n => n.type === activeTab)
 
   const unreadCount = notifications.filter(n => !n.read).length
+
+  if (isLoading) return <ListPageSkeleton />
 
   return (
     <PageContainer
