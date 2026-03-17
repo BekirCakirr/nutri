@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   CalendarDays,
   Plus,
@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { PageContainer } from '@/components/shared/page-container'
+import { EmptyState } from '@/components/shared/empty-state'
 import { cn } from '@/lib/utils'
 
 /* ─── Types ─────────────────────────────────────── */
@@ -180,6 +182,12 @@ function formatDate(dateStr: string): string {
 export default function AppointmentsPage() {
   const [view, setView] = useState<'week' | 'list'>('week')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 700)
+    return () => clearTimeout(t)
+  }, [])
 
   const upcomingAppointments = useMemo(
     () => mockAppointments.filter((a) => a.status === 'upcoming'),
@@ -336,6 +344,31 @@ export default function AppointmentsPage() {
         ))}
       </div>
 
+      {/* ─── Skeleton loading ───────────────────── */}
+      {isLoading ? (
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <Skeleton className="h-5 w-5 rounded" />
+              <Skeleton className="h-5 w-40" />
+            </div>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 rounded-xl border px-4 py-3">
+                <Skeleton className="h-10 w-1 rounded-full shrink-0" />
+                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                <div className="flex-1 space-y-2 min-w-0">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-4 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-20 hidden sm:block" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-6 w-20 rounded-full hidden md:block" />
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : (
       <Tabs value={view} onValueChange={(v) => setView(v as 'week' | 'list')}>
         {/* Hidden tabs list - controlled by the button group above */}
         <TabsList className="hidden">
