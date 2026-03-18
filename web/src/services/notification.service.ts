@@ -1,31 +1,27 @@
-// ---------------------------------------------------------------------------
-// Notification Service
-// ---------------------------------------------------------------------------
+import api from "@/lib/axios";
 
-import { mockNotifications, simulateApiCall } from "@/mock";
-
-type Notification = (typeof mockNotifications)[number];
-
-// ── Public API ───────────────────────────────────────────────────────────────
+import type { Notification } from "@/types/notification";
+export type { Notification };
 
 export async function getNotifications(): Promise<Notification[]> {
-  return simulateApiCall([...mockNotifications], 300);
+  const { data } = await api.get("/notifications");
+  // Backend may return { notifications, total, ... } or array
+  const result = data as any;
+  return (result.notifications ?? (Array.isArray(result) ? result : [])) as Notification[];
 }
 
-export async function markAsRead(
-  notificationId: string,
-): Promise<Notification> {
-  const notif =
-    mockNotifications.find((n) => n.id === notificationId) ??
-    mockNotifications[0];
-  return simulateApiCall({ ...notif, isRead: true }, 300);
+export async function markAsRead(notificationId: string): Promise<Notification> {
+  const { data } = await api.patch(`/notifications/${notificationId}/read`);
+  return data as Notification;
 }
 
 export async function markAllRead(): Promise<{ success: boolean }> {
-  return simulateApiCall({ success: true }, 300);
+  await api.patch("/notifications/read-all");
+  return { success: true };
 }
 
 export async function getUnreadCount(): Promise<{ count: number }> {
-  const count = mockNotifications.filter((n) => !n.isRead).length;
-  return simulateApiCall({ count }, 300);
+  const { data } = await api.get("/notifications/unread-count");
+  const result = data as any;
+  return { count: result.unreadCount ?? result.count ?? 0 };
 }

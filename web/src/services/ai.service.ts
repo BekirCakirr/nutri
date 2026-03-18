@@ -1,125 +1,60 @@
-// ---------------------------------------------------------------------------
-// AI Service
-// ---------------------------------------------------------------------------
-
-import { mockAiSuggestions, simulateApiCall } from "@/mock";
-
-type AiSuggestion = (typeof mockAiSuggestions)[number];
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import api from "@/lib/axios";
 
 export interface AiChatMessage {
-  id: string;
   role: "user" | "assistant";
   content: string;
-  createdAt: string;
+  timestamp: string;
 }
 
 export interface MealAnalysis {
-  totalCalories: number;
-  macroBalance: string;
-  suggestions: string[];
-  score: number;
+  foods: Array<{
+    name: string;
+    estimatedGrams: number;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  }>;
+  rawAnalysis: string;
 }
 
 export interface GeneratedPlan {
   title: string;
-  description: string;
-  dailyCalorieTarget: number;
-  meals: {
-    type: string;
-    name: string;
-    calories: number;
-    items: string[];
-  }[];
+  days: Array<{
+    dayOfWeek: number;
+    meals: Array<{
+      mealType: string;
+      foodName: string;
+      amountG: number;
+      calories: number;
+    }>;
+  }>;
 }
-
-// ── Public API ───────────────────────────────────────────────────────────────
 
 export async function sendMessage(
   content: string,
   _context?: Record<string, unknown>,
 ): Promise<AiChatMessage> {
-  void content;
-  return simulateApiCall(
-    {
-      id: `ai_msg_${Date.now()}`,
-      role: "assistant" as const,
-      content:
-        "Bu hastanin beslenme duzeni genel olarak dengeli gorunuyor. " +
-        "Protein alimini biraz artirmasini ve ogenlerini daha duzgun zamanlara dagitmasini oneririm.",
-      createdAt: new Date().toISOString(),
-    },
-    500,
-  );
+  const { data } = await api.post("/ai/chat", { message: content });
+  const result = data as any;
+  return {
+    role: "assistant",
+    content: result.reply ?? result.content ?? "",
+    timestamp: new Date().toISOString(),
+  };
 }
 
-export async function getSuggestions(
-  patientId?: string,
-): Promise<AiSuggestion[]> {
-  let items = [...mockAiSuggestions];
-  if (patientId) {
-    items = items.filter((s) => s.patientId === patientId);
-  }
-  return simulateApiCall(items, 400);
+export async function getSuggestions(_patientId?: string): Promise<any[]> {
+  // AI suggestions not yet a dedicated backend endpoint
+  return [];
 }
 
-export async function analyzeMeal(mealData: {
-  items: { name: string; quantity: number; unit: string }[];
-}): Promise<MealAnalysis> {
-  void mealData;
-  return simulateApiCall(
-    {
-      totalCalories: 520,
-      macroBalance: "Protein agirlikli, dengeli",
-      suggestions: [
-        "Lifli gida ekleyerek tok kalma suresini artirabilirsiniz",
-        "Yag oranini biraz azaltmayi deneyin",
-      ],
-      score: 78,
-    },
-    500,
-  );
+export async function analyzeMeal(mealData: { imageUrl: string }): Promise<MealAnalysis> {
+  const { data } = await api.post("/ai/analyze-meal", mealData);
+  return data as MealAnalysis;
 }
 
-export async function generatePlan(params: {
-  patientId: string;
-  goal: string;
-  preferences?: string[];
-}): Promise<GeneratedPlan> {
-  void params;
-  return simulateApiCall(
-    {
-      title: "AI Tarafindan Olusturulan Beslenme Plani",
-      description: "Hasta profili ve hedeflerine gore optimize edilmis plan",
-      dailyCalorieTarget: 2000,
-      meals: [
-        {
-          type: "breakfast",
-          name: "Dengeli Kahvalti",
-          calories: 400,
-          items: ["Yumurta", "Tam bugday ekmegi", "Domates", "Zeytinyagi"],
-        },
-        {
-          type: "lunch",
-          name: "Protein Agirlikli Ogle",
-          calories: 600,
-          items: ["Izgara tavuk", "Bulgur pilavi", "Mevsim salatasi"],
-        },
-        {
-          type: "dinner",
-          name: "Hafif Aksam Yemegi",
-          calories: 500,
-          items: ["Izgara balik", "Buharda sebze", "Yogurt"],
-        },
-        {
-          type: "snack",
-          name: "Ara Ogunler",
-          calories: 500,
-          items: ["Meyve", "Kuruyemis", "Sut"],
-        },
-      ],
-    },
-    500,
-  );
+export async function generatePlan(_params: Record<string, unknown>): Promise<GeneratedPlan> {
+  // AI plan generation not yet implemented
+  return { title: "", days: [] };
 }

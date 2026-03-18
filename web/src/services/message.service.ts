@@ -1,50 +1,26 @@
-// ---------------------------------------------------------------------------
-// Message Service
-// ---------------------------------------------------------------------------
+import api from "@/lib/axios";
 
-import { mockConversations, mockMessages, simulateApiCall } from "@/mock";
-
-type Conversation = (typeof mockConversations)[number];
-type Message = (typeof mockMessages)[number];
-
-// ── Public API ───────────────────────────────────────────────────────────────
+import type { Conversation, Message } from "@/types/message";
+export type { Conversation, Message };
 
 export async function getConversations(): Promise<Conversation[]> {
-  return simulateApiCall([...mockConversations], 300);
+  const { data } = await api.get("/messages/conversations");
+  return (Array.isArray(data) ? data : []) as Conversation[];
 }
 
-export async function getMessages(
-  conversationId: string,
-): Promise<Message[]> {
-  const filtered = mockMessages.filter(
-    (m) => m.conversationId === conversationId,
-  );
-  return simulateApiCall(filtered, 300);
+export async function getMessages(conversationId: string): Promise<Message[]> {
+  const { data } = await api.get(`/messages/conversations/${conversationId}/messages`);
+  // Backend may return { messages, pagination } or just messages array
+  const messages = Array.isArray(data) ? data : (data as any)?.messages ?? [];
+  return messages as Message[];
 }
 
-export async function sendMessage(
-  conversationId: string,
-  content: string,
-): Promise<Message> {
-  const newMessage: Message = {
-    id: `msg_${Date.now()}`,
-    conversationId,
-    senderId: "usr_001",
-    senderType: "dietitian",
-    senderName: "",
-    content,
-    type: "text",
-    attachmentUrl: null,
-    attachmentName: null,
-    createdAt: new Date().toISOString(),
-    readAt: null,
-  };
-  return simulateApiCall(newMessage, 400);
+export async function sendMessage(conversationId: string, content: string): Promise<Message> {
+  const { data } = await api.post("/messages/send", { conversationId, content, messageType: "text" });
+  return data as Message;
 }
 
-export async function markAsRead(
-  conversationId: string,
-): Promise<{ success: boolean }> {
-  void conversationId;
-  return simulateApiCall({ success: true }, 300);
+export async function markAsRead(conversationId: string): Promise<{ success: boolean }> {
+  await api.patch(`/messages/conversations/${conversationId}/read`);
+  return { success: true };
 }

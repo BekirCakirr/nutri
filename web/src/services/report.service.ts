@@ -1,67 +1,42 @@
-// ---------------------------------------------------------------------------
-// Report Service
-// ---------------------------------------------------------------------------
+import api from "@/lib/axios";
 
-import { mockReports, simulateApiCall } from "@/mock";
-
-type Report = (typeof mockReports)[number];
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import type { Report } from "@/types/report";
+export type { Report };
 
 export interface ReportFilters {
-  type?: string;
   patientId?: string;
-  period?: { startDate: string; endDate: string };
+  type?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
-// ── Public API ───────────────────────────────────────────────────────────────
-
-export async function getReports(
-  filters?: ReportFilters,
-): Promise<Report[]> {
-  let items = [...mockReports];
-
-  if (filters?.type) {
-    items = items.filter((r) => (r as unknown as { type?: string }).type === filters.type);
-  }
-  if (filters?.patientId) {
-    items = items.filter((r) => r.patientId === filters.patientId);
-  }
-
-  return simulateApiCall(items, 350);
+export async function getReports(filters?: ReportFilters): Promise<Report[]> {
+  const { data } = await api.get("/reports/weekly", { params: filters });
+  const result = data as any;
+  return (result.reports ?? (Array.isArray(result) ? result : [])) as Report[];
 }
 
 export async function generateReport(params: {
-  type: string;
-  patientId?: string;
-  startDate: string;
-  endDate: string;
+  weekStart: string;
+  weekEnd: string;
 }): Promise<Report> {
-  const newReport = {
-    ...mockReports[0],
-    id: `rpt_${Date.now()}`,
-    weekStartDate: params.startDate,
-    weekEndDate: params.endDate,
-    createdAt: new Date().toISOString(),
-  } satisfies Report;
-  return simulateApiCall(newReport, 500);
+  const { data } = await api.post("/reports/weekly/generate", params);
+  return data as Report;
 }
 
-export async function getPatientReport(
-  patientId: string,
-): Promise<Report | null> {
-  const report = mockReports.find((r) => r.patientId === patientId) ?? null;
-  return simulateApiCall(report, 300);
+export async function getPatientReport(patientId: string): Promise<Report | null> {
+  try {
+    const { data } = await api.get("/reports/summary", { params: { patientId } });
+    return data as Report;
+  } catch {
+    return null;
+  }
 }
 
 export async function exportReport(
   reportId: string,
-  format: "pdf" | "csv",
+  _format: string,
 ): Promise<{ url: string }> {
-  void reportId;
-  void format;
-  return simulateApiCall(
-    { url: `https://api.nutriai.com/reports/${reportId}/export.${format}` },
-    400,
-  );
+  // PDF export not yet implemented in backend — return placeholder
+  return { url: `/api/reports/weekly/${reportId}` };
 }

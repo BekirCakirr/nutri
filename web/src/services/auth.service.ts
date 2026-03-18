@@ -2,49 +2,49 @@
 // Auth Service
 // ---------------------------------------------------------------------------
 
+import api from "@/lib/axios";
 import type { User, AuthResponse, LoginRequest, RegisterRequest, ChangePasswordRequest, UpdateProfileRequest } from "@/types/auth";
-import { mockUser, mockToken, simulateApiCall } from "@/mock";
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-const delay = (ms = 400) => new Promise((r) => setTimeout(r, ms));
-
-function buildAuthResponse(): AuthResponse {
-  return {
-    user: mockUser as unknown as User,
-    accessToken: mockToken,
-    refreshToken: "mock-refresh-token-xyz789",
-    expiresIn: 3600,
-    tokenType: "Bearer",
-  };
-}
 
 // ── Public API ───────────────────────────────────────────────────────────────
 
-export async function login(_payload: LoginRequest): Promise<AuthResponse> {
-  await delay(500);
-  return buildAuthResponse();
+export async function login(payload: LoginRequest): Promise<AuthResponse> {
+  const { data } = await api.post("/auth/login", payload);
+  // data = { user, tokens: { accessToken, refreshToken, expiresIn, tokenType } }
+  const { user, tokens } = data as any;
+  // Store tokens
+  localStorage.setItem("accessToken", tokens.accessToken);
+  localStorage.setItem("refreshToken", tokens.refreshToken);
+  return { user, ...tokens };
 }
 
-export async function register(_payload: RegisterRequest): Promise<AuthResponse> {
-  await delay(500);
-  return buildAuthResponse();
+export async function register(payload: RegisterRequest): Promise<AuthResponse> {
+  // Determine endpoint based on role (default patient)
+  const endpoint = (payload as any).licenseNumber
+    ? "/auth/register/dietitian"
+    : "/auth/register/patient";
+  const { data } = await api.post(endpoint, payload);
+  const { user, tokens } = data as any;
+  localStorage.setItem("accessToken", tokens.accessToken);
+  localStorage.setItem("refreshToken", tokens.refreshToken);
+  return { user, ...tokens };
 }
 
 export async function logout(): Promise<void> {
-  await delay(300);
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 }
 
 export async function getProfile(): Promise<User> {
-  return simulateApiCall(mockUser as unknown as User, 300);
+  const { data } = await api.get("/auth/me");
+  return data as User;
 }
 
-export async function updateProfile(_payload: UpdateProfileRequest): Promise<User> {
-  await delay(400);
-  return mockUser as unknown as User;
+export async function updateProfile(payload: UpdateProfileRequest): Promise<User> {
+  const { data } = await api.put("/patients/me", payload);
+  return data as User;
 }
 
-export async function changePassword(_payload: ChangePasswordRequest): Promise<{ success: boolean }> {
-  await delay(400);
+export async function changePassword(payload: ChangePasswordRequest): Promise<{ success: boolean }> {
+  await api.post("/auth/change-password", payload);
   return { success: true };
 }

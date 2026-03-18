@@ -5,11 +5,62 @@
 import axios from "axios";
 import { API_URL } from "./constants";
 
+// ── snake_case → camelCase key transformer ──────────────────────────────────
+
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+}
+
+function transformKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(transformKeys);
+  if (obj && typeof obj === "object" && !(obj instanceof Date)) {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [
+        snakeToCamel(k),
+        transformKeys(v),
+      ]),
+    );
+  }
+  return obj;
+}
+
+// ── camelCase → snake_case key transformer (for request bodies) ─────────────
+
+function camelToSnake(str: string): string {
+  return str.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+}
+
+function transformKeysToSnake(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(transformKeysToSnake);
+  if (obj && typeof obj === "object" && !(obj instanceof Date)) {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [
+        camelToSnake(k),
+        transformKeysToSnake(v),
+      ]),
+    );
+  }
+  return obj;
+}
+
+// ── Backend response envelope ───────────────────────────────────────────────
+
+interface BackendEnvelope<T = unknown> {
+  success: boolean;
+  data: T;
+  message?: string;
+  meta?: Record<string, unknown>;
+  timestamp: string;
+}
+
 /**
  * Pre-configured Axios instance for all API calls.
  *
  * - Reads access-token from localStorage and attaches it as a Bearer header.
- * - Intercepts 401 responses and can be extended to handle token refresh.
+ * - Unwraps backend `{ success, data, meta }` envelopes automatically.
+ * - Converts snake_case keys to camelCase in responses.
+ * - Converts camelCase keys to snake_case in request bodies.
+ * - Intercepts 401 responses and attempts token refresh.
  */
 const api = axios.create({
   baseURL: API_URL,
@@ -27,6 +78,12 @@ api.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Transform request body keys to snake_case
+    if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
+      config.data = transformKeysToSnake(config.data);
+    }
+
     return config;
   },
   (error: unknown) => Promise.reject(error),
@@ -35,7 +92,21 @@ api.interceptors.request.use(
 // ── Response interceptor ─────────────────────────────────────────────────────
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Unwrap backend envelope and convert snake_case → camelCase
+    const body = response.data;
+    if (body && typeof body === "object" && "success" in body) {
+      const envelope = body as BackendEnvelope;
+      response.data = transformKeys(envelope.data);
+      // Preserve meta on a custom property for pagination
+      if (envelope.meta) {
+        (response as any).meta = transformKeys(envelope.meta);
+      }
+    } else {
+      response.data = transformKeys(body);
+    }
+    return response;
+  },
   async (error: unknown) => {
     if (!axios.isAxiosError(error)) {
       return Promise.reject(error);
@@ -55,16 +126,19 @@ api.interceptors.response.use(
           throw new Error("No refresh token available");
         }
 
-        const { data } = await axios.post<{
+        const { data: body } = await axios.post<BackendEnvelope<{
           accessToken: string;
           refreshToken: string;
-        }>(`${API_URL}/auth/refresh`, { refreshToken });
+          expiresIn: number;
+          tokenType: string;
+        }>>(`${API_URL}/auth/refresh-token`, { refreshToken });
 
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
+        const tokens = body.data;
+        localStorage.setItem("accessToken", tokens.accessToken);
+        localStorage.setItem("refreshToken", tokens.refreshToken);
 
         if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
         }
 
         return api(originalRequest);
@@ -90,3 +164,11 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+/**
+ * Extract pagination meta from an API response.
+ * Backend sends meta via the response interceptor's custom `.meta` property.
+ */
+export function extractMeta(response: any): Record<string, unknown> | undefined {
+  return response?.meta;
+}

@@ -1,73 +1,62 @@
-// ---------------------------------------------------------------------------
-// Food / Nutrition Database Service
-// ---------------------------------------------------------------------------
+import api from "@/lib/axios";
 
-import { simulateApiCall } from "@/mock";
-import { foods, foodCategories } from "@/mock/foods";
-import type { FoodItem, FoodCategory } from "@/mock/foods";
-
-export type { FoodItem, FoodCategory };
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import type { FoodItem } from "@/types/food";
+export type { FoodItem };
 
 export interface NutritionInfo {
   calories: number;
   protein: number;
   carbs: number;
   fat: number;
-  fiber: number;
-  sugar: number;
-  sodium: number;
-  servingSize: number;
-  servingUnit: string;
+  fiber?: number;
 }
 
-// ── Public API ───────────────────────────────────────────────────────────────
+export interface FoodCategory {
+  id: string;
+  label: string;
+}
 
 export async function searchFoods(query: string): Promise<FoodItem[]> {
-  const q = query.toLowerCase();
-  const results = foods.filter(
-    (f) =>
-      f.name.toLowerCase().includes(q) ||
-      f.category.toLowerCase().includes(q),
-  );
-  return simulateApiCall(results, 300);
+  const { data } = await api.get("/foods", { params: { q: query } });
+  // Backend returns { foods, total, page, limit }
+  const result = data as any;
+  return (result.foods ?? (Array.isArray(result) ? result : [])) as FoodItem[];
 }
 
-export async function getFood(id: string): Promise<FoodItem> {
-  const food = foods.find((f) => f.id === id) ?? foods[0];
-  return simulateApiCall(food, 300);
+export async function getFood(id: string | number): Promise<FoodItem> {
+  const { data } = await api.get(`/foods/${id}`);
+  return data as FoodItem;
 }
 
-export async function getFoodCategories(): Promise<
-  { id: FoodCategory; label: string }[]
-> {
-  return simulateApiCall([...foodCategories], 300);
+export async function getFoodCategories(): Promise<FoodCategory[]> {
+  // Categories are derived from food data — not a separate endpoint yet
+  // Return common Turkish food categories
+  return [
+    { id: "meyve", label: "Meyveler" },
+    { id: "sebze", label: "Sebzeler" },
+    { id: "et", label: "Et & Balik" },
+    { id: "sut", label: "Sut Urunleri" },
+    { id: "tahil", label: "Tahillar" },
+    { id: "baklagil", label: "Baklagiller" },
+    { id: "yag", label: "Yaglar" },
+    { id: "icecek", label: "Icecekler" },
+    { id: "atistirmalik", label: "Atistirmaliklar" },
+    { id: "diger", label: "Diger" },
+  ];
 }
 
 export async function getNutritionInfo(
-  foodId: string,
+  foodId: string | number,
   quantity: number,
-  unit: string,
+  _unit?: string,
 ): Promise<NutritionInfo> {
-  const food = foods.find((f) => f.id === foodId) ?? foods[0];
-  void unit;
-
-  // Scale nutrition values based on quantity vs serving size
-  const scale = quantity / food.servingSize;
-
-  return simulateApiCall(
-    {
-      calories: Math.round(food.calories * scale),
-      protein: Math.round(food.protein * scale * 10) / 10,
-      carbs: Math.round(food.carbs * scale * 10) / 10,
-      fat: Math.round(food.fat * scale * 10) / 10,
-      fiber: Math.round(food.fiber * scale * 10) / 10,
-      sugar: Math.round(food.sugar * scale * 10) / 10,
-      sodium: Math.round(food.sodium * scale),
-      servingSize: quantity,
-      servingUnit: unit,
-    },
-    300,
-  );
+  const food = await getFood(foodId);
+  const factor = quantity / 100;
+  return {
+    calories: Math.round(((food as any).caloriesPer100g ?? 0) * factor),
+    protein: Math.round(((food as any).proteinPer100g ?? 0) * factor * 10) / 10,
+    carbs: Math.round(((food as any).carbsPer100g ?? 0) * factor * 10) / 10,
+    fat: Math.round(((food as any).fatPer100g ?? 0) * factor * 10) / 10,
+    fiber: (food as any).fiberPer100g ? Math.round((food as any).fiberPer100g * factor * 10) / 10 : undefined,
+  };
 }

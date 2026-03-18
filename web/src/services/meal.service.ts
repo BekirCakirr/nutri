@@ -2,12 +2,14 @@
 // Meal Service
 // ---------------------------------------------------------------------------
 
+import api from "@/lib/axios";
 import type { PaginatedResponse } from "@/types/common";
-import { mockMeals, simulateApiCall } from "@/mock";
-import { meals } from "@/mock/meals";
-import type { MealEntry } from "@/mock/meals";
 
-export type { MealEntry };
+// Use type from @/types/meal
+import type { Meal } from "@/types/meal";
+
+export type MealEntry = Meal;
+export type { Meal };
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,6 +18,8 @@ export interface MealFilters {
   type?: string;
   status?: string;
   date?: string;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
 }
@@ -32,83 +36,65 @@ export interface MealStats {
 
 export async function getMeals(
   filters?: MealFilters,
-): Promise<PaginatedResponse<(typeof mockMeals)[number]>> {
-  let items = [...mockMeals];
+): Promise<PaginatedResponse<Meal>> {
+  const params: Record<string, string> = {};
+  if (filters?.startDate) params.startDate = filters.startDate;
+  if (filters?.endDate) params.endDate = filters.endDate;
 
-  if (filters?.patientId) {
-    items = items.filter((m) => m.patientId === filters.patientId);
-  }
-  if (filters?.type) {
-    items = items.filter((m) => (m as unknown as { type?: string }).type === filters.type);
-  }
-
-  const page = filters?.page ?? 1;
-  const limit = filters?.limit ?? 10;
-  const start = (page - 1) * limit;
-  const paged = items.slice(start, start + limit);
-
-  return simulateApiCall(
-    {
-      items: paged,
-      meta: {
-        currentPage: page,
-        totalPages: Math.ceil(items.length / limit),
-        totalItems: items.length,
-        itemsPerPage: limit,
-        hasNextPage: start + limit < items.length,
-        hasPreviousPage: page > 1,
-      },
+  const { data } = await api.get("/meals/history", { params });
+  const items = Array.isArray(data) ? data : [];
+  return {
+    items: items as Meal[],
+    meta: {
+      currentPage: filters?.page ?? 1,
+      totalPages: 1,
+      totalItems: items.length,
+      itemsPerPage: filters?.limit ?? 10,
+      hasNextPage: false,
+      hasPreviousPage: false,
     },
-    350,
-  );
+  };
 }
 
 export async function getMealsByPatient(
   patientId: string,
-): Promise<MealEntry[]> {
-  const filtered = meals.filter((m) => m.patientId === patientId);
-  return simulateApiCall(filtered, 300);
+): Promise<Meal[]> {
+  // For dietitians viewing a patient's meals
+  const { data } = await api.get("/meals/history", {
+    params: { startDate: "2020-01-01", endDate: "2099-12-31" },
+  });
+  return (Array.isArray(data) ? data : []) as Meal[];
 }
 
 export async function approveMeal(
   mealId: string,
   comment?: string,
-): Promise<MealEntry> {
-  const meal = meals.find((m) => m.id === mealId) ?? meals[0];
-  return simulateApiCall(
-    { ...meal, isApproved: true, dietitianComment: comment ?? null },
-    400,
-  );
+): Promise<Meal> {
+  const { data } = await api.put(`/meals/${mealId}`, {
+    dietitianFeedback: comment,
+    dietitianViewed: true,
+  });
+  return data as Meal;
 }
 
 export async function rejectMeal(
   mealId: string,
   comment: string,
-): Promise<MealEntry> {
-  const meal = meals.find((m) => m.id === mealId) ?? meals[0];
-  return simulateApiCall(
-    { ...meal, isApproved: false, dietitianComment: comment },
-    400,
-  );
+): Promise<Meal> {
+  const { data } = await api.put(`/meals/${mealId}`, {
+    dietitianFeedback: comment,
+    dietitianViewed: true,
+  });
+  return data as Meal;
 }
 
 export async function getMealStats(): Promise<MealStats> {
-  const pending = meals.filter((m) => m.isApproved === null).length;
-  const approved = meals.filter((m) => m.isApproved === true).length;
-  const rejected = meals.filter((m) => m.isApproved === false).length;
-  const avg =
-    meals.length > 0
-      ? Math.round(meals.reduce((s, m) => s + m.totalCalories, 0) / meals.length)
-      : 0;
-
-  return simulateApiCall(
-    {
-      totalMeals: meals.length,
-      pending,
-      approved,
-      rejected,
-      averageCalories: avg,
-    },
-    300,
-  );
+  const { data } = await api.get("/reports/summary");
+  return (data ?? {
+    totalMeals: 0,
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+    averageCalories: 0,
+  }) as MealStats;
 }
