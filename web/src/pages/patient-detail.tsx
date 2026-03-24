@@ -23,6 +23,9 @@ import {
   Scale,
   Heart,
   Target,
+  Sunrise,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -149,13 +152,16 @@ function getBmiLabel(bmi: number): { label: string; variant: 'success' | 'warnin
 function getMealTypeIcon(type: string) {
   switch (type) {
     case 'Kahvaltı':
-      return '🌅'
+    case 'breakfast':
+      return Sunrise
     case 'Öğle':
-      return '☀️'
+    case 'lunch':
+      return Sun
     case 'Akşam':
-      return '🌙'
+    case 'dinner':
+      return Moon
     default:
-      return '🍎'
+      return Apple
   }
 }
 
@@ -349,7 +355,7 @@ export default function PatientDetailPage() {
       </nav>
 
       {/* ── Tab content ─────────────────────────────────────── */}
-      <div className="animate-in-stagger">
+      <div key={activeTab} className="animate-in-stagger">
         {/* ─── Genel Bakis ──────────────────────────────────── */}
         {activeTab === 'overview' && (
           <>
@@ -484,8 +490,8 @@ export default function PatientDetailPage() {
                       key={meal.id}
                       className="flex items-center gap-4 rounded-lg border px-4 py-3 transition-colors hover:bg-secondary/50"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-lg">
-                        {getMealTypeIcon(meal.type)}
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                        {(() => { const Icon = getMealTypeIcon(meal.type); return <Icon className="h-5 w-5 text-muted-foreground" />; })()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">

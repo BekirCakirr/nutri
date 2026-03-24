@@ -202,6 +202,9 @@ export default function DashboardPage() {
             <span className="text-sm font-medium">Sonraki Randevular</span>
           </div>
           <div className="flex flex-wrap gap-3">
+            {upcomingAppointments.length === 0 && (
+              <p className="text-sm text-muted-foreground py-2">Bugün planlanmış randevu bulunmuyor.</p>
+            )}
             {upcomingAppointments.map((apt) => (
               <div
                 key={apt.id}

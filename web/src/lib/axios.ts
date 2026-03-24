@@ -24,25 +24,6 @@ function transformKeys(obj: unknown): unknown {
   return obj;
 }
 
-// ── camelCase → snake_case key transformer (for request bodies) ─────────────
-
-function camelToSnake(str: string): string {
-  return str.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
-}
-
-function transformKeysToSnake(obj: unknown): unknown {
-  if (Array.isArray(obj)) return obj.map(transformKeysToSnake);
-  if (obj && typeof obj === "object" && !(obj instanceof Date)) {
-    return Object.fromEntries(
-      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [
-        camelToSnake(k),
-        transformKeysToSnake(v),
-      ]),
-    );
-  }
-  return obj;
-}
-
 // ── Backend response envelope ───────────────────────────────────────────────
 
 interface BackendEnvelope<T = unknown> {
@@ -79,10 +60,8 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Transform request body keys to snake_case
-    if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
-      config.data = transformKeysToSnake(config.data);
-    }
+    // NOTE: Request body is NOT transformed to snake_case because
+    // backend Zod schemas expect camelCase (firstName, lastName, etc.)
 
     return config;
   },

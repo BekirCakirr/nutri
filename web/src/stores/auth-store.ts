@@ -17,7 +17,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: "nutritionist" | "patient" | "admin";
+  role: "dietitian" | "nutritionist" | "patient" | "admin";
   avatar: string;
   phone?: string;
   bio?: string;
@@ -38,7 +38,7 @@ export interface RegisterData {
   password: string;
   firstName: string;
   lastName: string;
-  role: "nutritionist" | "patient";
+  role: "dietitian" | "nutritionist" | "patient";
 }
 
 export interface ProfileUpdateData {
@@ -79,9 +79,12 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const result = await loginApi(credentials);
+          const token = result.accessToken;
+          // Sync token to localStorage for axios interceptor
+          if (token) localStorage.setItem("accessToken", token);
           set({
             user: result.user as unknown as User,
-            token: result.accessToken,
+            token,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -93,6 +96,8 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         logoutApi();
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         set({
           user: null,
           token: null,

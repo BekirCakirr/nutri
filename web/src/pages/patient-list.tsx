@@ -135,7 +135,7 @@ export default function PatientListPage() {
       result = result.filter((p) => p.status === statusFilter)
     }
     return result
-  }, [search, statusFilter])
+  }, [search, statusFilter, mappedPatients])
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
@@ -189,7 +189,7 @@ export default function PatientListPage() {
               <div className="md:hidden space-y-3">
                 {paginated.map((patient) => {
                   const fullName = `${patient.firstName} ${patient.lastName}`
-                  const initials = `${patient.firstName[0]}${patient.lastName[0]}`
+                  const initials = `${patient.firstName?.[0] ?? ''}${patient.lastName?.[0] ?? ''}`
                   const status = statusConfig[patient.status]
                   return (
                     <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
@@ -230,7 +230,7 @@ export default function PatientListPage() {
                 <TableBody>
                   {paginated.map((patient) => {
                     const fullName = `${patient.firstName} ${patient.lastName}`
-                    const initials = `${patient.firstName[0]}${patient.lastName[0]}`
+                    const initials = `${patient.firstName?.[0] ?? ''}${patient.lastName?.[0] ?? ''}`
                     const status = statusConfig[patient.status]
                     return (
                       <TableRow key={patient.id} className="cursor-pointer" onClick={() => navigate(`/patients/${patient.id}`)}>
@@ -264,7 +264,7 @@ export default function PatientListPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in-stagger">
               {paginated.map((patient) => {
                 const fullName = `${patient.firstName} ${patient.lastName}`
-                const initials = `${patient.firstName[0]}${patient.lastName[0]}`
+                const initials = `${patient.firstName?.[0] ?? ''}${patient.lastName?.[0] ?? ''}`
                 const status = statusConfig[patient.status]
                 return (
                   <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
