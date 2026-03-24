@@ -36,6 +36,13 @@ export async function logout(): Promise<void> {
 
 export async function getProfile(): Promise<User> {
   const { data } = await api.get("/auth/me");
+  // Backend returns { id, email, role, profile: { firstName, lastName, ... } }
+  // Flatten profile into top-level user object
+  const raw = data as any;
+  if (raw.profile) {
+    const { profile, ...rest } = raw;
+    return { ...rest, ...profile } as User;
+  }
   return data as User;
 }
 

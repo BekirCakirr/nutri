@@ -47,11 +47,14 @@ export async function addExerciseEntry(entry: Omit<ExerciseEntry, 'date'> & { da
   return entry;
 }
 
+const qualityMap: Record<number, string> = { 1: 'poor', 2: 'fair', 3: 'good', 4: 'excellent', 5: 'excellent' };
+
 export async function addSleepEntry(entry: SleepEntry): Promise<SleepEntry> {
+  const numQuality = (entry as any).quality ?? 3;
   await apiClient.post('/tracking/sleep', {
     sleepStart: (entry as any).startTime ?? new Date().toISOString(),
     sleepEnd: (entry as any).endTime ?? new Date().toISOString(),
-    quality: (entry as any).quality ?? 3,
+    quality: qualityMap[numQuality] ?? 'good',
   });
   return entry;
 }

@@ -25,6 +25,27 @@ export interface PatientFilters {
   limit?: number;
 }
 
+// ── Field mapping (backend → store) ─────────────────────────────────────────
+
+function mapPatient(raw: any): any {
+  return {
+    ...raw,
+    // Map backend field names to store expected names
+    dateOfBirth: raw.dateOfBirth ?? raw.birthDate ?? '',
+    height: raw.height ?? raw.heightCm ?? 0,
+    weight: raw.weight ?? raw.currentWeightKg ?? 0,
+    avatar: raw.avatar ?? raw.avatarUrl ?? '',
+    adherenceScore: raw.adherenceScore ?? 0,
+    lastVisit: raw.lastVisit ?? raw.updatedAt ?? '',
+    nextAppointment: raw.nextAppointment ?? null,
+    goals: raw.goals ?? (raw.goalType ? [raw.goalType] : []),
+    allergies: raw.allergies ?? [],
+    dietaryRestrictions: raw.dietaryRestrictions ?? [],
+    medicalConditions: raw.medicalConditions ?? [],
+    status: raw.status ?? (raw.isActive === false ? 'inactive' : 'active'),
+  };
+}
+
 // ── Public API ───────────────────────────────────────────────────────────────
 
 export async function getPatients(
@@ -32,7 +53,8 @@ export async function getPatients(
 ): Promise<PaginatedResponse<Patient>> {
   const { data } = await api.get("/patients", { params: filters });
   // Backend returns array for dietitian's patients
-  const items = Array.isArray(data) ? data : [data];
+  const rawItems = Array.isArray(data) ? data : [data];
+  const items = rawItems.map(mapPatient);
   return {
     items: items as Patient[],
     meta: {
@@ -48,7 +70,7 @@ export async function getPatients(
 
 export async function getPatient(id: string): Promise<Patient> {
   const { data } = await api.get(`/patients/${id}`);
-  return data as Patient;
+  return mapPatient(data) as Patient;
 }
 
 export async function createPatient(

@@ -138,9 +138,9 @@ function MessageStatusIcon({ status }: { status: Message['status'] }) {
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1 px-4 py-2.5">
-      <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-[bounce_1.4s_ease-in-out_0ms_infinite]" />
-      <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-[bounce_1.4s_ease-in-out_200ms_infinite]" />
-      <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-[bounce_1.4s_ease-in-out_400ms_infinite]" />
+      <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-[bounce_1s_ease-in-out_0ms_infinite]" />
+      <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-[bounce_1s_ease-in-out_150ms_infinite]" />
+      <span className="size-1.5 rounded-full bg-muted-foreground/40 animate-[bounce_1s_ease-in-out_300ms_infinite]" />
     </div>
   )
 }
@@ -222,7 +222,7 @@ export default function MessagesPage() {
       <Card className="flex h-full overflow-hidden p-0">
         {/* ---- Left: Conversation List ---- */}
         <div className={cn(
-          'w-80 shrink-0 border-r flex flex-col',
+          'w-80 lg:w-96 shrink-0 border-r flex flex-col',
           mobileView === 'list' ? 'flex' : 'hidden md:flex'
         )}>
           {/* Search header */}

@@ -19,11 +19,28 @@ export interface TimeSlot {
 import type { Appointment } from "@/types/appointment";
 export type { Appointment };
 
+function mapAppointment(raw: any): any {
+  return {
+    ...raw,
+    date: raw.date ?? raw.appointmentDate ?? '',
+    startTime: raw.startTime ?? '',
+    endTime: raw.endTime ?? '',
+    patientName: raw.patientName ?? ([raw.patientFirstName, raw.patientLastName].filter(Boolean).join(' ') || 'Hasta'),
+    nutritionistId: raw.nutritionistId ?? raw.dietitianId ?? '',
+    type: raw.type === 'online' ? 'consultation' : raw.type === 'in_person' ? 'follow_up' : raw.type ?? 'consultation',
+    duration: raw.duration ?? raw.durationMinutes ?? 45,
+    notes: raw.notes ?? '',
+    location: raw.location ?? (raw.type === 'online' ? 'Video' : 'Klinik'),
+    meetingUrl: raw.meetingUrl ?? raw.jitsiRoomId ?? null,
+  };
+}
+
 export async function getAppointments(
   filters?: AppointmentFilters,
 ): Promise<PaginatedResponse<Appointment>> {
   const { data } = await api.get("/appointments", { params: filters });
-  const items = Array.isArray(data) ? data : [];
+  const rawItems = Array.isArray(data) ? data : [];
+  const items = rawItems.map(mapAppointment);
   return {
     items: items as Appointment[],
     meta: {
