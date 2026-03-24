@@ -95,10 +95,10 @@ export async function generateWeeklyReport(
 
   // 2. Weight logs: start weight, end weight, change
   const weightResult = await query(
-    `SELECT weight_kg, log_date
+    `SELECT weight_kg, measured_at::date AS log_date
      FROM weight_logs
-     WHERE patient_id = $1 AND log_date >= $2 AND log_date <= $3
-     ORDER BY log_date ASC`,
+     WHERE patient_id = $1 AND measured_at::date >= $2 AND measured_at::date <= $3
+     ORDER BY measured_at ASC`,
     [patientId, weekStart, weekEnd]
   );
 
@@ -109,10 +109,10 @@ export async function generateWeeklyReport(
 
   // 3. Water logs: avg glasses per day, goal adherence
   const waterResult = await query(
-    `SELECT log_date, COALESCE(SUM(glasses), 0) AS daily_glasses
+    `SELECT logged_at::date AS log_date, COALESCE(SUM(glasses), 0) AS daily_glasses
      FROM water_logs
-     WHERE patient_id = $1 AND log_date >= $2 AND log_date <= $3
-     GROUP BY log_date`,
+     WHERE patient_id = $1 AND logged_at::date >= $2 AND logged_at::date <= $3
+     GROUP BY logged_at::date`,
     [patientId, weekStart, weekEnd]
   );
 
@@ -136,20 +136,20 @@ export async function generateWeeklyReport(
   // 4. Exercise logs: total duration, total calories burned
   const exerciseResult = await query(
     `SELECT
-       COALESCE(SUM(duration_minutes), 0) AS total_duration,
+       COALESCE(SUM(duration_min), 0) AS total_duration,
        COALESCE(SUM(calories_burned), 0)  AS total_calories_burned
      FROM exercise_logs
-     WHERE patient_id = $1 AND log_date >= $2 AND log_date <= $3`,
+     WHERE patient_id = $1 AND logged_at::date >= $2 AND logged_at::date <= $3`,
     [patientId, weekStart, weekEnd]
   );
 
   const exerciseData = exerciseResult.rows[0];
 
-  // 5. Sleep logs: avg sleep hours
+  // 5. Sleep logs: avg sleep hours (calculated from sleep_start and sleep_end)
   const sleepResult = await query(
-    `SELECT COALESCE(AVG(sleep_hours), 0) AS avg_sleep_hours
+    `SELECT COALESCE(AVG(EXTRACT(EPOCH FROM (sleep_end - sleep_start)) / 3600), 0) AS avg_sleep_hours
      FROM sleep_logs
-     WHERE patient_id = $1 AND log_date >= $2 AND log_date <= $3`,
+     WHERE patient_id = $1 AND logged_at::date >= $2 AND logged_at::date <= $3`,
     [patientId, weekStart, weekEnd]
   );
 
@@ -224,24 +224,24 @@ export async function getDailySummary(userId: string, date: string) {
   const waterResult = await query(
     `SELECT COALESCE(SUM(glasses), 0) AS total_glasses
      FROM water_logs
-     WHERE patient_id = $1 AND log_date = $2`,
+     WHERE patient_id = $1 AND logged_at::date = $2`,
     [patientId, date]
   );
 
   // Exercise
   const exerciseResult = await query(
-    `SELECT id, exercise_type, duration_minutes, calories_burned
+    `SELECT id, exercise_type, duration_min, calories_burned
      FROM exercise_logs
-     WHERE patient_id = $1 AND log_date = $2
-     ORDER BY created_at ASC`,
+     WHERE patient_id = $1 AND logged_at::date = $2
+     ORDER BY logged_at ASC`,
     [patientId, date]
   );
 
   // Weight if logged
   const weightResult = await query(
     `SELECT weight_kg FROM weight_logs
-     WHERE patient_id = $1 AND log_date = $2
-     ORDER BY created_at DESC LIMIT 1`,
+     WHERE patient_id = $1 AND measured_at::date = $2
+     ORDER BY measured_at DESC LIMIT 1`,
     [patientId, date]
   );
 
@@ -291,13 +291,13 @@ export async function getPatientSummary(userId: string) {
   const firstWeightResult = await query(
     `SELECT weight_kg FROM weight_logs
      WHERE patient_id = $1
-     ORDER BY log_date ASC LIMIT 1`,
+     ORDER BY measured_at ASC LIMIT 1`,
     [patientId]
   );
   const latestWeightResult = await query(
     `SELECT weight_kg FROM weight_logs
      WHERE patient_id = $1
-     ORDER BY log_date DESC LIMIT 1`,
+     ORDER BY measured_at DESC LIMIT 1`,
     [patientId]
   );
 

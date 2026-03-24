@@ -95,13 +95,13 @@ export async function getTodayWater(userId: string) {
   );
 
   const targetResult = await query(
-    `SELECT daily_water_target_glasses FROM patient_profiles WHERE id = $1`,
+    `SELECT daily_water_target FROM patient_profiles WHERE id = $1`,
     [patientId]
   );
 
   return {
     totalGlasses: parseInt(totalResult.rows[0].total_glasses, 10),
-    dailyTarget: targetResult.rows[0]?.daily_water_target_glasses || 8,
+    dailyTarget: targetResult.rows[0]?.daily_water_target || 8,
   };
 }
 

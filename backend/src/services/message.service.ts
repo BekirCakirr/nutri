@@ -66,10 +66,10 @@ export async function getConversations(userId: string) {
        c.updated_at,
        u.id AS other_user_id,
        u.email AS other_user_email,
-       u.first_name AS other_user_first_name,
-       u.last_name AS other_user_last_name,
+       COALESCE(pp.first_name, dp.first_name) AS other_user_first_name,
+       COALESCE(pp.last_name, dp.last_name) AS other_user_last_name,
        u.role AS other_user_role,
-       u.avatar_url AS other_user_avatar,
+       COALESCE(pp.profile_photo_url, dp.profile_photo_url) AS other_user_avatar,
        pp.id AS other_patient_profile_id,
        dp.id AS other_dietitian_profile_id,
        lm.id AS last_message_id,
@@ -134,11 +134,13 @@ export async function getMessages(
 
   const messagesResult = await query(
     `SELECT m.*,
-            u.first_name AS sender_first_name,
-            u.last_name AS sender_last_name,
-            u.avatar_url AS sender_avatar
+            COALESCE(pp.first_name, dp.first_name) AS sender_first_name,
+            COALESCE(pp.last_name, dp.last_name) AS sender_last_name,
+            COALESCE(pp.profile_photo_url, dp.profile_photo_url) AS sender_avatar
      FROM messages m
      JOIN users u ON u.id = m.sender_id
+     LEFT JOIN patient_profiles pp ON pp.user_id = u.id
+     LEFT JOIN dietitian_profiles dp ON dp.user_id = u.id
      WHERE m.conversation_id = $1
      ORDER BY m.created_at DESC
      LIMIT $2 OFFSET $3`,
