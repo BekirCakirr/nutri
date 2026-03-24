@@ -1,5 +1,8 @@
 import { useState, useCallback } from "react";
-import { mockAiSuggestions, simulateApiCall } from "@/mock";
+import {
+  sendMessage as sendAiMessage,
+  getSuggestions,
+} from "@/services/ai.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,11 +44,8 @@ export function useAi() {
     setIsLoading(true);
     setError(null);
     try {
-      const all = await simulateApiCall(mockAiSuggestions, 800);
-      const filtered = patientId
-        ? all.filter((s) => s.patientId === patientId)
-        : all;
-      setSuggestions(filtered as AiSuggestion[]);
+      const data = await getSuggestions(patientId);
+      setSuggestions(data as unknown as AiSuggestion[]);
     } catch {
       setError("Failed to fetch AI suggestions");
     } finally {
@@ -56,7 +56,7 @@ export function useAi() {
   const acceptSuggestion = useCallback(async (suggestionId: string) => {
     setError(null);
     try {
-      await simulateApiCall(null, 400);
+      // TODO: Backend endpoint for accepting AI suggestions
       setSuggestions((prev) =>
         prev.map((s) =>
           s.id === suggestionId ? { ...s, status: "accepted" as const } : s,
@@ -70,7 +70,7 @@ export function useAi() {
   const dismissSuggestion = useCallback(async (suggestionId: string) => {
     setError(null);
     try {
-      await simulateApiCall(null, 300);
+      // TODO: Backend endpoint for dismissing AI suggestions
       setSuggestions((prev) =>
         prev.map((s) =>
           s.id === suggestionId ? { ...s, status: "dismissed" as const } : s,
@@ -94,17 +94,13 @@ export function useAi() {
     setChatMessages((prev) => [...prev, userMessage]);
 
     try {
-      // Simulate AI thinking
-      const reply = await simulateApiCall(
-        "Based on the patient's data and recent meal logs, I'd recommend adjusting their protein intake to better align with their muscle gain goals. Would you like me to generate a detailed meal plan modification?",
-        1200,
-      );
+      const reply = await sendAiMessage(content);
 
       const assistantMessage: AiChatMessage = {
         id: `ai_msg_${Date.now() + 1}`,
         role: "assistant",
-        content: reply,
-        createdAt: new Date().toISOString(),
+        content: reply.content,
+        createdAt: reply.timestamp ?? new Date().toISOString(),
       };
       setChatMessages((prev) => [...prev, assistantMessage]);
       return assistantMessage;

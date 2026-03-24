@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { mockLiveTrackingData, simulateApiCall } from "@/mock";
+import { getPatients } from "@/services/patient.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,6 +27,10 @@ export interface LiveTrackingEntry {
 /**
  * Live patient tracking data with polling support.
  *
+ * TODO: Backend needs a dedicated dietitian-facing endpoint that aggregates
+ * all patients' daily tracking data. Currently we derive partial data from
+ * the patients list.
+ *
  * @param pollIntervalMs - Polling interval in milliseconds (default: 30000).
  *                          Pass 0 to disable polling.
  */
@@ -41,8 +45,22 @@ export function useLiveTracking(pollIntervalMs = 30_000) {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await simulateApiCall(mockLiveTrackingData, 500);
-      setTrackingData(data as LiveTrackingEntry[]);
+      const response = await getPatients();
+      const entries: LiveTrackingEntry[] = response.items.map((p: any) => ({
+        patientId: p.id,
+        patientName: `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() || p.name || "Hasta",
+        avatar: p.avatarUrl ?? p.avatar ?? "",
+        currentCalories: p.todayCalories ?? 0,
+        targetCalories: p.targetCalories ?? 2000,
+        mealsLogged: p.todayMeals ?? 0,
+        totalMealsExpected: 4,
+        lastActivity: p.lastActivity ?? "Bilgi yok",
+        lastActivityAt: p.lastActivityAt ?? p.updatedAt ?? new Date().toISOString(),
+        waterIntake: p.todayWater ?? 0,
+        waterTarget: p.waterTarget ?? 8,
+        isOnline: p.isOnline ?? false,
+      }));
+      setTrackingData(entries);
       setLastUpdated(new Date());
     } catch {
       setError("Failed to fetch tracking data");
@@ -74,15 +92,15 @@ export function useLiveTracking(pollIntervalMs = 30_000) {
       const entry = trackingData.find((p) => p.patientId === patientId);
       if (!entry) return null;
       return {
-        calorieProgress: Math.round(
-          (entry.currentCalories / entry.targetCalories) * 100,
-        ),
-        mealProgress: Math.round(
-          (entry.mealsLogged / entry.totalMealsExpected) * 100,
-        ),
-        waterProgress: Math.round(
-          (entry.waterIntake / entry.waterTarget) * 100,
-        ),
+        calorieProgress: entry.targetCalories > 0
+          ? Math.round((entry.currentCalories / entry.targetCalories) * 100)
+          : 0,
+        mealProgress: entry.totalMealsExpected > 0
+          ? Math.round((entry.mealsLogged / entry.totalMealsExpected) * 100)
+          : 0,
+        waterProgress: entry.waterTarget > 0
+          ? Math.round((entry.waterIntake / entry.waterTarget) * 100)
+          : 0,
       };
     },
     [trackingData],

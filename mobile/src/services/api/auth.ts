@@ -1,38 +1,49 @@
 import type { AuthResponse, LoginPayload, RegisterPayload, User } from '@/types';
-import { mockUser } from '@/mock';
-
-const delay = (ms = 800) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
+import { storage } from '@/services/storage';
+import { STORAGE_KEYS } from '@/lib/constants';
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
-  await delay();
+  const { data } = await apiClient.post('/auth/login', payload);
+  const result = data.data ?? data;
+  const token = result.tokens?.accessToken ?? result.token;
+  if (token) {
+    await storage.set(STORAGE_KEYS.AUTH_TOKEN, token);
+  }
   return {
-    user: mockUser,
-    token: 'mock-jwt-token-' + Date.now(),
+    user: result.user,
+    token,
   };
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthResponse> {
-  await delay(1000);
+  const { data } = await apiClient.post('/auth/register/patient', payload);
+  const result = data.data ?? data;
+  const token = result.tokens?.accessToken ?? result.token;
+  if (token) {
+    await storage.set(STORAGE_KEYS.AUTH_TOKEN, token);
+  }
   return {
-    user: { ...mockUser, name: payload.name, email: payload.email },
-    token: 'mock-jwt-token-' + Date.now(),
+    user: result.user,
+    token,
   };
 }
 
 export async function getMe(): Promise<User> {
-  await delay(500);
-  return mockUser;
+  const { data } = await apiClient.get('/auth/me');
+  return (data.data ?? data) as User;
 }
 
-export async function updateUser(data: Partial<User>): Promise<User> {
-  await delay();
-  return { ...mockUser, ...data };
+export async function updateUser(userData: Partial<User>): Promise<User> {
+  const { data } = await apiClient.put('/patients/me', userData);
+  return (data.data ?? data) as User;
 }
 
-export async function changePassword(_oldPassword: string, _newPassword: string): Promise<void> {
-  await delay();
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
+  await apiClient.post('/auth/change-password', { oldPassword, newPassword });
 }
 
-export async function forgotPassword(_email: string): Promise<void> {
-  await delay();
+export async function forgotPassword(email: string): Promise<void> {
+  // TODO: Backend forgot-password endpoint needed
+  console.warn('forgotPassword not yet implemented on backend', email);
 }

@@ -2,7 +2,7 @@ import type { Meal, MealItem, MealType } from '@/types';
 import apiClient from './client';
 import { mockMeals } from '@/mock';
 
-const USE_MOCK = !__DEV__ ? false : true;
+const USE_MOCK = false;
 const delay = (ms = 600) => new Promise((r) => setTimeout(r, ms));
 
 function mapDbMealToMobile(dbMeal: any): Meal {

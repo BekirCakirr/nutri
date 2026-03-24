@@ -30,7 +30,7 @@ export async function getReviewStats(dietitianId?: string): Promise<ReviewStats>
   return { totalReviews, averageRating: Math.round(averageRating * 10) / 10, distribution };
 }
 
-export async function respondToReview(reviewId: string, response: string): Promise<Review> {
-  // Review responses not yet a backend feature
+export async function respondToReview(_reviewId: string, _response: string): Promise<Review> {
+  // TODO: Review responses not yet a backend feature
   return {} as Review;
 }

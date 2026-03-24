@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
-import { reviews as mockReviews, reviewStats as mockReviewStats } from '@/mock/reviews'
+import { useReviews } from '@/hooks/use-reviews'
 
 function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
   const sizeClass = size === 'md' ? 'h-5 w-5' : 'h-3.5 w-3.5'
@@ -42,16 +42,25 @@ function getRatingBadge(rating: number) {
 }
 
 export default function ReviewsPage() {
+  const { reviews: fetchedReviews, averageRating, fetchReviews, respondToReview } = useReviews()
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { fetchReviews(); const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const handleReply = (reviewId: string) => {
-    console.log('Replying to', reviewId, replyText)
+    respondToReview(reviewId, replyText)
     setReplyingTo(null)
     setReplyText('')
   }
+
+  // Derive stats from real data
+  const totalReviews = fetchedReviews.length
+  const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  fetchedReviews.forEach(r => {
+    const rating = (r as any).rating ?? 0
+    if (rating >= 1 && rating <= 5) ratingDistribution[rating]++
+  })
 
   if (isLoading) return <ListPageSkeleton />
 
@@ -68,12 +77,12 @@ export default function ReviewsPage() {
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
               Ortalama Puan
             </p>
-            <p className="text-4xl font-bold tabular-nums">{mockReviewStats.averageRating}</p>
+            <p className="text-4xl font-bold tabular-nums">{averageRating}</p>
             <div className="mt-2">
-              <StarRating rating={Math.round(mockReviewStats.averageRating)} size="md" />
+              <StarRating rating={Math.round(averageRating)} size="md" />
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              {mockReviewStats.totalReviews} degerlendirme
+              {totalReviews} degerlendirme
             </p>
           </CardContent>
         </Card>
@@ -85,9 +94,9 @@ export default function ReviewsPage() {
               Puan Dagılımı
             </p>
             {[5, 4, 3, 2, 1].map(rating => {
-              const count = mockReviewStats.ratingDistribution[rating as keyof typeof mockReviewStats.ratingDistribution]
-              const percent = mockReviewStats.totalReviews > 0
-                ? (count / mockReviewStats.totalReviews) * 100
+              const count = ratingDistribution[rating]
+              const percent = totalReviews > 0
+                ? (count / totalReviews) * 100
                 : 0
               return (
                 <div key={rating} className="flex items-center gap-3">
@@ -119,11 +128,11 @@ export default function ReviewsPage() {
             <CardContent className="p-4 text-center">
               <p className="text-xs text-muted-foreground mb-1">{label}</p>
               <p className="text-lg font-bold tabular-nums">
-                {mockReviewStats.categoryAverages[key as keyof typeof mockReviewStats.categoryAverages]}
+                {averageRating}
               </p>
               <StarRating
                 rating={Math.round(
-                  mockReviewStats.categoryAverages[key as keyof typeof mockReviewStats.categoryAverages]
+                  averageRating
                 )}
               />
             </CardContent>
@@ -133,7 +142,7 @@ export default function ReviewsPage() {
 
       {/* Reviews */}
       <div className="space-y-4 animate-in-stagger">
-        {mockReviews.map(review => {
+        {fetchedReviews.map(review => {
           const ratingBadge = getRatingBadge(review.rating)
           return (
             <Card key={review.id} className="py-0 gap-0 transition-all duration-[var(--duration-fast)] hover:shadow-md">
@@ -164,24 +173,24 @@ export default function ReviewsPage() {
                     </div>
 
                     {/* Title & Comment */}
-                    {review.title && (
-                      <p className="text-sm font-semibold">{review.title}</p>
+                    {(review as any).title && (
+                      <p className="text-sm font-semibold">{(review as any).title}</p>
                     )}
                     <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
 
                     {/* Response */}
-                    {review.dietitianResponse && (
+                    {((review as any).dietitianResponse || review.response) && (
                       <div className="rounded-lg border border-primary/10 bg-primary/5 p-3 mt-3">
                         <p className="text-xs font-medium text-primary mb-1">
                           <MessageSquare className="inline h-3 w-3 mr-1" />
                           Yanıtınız
                         </p>
-                        <p className="text-sm text-muted-foreground">{review.dietitianResponse}</p>
+                        <p className="text-sm text-muted-foreground">{(review as any).dietitianResponse || review.response}</p>
                       </div>
                     )}
 
                     {/* Reply button */}
-                    {!review.dietitianResponse && replyingTo !== review.id && (
+                    {!((review as any).dietitianResponse || review.response) && replyingTo !== review.id && (
                       <Button
                         variant="outline"
                         size="sm"

@@ -1,28 +1,35 @@
 import type { Dietitian } from '@/types';
-import { mockDietitian, mockDietitians } from '@/mock';
-
-const delay = (ms = 600) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export async function getPairedDietitian(): Promise<Dietitian | null> {
-  await delay();
-  return mockDietitian;
+  try {
+    // Patient's paired dietitian info comes from patient profile or dedicated endpoint
+    const { data } = await apiClient.get('/dietitians/me');
+    return (data.data ?? data) as Dietitian;
+  } catch {
+    return null;
+  }
 }
 
 export async function requestPairing(code: string): Promise<Dietitian> {
-  await delay(1000);
-  return mockDietitian;
+  const { data } = await apiClient.post('/dietitians/pair', { inviteCode: code });
+  return (data.data ?? data) as Dietitian;
 }
 
 export async function unpairDietitian(): Promise<void> {
-  await delay();
+  // TODO: Backend unpair endpoint needed
 }
 
 export async function getDietitians(): Promise<Dietitian[]> {
-  await delay();
-  return mockDietitians;
+  // Public dietitian listing not available for patients
+  return [];
 }
 
 export async function getDietitianById(id: string): Promise<Dietitian | null> {
-  await delay(400);
-  return mockDietitians.find((d) => d.id === id) ?? null;
+  try {
+    const { data } = await apiClient.get(`/dietitians/${id}`);
+    return (data.data ?? data) as Dietitian;
+  } catch {
+    return null;
+  }
 }

@@ -1,5 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
-import { mockShoppingLists, simulateApiCall } from "@/mock";
+import {
+  getShoppingLists,
+  toggleItem as toggleItemApi,
+} from "@/services/shopping.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,11 +45,12 @@ export function useShoppingLists(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const all = await simulateApiCall(mockShoppingLists, 600);
+        const all = await getShoppingLists();
+        const items = all as unknown as ShoppingList[];
         const filtered = pid
-          ? all.filter((sl) => sl.patientId === pid)
-          : all;
-        setShoppingLists(filtered as unknown as ShoppingList[]);
+          ? items.filter((sl) => sl.patientId === pid)
+          : items;
+        setShoppingLists(filtered);
       } catch {
         setError("Failed to fetch shopping lists");
       } finally {
@@ -60,7 +64,7 @@ export function useShoppingLists(patientId?: string) {
     async (listId: string, itemId: string) => {
       setError(null);
       try {
-        await simulateApiCall(null, 200);
+        await toggleItemApi(itemId);
         setShoppingLists((prev) =>
           prev.map((sl) =>
             sl.id === listId
@@ -90,12 +94,12 @@ export function useShoppingLists(patientId?: string) {
     ) => {
       setError(null);
       try {
+        // TODO: Backend POST /shopping-lists/:id/items endpoint needed
         const newItem: ShoppingListItem = {
           ...item,
           id: `sli_${Date.now()}`,
           checked: false,
         };
-        await simulateApiCall(newItem, 300);
         setShoppingLists((prev) =>
           prev.map((sl) =>
             sl.id === listId
@@ -120,7 +124,7 @@ export function useShoppingLists(patientId?: string) {
     async (listId: string, itemId: string) => {
       setError(null);
       try {
-        await simulateApiCall(null, 200);
+        // TODO: Backend DELETE /shopping-lists/items/:id endpoint needed
         setShoppingLists((prev) =>
           prev.map((sl) =>
             sl.id === listId

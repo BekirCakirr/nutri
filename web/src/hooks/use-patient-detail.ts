@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePatientStore } from "@/stores/patient-store";
 import type { Patient } from "@/stores/patient-store";
-import { mockPatients, simulateApiCall } from "@/mock";
+import { getPatient, updatePatient as updatePatientApi } from "@/services/patient.service";
 
 /**
  * Fetch and manage a single patient's detail by ID.
@@ -17,10 +17,9 @@ export function usePatientDetail(patientId: string | undefined) {
       setIsLoading(true);
       setError(null);
       try {
-        const patients = await simulateApiCall(mockPatients, 600);
-        const found = patients.find((p) => p.id === id);
-        if (found) {
-          selectPatient(found as unknown as Patient);
+        const data = await getPatient(id);
+        if (data) {
+          selectPatient(data as unknown as Patient);
         } else {
           setError("Patient not found");
           selectPatient(null);
@@ -51,9 +50,8 @@ export function usePatientDetail(patientId: string | undefined) {
       if (!selectedPatient) return;
       setIsLoading(true);
       try {
-        const updated = { ...selectedPatient, ...data, updatedAt: new Date().toISOString() };
-        await simulateApiCall(updated, 500);
-        selectPatient(updated);
+        const updated = await updatePatientApi(selectedPatient.id, data as any);
+        selectPatient(updated as unknown as Patient);
       } catch {
         setError("Failed to update patient");
       } finally {

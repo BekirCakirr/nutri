@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
-import { mockMeals, simulateApiCall } from "@/mock";
+import {
+  getMeals,
+  getMealsByPatient,
+  createMeal as createMealApi,
+  deleteMeal as deleteMealApi,
+} from "@/services/meal.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,11 +55,14 @@ export function useMeals(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const allMeals = await simulateApiCall(mockMeals, 600);
-        const filtered = pid
-          ? allMeals.filter((m) => m.patientId === pid)
-          : allMeals;
-        setMeals(filtered as unknown as Meal[]);
+        let items: unknown[];
+        if (pid) {
+          items = await getMealsByPatient(pid);
+        } else {
+          const response = await getMeals();
+          items = response.items;
+        }
+        setMeals(items as unknown as Meal[]);
       } catch {
         setError("Failed to fetch meals");
       } finally {
@@ -69,27 +77,9 @@ export function useMeals(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const totalCalories = data.items.reduce((sum, item) => sum + item.calories, 0);
-        const newMeal: Meal = {
-          id: `meal_${Date.now()}`,
-          patientId: data.patientId,
-          name: data.name,
-          type: data.type,
-          date: data.date,
-          calories: totalCalories,
-          protein: 0,
-          carbohydrates: 0,
-          fat: 0,
-          fiber: 0,
-          items: data.items,
-          notes: data.notes ?? "",
-          logged: true,
-          loggedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        };
-        const created = await simulateApiCall(newMeal, 500);
-        setMeals((prev) => [...prev, created]);
-        return created;
+        const created = await createMealApi(data as unknown as Record<string, unknown>);
+        setMeals((prev) => [...prev, created as unknown as Meal]);
+        return created as unknown as Meal;
       } catch {
         setError("Failed to create meal");
         return null;
@@ -104,7 +94,7 @@ export function useMeals(patientId?: string) {
     setIsLoading(true);
     setError(null);
     try {
-      await simulateApiCall(null, 400);
+      await deleteMealApi(mealId);
       setMeals((prev) => prev.filter((m) => m.id !== mealId));
     } catch {
       setError("Failed to delete meal");

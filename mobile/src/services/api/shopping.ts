@@ -1,51 +1,43 @@
 import type { ShoppingList, ShoppingItem } from '@/types';
-import { mockShoppingLists } from '@/mock';
-
-const delay = (ms = 500) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export async function getShoppingLists(): Promise<ShoppingList[]> {
-  await delay();
-  return mockShoppingLists;
+  const { data } = await apiClient.get('/shopping-lists');
+  return (data.data ?? data ?? []) as ShoppingList[];
 }
 
 export async function getShoppingListById(id: string): Promise<ShoppingList | null> {
-  await delay(400);
-  return mockShoppingLists.find((l) => l.id === id) ?? null;
+  try {
+    const { data } = await apiClient.get(`/shopping-lists/${id}`);
+    return (data.data ?? data) as ShoppingList;
+  } catch {
+    return null;
+  }
 }
 
 export async function createShoppingList(name: string): Promise<ShoppingList> {
-  await delay();
-  return {
-    id: 'list-' + Date.now(),
-    name,
-    items: [],
-    sharedWith: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const { data } = await apiClient.post('/shopping-lists', { name });
+  return (data.data ?? data) as ShoppingList;
 }
 
-export async function addShoppingItem(
-  listId: string,
-  item: Omit<ShoppingItem, 'id' | 'checked'>,
-): Promise<ShoppingItem> {
-  await delay(300);
-  return { ...item, id: 'si-' + Date.now(), checked: false };
+export async function addShoppingItem(listId: string, item: Partial<ShoppingItem>): Promise<ShoppingItem> {
+  // TODO: Backend POST /shopping-lists/:id/items endpoint needed
+  return { id: 'item-' + Date.now(), ...item } as ShoppingItem;
 }
 
 export async function toggleShoppingItem(listId: string, itemId: string): Promise<boolean> {
-  await delay(200);
+  await apiClient.patch(`/shopping-lists/items/${itemId}/toggle`);
   return true;
 }
 
-export async function deleteShoppingItem(listId: string, itemId: string): Promise<void> {
-  await delay(200);
+export async function deleteShoppingItem(_listId: string, _itemId: string): Promise<void> {
+  // TODO: Backend DELETE /shopping-lists/items/:id endpoint needed
 }
 
-export async function shareShoppingList(listId: string, userId: string): Promise<void> {
-  await delay(500);
+export async function shareShoppingList(_listId: string, _userId: string): Promise<void> {
+  // Share code is generated on creation
 }
 
 export async function deleteShoppingList(listId: string): Promise<void> {
-  await delay(400);
+  await apiClient.delete(`/shopping-lists/${listId}`);
 }

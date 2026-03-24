@@ -1,19 +1,18 @@
 import type { Appointment } from '@/types';
-import { mockAppointments } from '@/mock';
-
-const delay = (ms = 600) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export async function getAppointments(): Promise<Appointment[]> {
-  await delay();
-  return mockAppointments;
+  const { data } = await apiClient.get('/appointments');
+  const items = data.data ?? data ?? [];
+  return Array.isArray(items) ? items : [];
 }
 
 export async function getUpcomingAppointment(): Promise<Appointment | null> {
-  await delay(400);
-  return mockAppointments.find((a) => a.status === 'scheduled') ?? null;
+  const all = await getAppointments();
+  return all.find((a: any) => a.status === 'scheduled') ?? null;
 }
 
-export async function bookAppointment(data: {
+export async function bookAppointment(apptData: {
   dietitianId: string;
   date: string;
   time: string;
@@ -21,22 +20,17 @@ export async function bookAppointment(data: {
   type: 'online' | 'in_person';
   notes?: string;
 }): Promise<Appointment> {
-  await delay(1000);
-  return {
-    id: 'apt-' + Date.now(),
-    dietitianId: data.dietitianId,
-    dietitianName: 'Dyt. Zeynep Kaya',
-    date: data.date,
-    time: data.time,
-    duration: data.duration,
-    type: data.type,
-    status: 'scheduled',
-    notes: data.notes,
-  };
+  const { data } = await apiClient.post('/appointments', {
+    scheduledAt: `${apptData.date}T${apptData.time}:00`,
+    durationMinutes: apptData.duration,
+    appointmentType: apptData.type,
+    notes: apptData.notes,
+  });
+  return (data.data ?? data) as Appointment;
 }
 
 export async function cancelAppointment(id: string): Promise<void> {
-  await delay();
+  await apiClient.patch(`/appointments/${id}/status`, { status: 'cancelled' });
 }
 
 export async function rescheduleAppointment(
@@ -44,7 +38,9 @@ export async function rescheduleAppointment(
   date: string,
   time: string,
 ): Promise<Appointment> {
-  await delay();
-  const apt = mockAppointments.find((a) => a.id === id)!;
-  return { ...apt, date, time };
+  const { data } = await apiClient.patch(`/appointments/${id}/status`, {
+    status: 'scheduled',
+    scheduledAt: `${date}T${time}:00`,
+  });
+  return (data.data ?? data) as Appointment;
 }

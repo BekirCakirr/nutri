@@ -34,6 +34,19 @@ import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { cn } from '@/lib/utils'
+import { usePatients } from '@/hooks/use-patients'
+
+function computeAge(dateOfBirth: string | undefined): number {
+  if (!dateOfBirth) return 0
+  const diff = Date.now() - new Date(dateOfBirth).getTime()
+  return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000))
+}
+
+function computeBmi(h: number | undefined, w: number | undefined): number {
+  if (!h || !w || h === 0) return 0
+  const hm = h / 100
+  return Math.round((w / (hm * hm)) * 10) / 10
+}
 
 interface Patient {
   id: string
@@ -51,18 +64,6 @@ interface Patient {
   bmi: number
 }
 
-const mockPatients: Patient[] = [
-  { id: '1', firstName: 'Ayşe', lastName: 'Yılmaz', email: 'ayse@email.com', age: 32, gender: 'female', status: 'active', adherence: 85, lastVisit: '2025-01-20', nextAppointment: '2025-01-25', weight: 68, targetWeight: 62, bmi: 24.2 },
-  { id: '2', firstName: 'Mehmet', lastName: 'Kaya', email: 'mehmet@email.com', age: 45, gender: 'male', status: 'active', adherence: 72, lastVisit: '2025-01-18', nextAppointment: '2025-01-26', weight: 92, targetWeight: 85, bmi: 28.1 },
-  { id: '3', firstName: 'Fatma', lastName: 'Demir', email: 'fatma@email.com', age: 28, gender: 'female', status: 'active', adherence: 45, lastVisit: '2025-01-15', nextAppointment: null, weight: 75, targetWeight: 65, bmi: 26.8 },
-  { id: '4', firstName: 'Ali', lastName: 'Öztürk', email: 'ali@email.com', age: 55, gender: 'male', status: 'paused', adherence: 60, lastVisit: '2025-01-10', nextAppointment: null, weight: 88, targetWeight: 80, bmi: 27.5 },
-  { id: '5', firstName: 'Zeynep', lastName: 'Çelik', email: 'zeynep@email.com', age: 38, gender: 'female', status: 'active', adherence: 92, lastVisit: '2025-01-22', nextAppointment: '2025-01-27', weight: 58, targetWeight: 56, bmi: 21.3 },
-  { id: '6', firstName: 'Hasan', lastName: 'Yıldız', email: 'hasan@email.com', age: 41, gender: 'male', status: 'inactive', adherence: 30, lastVisit: '2024-12-20', nextAppointment: null, weight: 95, targetWeight: 82, bmi: 29.4 },
-  { id: '7', firstName: 'Elif', lastName: 'Arslan', email: 'elif@email.com', age: 25, gender: 'female', status: 'onboarding', adherence: 0, lastVisit: '2025-01-23', nextAppointment: '2025-01-28', weight: 70, targetWeight: 63, bmi: 25.0 },
-  { id: '8', firstName: 'Can', lastName: 'Doğan', email: 'can@email.com', age: 33, gender: 'male', status: 'active', adherence: 78, lastVisit: '2025-01-19', nextAppointment: '2025-01-29', weight: 82, targetWeight: 78, bmi: 25.6 },
-  { id: '9', firstName: 'Selin', lastName: 'Koç', email: 'selin@email.com', age: 29, gender: 'female', status: 'active', adherence: 88, lastVisit: '2025-01-21', nextAppointment: '2025-01-30', weight: 55, targetWeight: 54, bmi: 20.1 },
-  { id: '10', firstName: 'Burak', lastName: 'Şahin', email: 'burak@email.com', age: 50, gender: 'male', status: 'paused', adherence: 55, lastVisit: '2025-01-05', nextAppointment: null, weight: 98, targetWeight: 88, bmi: 30.2 },
-]
 
 const statusConfig = {
   active: { label: 'Aktif', variant: 'success' as const },
@@ -99,11 +100,31 @@ export default function PatientListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const { allPatients } = usePatients()
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
+  // Map store patients to local Patient type
+  const mappedPatients: Patient[] = useMemo(() =>
+    allPatients.map((p: any) => ({
+      id: p.id,
+      firstName: p.firstName ?? '',
+      lastName: p.lastName ?? '',
+      email: p.email ?? '',
+      age: computeAge(p.dateOfBirth),
+      gender: p.gender === 'female' ? 'female' as const : 'male' as const,
+      status: (p.status ?? 'active') as Patient['status'],
+      adherence: p.adherenceScore ?? 0,
+      lastVisit: p.lastVisit ?? '',
+      nextAppointment: p.nextAppointment ?? null,
+      weight: p.weight ?? 0,
+      targetWeight: (p as any).targetWeight ?? (p.weight ? p.weight - 5 : 0),
+      bmi: computeBmi(p.height, p.weight),
+    }))
+  , [allPatients])
+
   const filtered = useMemo(() => {
-    let result = mockPatients
+    let result = mappedPatients
     if (search) {
       const q = search.toLowerCase()
       result = result.filter(

@@ -61,7 +61,7 @@ export async function getMealsByPatient(
 ): Promise<Meal[]> {
   // For dietitians viewing a patient's meals
   const { data } = await api.get("/meals/history", {
-    params: { startDate: "2020-01-01", endDate: "2099-12-31" },
+    params: { patientId, startDate: "2020-01-01", endDate: "2099-12-31" },
   });
   return (Array.isArray(data) ? data : []) as Meal[];
 }
@@ -86,6 +86,15 @@ export async function rejectMeal(
     dietitianViewed: true,
   });
   return data as Meal;
+}
+
+export async function createMeal(mealData: Record<string, unknown>): Promise<Meal> {
+  const { data } = await api.post("/meals", mealData);
+  return data as Meal;
+}
+
+export async function deleteMeal(id: string): Promise<void> {
+  await api.delete(`/meals/${id}`);
 }
 
 export async function getMealStats(): Promise<MealStats> {

@@ -1,11 +1,16 @@
 import { useCallback, useState } from "react";
 import { useMessageStore } from "@/stores/message-store";
 import type { Message } from "@/stores/message-store";
-import { mockMessages, simulateApiCall } from "@/mock";
+import {
+  getConversations as getConversationsApi,
+  getMessages as getMessagesApi,
+  sendMessage as sendMessageApi,
+  markAsRead,
+} from "@/services/message.service";
 
 /**
  * Messaging operations hook.
- * Wraps the message store with async loading simulation.
+ * Wraps the message store with real API calls.
  */
 export function useMessages() {
   const conversations = useMessageStore((s) => s.conversations);
@@ -16,6 +21,7 @@ export function useMessages() {
   const setMessages = useMessageStore((s) => s.setMessages);
   const markConversationRead = useMessageStore((s) => s.markConversationRead);
   const updateConversationLastMessage = useMessageStore((s) => s.updateConversationLastMessage);
+  const setConversations = useMessageStore((s) => s.setConversations);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,14 +35,26 @@ export function useMessages() {
     0,
   );
 
+  const fetchConversations = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getConversationsApi();
+      setConversations(data as unknown as typeof conversations);
+    } catch {
+      setError("Failed to fetch conversations");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setConversations]);
+
   const fetchMessages = useCallback(
     async (conversationId: string) => {
       setIsLoading(true);
       setError(null);
       try {
-        const all = await simulateApiCall(mockMessages, 500);
-        const filtered = all.filter((m) => m.conversationId === conversationId);
-        setMessages(filtered as unknown as Message[]);
+        const data = await getMessagesApi(conversationId);
+        setMessages(data as unknown as Message[]);
       } catch {
         setError("Failed to fetch messages");
       } finally {
@@ -50,16 +68,8 @@ export function useMessages() {
     async (conversationId: string, content: string) => {
       setError(null);
       try {
-        const newMessage: Message = {
-          id: `msg_${Date.now()}`,
-          conversationId,
-          senderId: "usr_001",
-          content,
-          type: "text",
-          createdAt: new Date().toISOString(),
-          readAt: null,
-        };
-        await simulateApiCall(newMessage, 300);
+        const result = await sendMessageApi(conversationId, content);
+        const newMessage = result as unknown as Message;
         addMessage(newMessage);
         updateConversationLastMessage(
           conversationId,
@@ -80,6 +90,7 @@ export function useMessages() {
       setActiveConversation(conversationId);
       await fetchMessages(conversationId);
       markConversationRead(conversationId);
+      await markAsRead(conversationId).catch(() => {});
     },
     [setActiveConversation, fetchMessages, markConversationRead],
   );
@@ -96,6 +107,7 @@ export function useMessages() {
     totalUnread,
     isLoading,
     error,
+    fetchConversations,
     fetchMessages,
     sendMessage,
     openConversation,

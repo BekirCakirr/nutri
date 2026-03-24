@@ -1,74 +1,108 @@
 import type { WeightEntry, WaterEntry, ExerciseEntry, SleepEntry, MoodEntry, DailyTracking } from '@/types';
-import {
-  mockWeightHistory,
-  mockWaterHistory,
-  mockExerciseHistory,
-  mockSleepHistory,
-  mockMoodHistory,
-} from '@/mock';
+import apiClient from './client';
 
-const delay = (ms = 500) => new Promise((r) => setTimeout(r, ms));
-
-export async function getDailyTracking(date: string): Promise<DailyTracking> {
-  await delay();
-  return {
-    date,
-    waterIntake: 1600,
-    calories: 1940,
-    macros: { calories: 1940, protein: 119.5, carbs: 190, fat: 84.3 },
-    weight: 68,
-    exerciseMinutes: 35,
-    sleep: 7,
-    mood: 4,
-  };
+export async function getDailyTracking(_date: string): Promise<DailyTracking> {
+  try {
+    const { data } = await apiClient.get('/tracking/summary/today');
+    const r = data.data ?? data;
+    return {
+      date: _date,
+      waterIntake: r.waterMl ?? r.water_ml ?? 0,
+      calories: r.totalCalories ?? r.total_calories ?? 0,
+      macros: {
+        calories: r.totalCalories ?? r.total_calories ?? 0,
+        protein: r.totalProtein ?? r.total_protein ?? 0,
+        carbs: r.totalCarbs ?? r.total_carbs ?? 0,
+        fat: r.totalFat ?? r.total_fat ?? 0,
+      },
+      weight: r.currentWeight ?? r.current_weight ?? 0,
+      exerciseMinutes: r.exerciseMinutes ?? r.exercise_minutes ?? 0,
+      sleep: r.sleepHours ?? r.sleep_hours ?? 0,
+      mood: r.mood ?? 3,
+    };
+  } catch {
+    return { date: _date, waterIntake: 0, calories: 0, macros: { calories: 0, protein: 0, carbs: 0, fat: 0 }, weight: 0, exerciseMinutes: 0, sleep: 0, mood: 3 };
+  }
 }
 
-export async function addWaterEntry(date: string, ml: number): Promise<WaterEntry> {
-  await delay(300);
-  return { date, value: ml };
+export async function addWaterEntry(_date: string, ml: number): Promise<WaterEntry> {
+  const { data } = await apiClient.post('/tracking/water', { glasses: Math.ceil(ml / 200) });
+  const r = data.data ?? data;
+  return { date: _date, value: r.totalMl ?? ml };
 }
 
 export async function addWeightEntry(date: string, kg: number): Promise<WeightEntry> {
-  await delay(300);
-  return { date, value: kg };
+  const { data } = await apiClient.post('/tracking/weight', { weightKg: kg, notes: '' });
+  const r = data.data ?? data;
+  return { date, value: r.weightKg ?? kg };
 }
 
 export async function addExerciseEntry(entry: Omit<ExerciseEntry, 'date'> & { date: string }): Promise<ExerciseEntry> {
-  await delay(300);
+  await apiClient.post('/tracking/exercise', {
+    exerciseType: (entry as any).type ?? 'other',
+    durationMin: (entry as any).duration ?? 30,
+    intensity: (entry as any).intensity ?? 'moderate',
+    caloriesBurned: (entry as any).calories ?? 0,
+  });
   return entry;
 }
 
 export async function addSleepEntry(entry: SleepEntry): Promise<SleepEntry> {
-  await delay(300);
+  await apiClient.post('/tracking/sleep', {
+    sleepStart: (entry as any).startTime ?? new Date().toISOString(),
+    sleepEnd: (entry as any).endTime ?? new Date().toISOString(),
+    quality: (entry as any).quality ?? 3,
+  });
   return entry;
 }
 
 export async function addMoodEntry(entry: MoodEntry): Promise<MoodEntry> {
-  await delay(300);
+  // TODO: Backend has no mood tracking endpoint
   return entry;
 }
 
 export async function getWeightHistory(): Promise<WeightEntry[]> {
-  await delay();
-  return mockWeightHistory;
+  const { data } = await apiClient.get('/tracking/weight');
+  const items = data.data ?? data ?? [];
+  return (Array.isArray(items) ? items : []).map((w: any) => ({
+    date: w.loggedAt?.split('T')[0] ?? w.logged_at?.split('T')[0] ?? '',
+    value: w.weightKg ?? w.weight_kg ?? 0,
+  }));
 }
 
 export async function getWaterHistory(): Promise<WaterEntry[]> {
-  await delay();
-  return mockWaterHistory;
+  const { data } = await apiClient.get('/tracking/water');
+  const items = data.data ?? data ?? [];
+  return (Array.isArray(items) ? items : []).map((w: any) => ({
+    date: w.date ?? w.loggedAt?.split('T')[0] ?? '',
+    value: w.totalMl ?? w.total_ml ?? (w.glasses ? w.glasses * 200 : 0),
+  }));
 }
 
 export async function getExerciseHistory(): Promise<ExerciseEntry[]> {
-  await delay();
-  return mockExerciseHistory;
+  const { data } = await apiClient.get('/tracking/exercise');
+  const items = data.data ?? data ?? [];
+  return (Array.isArray(items) ? items : []).map((e: any) => ({
+    date: e.loggedAt?.split('T')[0] ?? e.logged_at?.split('T')[0] ?? '',
+    type: e.exerciseType ?? e.exercise_type ?? 'other',
+    duration: e.durationMin ?? e.duration_min ?? 0,
+    calories: e.caloriesBurned ?? e.calories_burned ?? 0,
+  } as unknown as ExerciseEntry));
 }
 
 export async function getSleepHistory(): Promise<SleepEntry[]> {
-  await delay();
-  return mockSleepHistory;
+  const { data } = await apiClient.get('/tracking/sleep');
+  const items = data.data ?? data ?? [];
+  return (Array.isArray(items) ? items : []).map((s: any) => ({
+    date: s.sleepStart?.split('T')[0] ?? s.sleep_start?.split('T')[0] ?? '',
+    startTime: s.sleepStart ?? s.sleep_start ?? '',
+    endTime: s.sleepEnd ?? s.sleep_end ?? '',
+    quality: s.quality ?? 3,
+    duration: s.durationHours ?? s.duration_hours ?? 0,
+  } as unknown as SleepEntry));
 }
 
 export async function getMoodHistory(): Promise<MoodEntry[]> {
-  await delay();
-  return mockMoodHistory;
+  // TODO: Backend has no mood tracking endpoint
+  return [];
 }
