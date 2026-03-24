@@ -1,5 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
-import { mockReviews, simulateApiCall } from "@/mock";
+import {
+  getReviews,
+  respondToReview as respondApi,
+} from "@/services/review.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,7 +36,7 @@ export function useReviews() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await simulateApiCall(mockReviews, 600);
+      const data = await getReviews();
       setReviews(data as unknown as Review[]);
     } catch {
       setError("Failed to fetch reviews");
@@ -47,7 +50,7 @@ export function useReviews() {
       setIsLoading(true);
       setError(null);
       try {
-        await simulateApiCall(null, 500);
+        await respondApi(reviewId, response);
         setReviews((prev) =>
           prev.map((r) => (r.id === reviewId ? { ...r, response } : r)),
         );

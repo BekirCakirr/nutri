@@ -1,26 +1,25 @@
 import type { AppNotification } from '@/types';
-import { mockNotifications } from '@/mock';
-
-const delay = (ms = 400) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export async function getNotifications(): Promise<AppNotification[]> {
-  await delay();
-  return mockNotifications;
+  const { data } = await apiClient.get('/notifications');
+  return (data.data ?? data ?? []) as AppNotification[];
 }
 
 export async function markNotificationRead(id: string): Promise<void> {
-  await delay(200);
+  await apiClient.patch(`/notifications/${id}/read`);
 }
 
 export async function markAllNotificationsRead(): Promise<void> {
-  await delay(300);
+  await apiClient.patch('/notifications/read-all');
 }
 
 export async function deleteNotification(id: string): Promise<void> {
-  await delay(200);
+  await apiClient.delete(`/notifications/${id}`);
 }
 
 export async function getUnreadCount(): Promise<number> {
-  await delay(200);
-  return mockNotifications.filter((n) => !n.read).length;
+  const { data } = await apiClient.get('/notifications/unread-count');
+  const result = data.data ?? data;
+  return result?.count ?? result?.unreadCount ?? 0;
 }

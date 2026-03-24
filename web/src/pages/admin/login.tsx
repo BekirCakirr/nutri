@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/stores/auth-store'
-import { mockAdminUser, mockToken } from '@/mock'
 
 const adminLoginSchema = z.object({
   email: z.string().email('Gecerli bir e-posta adresi girin'),
@@ -48,23 +47,15 @@ export default function AdminLoginPage() {
     setError('')
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      await useAuthStore.getState().login({ email: data.email, password: data.password })
 
-      // Check if the email belongs to an admin user
-      if (data.email !== mockAdminUser.email) {
+      const user = useAuthStore.getState().user
+      if (user?.role !== 'admin') {
+        useAuthStore.getState().logout()
         setError('Bu hesap yonetici yetkisine sahip degil.')
         setIsLoading(false)
         return
       }
-
-      // Set admin user in auth store
-      useAuthStore.setState({
-        user: mockAdminUser as import('@/stores/auth-store').User,
-        token: mockToken,
-        isAuthenticated: true,
-        isLoading: false,
-      })
 
       navigate('/admin')
     } catch {

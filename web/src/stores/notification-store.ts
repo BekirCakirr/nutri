@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { mockNotifications } from "@/mock";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -32,8 +31,8 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>()((set, get) => ({
-  notifications: mockNotifications as unknown as Notification[],
-  unreadCount: mockNotifications.filter((n) => !(n as unknown as { read: boolean }).read).length,
+  notifications: [],
+  unreadCount: 0,
 
   setNotifications: (notifications) => {
     set({ notifications });

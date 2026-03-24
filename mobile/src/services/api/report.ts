@@ -1,4 +1,4 @@
-const delay = (ms = 800) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export interface WeeklySummary {
   averageCalories: number;
@@ -6,49 +6,41 @@ export interface WeeklySummary {
   averageCarbs: number;
   averageFat: number;
   averageWater: number;
-  totalExerciseMinutes: number;
+  exerciseDays: number;
   weightChange: number;
-  streakDays: number;
-}
-
-export async function getWeeklySummary(): Promise<WeeklySummary> {
-  await delay();
-  return {
-    averageCalories: 1720,
-    averageProtein: 85,
-    averageCarbs: 180,
-    averageFat: 65,
-    averageWater: 2200,
-    totalExerciseMinutes: 230,
-    weightChange: -0.5,
-    streakDays: 7,
-  };
+  adherenceScore: number;
 }
 
 export interface MonthlySummary extends WeeklySummary {
-  bestDay: string;
-  worstDay: string;
-  goalAdherence: number; // percentage
+  totalMeals: number;
+  totalExerciseMinutes: number;
+}
+
+export async function getWeeklySummary(): Promise<WeeklySummary> {
+  try {
+    const { data } = await apiClient.get('/reports/summary');
+    const r = data.data ?? data;
+    return {
+      averageCalories: r.averageCalories ?? r.average_calories ?? 0,
+      averageProtein: r.averageProtein ?? r.average_protein ?? 0,
+      averageCarbs: r.averageCarbs ?? r.average_carbs ?? 0,
+      averageFat: r.averageFat ?? r.average_fat ?? 0,
+      averageWater: r.averageWater ?? r.average_water ?? 0,
+      exerciseDays: r.exerciseDays ?? r.exercise_days ?? 0,
+      weightChange: r.weightChange ?? r.weight_change ?? 0,
+      adherenceScore: r.adherenceScore ?? r.adherence_score ?? 0,
+    };
+  } catch {
+    return { averageCalories: 0, averageProtein: 0, averageCarbs: 0, averageFat: 0, averageWater: 0, exerciseDays: 0, weightChange: 0, adherenceScore: 0 };
+  }
 }
 
 export async function getMonthlySummary(): Promise<MonthlySummary> {
-  await delay();
-  return {
-    averageCalories: 1680,
-    averageProtein: 82,
-    averageCarbs: 175,
-    averageFat: 62,
-    averageWater: 2100,
-    totalExerciseMinutes: 920,
-    weightChange: -2.0,
-    streakDays: 7,
-    bestDay: '2026-02-15',
-    worstDay: '2026-02-08',
-    goalAdherence: 78,
-  };
+  const weekly = await getWeeklySummary();
+  return { ...weekly, totalMeals: 0, totalExerciseMinutes: 0 };
 }
 
-export async function exportReport(format: 'pdf' | 'csv'): Promise<string> {
-  await delay(1500);
-  return `https://api.nutriai.app/reports/mock-report.${format}`;
+export async function exportReport(_format: 'pdf' | 'csv'): Promise<string> {
+  // TODO: Backend export endpoint needed
+  return '';
 }

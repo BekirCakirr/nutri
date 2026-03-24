@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
-import { mockMealPlans, simulateApiCall } from "@/mock";
+import {
+  getPlans,
+  createPlan,
+  updatePlan,
+  deletePlan,
+} from "@/services/plan.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -51,9 +56,8 @@ export function useMealPlans(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const all = await simulateApiCall(mockMealPlans, 700);
-        const filtered = pid ? all.filter((mp) => (mp as unknown as { patientId?: string }).patientId === pid) : all;
-        setMealPlans(filtered as unknown as MealPlan[]);
+        const response = await getPlans(pid ? { patientId: pid } : undefined);
+        setMealPlans(response.items as unknown as MealPlan[]);
       } catch {
         setError("Failed to fetch meal plans");
       } finally {
@@ -68,18 +72,9 @@ export function useMealPlans(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const newPlan: MealPlan = {
-          id: `mp_${Date.now()}`,
-          ...data,
-          nutritionistId: "usr_001",
-          status: "draft",
-          adherenceRate: 0,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        const created = await simulateApiCall(newPlan, 600);
-        setMealPlans((prev) => [...prev, created]);
-        return created;
+        const created = await createPlan(data as any);
+        setMealPlans((prev) => [...prev, created as unknown as MealPlan]);
+        return created as unknown as MealPlan;
       } catch {
         setError("Failed to create meal plan");
         return null;
@@ -95,7 +90,7 @@ export function useMealPlans(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        await simulateApiCall(null, 500);
+        await updatePlan(planId, data as any);
         setMealPlans((prev) =>
           prev.map((mp) =>
             mp.id === planId
@@ -116,7 +111,7 @@ export function useMealPlans(patientId?: string) {
     setIsLoading(true);
     setError(null);
     try {
-      await simulateApiCall(null, 400);
+      await deletePlan(planId);
       setMealPlans((prev) => prev.filter((mp) => mp.id !== planId));
     } catch {
       setError("Failed to delete meal plan");

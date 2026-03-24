@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
-import { mockAppointments, simulateApiCall } from "@/mock";
+import {
+  getAppointments,
+  createAppointment as createAppointmentApi,
+  updateAppointment as updateAppointmentApi,
+  cancelAppointment as cancelAppointmentApi,
+} from "@/services/appointment.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -54,11 +59,12 @@ export function useAppointments(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const all = await simulateApiCall(mockAppointments, 600);
+        const response = await getAppointments();
+        const items = response.items as unknown as Appointment[];
         const filtered = pid
-          ? all.filter((a) => a.patientId === pid)
-          : all;
-        setAppointments(filtered as unknown as Appointment[]);
+          ? items.filter((a) => a.patientId === pid)
+          : items;
+        setAppointments(filtered);
       } catch {
         setError("Failed to fetch appointments");
       } finally {
@@ -73,19 +79,9 @@ export function useAppointments(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const newAppointment: Appointment = {
-          id: `apt_${Date.now()}`,
-          ...data,
-          nutritionistId: "usr_001",
-          status: "scheduled",
-          notes: data.notes ?? "",
-          location: data.location ?? "Video Call",
-          meetingUrl: null,
-          createdAt: new Date().toISOString(),
-        };
-        const created = await simulateApiCall(newAppointment, 500);
-        setAppointments((prev) => [...prev, created]);
-        return created;
+        const created = await createAppointmentApi(data as any);
+        setAppointments((prev) => [...prev, created as unknown as Appointment]);
+        return created as unknown as Appointment;
       } catch {
         setError("Failed to create appointment");
         return null;
@@ -101,7 +97,7 @@ export function useAppointments(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        await simulateApiCall(null, 400);
+        await updateAppointmentApi(appointmentId, data as any);
         setAppointments((prev) =>
           prev.map((a) => (a.id === appointmentId ? { ...a, ...data } : a)),
         );
@@ -116,9 +112,22 @@ export function useAppointments(patientId?: string) {
 
   const cancelAppointment = useCallback(
     async (appointmentId: string) => {
-      await updateAppointment(appointmentId, { status: "cancelled" });
+      setIsLoading(true);
+      setError(null);
+      try {
+        await cancelAppointmentApi(appointmentId);
+        setAppointments((prev) =>
+          prev.map((a) =>
+            a.id === appointmentId ? { ...a, status: "cancelled" as const } : a,
+          ),
+        );
+      } catch {
+        setError("Failed to cancel appointment");
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [updateAppointment],
+    [],
   );
 
   // Derived state

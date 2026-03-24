@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { mockConversations, mockMessages } from "@/mock";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,9 +43,9 @@ interface MessageState {
 }
 
 export const useMessageStore = create<MessageState>()((set) => ({
-  conversations: mockConversations as unknown as Conversation[],
+  conversations: [],
   activeConversation: null,
-  messages: mockMessages as unknown as Message[],
+  messages: [],
 
   setConversations: (conversations) => {
     set({ conversations });

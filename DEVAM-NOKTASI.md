@@ -1,176 +1,181 @@
 # NutriAI — Devam Noktasi
 
-> Son Guncelleme: 2026-03-17
-> Bu dosyayi bana okutarak kaldigimiz yerden devam edebilirsin.
+> **Son Guncelleme:** 2026-03-24 (Faz 6.5 + 7 + 8 + 9 kismen + 10 kismen)
+> **Claude:** Bu dosyayi oku, nerede kaldigimizi anla, siradaki isi yap.
+> **Detayli plan icin:** `ROADMAP.md` dosyasina bak.
 
 ---
 
 ## Proje Ozeti
 
-NutriAI, Turkce konusan diyetisyenler icin yapay zeka destekli beslenme takibi ve hasta yonetim platformu. Web paneli + mobil uygulama + backend olmak uzere 3 katmandan olusuyor.
+NutriAI, Turkce konusan diyetisyenler icin yapay zeka destekli beslenme takibi ve hasta yonetim platformu. Web paneli + mobil uygulama + backend olmak uzere 3 katmandan olusuyor. **Bitirme projesi — sunuma ~8 hafta kaldi (Mayis sonu 2026).**
 
 **Tech Stack:**
 - Web: React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui + Vite 7
 - Mobil: React Native + Expo + NativeWind v4
-- Backend: Node.js + Express (henuz baslangic asamasinda)
+- Backend: Node.js + Express + PostgreSQL 16 + Socket.io
 - Ortak: Zustand (state), React Hook Form + Zod, Recharts, Lucide icons
+- AI: Google Gemini API (chat + vision)
+
+---
+
+## Proje Ilerleme Tablosu
+
+```
+Faz 1-4  UI Gelistirme  ████████████████████ %100  ✅
+Faz 5    Backend         ████████████████████ %100  ✅
+Faz 6    Web Servisler   ████████████████████ %100  ✅
+Faz 6    Web Hook'lar    ████████████████████ %100  ✅
+Faz 6.5  Web E2E         ████████████████████ %100  ✅
+Faz 7    Mobil Enteg.    ████████████████░░░░ %80   ✅ (test kaldi)
+Faz 8    AI              ██████████░░░░░░░░░░ %50   ⏳ (Gemini key ekle)
+Faz 9    Test+Kalite     █████░░░░░░░░░░░░░░░ %25   ⏳ (audit+bugfix)
+Faz 10   Deploy          ██████░░░░░░░░░░░░░░ %30   ⏳ (CI+Docker hazir)
+Faz 11   Sunum           ░░░░░░░░░░░░░░░░░░░░ %0
+──────────────────────────────────────────────────
+GENEL                    █████████████████░░░ %78   ← BURADAN DEVAM
+```
 
 ---
 
 ## Tamamlanan Calisma Gecmisi
 
-### Adim 1: Proje Altyapisi (Commit: d088944 — 8fc711b)
-- Monorepo yapisi (`web/`, `mobile/`, `backend/`, `shared/`)
-- Web paneli icin tam sayfa yapisi, routing, layout sistemi
-- shadcn/ui bilesenleri, tema token'lari, dark mode
-- Zustand store'lari, mock data, TypeScript tipleri
-- Mobil uygulama icin Expo + NativeWind kurulumu
+### ✅ Faz 1-4: UI Gelistirme (2026-03 oncesi)
+- Web: 28 sayfa, 100+ bilesen, 7 skeleton tipi, 13 empty state, responsive
+- Mobil: 91 ekran, 90+ bilesen, 16 store, drag-and-drop plan creator
+- Ortak: 733 satir tip tanimi, mock data altyapisi
+- **Commitler:** d088944 → 53ca29c → c794787
 
-### Adim 2: Mobil Uygulama Ekranlari (Commit: 7d862b7 — 47b2fee)
-Toplam **82 mobil ekran** sifirdan kodlandi:
+### ✅ Faz 5: Backend Tamamlama (2026-03-18)
+- 16 route grubu, 70+ endpoint, tam JWT auth
+- PostgreSQL 16: 24 tablo, 300 Turkce besin verisi
+- Pino logging, rate limiting, Helmet, Multer upload
+- WebSocket: mesaj, online/offline, tracking event'leri
+- Seed data: 1 admin + 1 diyetisyen (Elif Kaya) + 1 hasta (Ayse Yilmaz)
+- **Commit:** a7f145c
 
-| Grup | Ekran Sayisi |
-|------|-------------|
-| Auth (Login, Register, Forgot...) | 5 |
-| Onboarding (7 adimli akis) | 7 |
-| Home (Dashboard, Bildirimler, Raporlar) | 4 |
-| Meals (Ogun ekleme, gecmis, favoriler) | 10 |
-| Camera (Fotograf, barkod, OCR, sesli) | 8 |
-| Progress (Kilo, su, egzersiz, uyku, makro...) | 18 |
-| Profile (Profil, ayarlar, alerji, cihazlar...) | 20 |
-| Modals (AI chat, rozetler, liderlik tablosu...) | 10 |
-| **TOPLAM** | **82** |
-
-### Adim 3: Web Panel — Faz 0 Temizlik (Commit: 53ca29c)
-- Yanlis silinen 10 mobil ekran geri yuklendi
-- Web tarafina `@hello-pangea/dnd` paketi eklendi
-- Dosya yapisi duzenlendi
-
-### Adim 4: Web Panel — Faz 1 + 2 + 3 Polish (SON OTURUM)
-
-#### Faz 1: Plan Creator Drag-and-Drop
-- `plan-creator.tsx` sayfasina tam drag-and-drop destegi eklendi
-- `sampleItems` const'tan `useState`'e donusturuldu (mutable state)
-- `DragDropContext` + `Droppable` + `Draggable` entegrasyonu
-- Ayni slot ici siralama + slotlar arasi tasima
-- Drop zone gorunumu: `bg-primary/5 border-dashed border-primary/20`
-- Bos slot'lara da surukleme destegi
-- `weekSummary` useMemo'nun items state'ine bagimli hale getirilmesi
-
-#### Faz 2A: Skeleton Bilesen Kutuphanesi
-Yeni dosya: `web/src/components/shared/page-skeletons.tsx`
-
-7 farkli skeleton bileseni olusturuldu:
-- `ListPageSkeleton` — Tablo/liste sayfalari icin
-- `DetailPageSkeleton` — Detay sayfalari icin
-- `DashboardSkeleton` — Dashboard/rapor sayfalari icin
-- `ChatSkeleton` — Mesajlasma sayfalari icin
-- `CalendarSkeleton` — Takvim sayfasi icin
-- `PlanCreatorSkeleton` — Plan olusturucu icin
-- `FormPageSkeleton` — Form sayfalari icin
-
-#### Faz 2B: Loading State (24 sayfa)
-Tum sayfalara 400ms skeleton loading pattern eklendi:
-
-| Skeleton Tipi | Sayfalar |
-|---------------|----------|
-| ListPageSkeleton | patient-list, recipes, shopping-lists, reviews, notifications, admin/users, admin/dietitians, admin/food-db, admin/allergens, admin/recipes |
-| DetailPageSkeleton | patient-detail, recipe-detail, patient-report, meal-review |
-| DashboardSkeleton | admin/dashboard, reports, admin/reports, live-tracking |
-| ChatSkeleton | messages, ai-assistant |
-| CalendarSkeleton | appointments |
-| PlanCreatorSkeleton | plan-creator |
-| FormPageSkeleton | invite-code, settings |
-
-#### Faz 2C: Empty State (13 sayfa)
-Filtreleme sonucu bos liste dondugunde `EmptyState` bileseni gosteriliyor:
-- patient-list, recipes, appointments, live-tracking, messages, meal-review
-- admin/users, admin/dietitians, admin/food-db, admin/allergens, admin/recipes
-
-#### Faz 3: Responsive Iyilestirmeler
-- **Messages:** Mobilde conversation list / chat toggle (mobileView state)
-- **Patient List:** Mobilde tablo yerine kart gorunumu (md altinda)
-- **Plan Creator:** TabsList yatay scroll (flex overflow-x-auto)
-
-**Build:** `vite build` hatasiz tamamlandi.
+### ✅ Faz 6: Web → Backend Entegrasyon (2026-03-18 → 2026-03-24)
+- 16 servis dosyasi → gercek API (axios, snake/camel donusum, envelope unwrap)
+- 13 hook → gercek servisler (simulateApiCall tamamen kaldirildi)
+- Ek servis fonksiyonlari: createMeal, deleteMeal, toggleItem
+- **Commitler:** 3b84aaa, 35cfced + (commit bekliyor)
 
 ---
 
-## Dosya Degisiklikleri Ozeti (Son Oturum)
-
-| Islem | Dosya Sayisi |
-|-------|-------------|
-| Yeni dosya | 1 (page-skeletons.tsx) |
-| Degistirilen sayfa | 24 |
-| Responsive eklenen | 3 (messages, patient-list, plan-creator) |
-| **Toplam etkilenen** | **28** |
+### ✅ Faz 6.5: Web Uctan Uca (2026-03-24)
+- Socket port fix (3001 → 3000)
+- 4 store mock temizligi (auth, message, notification, patient)
+- Auth store tamamen gercek API'ye gecirildi (login, register, checkAuth, updateProfile)
+- 6 sayfa mock temizligi (dashboard, patient-detail, patient-list, plan-creator, reviews, admin/login)
+- Dashboard: hook'lardan gercek veri (hasta sayisi, randevular, dikkat hastalar)
+- Patient detail: usePatientDetail hook + fallback
+- Build basarili, 0 TS hatasi
 
 ---
 
-## Yol Haritasi — Bundan Sonra Yapilacaklar
+### ✅ Faz 7 API Modulleri (2026-03-24)
+- constants.ts: dev URL (10.0.2.2:3000 for Android emulator)
+- auth.ts: tamamen yeniden yazildi (login, register, getMe, updateUser, changePassword)
+- meal.ts + food.ts: USE_MOCK = false (hybrid code aktif)
+- 10 modul yeniden yazildi: tracking, appointment, plan, message, notification, dietitian, recipe, shopping, report, ai
+- 3 modul mock kaldi (backend endpoint yok): gamification, family, progress-photo
+- TypeScript: API dosyalarinda 0 hata
 
-### Adim 5: Web Panel — Ileri Duzey Polish
-- [ ] Tema tutarliligi auditi (renk token'lari, spacing, radius)
-- [ ] Animasyon/mikro-etkilesim iyilestirmeleri
-- [ ] Accessibility auditi (WCAG AA, klavye navigasyonu, ARIA)
-- [ ] Performance optimizasyonu (lazy loading, bundle analizi)
-- [ ] Dark mode fine-tuning (tum sayfalarda test)
+---
 
-### Adim 6: Backend Baslangici
-- [ ] Node.js + Express API yapilandirmasi
-- [ ] PostgreSQL veritabani semasi tasarimi
-- [ ] JWT Auth (login, register, token refresh)
-- [ ] Temel CRUD endpoint'leri:
-  - Hastalar (CRUD + filtreleme + sayfalama)
-  - Ogunler (kayit + onaylama + reddetme)
-  - Diyet planlari (olusturma + atama)
-  - Randevular (CRUD + takvim)
-  - Mesajlar (gonderme + alma + okundu bilgisi)
-- [ ] Dosya yukleme (ogun fotograflari)
-- [ ] WebSocket altyapisi (canli takip + mesajlasma)
+## ⏳ SIRADAKI: Faz 7 Ekran Testi + Faz 8 AI
 
-### Adim 7: Web + Backend Entegrasyon
-- [ ] Mock data'dan gercek API'ye gecis
-- [ ] Zustand store'larin API service'lere baglanmasi
-- [ ] Auth akisi (login/register/logout)
-- [ ] Form validasyon + hata yonetimi
-- [ ] Loading/error state'lerinin gercek API yanıtlarina baglanmasi
+### Faz 7 kalan isler
+- [ ] Expo ile emulator'de test (login → dashboard → meal → messages)
+- [ ] Tip uyumsuzluklari duzelt (gercek veriyle kirilacak yerler)
+- [ ] Kamera/upload (opsiyonel)
 
-### Adim 8: Mobil + Backend Entegrasyon
-- [ ] React Native tarafinda API service katmani
-- [ ] Mobil auth akisi
-- [ ] Push notification altyapisi
-- [ ] Offline-first stratejisi (AsyncStorage + sync)
+### Faz 8 — AI (kismen tamamlandi)
+- Backend AI servisi tam (chat + meal analysis + history)
+- Web + mobil AI hook/servisleri gercek API'ye bagli
+- [ ] **Gemini API key al** (Google AI Studio → ucretsiz) ve `backend/.env` → `GEMINI_API_KEY=...`
+- [ ] AI chat testi (web + mobil)
+- [ ] Ogun foto analizi testi
 
-### Adim 9: AI Entegrasyonu
-- [ ] NutriAI asistan icin LLM API entegrasyonu
-- [ ] Ogun fotografi analizi (vision API)
-- [ ] Otomatik diyet plani onerisi
-- [ ] Barkod/OCR besin tespiti
+### Seed Data Zenginlestirme (tamamlandi)
+- 3 yeni hasta: Mehmet Kaya (sporcu), Fatma Demir (diyabet), Zeynep Celik (hamilelik)
+- 5 randevu (3 gelecek, 1 gecmis, 1 onaylanmis)
+- 7 bildirim (diyetisyen + hasta)
+- 1 aktif diyet plani (Ayse icin)
+- 10+ ek ogun kaydı (7 gunluk gercekci veri)
+- Egzersiz + uyku kayitlari
+- 1 diyetisyen degerlendirmesi (5 yildiz)
 
-### Adim 10: Test + Deploy
-- [ ] Unit test'ler (Vitest + React Testing Library)
-- [ ] E2E test'ler (Playwright)
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Docker containerization
-- [ ] Production deployment
+### Faz 9-10 kismen (2026-03-24)
+- .env.example dosyalari: backend + web
+- GitHub Actions CI pipeline (`.github/workflows/ci.yml`) — backend test + web build
+- Root .gitignore olusturuldu
+- docker-compose.yml → seed-foods.sql eklendi (sira duzeltildi)
+- Codebase audit: TODO'lar belgeli, kritik bug yok
+
+→ Sonraki: **Uctan uca test** (docker-compose up) + **Gemini key** + **opsu-explorer + visual-god audit**
+
+---
+
+## Sonraki Fazlar (Ozet)
+
+| Faz | Ne | Ne Zaman |
+|-----|-----|----------|
+| **7** | Mobil → Backend (13 API modul) | Hafta 2-3 |
+| **8** | AI (Gemini chat + foto analiz) | Hafta 4 |
+| **9** | Test + Audit (opsu-explorer + visual-god) | Hafta 5-6 |
+| **10** | Deploy (Railway + Vercel) | Hafta 7 |
+| **11** | Sunum hazirligi | Hafta 8 |
+
+> **Detaylar icin:** `ROADMAP.md` dosyasina bak
+
+---
+
+## Test Hesaplari
+
+| Rol | E-posta | Sifre |
+|-----|---------|-------|
+| Admin | admin@nutriai.com | admin123 |
+| Diyetisyen | elif.kaya@nutriai.com | elif1234 |
+| Hasta | ayse.yilmaz@email.com | ayse1234 |
+| Davet Kodu | DYT-ELIF-7X3K | — |
+
+---
+
+## Custom Agent'lar
+
+| Agent | Dosya | Kullanim | Faz |
+|-------|-------|----------|-----|
+| opsu-explorer | `.claude/opsu-explorer.md` | Codebase audit, bug hunt, tip uyumsuzlugu | 9.1 |
+| visual-god | `.claude/visual-god.md` | UI/UX review, animasyon, gorsel hiyerarsi | 9.2 |
+
+---
+
+## Bilinen Sorunlar
+
+| # | Sorun | Dosya | Durum |
+|---|-------|-------|-------|
+| 1 | Socket port 3001 vs 3000 | `socket-store.ts:18` | ⏳ Faz 6.5'te |
+| 2 | 4 store mock ile basliyor | `auth/message/notification/patient-store` | ⏳ Faz 6.5'te |
+| 3 | 6 sayfa inline mock data | `dashboard/patient-detail/patient-list/plan-creator/reviews/admin-login` | ⏳ Faz 6.5'te |
+| 4 | Mobil 13 API modulu mock | `mobile/src/services/api/*` | ⏳ Faz 7'de |
+| 5 | Backend review respond stub | `review.service.ts` | ⏳ Faz 9'da |
+| 6 | Backend live-tracking aggregate yok | Endpoint yok | ⏳ Faz 9'da |
+| 7 | Gemini API key bos | `backend/.env` | ⏳ Faz 8'de |
 
 ---
 
 ## Teknik Notlar
 
-- **Korunan dosyalar:** `stores/`, `hooks/`, `services/`, `mock/`, `types/`, `lib/`, `shared/types/` — bu dizinler degistirilmez
+- **Korunan dosyalar:** `stores/`, `hooks/`, `services/`, `mock/`, `types/`, `lib/`, `shared/types/` — CLAUDE.md'de protected ama kullanici gerektiginde duzeltme izni verdi
 - **UI dili:** Tum arayuz metinleri Turkce, profesyonel/medikal ton
-- **Tasarim felsefesi:** "Organik Profesyonel" — botanik referans kitabi + modern saglik dashboard'u
-- **Font:** Outfit | **Renkler:** OKLCH tabanli, orman yesili primary | **Radius:** 10px
-- **NativeWind v4:** Mobilde tum ekranlar `className` prop'u ile Tailwind kullaniyor
+- **Tasarim:** "Organik Profesyonel" — botanik + modern saglik dashboard
+- **Font:** Outfit | **Renkler:** OKLCH, orman yesili primary | **Radius:** 10px
 
 ---
 
 ## Devam Etmek Icin
 
-> "Bu dosyayi oku ve Adim 5'ten (Web ileri duzey polish) devam et."
+Yeni oturumda Claude'a soyle:
 
-veya
-
-> "Bu dosyayi oku ve Adim 6'dan (Backend baslangici) devam et."
+> "DEVAM-NOKTASI.md ve ROADMAP.md dosyalarini oku, kaldigimiz yerden devam et."

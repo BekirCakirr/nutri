@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { mockUser, mockToken } from "@/mock";
+import {
+  login as loginApi,
+  register as registerApi,
+  logout as logoutApi,
+  getProfile,
+  updateProfile as updateProfileApi,
+} from "@/services/auth.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -69,14 +75,13 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
 
-      login: async (_credentials: LoginCredentials) => {
+      login: async (credentials: LoginCredentials) => {
         set({ isLoading: true });
         try {
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 800));
+          const result = await loginApi(credentials);
           set({
-            user: mockUser as User,
-            token: mockToken,
+            user: result.user as unknown as User,
+            token: result.accessToken,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -87,6 +92,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        logoutApi();
         set({
           user: null,
           token: null,
@@ -94,14 +100,13 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      register: async (_data: RegisterData) => {
+      register: async (data: RegisterData) => {
         set({ isLoading: true });
         try {
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const result = await registerApi(data as any);
           set({
-            user: mockUser as User,
-            token: mockToken,
+            user: result.user as unknown as User,
+            token: result.accessToken,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -119,10 +124,9 @@ export const useAuthStore = create<AuthState>()(
         }
         set({ isLoading: true });
         try {
-          // Simulate token validation
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          const user = await getProfile();
           set({
-            user: mockUser as User,
+            user: user as unknown as User,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -139,15 +143,11 @@ export const useAuthStore = create<AuthState>()(
       updateProfile: async (data: ProfileUpdateData) => {
         set({ isLoading: true });
         try {
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 600));
-          const currentUser = get().user;
-          if (currentUser) {
-            set({
-              user: { ...currentUser, ...data, updatedAt: new Date().toISOString() },
-              isLoading: false,
-            });
-          }
+          const updated = await updateProfileApi(data as any);
+          set({
+            user: updated as unknown as User,
+            isLoading: false,
+          });
         } catch {
           set({ isLoading: false });
           throw new Error("Profile update failed");

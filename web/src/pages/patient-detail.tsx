@@ -36,10 +36,11 @@ import { MacroPieChart } from '@/components/charts/macro-pie-chart'
 import { WaterIntakeChart } from '@/components/charts/water-intake-chart'
 import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
+import { usePatientDetail } from '@/hooks/use-patient-detail'
 
-// ── Mock data ─────────────────────────────────────────────────────
+// ── Fallback patient (used when API data hasn't loaded yet) ─────
 
-const mockPatient = {
+const fallbackPatient = {
   id: '1',
   fullName: 'Ayşe Yılmaz',
   age: 32,
@@ -177,12 +178,36 @@ type TabValue = (typeof tabs)[number]['value']
 export default function PatientDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { patient: apiPatient, isLoading: patientLoading } = usePatientDetail(id)
   const [activeTab, setActiveTab] = useState<TabValue>('overview')
 
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
-  if (isLoading) return <DetailPageSkeleton />
+  if (isLoading || patientLoading) return <DetailPageSkeleton />
+
+  // Map API patient to display format, fallback to static data
+  const p = apiPatient as any
+  const mockPatient = p ? {
+    id: p.id ?? fallbackPatient.id,
+    fullName: `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || fallbackPatient.fullName,
+    age: p.dateOfBirth ? Math.floor((Date.now() - new Date(p.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : fallbackPatient.age,
+    email: p.email ?? fallbackPatient.email,
+    phone: p.phone ?? fallbackPatient.phone,
+    status: p.status ?? fallbackPatient.status,
+    gender: p.gender === 'female' ? 'Kadın' : p.gender === 'male' ? 'Erkek' : fallbackPatient.gender,
+    heightCm: p.height ?? fallbackPatient.heightCm,
+    weightKg: p.weight ?? fallbackPatient.weightKg,
+    bmi: (p.height && p.weight) ? Math.round((p.weight / ((p.height / 100) ** 2)) * 10) / 10 : fallbackPatient.bmi,
+    bodyFatPercentage: (p as any).bodyFatPercentage ?? fallbackPatient.bodyFatPercentage,
+    goal: (p.goals?.[0]) ?? fallbackPatient.goal,
+    adherenceScore: p.adherenceScore ?? fallbackPatient.adherenceScore,
+    dailyCalorieTarget: (p as any).dailyCalorieTarget ?? fallbackPatient.dailyCalorieTarget,
+    allergies: p.allergies ?? fallbackPatient.allergies,
+    dietaryPreference: (p as any).dietaryPreference ?? fallbackPatient.dietaryPreference,
+    startDate: p.createdAt ?? fallbackPatient.startDate,
+    nextAppointment: p.nextAppointment ?? fallbackPatient.nextAppointment,
+  } : fallbackPatient
 
   const initials = mockPatient.fullName
     .split(' ')
@@ -405,7 +430,7 @@ export default function PatientDetailPage() {
                           <span className="text-sm text-muted-foreground">{row.label}</span>
                           {row.badges ? (
                             <div className="flex gap-1.5">
-                              {row.badges.map((a) => (
+                              {row.badges.map((a: string) => (
                                 <Badge key={a} variant="destructive">
                                   {a}
                                 </Badge>

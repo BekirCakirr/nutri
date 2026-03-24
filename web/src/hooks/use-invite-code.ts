@@ -1,5 +1,9 @@
 import { useState, useCallback } from "react";
-import { mockInviteCodes, simulateApiCall } from "@/mock";
+import {
+  getCodes,
+  generateCode,
+  deactivateCode,
+} from "@/services/invite-code.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,7 +40,7 @@ export function useInviteCode() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await simulateApiCall(mockInviteCodes, 600);
+      const data = await getCodes();
       setInviteCodes(data as unknown as InviteCode[]);
     } catch {
       setError("Failed to fetch invite codes");
@@ -45,26 +49,13 @@ export function useInviteCode() {
     }
   }, []);
 
-  const createInviteCode = useCallback(async (data: CreateInviteData) => {
+  const createInviteCode = useCallback(async (_data: CreateInviteData) => {
     setIsLoading(true);
     setError(null);
     try {
-      const code = `NUTRI-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
-
-      const newInvite: InviteCode = {
-        id: `inv_${Date.now()}`,
-        code,
-        nutritionistId: "usr_001",
-        patientEmail: data.patientEmail,
-        status: "pending",
-        expiresAt: expiresAt.toISOString(),
-        createdAt: new Date().toISOString(),
-      };
-      const created = await simulateApiCall(newInvite, 500);
-      setInviteCodes((prev) => [created, ...prev]);
-      return created;
+      const created = await generateCode();
+      setInviteCodes((prev) => [created as unknown as InviteCode, ...prev]);
+      return created as unknown as InviteCode;
     } catch {
       setError("Failed to create invite code");
       return null;
@@ -77,7 +68,7 @@ export function useInviteCode() {
     setIsLoading(true);
     setError(null);
     try {
-      await simulateApiCall(null, 400);
+      await deactivateCode(inviteId);
       setInviteCodes((prev) =>
         prev.map((inv) =>
           inv.id === inviteId ? { ...inv, status: "revoked" as const } : inv,

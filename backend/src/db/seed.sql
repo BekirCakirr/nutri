@@ -167,6 +167,188 @@ INSERT INTO messages (conversation_id, sender_id, receiver_id, content) VALUES
   ('c0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001',
    'Merhaba Elif Hanim, tesekkur ederim! Protein konusunda biraz zorlaniyorum, onerilerinizi bekliyorum.');
 
+-- ══════════════════════════════════════════════════════════════════════════════
+-- ADDITIONAL PATIENTS FOR DEMO (2026-03-24)
+-- ══════════════════════════════════════════════════════════════════════════════
+
+-- ── Patient 2: Mehmet Kaya (Sporcu beslenmesi) ─────────────────────────────
+-- Password: mehmet1234
+INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
+  ('b0000000-0000-0000-0000-000000000002', 'mehmet.kaya@email.com',
+   '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',
+   'patient', true, true)
+ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO patient_profiles (
+  id, user_id, first_name, last_name, birth_date, gender,
+  height_cm, current_weight_kg, target_weight_kg,
+  activity_level, goal_type, goal_duration_weeks,
+  diet_type, daily_water_target, sleep_hours,
+  usage_mode, bmr, tdee, daily_calorie_target,
+  protein_target_g, carb_target_g, fat_target_g,
+  onboarding_completed, xp_points, level, current_streak
+) VALUES (
+  'bb000000-0000-0000-0000-000000000002',
+  'b0000000-0000-0000-0000-000000000002',
+  'Mehmet', 'Kaya', '1985-11-20', 'male',
+  180, 92.0, 85.0,
+  'very_active', 'muscle_gain', 16,
+  'high_protein', 10, 7.0,
+  'with_dietitian', 1890.0, 3260.0, 2800.0,
+  180.0, 320.0, 85.0,
+  true, 120, 2, 2
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO dietitian_patients (dietitian_id, patient_id, status, paired_via)
+VALUES ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000002', 'active', 'invite_code')
+ON CONFLICT DO NOTHING;
+
+-- ── Patient 3: Fatma Demir (Diyabet yonetimi) ─────────────────────────────
+-- Password: fatma1234
+INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
+  ('b0000000-0000-0000-0000-000000000003', 'fatma.demir@email.com',
+   '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',
+   'patient', true, true)
+ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO patient_profiles (
+  id, user_id, first_name, last_name, birth_date, gender,
+  height_cm, current_weight_kg, target_weight_kg,
+  activity_level, goal_type, goal_duration_weeks,
+  diet_type, daily_water_target, sleep_hours,
+  usage_mode, bmr, tdee, daily_calorie_target,
+  protein_target_g, carb_target_g, fat_target_g,
+  onboarding_completed, xp_points, level, current_streak
+) VALUES (
+  'bb000000-0000-0000-0000-000000000003',
+  'b0000000-0000-0000-0000-000000000003',
+  'Fatma', 'Demir', '1978-03-10', 'female',
+  160, 78.0, 68.0,
+  'lightly_active', 'weight_loss', 20,
+  'diabetic', 8, 8.0,
+  'with_dietitian', 1380.0, 1890.0, 1500.0,
+  90.0, 150.0, 50.0,
+  true, 50, 1, 0
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO dietitian_patients (dietitian_id, patient_id, status, paired_via)
+VALUES ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000003', 'active', 'invite_code')
+ON CONFLICT DO NOTHING;
+
+-- ── Patient 4: Zeynep Celik (Hamilelik beslenmesi) ─────────────────────────
+-- Password: zeynep1234
+INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
+  ('b0000000-0000-0000-0000-000000000004', 'zeynep.celik@email.com',
+   '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',
+   'patient', true, true)
+ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO patient_profiles (
+  id, user_id, first_name, last_name, birth_date, gender,
+  height_cm, current_weight_kg, target_weight_kg,
+  activity_level, goal_type, goal_duration_weeks,
+  diet_type, daily_water_target, sleep_hours,
+  usage_mode, bmr, tdee, daily_calorie_target,
+  protein_target_g, carb_target_g, fat_target_g,
+  onboarding_completed, xp_points, level, current_streak
+) VALUES (
+  'bb000000-0000-0000-0000-000000000004',
+  'b0000000-0000-0000-0000-000000000004',
+  'Zeynep', 'Celik', '1993-07-25', 'female',
+  168, 65.0, 65.0,
+  'moderately_active', 'maintain', 24,
+  'normal', 10, 8.5,
+  'with_dietitian', 1420.0, 2200.0, 2200.0,
+  110.0, 260.0, 70.0,
+  true, 580, 4, 12
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO dietitian_patients (dietitian_id, patient_id, status, paired_via)
+VALUES ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000004', 'active', 'invite_code')
+ON CONFLICT DO NOTHING;
+
+-- ── Appointments ────────────────────────────────────────────────────────────
+INSERT INTO appointments (dietitian_id, patient_id, appointment_date, start_time, end_time, type, status, notes) VALUES
+  ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000001',
+   CURRENT_DATE + 2, '10:00', '10:45', 'online', 'scheduled', 'Haftalik kontrol'),
+  ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000002',
+   CURRENT_DATE + 3, '14:00', '14:45', 'online', 'scheduled', 'Sporcu beslenmesi plani'),
+  ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000003',
+   CURRENT_DATE + 1, '11:00', '11:45', 'in_person', 'confirmed', 'Diyabet takibi'),
+  ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000001',
+   CURRENT_DATE - 7, '10:00', '10:45', 'online', 'completed', 'Ilk gorusme tamamlandi'),
+  ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-000000000004',
+   CURRENT_DATE + 5, '09:00', '09:45', 'online', 'scheduled', 'Hamilelik beslenmesi takibi');
+
+-- ── Notifications for Elif (dietitian) ──────────────────────────────────────
+INSERT INTO notifications (user_id, type, title, body) VALUES
+  ('d0000000-0000-0000-0000-000000000001', 'meal_review', 'Yeni ogun kaydı',
+   'Ayse Yilmaz kahvalti kaydetti. Incelemek ister misiniz?'),
+  ('d0000000-0000-0000-0000-000000000001', 'appointment', 'Yarin randevunuz var',
+   'Fatma Demir ile saat 11:00 de randevunuz var.'),
+  ('d0000000-0000-0000-0000-000000000001', 'alert', 'Dikkat: Dusuk plan uyumu',
+   'Fatma Demir son 5 gunde %30 plan uyumu gosteriyor.'),
+  ('d0000000-0000-0000-0000-000000000001', 'message', 'Yeni mesaj',
+   'Zeynep Celik size mesaj gonderdi.');
+
+-- ── Notifications for Ayse (patient) ────────────────────────────────────────
+INSERT INTO notifications (user_id, type, title, body) VALUES
+  ('b0000000-0000-0000-0000-000000000001', 'plan_update', 'Diyet planiniz guncellendi',
+   'Dyt. Elif Kaya beslenme planinizi guncelledi. Kontrol etmeyi unutmayin!'),
+  ('b0000000-0000-0000-0000-000000000001', 'appointment', 'Randevu hatirlatmasi',
+   '2 gun sonra saat 10:00 da online randevunuz var.'),
+  ('b0000000-0000-0000-0000-000000000001', 'achievement', 'Yeni rozet kazandiniz!',
+   '7 Gun Serisi rozetini kazandiniz! Tebrikler!');
+
+-- ── Meal plan for Ayse ──────────────────────────────────────────────────────
+INSERT INTO meal_plans (
+  id, patient_id, created_by_type, created_by_dietitian_id,
+  title, start_date, end_date,
+  daily_calorie_target, daily_protein_target, daily_carb_target, daily_fat_target,
+  special_notes, status
+) VALUES (
+  'mp000000-0000-0000-0000-000000000001',
+  'bb000000-0000-0000-0000-000000000001',
+  'dietitian', 'de000000-0000-0000-0000-000000000001',
+  'Kilo Verme Programi - Hafta 1', CURRENT_DATE, CURRENT_DATE + 7,
+  1750, 105, 200, 55,
+  'Protein agirlikli, dusuk karbonhidrat. Gunde 8 bardak su.', 'active'
+);
+
+-- ── More meal logs for Ayse (7 days) ────────────────────────────────────────
+INSERT INTO meal_logs (patient_id, meal_type, log_date, entry_method, total_calories, total_protein, total_carbs, total_fat, mood, hunger_level, sent_to_dietitian) VALUES
+  ('bb000000-0000-0000-0000-000000000001', 'breakfast', CURRENT_DATE - 1, 'manual', 380, 15, 48, 12, 'happy', 3, true),
+  ('bb000000-0000-0000-0000-000000000001', 'lunch',     CURRENT_DATE - 1, 'photo_ai', 620, 32, 55, 20, 'neutral', 4, true),
+  ('bb000000-0000-0000-0000-000000000001', 'dinner',    CURRENT_DATE - 1, 'manual', 580, 38, 40, 18, 'happy', 3, true),
+  ('bb000000-0000-0000-0000-000000000001', 'breakfast', CURRENT_DATE - 2, 'manual', 350, 12, 45, 10, 'neutral', 2, true),
+  ('bb000000-0000-0000-0000-000000000001', 'lunch',     CURRENT_DATE - 2, 'manual', 700, 40, 65, 25, 'sad', 5, true),
+  ('bb000000-0000-0000-0000-000000000001', 'dinner',    CURRENT_DATE - 2, 'manual', 550, 30, 50, 18, 'happy', 3, true),
+  ('bb000000-0000-0000-0000-000000000001', 'breakfast', CURRENT_DATE - 3, 'manual', 400, 18, 50, 13, 'happy', 3, true),
+  ('bb000000-0000-0000-0000-000000000001', 'lunch',     CURRENT_DATE - 3, 'manual', 600, 35, 58, 20, 'neutral', 4, true),
+  ('bb000000-0000-0000-0000-000000000001', 'dinner',    CURRENT_DATE - 3, 'manual', 520, 28, 45, 16, 'neutral', 3, true),
+  ('bb000000-0000-0000-0000-000000000001', 'snack',     CURRENT_DATE - 1, 'manual', 180, 8, 20, 6, 'happy', 2, false);
+
+-- ── Meal logs for Mehmet ────────────────────────────────────────────────────
+INSERT INTO meal_logs (patient_id, meal_type, log_date, entry_method, total_calories, total_protein, total_carbs, total_fat, mood, hunger_level, sent_to_dietitian) VALUES
+  ('bb000000-0000-0000-0000-000000000002', 'breakfast', CURRENT_DATE, 'manual', 650, 45, 60, 25, 'happy', 4, true),
+  ('bb000000-0000-0000-0000-000000000002', 'lunch',     CURRENT_DATE, 'manual', 850, 55, 80, 30, 'neutral', 5, true);
+
+-- ── Exercise logs for Ayse ──────────────────────────────────────────────────
+INSERT INTO exercise_logs (patient_id, exercise_type, duration_min, intensity, calories_burned) VALUES
+  ('bb000000-0000-0000-0000-000000000001', 'walking', 45, 'moderate', 220),
+  ('bb000000-0000-0000-0000-000000000001', 'yoga', 30, 'light', 120),
+  ('bb000000-0000-0000-0000-000000000001', 'walking', 50, 'moderate', 250);
+
+-- ── Sleep logs for Ayse ─────────────────────────────────────────────────────
+INSERT INTO sleep_logs (patient_id, sleep_start, sleep_end, quality) VALUES
+  ('bb000000-0000-0000-0000-000000000001', CURRENT_TIMESTAMP - INTERVAL '8 hours', CURRENT_TIMESTAMP, 4),
+  ('bb000000-0000-0000-0000-000000000001', CURRENT_TIMESTAMP - INTERVAL '32 hours', CURRENT_TIMESTAMP - INTERVAL '24.5 hours', 3);
+
+-- ── Review from Ayse for Elif ───────────────────────────────────────────────
+INSERT INTO dietitian_reviews (patient_id, dietitian_id, rating, comment, is_anonymous) VALUES
+  ('bb000000-0000-0000-0000-000000000001', 'de000000-0000-0000-0000-000000000001',
+   5, 'Elif Hanim cok ilgili ve bilgili. Beslenme planim mukemmel, kilo vermeye basladim. Kesinlikle tavsiye ederim!', false);
+
 -- ── XP history for Ayse ──────────────────────────────────────────────────────
 INSERT INTO xp_history (patient_id, xp_amount, reason) VALUES
   ('bb000000-0000-0000-0000-000000000001', 10, 'photo_uploaded'),

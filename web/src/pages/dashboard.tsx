@@ -25,6 +25,8 @@ import { CalorieChart } from '@/components/charts/calorie-chart'
 import { PatientActivityChart } from '@/components/charts/patient-activity-chart'
 import { MacroPieChart } from '@/components/charts/macro-pie-chart'
 import { useAuthStore } from '@/stores/auth-store'
+import { usePatients } from '@/hooks/use-patients'
+import { useAppointments } from '@/hooks/use-appointments'
 import { cn } from '@/lib/utils'
 
 interface RecentActivity {
@@ -35,25 +37,7 @@ interface RecentActivity {
   time: string
 }
 
-const mockActivities: RecentActivity[] = [
-  { id: '1', type: 'meal', patient: 'Ayşe Yılmaz', description: 'Öğle yemeği kaydetti', time: '5 dk önce' },
-  { id: '2', type: 'appointment', patient: 'Mehmet Kaya', description: 'Randevu talep etti', time: '15 dk önce' },
-  { id: '3', type: 'alert', patient: 'Fatma Demir', description: 'Kalori hedefini %40 aştı', time: '1 saat önce' },
-  { id: '4', type: 'message', patient: 'Ali Öztürk', description: 'Yeni mesaj gönderdi', time: '2 saat önce' },
-  { id: '5', type: 'meal', patient: 'Zeynep Çelik', description: 'Kahvaltı kaydetti', time: '3 saat önce' },
-]
-
-const mockAttentionPatients = [
-  { id: '1', name: 'Fatma Demir', reason: 'Kalori hedefi aşımı — son 3 gün üst üste', severity: 'high' as const },
-  { id: '2', name: 'Hasan Yıldız', reason: '3 gündür öğün kaydı yok', severity: 'medium' as const },
-  { id: '3', name: 'Elif Arslan', reason: 'Su tüketimi düşük', severity: 'low' as const },
-]
-
-const mockUpcomingAppointments = [
-  { id: '1', patient: 'Mehmet Kaya', time: '10:00', type: 'Kontrol' },
-  { id: '2', patient: 'Ayşe Yılmaz', time: '11:30', type: 'İlk Görüşme' },
-  { id: '3', patient: 'Zeynep Çelik', time: '14:00', type: 'Video Görüşme' },
-]
+// Activities and attention patients are derived from real data below
 
 const activityIcons = {
   meal: Utensils,
@@ -85,15 +69,52 @@ function getGreeting(): string {
 export default function DashboardPage() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
+  const { allPatients, fetchPatients } = usePatients()
+  const { appointments, upcoming, fetchAppointments } = useAppointments()
   const [isLoading, setIsLoading] = useState(true)
 
   const greeting = useMemo(() => getGreeting(), [])
   const displayName = user ? `${user.firstName}` : 'Diyetisyen'
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 400)
+    fetchPatients()
+    fetchAppointments()
+    const timer = setTimeout(() => setIsLoading(false), 600)
     return () => clearTimeout(timer)
   }, [])
+
+  // Derive dashboard data from real data
+  const upcomingAppointments = useMemo(() =>
+    upcoming.slice(0, 3).map((a: any) => ({
+      id: a.id,
+      patient: a.patientName ?? 'Hasta',
+      time: a.startTime ?? '—',
+      type: a.type === 'follow_up' ? 'Kontrol' : a.type === 'initial' ? 'İlk Görüşme' : 'Görüşme',
+    }))
+  , [upcoming])
+
+  const attentionPatients = useMemo(() =>
+    allPatients
+      .filter((p: any) => (p.adherenceScore ?? 100) < 60)
+      .slice(0, 3)
+      .map((p: any) => ({
+        id: p.id,
+        name: `${p.firstName} ${p.lastName}`,
+        reason: (p.adherenceScore ?? 0) < 30 ? 'Düşük plan uyumu' : 'Orta düzey plan uyumu',
+        severity: ((p.adherenceScore ?? 0) < 30 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
+      }))
+  , [allPatients])
+
+  const recentActivities: RecentActivity[] = useMemo(() => {
+    // Derive from appointments as a simple activity feed
+    return appointments.slice(0, 5).map((a: any, i: number) => ({
+      id: a.id ?? String(i),
+      type: 'appointment' as const,
+      patient: a.patientName ?? 'Hasta',
+      description: a.status === 'completed' ? 'Randevu tamamlandı' : 'Randevu planlandı',
+      time: a.date ?? '',
+    }))
+  }, [appointments])
 
   if (isLoading) {
     return (
@@ -124,7 +145,7 @@ export default function DashboardPage() {
             {greeting}, {displayName}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Bugün {mockUpcomingAppointments.length} randevunuz var. İşte günlük özetiniz.
+            Bugün {upcomingAppointments.length} randevunuz var. İşte günlük özetiniz.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -147,31 +168,27 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in-stagger">
         <StatCard
           title="Toplam Hasta"
-          value={47}
+          value={allPatients.length}
           icon={Users}
-          trend="up"
-          trendLabel="Bu hafta +3"
           color="blue"
           featured
-          sparkline={<TrendSparkline data={[40, 42, 41, 44, 45, 47, 47]} height={28} width={100} />}
+          sparkline={<TrendSparkline data={[allPatients.length]} height={28} width={100} />}
         />
         <StatCard
           title="Bugünkü Randevu"
-          value={6}
+          value={upcomingAppointments.length}
           icon={CalendarDays}
           color="green"
         />
         <StatCard
-          title="Bekleyen Öğün"
-          value={12}
+          title="Toplam Randevu"
+          value={appointments.length}
           icon={UtensilsCrossed}
-          trend="down"
-          trendLabel="%8 azalış"
           color="yellow"
         />
         <StatCard
-          title="Kritik Uyarı"
-          value={3}
+          title="Dikkat Gerektiren"
+          value={attentionPatients.length}
           icon={AlertTriangle}
           color="red"
         />
@@ -185,7 +202,7 @@ export default function DashboardPage() {
             <span className="text-sm font-medium">Sonraki Randevular</span>
           </div>
           <div className="flex flex-wrap gap-3">
-            {mockUpcomingAppointments.map((apt) => (
+            {upcomingAppointments.map((apt) => (
               <div
                 key={apt.id}
                 className="flex items-center gap-3 rounded-lg border bg-card px-4 py-2.5 transition-colors hover:bg-secondary/50 cursor-pointer"
@@ -225,7 +242,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              {mockActivities.map((activity, index) => {
+              {recentActivities.map((activity, index) => {
                 const Icon = activityIcons[activity.type]
                 return (
                   <div
@@ -242,7 +259,7 @@ export default function DashboardPage() {
                       >
                         <Icon className="h-4 w-4" />
                       </div>
-                      {index < mockActivities.length - 1 && (
+                      {index < recentActivities.length - 1 && (
                         <div className="w-px flex-1 bg-border min-h-[16px]" />
                       )}
                     </div>
@@ -276,9 +293,9 @@ export default function DashboardPage() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          {mockAttentionPatients.length > 0 ? (
+          {attentionPatients.length > 0 ? (
             <div className="space-y-2">
-              {mockAttentionPatients.map((patient) => (
+              {attentionPatients.map((patient) => (
                 <div
                   key={patient.id}
                   className={cn(

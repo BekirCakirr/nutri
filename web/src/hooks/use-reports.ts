@@ -1,5 +1,8 @@
 import { useState, useCallback } from "react";
-import { mockReports, simulateApiCall } from "@/mock";
+import {
+  getReports,
+  generateReport as generateReportApi,
+} from "@/services/report.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,11 +44,8 @@ export function useReports() {
     setIsLoading(true);
     setError(null);
     try {
-      const all = await simulateApiCall(mockReports, 700);
-      const filtered = patientId
-        ? all.filter((r) => r.patientId === patientId)
-        : all;
-      setReports(filtered as unknown as Report[]);
+      const data = await getReports(patientId ? { patientId } : undefined);
+      setReports(data as unknown as Report[]);
     } catch {
       setError("Failed to fetch reports");
     } finally {
@@ -57,26 +57,12 @@ export function useReports() {
     setIsLoading(true);
     setError(null);
     try {
-      const newReport: Report = {
-        id: `rpt_${Date.now()}`,
-        type: data.type,
-        title: data.title ?? `${data.type} Report`,
-        patientId: data.patientId ?? null,
-        patientName: null,
-        period: data.period,
-        summary: "Report is being generated...",
-        metrics: {},
-        generatedAt: new Date().toISOString(),
-        status: "generating",
-      };
-
-      // Simulate generation delay
-      const created = await simulateApiCall(
-        { ...newReport, status: "ready" as const, summary: "Report generated successfully." },
-        1500,
-      );
-      setReports((prev) => [created, ...prev]);
-      return created;
+      const created = await generateReportApi({
+        weekStart: data.period.startDate,
+        weekEnd: data.period.endDate,
+      });
+      setReports((prev) => [created as unknown as Report, ...prev]);
+      return created as unknown as Report;
     } catch {
       setError("Failed to generate report");
       return null;
@@ -89,7 +75,7 @@ export function useReports() {
     setIsLoading(true);
     setError(null);
     try {
-      await simulateApiCall(null, 400);
+      // TODO: Backend DELETE /reports/:id endpoint needed
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     } catch {
       setError("Failed to delete report");

@@ -1,5 +1,9 @@
 import { useState, useCallback, useMemo } from "react";
-import { mockRecipes, simulateApiCall } from "@/mock";
+import {
+  getRecipes,
+  createRecipe as createRecipeApi,
+  deleteRecipe as deleteRecipeApi,
+} from "@/services/recipe.service";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -60,8 +64,8 @@ export function useRecipes() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await simulateApiCall(mockRecipes, 600);
-      setRecipes(data as unknown as Recipe[]);
+      const response = await getRecipes();
+      setRecipes(response.items as unknown as Recipe[]);
     } catch {
       setError("Failed to fetch recipes");
     } finally {
@@ -73,22 +77,9 @@ export function useRecipes() {
     setIsLoading(true);
     setError(null);
     try {
-      const totalCalories = data.ingredients.reduce((sum, i) => sum + i.calories, 0);
-      const newRecipe: Recipe = {
-        id: `recipe_${Date.now()}`,
-        ...data,
-        calories: totalCalories,
-        protein: 0,
-        carbohydrates: 0,
-        fat: 0,
-        fiber: 0,
-        imageUrl: "",
-        createdBy: "usr_001",
-        createdAt: new Date().toISOString(),
-      };
-      const created = await simulateApiCall(newRecipe, 600);
-      setRecipes((prev) => [...prev, created]);
-      return created;
+      const created = await createRecipeApi(data as any);
+      setRecipes((prev) => [...prev, created as unknown as Recipe]);
+      return created as unknown as Recipe;
     } catch {
       setError("Failed to create recipe");
       return null;
@@ -101,7 +92,7 @@ export function useRecipes() {
     setIsLoading(true);
     setError(null);
     try {
-      await simulateApiCall(null, 400);
+      await deleteRecipeApi(recipeId);
       setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
     } catch {
       setError("Failed to delete recipe");

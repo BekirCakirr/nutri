@@ -1,7 +1,7 @@
 import { useMemo, useCallback, useState, useEffect } from "react";
 import { usePatientStore } from "@/stores/patient-store";
 import type { PatientFilters } from "@/stores/patient-store";
-import { mockPatients, simulateApiCall } from "@/mock";
+import { getPatients } from "@/services/patient.service";
 
 /**
  * Patient list hook with filtering, searching, and sorting.
@@ -17,8 +17,10 @@ export function usePatients() {
   const fetchPatients = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await simulateApiCall(mockPatients);
-      setPatients(data as unknown as typeof patients);
+      const response = await getPatients();
+      setPatients(response.items as unknown as typeof patients);
+    } catch {
+      // silently fail — store keeps existing data
     } finally {
       setIsLoading(false);
     }

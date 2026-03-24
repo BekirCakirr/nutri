@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { mockPatients } from "@/mock";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,7 +61,7 @@ const defaultFilters: PatientFilters = {
 };
 
 export const usePatientStore = create<PatientState>()((set) => ({
-  patients: mockPatients as unknown as Patient[],
+  patients: [],
   selectedPatient: null,
   filters: defaultFilters,
   isLoading: false,
