@@ -1,6 +1,6 @@
 # NutriAI — Devam Noktasi
 
-> **Son Guncelleme:** 2026-03-24 (Faz 6.5-10 buyuk oranda tamamlandi)
+> **Son Guncelleme:** 2026-03-25 (Tum kullanici sayfalari API'ye bagli, %90)
 > **Claude:** Bu dosyayi oku, nerede kaldigimizi anla, siradaki isi yap.
 > **Detayli plan icin:** `ROADMAP.md` dosyasina bak.
 
@@ -28,12 +28,12 @@ Faz 6    Web Servisler   ██████████████████�
 Faz 6    Web Hook'lar    ████████████████████ %100  ✅
 Faz 6.5  Web E2E         ████████████████████ %100  ✅
 Faz 7    Mobil Enteg.    ████████████████░░░░ %80   ✅ (test kaldi)
-Faz 8    AI              ██████████░░░░░░░░░░ %50   ⏳ (Gemini key ekle)
+Faz 8    AI              ██████████████████░░ %90   ✅ (key+chat+sayfa bagli)
 Faz 9    Test+Kalite     ████████████████░░░░ %80   ✅ (audit+10 bug fix)
 Faz 10   Deploy          ██████████░░░░░░░░░░ %50   ⏳ (config hazir, deploy kaldi)
 Faz 11   Sunum           ░░░░░░░░░░░░░░░░░░░░ %0
 ──────────────────────────────────────────────────
-GENEL                    ██████████████████░░ %85   ← BURADAN DEVAM
+GENEL                    ██████████████████░░ %90   ← BURADAN DEVAM
 ```
 
 ---
