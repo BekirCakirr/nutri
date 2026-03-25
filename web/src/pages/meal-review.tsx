@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useMeals } from '@/hooks/use-meals'
 import {
   Search,
   Check,
@@ -591,13 +592,41 @@ function KanbanColumn({
 /* ─── Main Page Component ──────────────────────── */
 
 export default function MealReviewPage() {
+  const { meals: hookMeals, fetchMeals } = useMeals()
   const [reviews, setReviews] = useState(mockReviews)
   const [search, setSearch] = useState('')
   const [mealTypeFilter, setMealTypeFilter] = useState('all')
   const [notes, setNotes] = useState<Record<string, string>>({})
 
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => {
+    fetchMeals()
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Map API meals to review format when available
+  useEffect(() => {
+    if (hookMeals.length > 0) {
+      const mapped: MealReview[] = hookMeals.map((m: any) => ({
+        id: m.id,
+        patientName: m.patientName ?? 'Hasta',
+        patientId: m.patientId ?? '',
+        date: m.date ?? m.logDate ?? '',
+        mealType: m.type === 'breakfast' ? 'Kahvaltı' : m.type === 'lunch' ? 'Öğle' : m.type === 'dinner' ? 'Akşam' : 'Ara Öğün',
+        items: m.items?.map((i: any) => `${i.name ?? i.foodName ?? ''} (${i.portion ?? ''})`) ?? [],
+        totalCalories: m.calories ?? m.totalCalories ?? 0,
+        protein: m.protein ?? 0,
+        carbs: m.carbohydrates ?? m.carbs ?? 0,
+        fat: m.fat ?? 0,
+        imageUrl: m.imageUrl ?? null,
+        status: (m.dietitianViewed ? 'approved' : 'pending') as MealReview['status'],
+        aiScore: m.aiScore ?? 75,
+        aiSummary: m.aiSummary ?? '',
+      }))
+      setReviews(mapped)
+    }
+  }, [hookMeals])
 
   const handleApprove = (id: string) => {
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'approved' as const } : r)))

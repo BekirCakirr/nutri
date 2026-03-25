@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useReports } from '@/hooks/use-reports'
 import {
   ArrowLeft,
   Download,
@@ -159,11 +160,16 @@ function getAdherenceLabel(value: number) {
 /* ------------------------------------------------------------------ */
 
 export default function PatientReportPage() {
-  const { id: _id } = useParams()
+  const { id } = useParams()
   const navigate = useNavigate()
+  const { fetchReports } = useReports()
 
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => {
+    if (id) fetchReports(id)
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [id])
 
   if (isLoading) return <DetailPageSkeleton />
 
