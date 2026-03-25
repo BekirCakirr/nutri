@@ -166,9 +166,11 @@ export default function PatientReportPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    if (id) fetchReports(id)
-    const t = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(t)
+    const load = async () => {
+      try { if (id) await fetchReports(id) } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [id])
 
   if (isLoading) return <DetailPageSkeleton />

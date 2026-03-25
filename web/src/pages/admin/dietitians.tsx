@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Search,
   CheckCircle2,
@@ -36,6 +36,11 @@ import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
+import {
+  getUsers as fetchAdminUsers,
+  type AdminUser,
+} from '@/services/admin.service'
+import api from '@/lib/axios'
 
 interface DietitianRow {
   id: string
@@ -79,21 +84,73 @@ function getInitialColor(name: string): string {
   return colors[Math.abs(hash) % colors.length]
 }
 
+/** Map AdminUser (role=dietitian) to local DietitianRow */
+function toDietitianRow(u: AdminUser): DietitianRow {
+  const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email
+  // Backend doesn't return full dietitian profile fields in the users list,
+  // so we provide sensible defaults and mark verification from isActive
+  return {
+    id: u.id,
+    name,
+    email: u.email,
+    specialization: '-',
+    licenseNumber: '-',
+    patients: 0,
+    rating: 0,
+    verificationStatus: u.isActive ? 'verified' : 'pending',
+    status: u.isActive ? 'active' : 'suspended',
+    registeredAt: new Date(u.createdAt).toLocaleDateString('tr-TR'),
+  }
+}
+
 export default function AdminDietitians() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  const [dietitians, setDietitians] = useState<DietitianRow[]>(mockDietitians)
 
-  const filtered = mockDietitians.filter((d) => {
+  const loadDietitians = useCallback(async () => {
+    try {
+      const result = await fetchAdminUsers({ role: 'dietitian', page: 1, limit: 100, search: search.trim() || undefined })
+      if (result.items.length > 0) {
+        setDietitians(result.items.map(toDietitianRow))
+      }
+    } catch {
+      // Keep mock data as fallback
+    }
+  }, [search])
+
+  useEffect(() => {
+    loadDietitians().finally(() => setIsLoading(false))
+  }, [loadDietitians])
+
+  const handleApprove = async (dietitianId: string) => {
+    try {
+      await api.post(`/admin/dietitians/${dietitianId}/approve`)
+      await loadDietitians()
+    } catch {
+      // Silently fail
+    }
+  }
+
+  const handleSuspend = async (dietitianId: string, currentlyActive: boolean) => {
+    try {
+      await api.patch(`/admin/users/${dietitianId}/status`, { isActive: !currentlyActive })
+      await loadDietitians()
+    } catch {
+      // Silently fail
+    }
+  }
+
+  const filtered = dietitians.filter((d) => {
     const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase()) || d.email.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'all' || d.verificationStatus === statusFilter
     return matchesSearch && matchesStatus
   })
 
-  const verifiedCount = mockDietitians.filter(d => d.verificationStatus === 'verified').length
-  const pendingCount = mockDietitians.filter(d => d.verificationStatus === 'pending').length
-  const suspendedCount = mockDietitians.filter(d => d.status === 'suspended').length
+  const verifiedCount = dietitians.filter(d => d.verificationStatus === 'verified').length
+  const pendingCount = dietitians.filter(d => d.verificationStatus === 'pending').length
+  const suspendedCount = dietitians.filter(d => d.status === 'suspended').length
 
   if (isLoading) return <ListPageSkeleton />
 
@@ -106,7 +163,7 @@ export default function AdminDietitians() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
         <StatCard
           title="Toplam Diyetisyen"
-          value={mockDietitians.length}
+          value={dietitians.length}
           icon={UserCheck}
           color="blue"
           featured
@@ -236,12 +293,18 @@ export default function AdminDietitians() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                          onClick={() => handleApprove(dietitian.id)}
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" />
                         </Button>
                       )}
                       {dietitian.status === 'active' && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          onClick={() => handleSuspend(dietitian.id, true)}
+                        >
                           <Ban className="h-3.5 w-3.5" />
                         </Button>
                       )}

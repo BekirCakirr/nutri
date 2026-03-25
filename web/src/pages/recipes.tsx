@@ -53,9 +53,11 @@ export default function RecipesPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchRecipes()
-    const t = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(t)
+    const load = async () => {
+      try { await fetchRecipes() } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
 
   // Map hook recipes to local type, fallback to mock

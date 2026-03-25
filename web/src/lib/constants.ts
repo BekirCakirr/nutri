@@ -3,10 +3,10 @@
 // ---------------------------------------------------------------------------
 
 /** Base API URL for backend requests. */
-export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001/api";
 
 /** WebSocket URL for real-time features. */
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3000";
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3001";
 
 /** App name used in titles and branding. */
 export const APP_NAME = "NutriAI";

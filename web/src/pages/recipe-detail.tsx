@@ -53,37 +53,40 @@ export default function RecipeDetailPage() {
   const { id } = useParams()
   const [apiRecipe, setApiRecipe] = useState<any>(null)
 
+  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    if (id) {
-      getRecipe(id).then((data) => {
-        if (data) {
-          setApiRecipe({
-            ...mockRecipe,
-            id: data.id ?? mockRecipe.id,
-            title: (data as any).name ?? mockRecipe.title,
-            description: (data as any).description ?? mockRecipe.description,
-            category: (data as any).category ?? mockRecipe.category,
-            calories: (data as any).caloriesPerServing ?? (data as any).calories ?? mockRecipe.calories,
-            protein: (data as any).proteinPerServing ?? (data as any).protein ?? mockRecipe.protein,
-            carbs: (data as any).carbsPerServing ?? (data as any).carbs ?? mockRecipe.carbs,
-            fat: (data as any).fatPerServing ?? (data as any).fat ?? mockRecipe.fat,
-            prepTime: (data as any).prepTimeMin ?? mockRecipe.prepTime,
-            cookTime: (data as any).cookTimeMin ?? mockRecipe.cookTime,
-            servings: (data as any).servings ?? mockRecipe.servings,
-            difficulty: (data as any).difficulty ?? mockRecipe.difficulty,
-          })
+    const load = async () => {
+      try {
+        if (id) {
+          const data = await getRecipe(id)
+          if (data) {
+            setApiRecipe({
+              ...mockRecipe,
+              id: data.id ?? mockRecipe.id,
+              title: (data as any).name ?? mockRecipe.title,
+              description: (data as any).description ?? mockRecipe.description,
+              category: (data as any).category ?? mockRecipe.category,
+              calories: (data as any).caloriesPerServing ?? (data as any).calories ?? mockRecipe.calories,
+              protein: (data as any).proteinPerServing ?? (data as any).protein ?? mockRecipe.protein,
+              carbs: (data as any).carbsPerServing ?? (data as any).carbs ?? mockRecipe.carbs,
+              fat: (data as any).fatPerServing ?? (data as any).fat ?? mockRecipe.fat,
+              prepTime: (data as any).prepTimeMin ?? mockRecipe.prepTime,
+              cookTime: (data as any).cookTimeMin ?? mockRecipe.cookTime,
+              servings: (data as any).servings ?? mockRecipe.servings,
+              difficulty: (data as any).difficulty ?? mockRecipe.difficulty,
+            })
+          }
         }
-      }).catch(() => {})
+      } catch {}
+      setIsLoading(false)
     }
+    load()
   }, [id])
 
   // Use API data if available, fallback to mock
   const recipe = apiRecipe ?? mockRecipe
   void id
   const navigate = useNavigate()
-
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   if (isLoading) return <DetailPageSkeleton />
 

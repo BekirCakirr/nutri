@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Wifi,
   WifiOff,
@@ -28,31 +28,24 @@ import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
+import { useLiveTracking, type LiveTrackingEntry } from '@/hooks/use-live-tracking'
 
-interface LivePatient {
-  id: string
-  name: string
-  todayCalories: number
-  calorieTarget: number
-  waterIntakeMl: number
-  waterTargetMl: number
-  lastMealTime: string
-  lastMealType: string
-  alertLevel: 'none' | 'low' | 'medium' | 'high'
-  alertReason?: string
-  isOnline: boolean
+// Derive alert level from tracking data
+function deriveAlertLevel(entry: LiveTrackingEntry): { level: 'none' | 'low' | 'medium' | 'high'; reason?: string } {
+  if (entry.currentCalories === 0 && entry.waterIntake === 0) {
+    return { level: 'high', reason: 'Bugun hic kayıt yok' }
+  }
+  if (entry.targetCalories > 0 && entry.currentCalories > entry.targetCalories) {
+    return { level: 'high', reason: 'Kalori hedefi asıldı' }
+  }
+  if (entry.waterTarget > 0 && entry.waterIntake < entry.waterTarget * 0.3) {
+    return { level: 'medium', reason: 'Su tuketimi dusuk' }
+  }
+  if (entry.totalMealsExpected > 0 && entry.mealsLogged < entry.totalMealsExpected * 0.5) {
+    return { level: 'low', reason: 'Ogun sayısı dusuk' }
+  }
+  return { level: 'none' }
 }
-
-const mockLivePatients: LivePatient[] = [
-  { id: '1', name: 'Ayse Yılmaz', todayCalories: 1450, calorieTarget: 1800, waterIntakeMl: 1800, waterTargetMl: 2500, lastMealTime: '12:30', lastMealType: 'Ogle', alertLevel: 'none', isOnline: true },
-  { id: '2', name: 'Mehmet Kaya', todayCalories: 2100, calorieTarget: 1600, waterIntakeMl: 1200, waterTargetMl: 2000, lastMealTime: '13:15', lastMealType: 'Ogle', alertLevel: 'high', alertReason: 'Kalori hedefi asıldı', isOnline: true },
-  { id: '3', name: 'Fatma Demir', todayCalories: 1200, calorieTarget: 2200, waterIntakeMl: 2000, waterTargetMl: 2500, lastMealTime: '11:00', lastMealType: 'Ara Ogun', alertLevel: 'none', isOnline: true },
-  { id: '4', name: 'Ali Ozturk', todayCalories: 800, calorieTarget: 1800, waterIntakeMl: 500, waterTargetMl: 2000, lastMealTime: '08:30', lastMealType: 'Kahvaltı', alertLevel: 'medium', alertReason: 'Su tuketimi dusuk', isOnline: false },
-  { id: '5', name: 'Zeynep Celik', todayCalories: 1600, calorieTarget: 1700, waterIntakeMl: 2200, waterTargetMl: 2500, lastMealTime: '14:00', lastMealType: 'Ogle', alertLevel: 'none', isOnline: true },
-  { id: '6', name: 'Hasan Yıldız', todayCalories: 0, calorieTarget: 2000, waterIntakeMl: 0, waterTargetMl: 2500, lastMealTime: '-', lastMealType: '-', alertLevel: 'high', alertReason: 'Bugun hic kayıt yok', isOnline: false },
-  { id: '7', name: 'Elif Arslan', todayCalories: 1900, calorieTarget: 2000, waterIntakeMl: 1800, waterTargetMl: 2000, lastMealTime: '13:45', lastMealType: 'Ogle', alertLevel: 'none', isOnline: true },
-  { id: '8', name: 'Burak Sahin', todayCalories: 1100, calorieTarget: 2400, waterIntakeMl: 800, waterTargetMl: 3000, lastMealTime: '10:00', lastMealType: 'Kahvaltı', alertLevel: 'low', alertReason: 'Ogle yemegi atlanmıs olabilir', isOnline: true },
-]
 
 const alertBorderMap = {
   none: '',
@@ -70,19 +63,39 @@ const alertBadgeMap: Record<string, { label: string; variant: 'success' | 'warni
 
 export default function LiveTrackingPage() {
   const [alertFilter, setAlertFilter] = useState('all')
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
-  const isConnected = true
+  const { trackingData, isLoading, lastUpdated } = useLiveTracking(30_000)
+  const isConnected = lastUpdated !== null
 
-  const filtered = mockLivePatients.filter((p) => {
+  // Enrich tracking entries with derived alert levels
+  const enrichedPatients = useMemo(() =>
+    trackingData.map((entry) => {
+      const alert = deriveAlertLevel(entry)
+      return {
+        id: entry.patientId,
+        name: entry.patientName,
+        todayCalories: entry.currentCalories,
+        calorieTarget: entry.targetCalories,
+        waterIntakeMl: entry.waterIntake * 250, // glasses to ml (approx 250ml per glass)
+        waterTargetMl: entry.waterTarget * 250,
+        lastMealTime: entry.lastActivityAt ? new Date(entry.lastActivityAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-',
+        lastMealType: entry.lastActivity || '-',
+        alertLevel: alert.level,
+        alertReason: alert.reason,
+        isOnline: entry.isOnline,
+      }
+    }),
+    [trackingData],
+  )
+
+  const filtered = enrichedPatients.filter((p) => {
     if (alertFilter === 'all') return true
     return p.alertLevel === alertFilter
   })
 
-  const onlineCount = mockLivePatients.filter(p => p.isOnline).length
-  const highAlertCount = mockLivePatients.filter(p => p.alertLevel === 'high').length
-  const mediumAlertCount = mockLivePatients.filter(p => p.alertLevel === 'medium').length
-  const okCount = mockLivePatients.filter(p => p.alertLevel === 'none').length
+  const onlineCount = enrichedPatients.filter(p => p.isOnline).length
+  const highAlertCount = enrichedPatients.filter(p => p.alertLevel === 'high').length
+  const mediumAlertCount = enrichedPatients.filter(p => p.alertLevel === 'medium').length
+  const okCount = enrichedPatients.filter(p => p.alertLevel === 'none').length
 
   if (isLoading) return <DashboardSkeleton />
 

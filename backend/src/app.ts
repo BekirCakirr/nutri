@@ -27,7 +27,7 @@ import trackingRoutes from "./routes/tracking.routes";
 import adminRoutes from "./routes/admin.routes";
 import aiRoutes from "./routes/ai.routes";
 
-import { sendError } from "./utils";
+import { sendSuccess, sendError } from "./utils";
 
 const app = express();
 const server = http.createServer(app);
@@ -39,9 +39,14 @@ app.use(apiLimiter);
 
 // ── Core middleware ─────────────────────────────────────────────────────────
 
+const corsOrigin =
+  env.nodeEnv === "production"
+    ? env.corsOrigin.filter((o) => o !== "*")
+    : env.corsOrigin;
+
 app.use(
   cors({
-    origin: env.corsOrigin,
+    origin: corsOrigin.length > 0 ? corsOrigin : false,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
@@ -68,22 +73,26 @@ app.get("/api/health", async (_req, res) => {
     await pool.query("SELECT 1");
     const dbLatency = Date.now() - dbStart;
 
-    res.json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      database: {
-        status: "connected",
-        latencyMs: dbLatency,
+    sendSuccess({
+      res,
+      data: {
+        status: "ok",
+        uptime: process.uptime(),
+        database: {
+          status: "connected",
+          latencyMs: dbLatency,
+        },
+        version: "1.0.0",
+        environment: env.nodeEnv,
       },
-      version: "1.0.0",
-      environment: env.nodeEnv,
+      message: "Sunucu calisiyor",
     });
   } catch {
-    res.status(503).json({
-      status: "error",
-      timestamp: new Date().toISOString(),
-      database: { status: "disconnected" },
+    sendError({
+      res,
+      message: "Veritabani baglantisi kurulamadi",
+      statusCode: 503,
+      errors: [{ code: "DB_UNREACHABLE", message: "Database disconnected" }],
     });
   }
 });

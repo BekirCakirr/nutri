@@ -69,21 +69,24 @@ export default function InviteCodePage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchInviteCodes().then(() => {
-      // If hook returns data, use it; otherwise keep mock for demo
-      if (hookCodes.length > 0) {
-        setCodes(hookCodes.map((c: any) => ({
-          id: c.id,
-          code: c.code ?? '',
-          createdAt: c.createdAt?.split('T')[0] ?? '',
-          usedBy: c.usedBy ?? null,
-          usedAt: c.usedAt ?? null,
-          status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
-        })))
-      }
-    }).catch(() => {})
-    const t = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(t)
+    const load = async () => {
+      try {
+        await fetchInviteCodes()
+        // If hook returns data, use it; otherwise keep mock for demo
+        if (hookCodes.length > 0) {
+          setCodes(hookCodes.map((c: any) => ({
+            id: c.id,
+            code: c.code ?? '',
+            createdAt: c.createdAt?.split('T')[0] ?? '',
+            usedBy: c.usedBy ?? null,
+            usedAt: c.usedAt ?? null,
+            status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
+          })))
+        }
+      } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
 
   const handleCopy = (code: string, id: string) => {

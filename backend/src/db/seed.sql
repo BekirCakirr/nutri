@@ -172,7 +172,7 @@ INSERT INTO messages (conversation_id, sender_id, receiver_id, content) VALUES
 -- ══════════════════════════════════════════════════════════════════════════════
 
 -- ── Patient 2: Mehmet Kaya (Sporcu beslenmesi) ─────────────────────────────
--- Password: mehmet1234
+-- Password: ayse1234 (same hash as Ayse for dev convenience)
 INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
   ('b0000000-0000-0000-0000-000000000002', 'mehmet.kaya@email.com',
    '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',
@@ -204,7 +204,7 @@ VALUES ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-0000000
 ON CONFLICT DO NOTHING;
 
 -- ── Patient 3: Fatma Demir (Diyabet yonetimi) ─────────────────────────────
--- Password: fatma1234
+-- Password: ayse1234 (same hash as Ayse for dev convenience)
 INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
   ('b0000000-0000-0000-0000-000000000003', 'fatma.demir@email.com',
    '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',
@@ -236,7 +236,7 @@ VALUES ('de000000-0000-0000-0000-000000000001', 'bb000000-0000-0000-0000-0000000
 ON CONFLICT DO NOTHING;
 
 -- ── Patient 4: Zeynep Celik (Hamilelik beslenmesi) ─────────────────────────
--- Password: zeynep1234
+-- Password: ayse1234 (same hash as Ayse for dev convenience)
 INSERT INTO users (id, email, password_hash, role, is_active, is_verified) VALUES
   ('b0000000-0000-0000-0000-000000000004', 'zeynep.celik@email.com',
    '$2b$10$Z7N5stvcCvSrieALvuf6M.8ig1jp29P6aQwq16HrkceR0B/evoPr6',

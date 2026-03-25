@@ -107,7 +107,9 @@ export async function updateMyProfile(
 
 export async function getPatientById(patientProfileId: string) {
   const result = await query(
-    `SELECT pp.*, u.email
+    `SELECT pp.*, u.email,
+       pp.profile_photo_url AS avatar_url,
+       '' AS phone
      FROM patient_profiles pp
      JOIN users u ON u.id = pp.user_id
      WHERE pp.id = $1`,
@@ -126,6 +128,8 @@ export async function getPatientById(patientProfileId: string) {
 export async function getPatientsByDietitian(userId: string) {
   const result = await query(
     `SELECT pp.*, u.email, u.last_login_at,
+       pp.profile_photo_url AS avatar_url,
+       '' AS phone,
        -- Compute adherence: % of days in last 7 that have meal logs
        COALESCE(
          (SELECT ROUND(COUNT(DISTINCT ml.log_date)::numeric / 7 * 100)
@@ -137,8 +141,8 @@ export async function getPatientsByDietitian(userId: string) {
        -- Last activity timestamp
        GREATEST(
          u.last_login_at,
-         (SELECT MAX(created_at) FROM meal_logs WHERE patient_id = pp.id),
-         (SELECT MAX(created_at) FROM weight_logs WHERE patient_id = pp.id)
+         (SELECT MAX(ml2.logged_at) FROM meal_logs ml2 WHERE ml2.patient_id = pp.id),
+         (SELECT MAX(wl2.measured_at) FROM weight_logs wl2 WHERE wl2.patient_id = pp.id)
        ) AS last_activity_at
      FROM dietitian_profiles dp
      JOIN dietitian_patients dpat ON dpat.dietitian_id = dp.id

@@ -1,38 +1,52 @@
 # NutriAI — Finale Giden Yol Haritasi
 
-> **Son guncelleme:** 2026-03-25
+> **Son guncelleme:** 2026-03-25 (durust yuzde guncelleme)
 > **Hedef:** Bitirme sunumuna tam calisir proje (~Mayis sonu 2026)
 > **Kalan sure:** ~8 hafta
+> **Gercek ilerleme:** %78 (onceki %85 tahmini iyimserdi)
 
 ---
 
-## Guncel Durum (2026-03-25)
+## Guncel Durum (2026-03-25 — Durust Analiz)
 
 | Katman | Durum | Detay |
 |--------|-------|-------|
-| Backend | **%95** | 16 route, 75+ endpoint, stub'lar giderildi, adherence hesaplaması eklendi |
+| Backend | **%95** | 16 route, 75+ endpoint, stub'lar giderildi, adherence hesaplamasi eklendi |
 | Web UI | **%100** | 28 sayfa, 100+ bilesen tamam |
-| Web Entegrasyon | **%100** | 16 servis + 13 hook gercek API, tum sayfalar/store'lar temiz |
+| Web Entegrasyon | **%75** | 16 servis + 13 hook gercek API — AMA 22 sayfa setTimeout loading, 15+ sayfa inline mock fallback, 6 admin tamamen mock |
 | Mobil UI | **%95** | 91 ekran, 90+ bilesen tamam |
-| Mobil Entegrasyon | **%80** | 12/15 API modulu gercek, 3 mock (gamification, family, photo) |
-| AI | **%70** | Gemini key eklendi, backend chat+vision tam, frontend bagli |
-| Test | **%30** | 4 backend test, audit ile 10 bug fix, CI pipeline var |
+| Mobil Entegrasyon | **%70** | 12/15 API modulu yazildi, auth fix'leri uygulandi, AMA hicbir ekran test edilmedi |
+| AI | **%70** | Gemini key var, backend chat+vision tam, frontend bagli — AMA test edilmedi |
+| Test | **%30** | Audit yapildi + 10 bug fix, AMA E2E test hic yapilmadi, 57 as any cast |
 | CI/CD | **%80** | GitHub Actions CI (backend test + web build) |
-| Deploy | **%50** | docker-compose + Vercel config + Railway config |
-| **GENEL** | **%85** | |
+| Deploy | **%50** | docker-compose + Vercel config + Railway config — deploy yapilmadi |
+| **GENEL** | **%78** | setTimeout fix + E2E test + deploy = en kritik 3 is |
 
 ### Cozulen Kritik Buglar (2026-03-24/25)
 
 1. ~~Socket port uyumsuzlugu~~ → ✅ Duzeltildi (3001→3000)
-2. ~~6 sayfa inline mock data~~ → ✅ Tumu hook'lara baglanildi
+2. ~~6 sayfa mock import~~ → ✅ `from @/mock` import'lari kaldirildi (AMA inline `const mock*` fallback hala var)
 3. ~~4 store mock init~~ → ✅ Tumu [] ile basliyor, auth store gercek API
 4. ~~Mobil API URL~~ → ✅ Dev-aware (10.0.2.2 Android, prod release)
-5. ~~Axios snake_case request body~~ → ✅ Kaldirildi (Zod validation kırıyordu)
+5. ~~Axios snake_case request body~~ → ✅ Kaldirildi (Zod validation kiriyordu)
 6. ~~Role "nutritionist" vs "dietitian"~~ → ✅ Duzeltildi
 7. ~~Nested profile from getMe~~ → ✅ Flatten edildi
 8. ~~Patient/Appointment field mismatches~~ → ✅ Mapper fonksiyonlari eklendi
 9. ~~Review respond stub~~ → ✅ Backend endpoint + DB kolonu eklendi
 10. ~~Shopping item CRUD eksik~~ → ✅ Backend endpoint'ler eklendi
+11. ~~Mobil checkAuth startup~~ → ✅ RootNavigator'da cagriliyor
+12. ~~Mobil 401 kirik auth state~~ → ✅ logout() tam cagiriliyor
+
+### Devam Eden Sorunlar
+
+| # | Sorun | Oncelik | Etki |
+|---|-------|---------|------|
+| 1 | 22 sayfa setTimeout loading (fetch beklemiyor) | P0 | Sunumda veri yuklenmeden sayfa gorunur |
+| 2 | 15+ sayfa inline mock fallback | P1 | API bos donerse mock gosterir, kullanici fark edemez |
+| 3 | 6 admin sayfasi tamamen mock | P2 | Admin paneli calismiyor |
+| 4 | 57 `as any` cast | P2 | Tip guvenligi zayif, runtime crash potansiyeli |
+| 5 | E2E test hic yapilmadi | P0 | Entegrasyon tamamen teorik |
+| 6 | Gemini key git history'de | P1 | Key rotate edilmeli |
 
 ---
 
@@ -115,7 +129,7 @@ Bu sayfalar inline mock data iceriyor, gercek hook/servis verisiyle degistirilme
   Cozum: auth.service login fonksiyonu kullan
   ```
 
-### 6.5.4 — Uctan Uca Test (1 saat)
+### 6.5.4 — Uctan Uca Test (1 saat) — YAPILMADI
 - [ ] `docker-compose up -d` (backend + DB + seed)
 - [ ] `cd web && npm run dev`
 - [ ] Login testi: elif.kaya@nutriai.com / elif1234
@@ -125,13 +139,19 @@ Bu sayfalar inline mock data iceriyor, gercek hook/servis verisiyle degistirilme
 - [ ] Mesajlar calisiyor mu?
 - [ ] Randevular listeleniyor mu?
 
-### 6.5.5 — Tip Uyumsuzluklari Duzeltme (1-2 saat)
+### 6.5.5 — Tip Uyumsuzluklari Duzeltme (1-2 saat) — KISMEN
 Gercek veriyle ilk test'te kirilacak yerler:
 
-- [ ] Backend response alan adlari vs hook lokal tipleri kontrol
-- [ ] `as unknown as LocalType` cast'larinin dogru calistigini dogrula
+- [x] Backend response alan adlari vs hook lokal tipleri kontrol (mapper fonksiyonlari eklendi)
+- [ ] `as unknown as LocalType` cast'larinin dogru calistigini dogrula (57 as any hala var)
 - [ ] Null/undefined handling — backend bos donerken sayfalarin crash etmemesi
 - [ ] Tarih formatlari — backend ISO string, frontend parse edebiliyor mu?
+
+### 6.5.6 — setTimeout Loading Fix (2-3 saat) — EKLENDI
+22 sayfada `setTimeout(400-600)` ile loading kapatiliyor. Fetch sonucu beklenmeden sayfa gorunuyor.
+
+- [ ] Tum 22 sayfada setTimeout → await fetch sonrasi setIsLoading(false)
+- [ ] Etkilenen sayfalar: dashboard, patient-list, patient-detail, patient-report, appointments, messages, meal-review, recipes, recipe-detail, reviews, shopping-lists, notifications, invite-code, settings, reports, live-tracking, + 6 admin
 
 ### Dogrulama
 ```bash
@@ -159,23 +179,23 @@ cd web && npm run dev
 > **Hedef:** Mobil uygulama gercek backend'e baglanmali
 
 ### 7.1 — API Client Ayari (15 dk)
-- [x] 
+- [x] 
   ```
   API_URL: __DEV__ ? "http://10.0.2.2:3000/api" : "https://api.nutriai.app/v1"
   SOCKET_URL: __DEV__ ? "http://10.0.2.2:3000" : "wss://api.nutriai.app"
   ```
   (10.0.2.2 = Android emulator'den host makineye erisim)
-- [ ] `mobile/src/services/api/client.ts` → axios instance'i dogrula
+- [x] `mobile/src/services/api/client.ts` → axios instance dogrulandi (token interceptor + 401 logout)
 
 ### 7.2 — Auth Entegrasyonu (1 saat)
-- [x] 
+- [x] 
   ```
   Mevcut: Tum fonksiyonlar mockUser donderiyor
   Hedef: apiClient.post("/auth/login"), apiClient.get("/auth/me") vb.
   ```
 - [ ] Login/Register ekranlarini test et
 - [ ] Token persist (AsyncStorage) dogrula
-- [ ] 401 → auto-logout
+- [x] 401 → auto-logout (client.ts interceptor'da useAuthStore.getState().logout())
 
 ### 7.3 — API Modulleri Gecisi (3-4 saat)
 Her modul icin: `USE_MOCK = true` → gercek API cagrilari
@@ -199,16 +219,16 @@ Her modul icin: `USE_MOCK = true` → gercek API cagrilari
 
 ### 7.4 — Ekran Testi (2 saat)
 Kritik 10 ekrani gercek veriyle test et:
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
 
 ### 7.5 — Kamera + Upload (opsiyonel, sunumda etkileyici)
 - [ ] Expo Camera ile foto cek
@@ -237,10 +257,10 @@ cd mobile && npx expo start
 > **Hedef:** AI chat + ogun foto analizi calisir
 
 ### 8.1 — Gemini API Baglantisi (30 dk)
-- [x] 
-- [ ] `backend/.env` → `GEMINI_API_KEY=...` ekle
-- [ ] `backend/src/services/ai.service.ts` → key kontrolu, fallback mesaji
-- [ ] `/api/ai/chat` endpoint'ini test et (curl veya Postman)
+- [x] 
+- [x] `backend/.env` → `GEMINI_API_KEY` eklendi (key git history'de — rotate edilmeli)
+- [x] `backend/src/services/ai.service.ts` → key kontrolu + fallback mesaji mevcut
+- [ ] `/api/ai/chat` endpoint'ini test et (curl veya Postman) — HENUZ TEST EDILMEDI
 
 ### 8.2 — Ogun Foto Analizi (1 saat)
 - [ ] `POST /api/ai/analyze-meal` → Gemini Vision API'ye resim gonder
@@ -249,7 +269,7 @@ cd mobile && npx expo start
 - [ ] Mobil'de CameraCaptureScreen → foto cek → analiz et
 
 ### 8.3 — AI Chat Iyilestirme (30 dk)
-- [x] 
+- [x] 
 - [ ] Chat gecmisi (son 10 mesaj) context olarak gonder
 - [ ] Streaming response (opsiyonel, SSE)
 
@@ -280,19 +300,19 @@ curl -X POST http://localhost:3000/api/ai/chat \
 
 ### 9.1 — opsu-explorer ile Codebase Audit (1 saat)
 Custom agent `opsu-explorer` kullanarak:
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
 
 ### 9.2 — visual-god ile UI Review (1 saat)
 Custom agent `visual-god` kullanarak:
-- [x] 
-- [x] 
-- [x] 
-- [x] 
-- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
 
 ### 9.3 — Backend Test Tamamlama (1 saat)
 - [ ] Auth flow testi (register → login → refresh → me)
@@ -312,18 +332,19 @@ Custom agent `visual-god` kullanarak:
 
 ### 9.5 — Bug Fix Sprint (1-2 saat)
 Audit'lerden cikan sorunlari duzelt:
-- [x] 
-- [x] 
-- [x] 
+- [x] 10 kritik bug fix (commit 5696f7a): snake_case transform, role mismatch, field mapping, vb.
+- [x] 5 gorsel fix: emoji icon, typing indicator, empty state, panel width, tab animation
+- [x] Deploy config: vercel.json, railway.json
+- [ ] **KALAN:** 22 sayfa setTimeout loading, 15+ sayfa inline mock fallback, 57 as any cast
 
 ### 9.6 — Seed Data Zenginlestirme (30 dk)
 Sunumda gosterilecek gercekci veri:
-- [x] 
-- [x] 
-- [x] 
+- [x] 
+- [x] 
+- [x] 
 - [ ] Mesaj konusmalari
-- [x] 
-- [x] 
+- [x] 
+- [x] 
 
 ### Dogrulama
 ```bash
@@ -362,12 +383,12 @@ cd web && npm run build       # Web build
 - [ ] Veya: sunumda emulator uzerinden goster (daha guvenli)
 
 ### 10.4 — Production Checklist
-- [ ] JWT secret → guclu random string
+- [ ] JWT secret → guclu random string (suan zayif fallback: "nutriai-dev-secret")
 - [ ] CORS → sadece production domain'e izin ver
 - [ ] Rate limiting → production degerleri
-- [x] 
+- [x] Helmet guvenlik header'lari (mevcut)
 - [ ] HTTPS zorunlu
-- [ ] `.env.example` dosyalari guncelle
+- [x] `.env.example` dosyalari guncellendi (backend + web)
 
 ### 10.5 — Yedek Plan (sunumda bir sey bozulursa)
 - [ ] Backend cokerse → web'de graceful error mesajlari
@@ -512,11 +533,11 @@ Ne zaman: Faz 9'da polish asamasinda
 
 | Endpoint | Durum | Not |
 |----------|-------|-----|
-| `POST /api/reviews/:id/respond` | STUB | review.service.ts bos obje donderiyor |
-| `GET /api/tracking/aggregate` | YOK | Diyetisyen icin tum hastalarin ozeti — live-tracking hook buna ihtiyac duyuyor |
+| ~~`POST /api/reviews/:id/respond`~~ | ✅ EKLENDI | review.service.ts + controller + route + DB kolonu |
+| `GET /api/tracking/aggregate` | YOK | Diyetisyen icin tum hastalarin ozeti — live-tracking hook buna ihtiyac duyuyor (workaround: getPatients) |
 | `DELETE /api/reports/:id` | YOK | Rapor silme backend'de yok |
-| `POST /api/shopping-lists/:id/items` | YOK | Alisveris listesine oge ekleme |
-| `DELETE /api/shopping-lists/items/:id` | YOK | Alisveris listesinden oge silme |
+| ~~`POST /api/shopping-lists/:id/items`~~ | ✅ EKLENDI | shopping.controller + service + routes |
+| ~~`DELETE /api/shopping-lists/items/:id`~~ | ✅ EKLENDI | shopping.controller + service + routes |
 | `POST /api/ai/suggestions` | YOK | AI oneri accept/dismiss |
 
-> Bu endpoint'ler sunuma kadar eklenmeli veya frontend'de graceful fallback olmali.
+> Kalan 3 endpoint sunuma kadar eklenmeli veya frontend'de graceful fallback olmali.

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL, STORAGE_KEYS } from '@/lib/constants';
 import { storage } from '@/services/storage';
+import { useAuthStore } from '@/stores/authStore';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -29,8 +30,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
       if (status === 401) {
-        // Token expired - could trigger logout
-        storage.remove(STORAGE_KEYS.AUTH_TOKEN);
+        // Token expired - clear token and full auth state
+        useAuthStore.getState().logout();
       }
     }
     return Promise.reject(error);

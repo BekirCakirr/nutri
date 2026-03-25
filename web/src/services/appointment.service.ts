@@ -20,13 +20,25 @@ import type { Appointment } from "@/types/appointment";
 export type { Appointment };
 
 function mapAppointment(raw: any): any {
+  // Map backend status to frontend expected values
+  const statusMap: Record<string, string> = {
+    scheduled: 'scheduled',
+    confirmed: 'scheduled',
+    completed: 'completed',
+    cancelled: 'cancelled',
+    no_show: 'no_show',
+    noShow: 'no_show',
+  };
+
   return {
     ...raw,
     date: raw.date ?? raw.appointmentDate ?? '',
     startTime: raw.startTime ?? '',
     endTime: raw.endTime ?? '',
     patientName: raw.patientName ?? ([raw.patientFirstName, raw.patientLastName].filter(Boolean).join(' ') || 'Hasta'),
-    nutritionistId: raw.nutritionistId ?? raw.dietitianId ?? '',
+    nutritionistId: raw.dietitianId ?? raw.nutritionistId ?? '',
+    dietitianId: raw.dietitianId ?? raw.nutritionistId ?? '',
+    status: statusMap[raw.status] ?? raw.status ?? 'scheduled',
     type: raw.type === 'online' ? 'consultation' : raw.type === 'in_person' ? 'follow_up' : raw.type ?? 'consultation',
     duration: raw.duration ?? raw.durationMinutes ?? 45,
     notes: raw.notes ?? '',

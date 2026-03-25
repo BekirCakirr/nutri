@@ -1,6 +1,6 @@
 # NutriAI — Devam Noktasi
 
-> **Son Guncelleme:** 2026-03-25 (Tum kullanici sayfalari API'ye bagli, %90)
+> **Son Guncelleme:** 2026-03-25 (Gercek durum analizi — durust yuzde hesabi)
 > **Claude:** Bu dosyayi oku, nerede kaldigimizi anla, siradaki isi yap.
 > **Detayli plan icin:** `ROADMAP.md` dosyasina bak.
 
@@ -23,18 +23,26 @@ NutriAI, Turkce konusan diyetisyenler icin yapay zeka destekli beslenme takibi v
 
 ```
 Faz 1-4  UI Gelistirme  ████████████████████ %100  ✅
-Faz 5    Backend         ████████████████████ %100  ✅
+Faz 5    Backend         ██████████████████░░ %95   ✅ (bazi field name uyumsuzluklari kalabilir)
 Faz 6    Web Servisler   ████████████████████ %100  ✅
 Faz 6    Web Hook'lar    ████████████████████ %100  ✅
-Faz 6.5  Web E2E         ████████████████████ %100  ✅
-Faz 7    Mobil Enteg.    ████████████████░░░░ %80   ✅ (test kaldi)
-Faz 8    AI              ██████████████████░░ %90   ✅ (key+chat+sayfa bagli)
-Faz 9    Test+Kalite     ████████████████░░░░ %80   ✅ (audit+10 bug fix)
+Faz 6.5  Web E2E         ██████████████░░░░░░ %65   ⚠️ (22 sayfa hala setTimeout loading, 15+ inline mock fallback)
+Faz 7    Mobil Enteg.    ██████████████░░░░░░ %70   ⚠️ (auth OK, 12/15 API, test edilmedi)
+Faz 8    AI              ██████████████░░░░░░ %70   ⚠️ (backend+hook hazir, key var ama test edilmedi)
+Faz 9    Test+Kalite     ██████████░░░░░░░░░░ %50   ⚠️ (audit yapildi, fix'ler kismen uygulandi, E2E yok)
 Faz 10   Deploy          ██████████░░░░░░░░░░ %50   ⏳ (config hazir, deploy kaldi)
 Faz 11   Sunum           ░░░░░░░░░░░░░░░░░░░░ %0
 ──────────────────────────────────────────────────
-GENEL                    ██████████████████░░ %90   ← BURADAN DEVAM
+GENEL                    ███████████████░░░░░ %78   ← BURADAN DEVAM
 ```
+
+### Neden %78 ve %90 degil?
+- **22 web sayfasi** hala `setTimeout` ile loading kapatıyor — gercek fetch sonucunu beklemiyor
+- **15+ sayfa** inline `const mock*` fallback data iceriyor — API bos donerse mock gosteriyor, kullanici fark edemez
+- **6 admin sayfasi** tamamen mock — API baglantisi yok
+- **57 `as any` cast** web/src genelinde — gercek tip hatalarini gizliyor
+- **Uctan uca test hic yapilmadi** — docker-compose ile canli test yok
+- Mobil uygulama gercek backend'e karsi hic test edilmedi
 
 ---
 
@@ -62,70 +70,97 @@ GENEL                    ██████████████████�
 
 ---
 
-### ✅ Faz 6.5: Web Uctan Uca (2026-03-24)
+### ✅ Faz 6.5: Web Uctan Uca (2026-03-24/25)
 - Socket port fix (3001 → 3000)
-- 4 store mock temizligi (auth, message, notification, patient)
+- 4 store mock temizligi (auth, message, notification, patient) — store'larda mock import kalmadi
 - Auth store tamamen gercek API'ye gecirildi (login, register, checkAuth, updateProfile)
-- 6 sayfa mock temizligi (dashboard, patient-detail, patient-list, plan-creator, reviews, admin/login)
-- Dashboard: hook'lardan gercek veri (hasta sayisi, randevular, dikkat hastalar)
-- Patient detail: usePatientDetail hook + fallback
+- 6 sayfa mock import temizligi (dashboard, patient-detail, patient-list, plan-creator, reviews, admin/login)
+- 10+ sayfa gercek API hook'larina baglandi (appointments, notifications, messages, AI, recipes, shopping, invite-code, meal-review, recipe-detail, patient-report)
+- Backend stub'lar duzeltildi: review respond endpoint + shopping CRUD eklendi
 - Build basarili, 0 TS hatasi
+- **KALAN:** 22 sayfa hala setTimeout-based loading, 15+ sayfa inline mock fallback, 6 admin sayfa tamamen mock
 
 ---
 
 ### ✅ Faz 7 API Modulleri (2026-03-24)
 - constants.ts: dev URL (10.0.2.2:3000 for Android emulator)
 - auth.ts: tamamen yeniden yazildi (login, register, getMe, updateUser, changePassword)
-- meal.ts + food.ts: USE_MOCK = false (hybrid code aktif)
+- meal.ts + food.ts: USE_MOCK = false (hybrid code aktif, mock import hala var fallback icin)
 - 10 modul yeniden yazildi: tracking, appointment, plan, message, notification, dietitian, recipe, shopping, report, ai
 - 3 modul mock kaldi (backend endpoint yok): gamification, family, progress-photo
+- Mobile auth fix: checkAuth startup'ta cagriliyor (RootNavigator), 401'de tam logout
 - TypeScript: API dosyalarinda 0 hata
+- **KALAN:** Hicbir ekran gercek backend'le test edilmedi, meal/food hala mock import iceriyor
 
 ---
 
-## ⏳ SIRADAKI: Faz 7 Ekran Testi + Faz 8 AI
+## ⏳ SIRADAKI: Web Loading Fix + E2E Test + Deploy
 
-### Faz 7 kalan isler
-- [ ] Expo ile emulator'de test (login → dashboard → meal → messages)
-- [ ] Tip uyumsuzluklari duzelt (gercek veriyle kirilacak yerler)
-- [ ] Kamera/upload (opsiyonel)
+### ONCELIK 1: Web setTimeout Loading → Fetch-based (KRITIK)
+22 sayfa `setTimeout(400-600)` ile loading kapatıyor, gercek fetch sonucunu beklemiyor.
+Bu, sunumda "veri yukleniyormus gibi gorunup aslinda bos kalma" sorununa yol acar.
+
+- [ ] dashboard.tsx — setTimeout → await fetch sonrasi setIsLoading(false)
+- [ ] patient-list.tsx, patient-detail.tsx, patient-report.tsx
+- [ ] appointments.tsx, messages.tsx, meal-review.tsx
+- [ ] recipes.tsx, recipe-detail.tsx, reviews.tsx
+- [ ] shopping-lists.tsx, notifications.tsx, invite-code.tsx
+- [ ] settings.tsx, reports.tsx, live-tracking.tsx
+- [ ] 6 admin sayfasi (dashboard, users, dietitians, food-db, recipes, allergens)
+
+### ONCELIK 2: Inline Mock Fallback Temizligi
+15+ sayfa `const mock*` ile fallback data tanimliyor. API bos donerse bu veriler gosteriliyor, kullanici gercek mi mock mu bilemez.
+
+- [ ] messages.tsx (mockConversations, mockMessages)
+- [ ] patient-detail.tsx (mockMeals, mockAppointments, mockMessages, mockPatient)
+- [ ] recipes.tsx (mockRecipes), recipe-detail.tsx (mockRecipe)
+- [ ] shopping-lists.tsx (mockLists)
+- [ ] meal-review.tsx (mockReviews)
+- [ ] invite-code.tsx (mockCodes)
+- [ ] live-tracking.tsx (mockLivePatients)
+- [ ] patient-report.tsx (mockReport)
+
+### ONCELIK 3: Uctan Uca Test (HIC YAPILMADI)
+- [ ] `docker-compose up -d` ile backend + DB calistir
+- [ ] Backend curl testleri (health, login, patients, appointments)
+- [ ] Web tarayici testi (login → dashboard → hasta → mesaj → AI)
+- [ ] Mobil emulator testi (login → dashboard → ogun → mesaj)
+- [ ] Kirilan yerleri duzelt
 
 ### Faz 8 — AI (kismen tamamlandi)
 - Backend AI servisi tam (chat + meal analysis + history)
 - Web + mobil AI hook/servisleri gercek API'ye bagli
-- [ ] **Gemini API key al** (Google AI Studio → ucretsiz) ve `backend/.env` → `GEMINI_API_KEY=...`
-- [ ] AI chat testi (web + mobil)
-- [ ] Ogun foto analizi testi
+- [x] Gemini API key `backend/.env`'de mevcut
+- [ ] AI chat testi (web + mobil) — henuz test edilmedi
+- [ ] Ogun foto analizi testi — henuz test edilmedi
 
-### Seed Data Zenginlestirme (tamamlandi)
-- 3 yeni hasta: Mehmet Kaya (sporcu), Fatma Demir (diyabet), Zeynep Celik (hamilelik)
-- 5 randevu (3 gelecek, 1 gecmis, 1 onaylanmis)
-- 7 bildirim (diyetisyen + hasta)
-- 1 aktif diyet plani (Ayse icin)
-- 10+ ek ogun kaydı (7 gunluk gercekci veri)
-- Egzersiz + uyku kayitlari
-- 1 diyetisyen degerlendirmesi (5 yildiz)
+### Faz 9 kalan
+- [x] Codebase audit yapildi (opsu-explorer + visual-god)
+- [x] 10 kritik bug fix uygulanidi (5696f7a commit)
+- [ ] **as any cast'lari:** 57 adet — tip guvenligi zayif
+- [ ] Backend test tamamlama (auth flow, patient CRUD, meal CRUD)
+- [ ] Web smoke test (tum kritik akislar)
 
-### Faz 9-10 kismen (2026-03-24)
-- .env.example dosyalari: backend + web
-- GitHub Actions CI pipeline (`.github/workflows/ci.yml`) — backend test + web build
-- Root .gitignore olusturuldu
-- docker-compose.yml → seed-foods.sql eklendi (sira duzeltildi)
-- Codebase audit: TODO'lar belgeli, kritik bug yok
+### Faz 10 — Deploy
+- [x] Config dosyalari hazir (vercel.json, railway.json, docker-compose)
+- [ ] Railway'e backend deploy
+- [ ] Vercel'e web deploy
+- [ ] Production URL'lerle test
 
-→ Sonraki: **Uctan uca test** (docker-compose up) + **Gemini key** + **opsu-explorer + visual-god audit**
+→ Sonraki: **setTimeout fix** (en kritik) → **E2E test** (docker-compose up) → **Deploy**
 
 ---
 
-## Sonraki Fazlar (Ozet)
+## Sonraki Fazlar (Guncellenmis Ozet)
 
-| Faz | Ne | Ne Zaman |
-|-----|-----|----------|
-| **7** | Mobil → Backend (13 API modul) | Hafta 2-3 |
-| **8** | AI (Gemini chat + foto analiz) | Hafta 4 |
-| **9** | Test + Audit (opsu-explorer + visual-god) | Hafta 5-6 |
-| **10** | Deploy (Railway + Vercel) | Hafta 7 |
-| **11** | Sunum hazirligi | Hafta 8 |
+| Faz | Ne | Durum | Kalan Is |
+|-----|-----|-------|----------|
+| **6.5** | Web E2E | %65 | setTimeout fix, mock fallback temizligi |
+| **7** | Mobil Entegrasyon | %70 | E2E test, tip duzeltmeleri |
+| **8** | AI | %70 | Gemini test (chat + foto) |
+| **9** | Test + Kalite | %50 | as any temizligi, backend test, smoke test |
+| **10** | Deploy | %50 | Railway + Vercel deploy |
+| **11** | Sunum hazirligi | %0 | Demo senaryo, materyal, video |
 
 > **Detaylar icin:** `ROADMAP.md` dosyasina bak
 
@@ -156,14 +191,20 @@ GENEL                    ██████████████████�
 | # | Sorun | Durum |
 |---|-------|-------|
 | 1 | ~~Socket port 3001 vs 3000~~ | ✅ Duzeltildi |
-| 2 | ~~Store mock init~~ | ✅ Duzeltildi |
-| 3 | ~~Sayfa inline mock data~~ | ✅ Duzeltildi |
-| 4 | ~~Mobil API mock~~ | ✅ 12/15 gercek API |
+| 2 | ~~Store mock init~~ | ✅ Duzeltildi (store'larda mock import kalmadi) |
+| 3 | Sayfa inline mock fallback data (15+ sayfa) | ⚠️ `const mock*` hala var, API bos donerse mock gosteriliyor |
+| 4 | ~~Mobil API mock~~ | ✅ 12/15 gercek API (gamification/family/photo mock) |
 | 5 | ~~Review respond stub~~ | ✅ Backend endpoint eklendi |
 | 6 | Backend live-tracking aggregate yok | ⚠️ Workaround: getPatients kullaniliyor |
-| 7 | ~~Gemini API key bos~~ | ✅ Key eklendi |
+| 7 | ~~Gemini API key bos~~ | ✅ Key .env'de mevcut |
 | 8 | Mobil gamification/family/photo mock | ⚠️ Backend endpoint yok, mock kalacak |
-| 9 | Uctan uca test yapilmadi | ⏳ docker-compose up gerekli |
+| 9 | **Uctan uca test HIC yapilmadi** | ❌ docker-compose ile canli test yok |
+| 10 | **22 sayfa setTimeout loading** | ❌ Fetch sonucu beklenmiyor, 400-600ms timer ile kapaniyor |
+| 11 | **6 admin sayfasi tamamen mock** | ⚠️ API baglantisi yok |
+| 12 | **57 `as any` cast** web/src genelinde | ⚠️ Gercek tip hatalarini gizliyor |
+| 13 | ~~Mobil checkAuth startup'ta cagrilmiyor~~ | ✅ RootNavigator'da cagiriliyor |
+| 14 | ~~Mobil 401: token siliniyor user state kaliyor~~ | ✅ logout() tam cagiriliyor |
+| 15 | Gemini API key git history'de gorunuyor | ⚠️ Key rotate edilmeli (commit 5696f7a mesajinda) |
 
 ---
 
@@ -173,6 +214,21 @@ GENEL                    ██████████████████�
 - **UI dili:** Tum arayuz metinleri Turkce, profesyonel/medikal ton
 - **Tasarim:** "Organik Profesyonel" — botanik + modern saglik dashboard
 - **Font:** Outfit | **Renkler:** OKLCH, orman yesili primary | **Radius:** 10px
+
+---
+
+## Gercekci Zaman Tahmini (Finale Kadar)
+
+| Adim | Sure | Etki |
+|------|------|------|
+| setTimeout → fetch-based loading (22 sayfa) | 2-3 saat | %78 → %82 |
+| Mock fallback temizligi (15 sayfa) | 1-2 saat | %82 → %85 |
+| E2E test (docker-compose) + fix'ler | 2-3 saat | %85 → %88 |
+| AI test (Gemini chat + foto) | 1 saat | %88 → %90 |
+| Admin sayfalari API'ye baglama | 2-3 saat | %90 → %93 |
+| Deploy (Railway + Vercel) | 1-2 saat | %93 → %95 |
+| Sunum hazirligi | 2 saat | %95 → %98 |
+| **TOPLAM** | **~12-17 saat** | **%98** |
 
 ---
 

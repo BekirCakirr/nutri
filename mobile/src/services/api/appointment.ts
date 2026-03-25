@@ -2,9 +2,13 @@ import type { Appointment } from '@/types';
 import apiClient from './client';
 
 export async function getAppointments(): Promise<Appointment[]> {
-  const { data } = await apiClient.get('/appointments');
-  const items = data.data ?? data ?? [];
-  return Array.isArray(items) ? items : [];
+  try {
+    const { data } = await apiClient.get('/appointments');
+    const items = data.data ?? data ?? [];
+    return Array.isArray(items) ? items : [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getUpcomingAppointment(): Promise<Appointment | null> {
@@ -20,17 +24,25 @@ export async function bookAppointment(apptData: {
   type: 'online' | 'in_person';
   notes?: string;
 }): Promise<Appointment> {
-  const { data } = await apiClient.post('/appointments', {
-    scheduledAt: `${apptData.date}T${apptData.time}:00`,
-    durationMinutes: apptData.duration,
-    appointmentType: apptData.type,
-    notes: apptData.notes,
-  });
-  return (data.data ?? data) as Appointment;
+  try {
+    const { data } = await apiClient.post('/appointments', {
+      scheduledAt: `${apptData.date}T${apptData.time}:00`,
+      durationMinutes: apptData.duration,
+      appointmentType: apptData.type,
+      notes: apptData.notes,
+    });
+    return (data.data ?? data) as Appointment;
+  } catch {
+    throw new Error('Randevu oluşturulamadı');
+  }
 }
 
 export async function cancelAppointment(id: string): Promise<void> {
-  await apiClient.patch(`/appointments/${id}/status`, { status: 'cancelled' });
+  try {
+    await apiClient.patch(`/appointments/${id}/status`, { status: 'cancelled' });
+  } catch {
+    throw new Error('Randevu iptal edilemedi');
+  }
 }
 
 export async function rescheduleAppointment(
@@ -38,9 +50,13 @@ export async function rescheduleAppointment(
   date: string,
   time: string,
 ): Promise<Appointment> {
-  const { data } = await apiClient.patch(`/appointments/${id}/status`, {
-    status: 'scheduled',
-    scheduledAt: `${date}T${time}:00`,
-  });
-  return (data.data ?? data) as Appointment;
+  try {
+    const { data } = await apiClient.patch(`/appointments/${id}/status`, {
+      status: 'scheduled',
+      scheduledAt: `${date}T${time}:00`,
+    });
+    return (data.data ?? data) as Appointment;
+  } catch {
+    throw new Error('Randevu yeniden planlanamadı');
+  }
 }

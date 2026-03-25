@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { toast } from 'sonner'
 import {
   CalendarDays,
   Plus,
@@ -192,14 +193,20 @@ function formatDate(dateStr: string): string {
 export default function AppointmentsPage() {
   const [view, setView] = useState<'week' | 'list'>('week')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { appointments: rawAppointments, fetchAppointments } = useAppointments()
+  const { appointments: rawAppointments, fetchAppointments, error: appointmentsError } = useAppointments()
 
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    fetchAppointments()
-    const t = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(t)
+    const load = async () => {
+      try { await fetchAppointments() } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
+
+  useEffect(() => {
+    if (appointmentsError) toast.error(appointmentsError)
+  }, [appointmentsError])
 
   // Map API appointments to local type
   const allAppointments: AppointmentItem[] = useMemo(() =>

@@ -43,7 +43,7 @@ const monthlyStats = [
 
 export default function AdminReportsPage() {
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
 
   if (isLoading) return <DashboardSkeleton />
 

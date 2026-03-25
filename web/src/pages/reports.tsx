@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText,
@@ -32,8 +32,9 @@ import { StatCard } from '@/components/shared/stat-card'
 import { CalorieChart } from '@/components/charts/calorie-chart'
 import { WeeklySummaryChart } from '@/components/charts/weekly-summary-chart'
 import { MealComplianceChart } from '@/components/charts/meal-compliance-chart'
-import { TrendSparkline } from '@/components/charts/trend-sparkline'
+// TrendSparkline removed — not used in this page
 import { cn } from '@/lib/utils'
+import { usePatients } from '@/hooks/use-patients'
 
 /* ------------------------------------------------------------------ */
 /*  Mock data                                                          */
@@ -63,13 +64,7 @@ const reportTypes = [
   },
 ] as const
 
-const patientSummary = [
-  { id: '1', name: 'Ayse Yilmaz', adherence: 87, avgCalories: 1720, meals: 28, weight: '-0.5 kg', status: 'active' as const },
-  { id: '2', name: 'Mehmet Kaya', adherence: 72, avgCalories: 1580, meals: 24, weight: '-0.3 kg', status: 'active' as const },
-  { id: '3', name: 'Fatma Demir', adherence: 95, avgCalories: 2150, meals: 30, weight: '+0.2 kg', status: 'active' as const },
-  { id: '5', name: 'Zeynep Celik', adherence: 81, avgCalories: 1650, meals: 26, weight: '-0.4 kg', status: 'active' as const },
-  { id: '4', name: 'Ali Ozturk', adherence: 60, avgCalories: 1480, meals: 20, weight: '-0.1 kg', status: 'paused' as const },
-]
+// patientSummary is now derived from the usePatients hook inside the component
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -109,11 +104,28 @@ export default function ReportsPage() {
   const navigate = useNavigate()
   const [reportType, setReportType] = useState('weekly')
   const [selectedPatient, setSelectedPatient] = useState('all')
+  const { patients: allPatients, isLoading: patientsLoading } = usePatients()
 
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  // Derive patient summary from real patient data
+  const patientSummary = useMemo(() =>
+    allPatients.map((p: any) => ({
+      id: p.id,
+      name: `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || 'Hasta',
+      adherence: p.adherenceScore ?? 0,
+      avgCalories: p.avgCalories ?? 0,
+      meals: p.totalMeals ?? 0,
+      weight: p.weightChange ? `${p.weightChange > 0 ? '+' : ''}${p.weightChange} kg` : '-',
+      status: p.status ?? 'active',
+    })),
+    [allPatients],
+  )
 
-  if (isLoading) return <DashboardSkeleton />
+  const activePatientCount = allPatients.filter((p: any) => p.status === 'active').length
+  const avgAdherence = allPatients.length > 0
+    ? Math.round(allPatients.reduce((sum: number, p: any) => sum + (p.adherenceScore ?? 0), 0) / allPatients.length)
+    : 0
+
+  if (patientsLoading) return <DashboardSkeleton />
 
   return (
     <PageContainer
@@ -186,10 +198,9 @@ export default function ReportsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tum Hastalar</SelectItem>
-                  <SelectItem value="1">Ayse Yilmaz</SelectItem>
-                  <SelectItem value="2">Mehmet Kaya</SelectItem>
-                  <SelectItem value="3">Fatma Demir</SelectItem>
-                  <SelectItem value="5">Zeynep Celik</SelectItem>
+                  {patientSummary.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -201,34 +212,27 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
         <StatCard
           title="Aktif Hasta"
-          value={42}
+          value={activePatientCount}
           icon={Users}
-          trend="up"
-          trendLabel="+5 bu ay"
           color="blue"
           featured
-          sparkline={<TrendSparkline data={[35, 37, 38, 40, 41, 42, 42]} height={28} width={100} />}
         />
         <StatCard
           title="Ort. Uyum"
-          value="%78"
+          value={`%${avgAdherence}`}
           icon={Target}
-          trend="up"
-          trendLabel="%3 artis"
           color="green"
         />
         <StatCard
-          title="Toplam Ogun"
-          value={856}
+          title="Toplam Hasta"
+          value={allPatients.length}
           icon={Utensils}
           color="yellow"
         />
         <StatCard
-          title="Randevu"
-          value={24}
+          title="Raporlar"
+          value={patientSummary.length}
           icon={Activity}
-          trend="down"
-          trendLabel="2 iptal"
           color="purple"
         />
       </div>

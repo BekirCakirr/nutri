@@ -35,8 +35,12 @@ export async function searchFoods(query: string): Promise<Food[]> {
     const lower = query.toLowerCase();
     return mockFoods.filter((f) => f.name.toLowerCase().includes(lower));
   }
-  const { data } = await apiClient.get('/foods', { params: { q: query } });
-  return (data.data.foods || []).map(mapDbFoodToMobile);
+  try {
+    const { data } = await apiClient.get('/foods', { params: { q: query } });
+    return (data.data.foods || []).map(mapDbFoodToMobile);
+  } catch {
+    return [];
+  }
 }
 
 export async function getFoodById(id: string): Promise<Food | null> {
@@ -44,8 +48,12 @@ export async function getFoodById(id: string): Promise<Food | null> {
     await delay(300);
     return mockFoods.find((f) => f.id === id) ?? null;
   }
-  const { data } = await apiClient.get(`/foods/${id}`);
-  return data.data ? mapDbFoodToMobile(data.data) : null;
+  try {
+    const { data } = await apiClient.get(`/foods/${id}`);
+    return data.data ? mapDbFoodToMobile(data.data) : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getFoodByBarcode(barcode: string): Promise<Food | null> {
@@ -53,8 +61,12 @@ export async function getFoodByBarcode(barcode: string): Promise<Food | null> {
     await delay(700);
     return mockFoods[0];
   }
-  const { data } = await apiClient.get(`/foods/barcode/${barcode}`);
-  return data.data ? mapDbFoodToMobile(data.data) : null;
+  try {
+    const { data } = await apiClient.get(`/foods/barcode/${barcode}`);
+    return data.data ? mapDbFoodToMobile(data.data) : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getRecentFoods(): Promise<Food[]> {
@@ -62,9 +74,13 @@ export async function getRecentFoods(): Promise<Food[]> {
     await delay(400);
     return mockFoods.slice(0, 10);
   }
-  // For now, return last searched foods from API
-  const { data } = await apiClient.get('/foods', { params: { limit: 10 } });
-  return (data.data.foods || []).map(mapDbFoodToMobile);
+  try {
+    // For now, return last searched foods from API
+    const { data } = await apiClient.get('/foods', { params: { limit: 10 } });
+    return (data.data.foods || []).map(mapDbFoodToMobile);
+  } catch {
+    return [];
+  }
 }
 
 export async function getFavoriteFoods(): Promise<Food[]> {
@@ -72,9 +88,13 @@ export async function getFavoriteFoods(): Promise<Food[]> {
     await delay(400);
     return mockFoods.slice(5, 15);
   }
-  // Favorites not yet implemented on backend, return popular foods
-  const { data } = await apiClient.get('/foods', { params: { limit: 10 } });
-  return (data.data.foods || []).map(mapDbFoodToMobile);
+  try {
+    // Favorites not yet implemented on backend, return popular foods
+    const { data } = await apiClient.get('/foods', { params: { limit: 10 } });
+    return (data.data.foods || []).map(mapDbFoodToMobile);
+  } catch {
+    return [];
+  }
 }
 
 export async function toggleFoodFavorite(foodId: string): Promise<boolean> {

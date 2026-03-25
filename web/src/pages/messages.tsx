@@ -210,9 +210,11 @@ export default function MessagesPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchConversations()
-    const t = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(t)
+    const load = async () => {
+      try { await fetchConversations() } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
 
   // Map hook conversations to local type (fallback to mock for demo)

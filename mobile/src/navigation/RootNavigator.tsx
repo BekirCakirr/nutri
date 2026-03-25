@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import type { RootStackParamList } from './types'
 import { useAuthStore } from '../stores/authStore'
@@ -23,6 +24,11 @@ const Stack = createStackNavigator<RootStackParamList>()
 export default function RootNavigator() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const isOnboarded = useAuthStore((s) => s.isOnboarded)
+  const checkAuth = useAuthStore((s) => s.checkAuth)
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
 
   return (
     <Stack.Navigator
