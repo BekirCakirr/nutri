@@ -17,8 +17,9 @@ import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { cn } from '@/lib/utils'
+import { getNotifications, markAsRead, markAllRead as markAllAsRead } from '@/services/notification.service'
 
-const typeConfig = {
+const typeConfig: Record<string, { icon: any; color: string }> = {
   meal: {
     icon: UtensilsCrossed,
     color: 'text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/30',
@@ -41,26 +42,59 @@ const typeConfig = {
   },
 } as const
 
-const mockNotifications = [
-  { id: '1', type: 'meal' as const, title: 'Yeni Ogun Kaydı', message: 'Ayse Yılmaz ogle yemegi kaydetti', time: '5 dk once', read: false },
-  { id: '2', type: 'appointment' as const, title: 'Randevu Hatırlatması', message: 'Mehmet Kaya ile 14:00 randevunuz var', time: '30 dk once', read: false },
-  { id: '3', type: 'message' as const, title: 'Yeni Mesaj', message: 'Fatma Demir size mesaj gonderdi', time: '1 saat once', read: false },
-  { id: '4', type: 'alert' as const, title: 'Uyarı', message: 'Hasan Yıldız 3 gundur ogun kaydı yapmadı', time: '2 saat once', read: true },
-  { id: '5', type: 'system' as const, title: 'Sistem', message: 'Yeni guncelleme mevcut: v2.1.0', time: '1 gun once', read: true },
-  { id: '6', type: 'meal' as const, title: 'Ogun Onayı Bekliyor', message: 'Zeynep Celik kahvaltı kaydı onay bekliyor', time: '1 gun once', read: true },
-]
+interface NotificationItem {
+  id: string
+  type: 'meal' | 'appointment' | 'message' | 'alert' | 'system' | string
+  title: string
+  message: string
+  time: string
+  read: boolean
+}
+
+function mapNotificationType(type: string): string {
+  const map: Record<string, string> = {
+    meal_review: 'meal', plan_update: 'system', achievement: 'system',
+  }
+  return map[type] ?? type
+}
+
+function timeAgo(dateStr: string): string {
+  if (!dateStr) return ''
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${mins} dk önce`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} saat önce`
+  return `${Math.floor(hours / 24)} gün önce`
+}
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(mockNotifications)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [activeTab, setActiveTab] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  useEffect(() => {
+    getNotifications().then((data: any[]) => {
+      const mapped = data.map((n: any) => ({
+        id: n.id,
+        type: mapNotificationType(n.type ?? 'system'),
+        title: n.title ?? '',
+        message: n.body ?? n.message ?? '',
+        time: timeAgo(n.createdAt ?? ''),
+        read: n.isRead ?? n.read ?? false,
+      }))
+      setNotifications(mapped)
+      setIsLoading(false)
+    }).catch(() => setIsLoading(false))
+  }, [])
 
   const markAllRead = () => {
+    markAllAsRead().catch(() => {})
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
   }
 
   const markRead = (id: string) => {
+    markAsRead(id).catch(() => {})
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
   }
 

@@ -41,6 +41,7 @@ import { CalendarSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PageContainer } from '@/components/shared/page-container'
 import { cn } from '@/lib/utils'
+import { useAppointments } from '@/hooks/use-appointments'
 
 /* ─── Types ─────────────────────────────────────── */
 
@@ -56,18 +57,27 @@ interface AppointmentItem {
   notes?: string
 }
 
-/* ─── Mock data ─────────────────────────────────── */
+/* ─── Type mapping ──────────────────────────────── */
 
-const mockAppointments: AppointmentItem[] = [
-  { id: '1', patientName: 'Ayşe Yılmaz', date: '2026-03-03', time: '10:00', endTime: '10:45', type: 'takip', mode: 'video', status: 'upcoming' },
-  { id: '2', patientName: 'Mehmet Kaya', date: '2026-03-03', time: '11:00', endTime: '11:30', type: 'kontrol', mode: 'in_person', status: 'upcoming' },
-  { id: '3', patientName: 'Fatma Demir', date: '2026-03-03', time: '14:00', endTime: '14:45', type: 'ilk görüşme', mode: 'video', status: 'upcoming' },
-  { id: '4', patientName: 'Zeynep Çelik', date: '2026-03-04', time: '09:00', endTime: '09:45', type: 'takip', mode: 'phone', status: 'upcoming' },
-  { id: '5', patientName: 'Burak Şahin', date: '2026-03-04', time: '11:00', endTime: '11:45', type: 'ilk görüşme', mode: 'video', status: 'upcoming' },
-  { id: '6', patientName: 'Elif Arslan', date: '2026-02-27', time: '10:00', endTime: '10:45', type: 'takip', mode: 'video', status: 'completed' },
-  { id: '7', patientName: 'Ali Öztürk', date: '2026-02-26', time: '14:00', endTime: '14:30', type: 'kontrol', mode: 'in_person', status: 'completed' },
-  { id: '8', patientName: 'Hasan Yıldız', date: '2026-02-25', time: '09:00', endTime: '09:45', type: 'acil', mode: 'video', status: 'cancelled' },
-]
+function mapTypeLabel(type: string): AppointmentItem['type'] {
+  const map: Record<string, AppointmentItem['type']> = {
+    consultation: 'kontrol', follow_up: 'takip', assessment: 'ilk görüşme', initial: 'ilk görüşme',
+    online: 'kontrol', in_person: 'kontrol',
+  }
+  return map[type] ?? 'kontrol'
+}
+
+function mapStatus(status: string): AppointmentItem['status'] {
+  if (status === 'scheduled' || status === 'confirmed') return 'upcoming'
+  if (status === 'completed') return 'completed'
+  return 'cancelled'
+}
+
+function mapMode(type: string): AppointmentItem['mode'] {
+  if (type === 'online' || type === 'consultation') return 'video'
+  if (type === 'in_person' || type === 'follow_up') return 'in_person'
+  return 'video'
+}
 
 /* ─── Calendar config ───────────────────────────── */
 
@@ -182,17 +192,37 @@ function formatDate(dateStr: string): string {
 export default function AppointmentsPage() {
   const [view, setView] = useState<'week' | 'list'>('week')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { appointments: rawAppointments, fetchAppointments } = useAppointments()
 
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => {
+    fetchAppointments()
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Map API appointments to local type
+  const allAppointments: AppointmentItem[] = useMemo(() =>
+    rawAppointments.map((a: any) => ({
+      id: a.id,
+      patientName: a.patientName ?? 'Hasta',
+      date: a.date ?? '',
+      time: a.startTime ?? '',
+      endTime: a.endTime ?? '',
+      type: mapTypeLabel(a.type),
+      mode: mapMode(a.type),
+      status: mapStatus(a.status),
+      notes: a.notes,
+    }))
+  , [rawAppointments])
 
   const upcomingAppointments = useMemo(
-    () => mockAppointments.filter((a) => a.status === 'upcoming'),
-    []
+    () => allAppointments.filter((a) => a.status === 'upcoming'),
+    [allAppointments]
   )
   const pastAppointments = useMemo(
-    () => mockAppointments.filter((a) => a.status !== 'upcoming'),
-    []
+    () => allAppointments.filter((a) => a.status !== 'upcoming'),
+    [allAppointments]
   )
 
   if (isLoading) return <CalendarSkeleton />
@@ -425,7 +455,7 @@ export default function AppointmentsPage() {
                         {weekDayLabels.map((_, dayIdx) => {
                           const dateStr = `${weekMonthPrefix}${weekDates[dayIdx]}`
                           const isToday = weekDates[dayIdx] === todayDate
-                          const apt = mockAppointments.find(
+                          const apt = allAppointments.find(
                             (a) => a.date === dateStr && a.time === hour && a.status === 'upcoming'
                           )
                           const colors = apt ? typeColors[apt.type] : null

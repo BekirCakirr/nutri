@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useRecipes } from '@/hooks/use-recipes'
 import { useNavigate } from 'react-router-dom'
 import { Search, Sparkles, Clock, Flame, ChefHat, ImageIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -46,19 +47,36 @@ const difficultyColor = {
 
 export default function RecipesPage() {
   const navigate = useNavigate()
+  const { allRecipes, fetchRecipes } = useRecipes()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('Tümü')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  useEffect(() => {
+    fetchRecipes()
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Map hook recipes to local type, fallback to mock
+  const recipeList = allRecipes.length > 0
+    ? allRecipes.map((r: any) => ({
+      id: r.id, title: r.name ?? r.title ?? '', category: r.category ?? '',
+      calories: r.calories ?? 0, prepTime: r.preparationTime ?? r.prepTime ?? 0,
+      image: r.imageUrl ?? r.image ?? '', difficulty: r.difficulty ?? 'medium',
+      protein: r.protein ?? 0, carbs: r.carbohydrates ?? r.carbs ?? 0, fat: r.fat ?? 0,
+      servings: r.servings ?? 1,
+    } as any))
+    : mockRecipes
 
   const filtered = useMemo(
     () =>
-      mockRecipes.filter((r) => {
-        const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
+      recipeList.filter((r: any) => {
+        const matchesSearch = (r.title ?? '').toLowerCase().includes(search.toLowerCase())
         const matchesCategory = category === 'Tümü' || r.category === category
         return matchesSearch && matchesCategory
       }),
-    [search, category]
+    [search, category, recipeList]
   )
 
   if (isLoading) return <ListPageSkeleton />
@@ -107,7 +125,7 @@ export default function RecipesPage() {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-1.5">
                 <Badge variant="outline" className="text-[10px]">{recipe.category}</Badge>
-                <Badge variant={difficultyColor[recipe.difficulty]} className="text-[10px]">{recipe.difficulty}</Badge>
+                <Badge variant={(difficultyColor as any)[recipe.difficulty] ?? 'secondary'} className="text-[10px]">{recipe.difficulty}</Badge>
               </div>
               <h3 className="font-semibold text-sm leading-tight">{recipe.title}</h3>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">

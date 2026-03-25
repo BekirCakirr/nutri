@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { useMessages } from '@/hooks/use-messages'
 import { ChatSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 
@@ -195,24 +196,70 @@ function ChatBubble({ message }: { message: Message }) {
 
 export default function MessagesPage() {
   const { conversationId } = useParams()
-  const [selectedConversation, setSelectedConversation] = useState(conversationId || '1')
+  const {
+    conversations: hookConversations,
+    activeMessages: hookMessages,
+    fetchConversations,
+    openConversation,
+    sendMessage: hookSend,
+  } = useMessages()
+  const [selectedConversation, setSelectedConversation] = useState(conversationId || '')
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list')
   const [search, setSearch] = useState('')
   const [newMessage, setNewMessage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
-  const filteredConversations = mockConversations.filter((c) =>
+  useEffect(() => {
+    fetchConversations()
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Map hook conversations to local type (fallback to mock for demo)
+  const conversations: Conversation[] = hookConversations.length > 0
+    ? hookConversations.map((c: any) => ({
+      id: c.id,
+      patientName: c.participantName ?? c.name ?? 'Hasta',
+      lastMessage: c.lastMessage ?? c.lastMessageText ?? '',
+      lastMessageTime: c.lastMessageAt ? new Date(c.lastMessageAt).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' }) : '',
+      unreadCount: c.unreadCount ?? 0,
+      isOnline: c.isOnline ?? false,
+      isTyping: false,
+    }))
+    : mockConversations
+
+  // Map hook messages to local type
+  const mappedMessages: Message[] = hookMessages.length > 0
+    ? hookMessages.map((m: any) => ({
+      id: m.id,
+      text: m.content ?? m.text ?? '',
+      time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' }) : '',
+      date: m.createdAt ? new Date(m.createdAt).toLocaleDateString('tr') : 'Bugün',
+      isOwn: m.isOwn ?? m.senderRole === 'dietitian',
+      status: 'read' as const,
+    }))
+    : (mockMessages[selectedConversation] || [])
+
+  const filteredConversations = conversations.filter((c) =>
     c.patientName.toLowerCase().includes(search.toLowerCase())
   )
 
-  const currentConversation = mockConversations.find((c) => c.id === selectedConversation)
-  const currentMessages = mockMessages[selectedConversation] || []
+  const currentConversation = conversations.find((c) => c.id === selectedConversation)
+  const currentMessages = mappedMessages
   const groupedMessages = groupMessagesByDate(currentMessages)
 
   const handleSend = () => {
     if (!newMessage.trim()) return
+    if (selectedConversation) {
+      hookSend(selectedConversation, newMessage.trim())
+    }
     setNewMessage('')
+  }
+
+  const handleSelectConversation = (id: string) => {
+    setSelectedConversation(id)
+    openConversation(id)
+    setMobileView('chat')
   }
 
   if (isLoading) return <ChatSkeleton />
@@ -248,7 +295,7 @@ export default function MessagesPage() {
                 <button
                   key={conv.id}
                   type="button"
-                  onClick={() => { setSelectedConversation(conv.id); setMobileView('chat') }}
+                  onClick={() => handleSelectConversation(conv.id)}
                   className={cn(
                     'flex w-full items-center gap-3 px-4 py-3 text-left',
                     'transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-quart)]',

@@ -16,6 +16,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ChatSkeleton } from '@/components/shared/page-skeletons'
 
+import { sendMessage as sendAiMessage } from '@/services/ai.service'
+
 interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
@@ -38,30 +40,6 @@ const initialMessages: ChatMessage[] = [
   },
 ]
 
-const mockAIResponse = `## Haftalık Diyet Planı Önerisi
-
-**Hasta Profili:** 30 yaş, kadın, kilo verme hedefi
-**Günlük Kalori Hedefi:** 1600-1800 kcal
-
-### Pazartesi
-- **Kahvaltı:** Yulaf ezmesi (200g) + muz + tarçın (350 kcal)
-- **Öğle:** Izgara tavuk salata + tam buğday ekmek (480 kcal)
-- **Akşam:** Fırında somon + buharda brokoli (420 kcal)
-- **Ara Öğün:** Yoğurt + karışık kuruyemiş (200 kcal)
-
-### Makro Dağılımı
-- Protein: %30 (120g)
-- Karbonhidrat: %40 (160g)
-- Yağ: %30 (53g)
-
-### Önemli Notlar
-1. Günlük en az 2.5L su tüketimi
-2. Öğünler arası 3-4 saat bekleme
-3. Akşam yemeği saat 19:00'dan önce
-4. Haftalık 3-4 gün egzersiz
-
-*Bu plan genel bir öneridir. Hastanın alerjileri ve tıbbi durumuna göre düzenlenmelidir.*`
-
 export default function AIAssistantPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [input, setInput] = useState('')
@@ -78,7 +56,7 @@ export default function AIAssistantPage() {
 
   if (isPageLoading) return <ChatSkeleton />
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const messageText = text || input
     if (!messageText.trim() || isLoading) return
 
@@ -93,16 +71,26 @@ export default function AIAssistantPage() {
     setInput('')
     setIsLoading(true)
 
-    setTimeout(() => {
+    try {
+      const reply = await sendAiMessage(messageText)
       const aiMessage: ChatMessage = {
         id: String(messages.length + 2),
         role: 'assistant',
-        content: mockAIResponse,
+        content: reply.content ?? 'Yanıt alınamadı.',
         timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
       }
       setMessages((prev) => [...prev, aiMessage])
+    } catch {
+      const errorMessage: ChatMessage = {
+        id: String(messages.length + 2),
+        role: 'assistant',
+        content: 'AI servisi şu an yanıt veremiyor. Lütfen daha sonra tekrar deneyin.',
+        timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
   }
 
   return (

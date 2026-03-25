@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useShoppingLists } from '@/hooks/use-shopping-lists'
 import { Plus, ShoppingCart, Share2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -49,7 +50,27 @@ const mockLists: ShoppingList[] = [
 const categoryOrder = ['Sebze', 'Meyve', 'Et', 'Süt Ürünleri', 'Diğer']
 
 export default function ShoppingListsPage() {
+  const { shoppingLists: hookLists, fetchShoppingLists } = useShoppingLists()
   const [lists, setLists] = useState(mockLists)
+
+  useEffect(() => {
+    fetchShoppingLists()
+  }, [])
+
+  useEffect(() => {
+    if (hookLists.length > 0) {
+      setLists(hookLists.map((l: any) => ({
+        id: l.id, name: l.name ?? '', status: l.status ?? 'active',
+        itemCount: l.items?.length ?? l.itemCount ?? 0,
+        completedCount: l.items?.filter((i: any) => i.checked).length ?? l.completedCount ?? 0,
+        sharedWith: l.sharedWith ?? null,
+        updatedAt: l.updatedAt ?? '',
+        patientName: l.patientName ?? '',
+        createdAt: l.createdAt ?? '',
+        items: l.items ?? [],
+      })) as any)
+    }
+  }, [hookLists])
   const [selectedList, setSelectedList] = useState<string | null>('1')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)

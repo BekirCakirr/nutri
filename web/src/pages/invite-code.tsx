@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useInviteCode } from '@/hooks/use-invite-code'
 import {
   Plus,
   Copy,
@@ -60,12 +61,30 @@ const statusMap: Record<
 }
 
 export default function InviteCodePage() {
+  const { inviteCodes: hookCodes, fetchInviteCodes } = useInviteCode()
   const [codes, setCodes] = useState(mockCodes)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [qrDialogOpen, setQrDialogOpen] = useState(false)
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  useEffect(() => {
+    fetchInviteCodes().then(() => {
+      // If hook returns data, use it; otherwise keep mock for demo
+      if (hookCodes.length > 0) {
+        setCodes(hookCodes.map((c: any) => ({
+          id: c.id,
+          code: c.code ?? '',
+          createdAt: c.createdAt?.split('T')[0] ?? '',
+          usedBy: c.usedBy ?? null,
+          usedAt: c.usedAt ?? null,
+          status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
+        })))
+      }
+    }).catch(() => {})
+    const t = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code)
