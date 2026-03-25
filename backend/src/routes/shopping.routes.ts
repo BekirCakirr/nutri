@@ -53,10 +53,31 @@ router.post(
   shoppingController.createList
 );
 
+router.post(
+  "/:id/items",
+  authenticate,
+  authorize("patient"),
+  validate(z.object({
+    foodName: z.string().min(1).max(200),
+    amount: z.string().max(100).optional(),
+    category: z.string().max(100).optional(),
+    allergenWarning: z.boolean().optional(),
+    estimatedPriceTl: z.number().min(0).optional(),
+  })),
+  shoppingController.addItem
+);
+
 router.patch(
   "/items/:itemId/toggle",
   authenticate,
   shoppingController.toggleItem
+);
+
+router.delete(
+  "/items/:itemId",
+  authenticate,
+  authorize("patient"),
+  shoppingController.deleteItem
 );
 
 router.delete(

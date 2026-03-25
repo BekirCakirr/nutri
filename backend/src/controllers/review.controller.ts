@@ -57,6 +57,32 @@ export async function createReview(
   }
 }
 
+export async function respondToReview(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const review = await reviewService.respondToReview(
+      req.params.id as string,
+      req.user!.userId,
+      req.body.response
+    );
+
+    sendSuccess({
+      res,
+      data: review,
+      message: "Degerlendirmeye yanit verildi",
+    });
+  } catch (err: any) {
+    if (err.statusCode) {
+      sendError({ res, message: err.message, statusCode: err.statusCode });
+      return;
+    }
+    next(err);
+  }
+}
+
 export async function deleteReview(
   req: Request,
   res: Response,

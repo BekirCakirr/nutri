@@ -150,6 +150,46 @@ export async function createReview(
   }
 }
 
+export async function respondToReview(
+  reviewId: string,
+  userId: string,
+  responseText: string
+) {
+  // Get dietitian profile id from user id
+  const dpResult = await query(
+    "SELECT id FROM dietitian_profiles WHERE user_id = $1",
+    [userId]
+  );
+  if (dpResult.rows.length === 0) {
+    throw Object.assign(new Error("Diyetisyen profili bulunamadi"), {
+      statusCode: 404,
+    });
+  }
+  const dietitianId = dpResult.rows[0].id;
+
+  // Check review exists and belongs to this dietitian
+  const reviewResult = await query(
+    "SELECT * FROM dietitian_reviews WHERE id = $1 AND dietitian_id = $2",
+    [reviewId, dietitianId]
+  );
+  if (reviewResult.rows.length === 0) {
+    throw Object.assign(
+      new Error("Degerlendirme bulunamadi veya size ait degil"),
+      { statusCode: 404 }
+    );
+  }
+
+  const result = await query(
+    `UPDATE dietitian_reviews
+     SET dietitian_response = $1, responded_at = NOW()
+     WHERE id = $2
+     RETURNING *`,
+    [responseText, reviewId]
+  );
+
+  return result.rows[0];
+}
+
 export async function deleteReview(reviewId: string, userId: string) {
   const client = await getClient();
   try {

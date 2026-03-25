@@ -140,6 +140,8 @@ CREATE TABLE dietitian_reviews (
   rating          INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
   comment         TEXT,
   is_anonymous    BOOLEAN DEFAULT false,
+  dietitian_response TEXT,
+  responded_at    TIMESTAMPTZ,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE(dietitian_id, patient_id)
 );

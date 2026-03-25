@@ -153,15 +153,17 @@ GENEL                    ██████████████████�
 
 ## Bilinen Sorunlar
 
-| # | Sorun | Dosya | Durum |
-|---|-------|-------|-------|
-| 1 | Socket port 3001 vs 3000 | `socket-store.ts:18` | ⏳ Faz 6.5'te |
-| 2 | 4 store mock ile basliyor | `auth/message/notification/patient-store` | ⏳ Faz 6.5'te |
-| 3 | 6 sayfa inline mock data | `dashboard/patient-detail/patient-list/plan-creator/reviews/admin-login` | ⏳ Faz 6.5'te |
-| 4 | Mobil 13 API modulu mock | `mobile/src/services/api/*` | ⏳ Faz 7'de |
-| 5 | Backend review respond stub | `review.service.ts` | ⏳ Faz 9'da |
-| 6 | Backend live-tracking aggregate yok | Endpoint yok | ⏳ Faz 9'da |
-| 7 | Gemini API key bos | `backend/.env` | ⏳ Faz 8'de |
+| # | Sorun | Durum |
+|---|-------|-------|
+| 1 | ~~Socket port 3001 vs 3000~~ | ✅ Duzeltildi |
+| 2 | ~~Store mock init~~ | ✅ Duzeltildi |
+| 3 | ~~Sayfa inline mock data~~ | ✅ Duzeltildi |
+| 4 | ~~Mobil API mock~~ | ✅ 12/15 gercek API |
+| 5 | ~~Review respond stub~~ | ✅ Backend endpoint eklendi |
+| 6 | Backend live-tracking aggregate yok | ⚠️ Workaround: getPatients kullaniliyor |
+| 7 | ~~Gemini API key bos~~ | ✅ Key eklendi |
+| 8 | Mobil gamification/family/photo mock | ⚠️ Backend endpoint yok, mock kalacak |
+| 9 | Uctan uca test yapilmadi | ⏳ docker-compose up gerekli |
 
 ---
 

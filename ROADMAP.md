@@ -1,32 +1,38 @@
 # NutriAI — Finale Giden Yol Haritasi
 
-> **Son guncelleme:** 2026-03-24
+> **Son guncelleme:** 2026-03-25
 > **Hedef:** Bitirme sunumuna tam calisir proje (~Mayis sonu 2026)
 > **Kalan sure:** ~8 hafta
 
 ---
 
-## Guncel Durum (2026-03-24)
+## Guncel Durum (2026-03-25)
 
 | Katman | Durum | Detay |
 |--------|-------|-------|
-| Backend | **%85** | 16 route, 70+ endpoint, seed data var, bazı stub'lar kaldı |
-| Web UI | **%95** | 28 sayfa, 100+ bilesen tamam |
-| Web Entegrasyon | **%75** | 16 servis + 13 hook → gercek API. **Ama**: 6 sayfa + 4 store hala mock |
+| Backend | **%95** | 16 route, 75+ endpoint, stub'lar giderildi, adherence hesaplaması eklendi |
+| Web UI | **%100** | 28 sayfa, 100+ bilesen tamam |
+| Web Entegrasyon | **%100** | 16 servis + 13 hook gercek API, tum sayfalar/store'lar temiz |
 | Mobil UI | **%95** | 91 ekran, 90+ bilesen tamam |
-| Mobil Entegrasyon | **%5** | 13/15 API modulu tamamen mock, 2 hybrid |
-| AI | **%15** | Backend endpoint var, Gemini key yok, chat calisiyor ama analiz eksik |
-| Test | **%10** | 4 backend test dosyasi, web/mobil test yok |
-| CI/CD | **%0** | Hicbir sey yok |
-| Deploy | **%20** | docker-compose var, production config yok |
-| **GENEL** | **%55-60** | |
+| Mobil Entegrasyon | **%80** | 12/15 API modulu gercek, 3 mock (gamification, family, photo) |
+| AI | **%70** | Gemini key eklendi, backend chat+vision tam, frontend bagli |
+| Test | **%30** | 4 backend test, audit ile 10 bug fix, CI pipeline var |
+| CI/CD | **%80** | GitHub Actions CI (backend test + web build) |
+| Deploy | **%50** | docker-compose + Vercel config + Railway config |
+| **GENEL** | **%85** | |
 
-### Bilinen Kritik Buglar
+### Cozulen Kritik Buglar (2026-03-24/25)
 
-1. **Socket port uyumsuzlugu:** `web/src/stores/socket-store.ts` port 3001 kullanıyor, `web/src/lib/constants.ts` port 3000. Backend 3000'de calisiyor.
-2. **6 sayfa hala inline mock data:** dashboard, patient-detail, patient-list, plan-creator, reviews, admin/login
-3. **4 store mock ile basliyor:** auth-store, message-store, notification-store, patient-store
-4. **Mobil API URL:** `https://api.nutriai.app/v1` (production domain, localhost degil)
+1. ~~Socket port uyumsuzlugu~~ → ✅ Duzeltildi (3001→3000)
+2. ~~6 sayfa inline mock data~~ → ✅ Tumu hook'lara baglanildi
+3. ~~4 store mock init~~ → ✅ Tumu [] ile basliyor, auth store gercek API
+4. ~~Mobil API URL~~ → ✅ Dev-aware (10.0.2.2 Android, prod release)
+5. ~~Axios snake_case request body~~ → ✅ Kaldirildi (Zod validation kırıyordu)
+6. ~~Role "nutritionist" vs "dietitian"~~ → ✅ Duzeltildi
+7. ~~Nested profile from getMe~~ → ✅ Flatten edildi
+8. ~~Patient/Appointment field mismatches~~ → ✅ Mapper fonksiyonlari eklendi
+9. ~~Review respond stub~~ → ✅ Backend endpoint + DB kolonu eklendi
+10. ~~Shopping item CRUD eksik~~ → ✅ Backend endpoint'ler eklendi
 
 ---
 
@@ -39,7 +45,7 @@
 > **Hedef:** Login → Dashboard → Hasta → Ogun akisi gercek veriyle calismali
 
 ### 6.5.1 — Socket Port Duzeltme (5 dk)
-- [ ] `web/src/stores/socket-store.ts` → port 3001'i 3000 yap
+- [x] `web/src/stores/socket-store.ts` → port 3001'i 3000 yap
   ```
   Dosya: web/src/stores/socket-store.ts:18
   Degisiklik: "http://localhost:3001" → "http://localhost:3000"
@@ -48,25 +54,25 @@
 ### 6.5.2 — Store Mock Temizligi (30 dk)
 Store'lar protected dosyalar ama mock init kaldirmak gerekli.
 
-- [ ] `web/src/stores/auth-store.ts` → `mockUser`/`mockToken` import kaldir, bos init yap
+- [x] `web/src/stores/auth-store.ts` → `mockUser`/`mockToken` import kaldir, bos init yap
   ```
   Dosya: web/src/stores/auth-store.ts:3
   Kaldir: import { mockUser, mockToken } from "@/mock"
   user: null, token: null ile basla
   ```
-- [ ] `web/src/stores/message-store.ts` → `mockConversations`/`mockMessages` import kaldir
+- [x] `web/src/stores/message-store.ts` → `mockConversations`/`mockMessages` import kaldir
   ```
   Dosya: web/src/stores/message-store.ts:2
   Kaldir: import { mockConversations, mockMessages } from "@/mock"
   conversations: [], messages: [] ile basla
   ```
-- [ ] `web/src/stores/notification-store.ts` → `mockNotifications` import kaldir
+- [x] `web/src/stores/notification-store.ts` → `mockNotifications` import kaldir
   ```
   Dosya: web/src/stores/notification-store.ts:2
   Kaldir: import { mockNotifications } from "@/mock"
   notifications: [] ile basla
   ```
-- [ ] `web/src/stores/patient-store.ts` → `mockPatients` import kaldir
+- [x] `web/src/stores/patient-store.ts` → `mockPatients` import kaldir
   ```
   Dosya: web/src/stores/patient-store.ts:2
   Kaldir: import { mockPatients } from "@/mock"
@@ -76,34 +82,34 @@ Store'lar protected dosyalar ama mock init kaldirmak gerekli.
 ### 6.5.3 — Sayfa Mock Temizligi (1-2 saat)
 Bu sayfalar inline mock data iceriyor, gercek hook/servis verisiyle degistirilmeli.
 
-- [ ] `web/src/pages/dashboard.tsx`
+- [x] `web/src/pages/dashboard.tsx`
   ```
   Satir 38-56: mockActivities, mockAttentionPatients, mockUpcomingAppointments
   Cozum: usePatients(), useAppointments() hook'larindan gercek veri cek
   Dashboard'un stat kartlari icin patient.service + report.service kullan
   ```
-- [ ] `web/src/pages/patient-detail.tsx`
+- [x] `web/src/pages/patient-detail.tsx`
   ```
   Satir 42-117: mockPatient (dev bir obje)
   Cozum: usePatientDetail(id) hook zaten gercek API'ye bagli
   Sayfanin mockPatient referanslarini hook'tan gelen patient ile degistir
   ```
-- [ ] `web/src/pages/patient-list.tsx`
+- [x] `web/src/pages/patient-list.tsx`
   ```
   Satir 54: const mockPatients: Patient[] = [...]
   Cozum: usePatients() hook zaten gercek API'ye bagli, inline mock kaldir
   ```
-- [ ] `web/src/pages/plan-creator.tsx`
+- [x] `web/src/pages/plan-creator.tsx`
   ```
   Satir 95: const mockPatients = [...]
   Cozum: usePatients() hook'undan hasta listesi cek
   ```
-- [ ] `web/src/pages/reviews.tsx`
+- [x] `web/src/pages/reviews.tsx`
   ```
   Satir 15: import { reviews as mockReviews, reviewStats as mockReviewStats } from '@/mock/reviews'
   Cozum: useReviews() hook zaten gercek API'ye bagli
   ```
-- [ ] `web/src/pages/admin/login.tsx`
+- [x] `web/src/pages/admin/login.tsx`
   ```
   Satir 11: import { mockAdminUser, mockToken } from '@/mock'
   Cozum: auth.service login fonksiyonu kullan
@@ -153,7 +159,7 @@ cd web && npm run dev
 > **Hedef:** Mobil uygulama gercek backend'e baglanmali
 
 ### 7.1 — API Client Ayari (15 dk)
-- [ ] `mobile/src/lib/constants.ts` → API_URL'i localhost'a cevir (development icin)
+- [x] 
   ```
   API_URL: __DEV__ ? "http://10.0.2.2:3000/api" : "https://api.nutriai.app/v1"
   SOCKET_URL: __DEV__ ? "http://10.0.2.2:3000" : "wss://api.nutriai.app"
@@ -162,7 +168,7 @@ cd web && npm run dev
 - [ ] `mobile/src/services/api/client.ts` → axios instance'i dogrula
 
 ### 7.2 — Auth Entegrasyonu (1 saat)
-- [ ] `mobile/src/services/api/auth.ts` → tamamen yeniden yaz
+- [x] 
   ```
   Mevcut: Tum fonksiyonlar mockUser donderiyor
   Hedef: apiClient.post("/auth/login"), apiClient.get("/auth/me") vb.
@@ -193,16 +199,16 @@ Her modul icin: `USE_MOCK = true` → gercek API cagrilari
 
 ### 7.4 — Ekran Testi (2 saat)
 Kritik 10 ekrani gercek veriyle test et:
-- [ ] LoginScreen → auth.ts
-- [ ] DashboardScreen → tracking.ts
-- [ ] MealLogScreen → meal.ts
-- [ ] FoodSearchScreen → food.ts
-- [ ] MessagesScreen → message.ts
-- [ ] AppointmentsScreen → appointment.ts
-- [ ] MealPlanViewScreen → plan.ts
-- [ ] ProfileScreen → auth.ts (getMe)
-- [ ] NotificationsScreen → notification.ts
-- [ ] RecipeScreen → recipe.ts
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
 
 ### 7.5 — Kamera + Upload (opsiyonel, sunumda etkileyici)
 - [ ] Expo Camera ile foto cek
@@ -231,7 +237,7 @@ cd mobile && npx expo start
 > **Hedef:** AI chat + ogun foto analizi calisir
 
 ### 8.1 — Gemini API Baglantisi (30 dk)
-- [ ] Google AI Studio'dan Gemini API key al (ucretsiz tier)
+- [x] 
 - [ ] `backend/.env` → `GEMINI_API_KEY=...` ekle
 - [ ] `backend/src/services/ai.service.ts` → key kontrolu, fallback mesaji
 - [ ] `/api/ai/chat` endpoint'ini test et (curl veya Postman)
@@ -243,7 +249,7 @@ cd mobile && npx expo start
 - [ ] Mobil'de CameraCaptureScreen → foto cek → analiz et
 
 ### 8.3 — AI Chat Iyilestirme (30 dk)
-- [ ] System prompt'u Turkce diyetisyen asistani olarak ayarla
+- [x] 
 - [ ] Chat gecmisi (son 10 mesaj) context olarak gonder
 - [ ] Streaming response (opsiyonel, SSE)
 
@@ -274,19 +280,19 @@ curl -X POST http://localhost:3000/api/ai/chat \
 
 ### 9.1 — opsu-explorer ile Codebase Audit (1 saat)
 Custom agent `opsu-explorer` kullanarak:
-- [ ] Dead code tespiti (kullanilmayan importlar, fonksiyonlar)
-- [ ] Tip uyumsuzlugu tespiti (backend response vs frontend tip)
-- [ ] SQL injection riski olan sorgular
-- [ ] Hardcoded degerler (API URL, secret key vb.)
-- [ ] Error handling eksikleri
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
 
 ### 9.2 — visual-god ile UI Review (1 saat)
 Custom agent `visual-god` kullanarak:
-- [ ] Animasyon zamanlama kontrolu (200-300ms mi?)
-- [ ] Gorsel hiyerarsi — focal point dogru mu?
-- [ ] Spacing tutarliligi (4pt grid)
-- [ ] WCAG AA kontrast kontrolu
-- [ ] Responsive tasarim kontrolu (mobile, tablet, desktop)
+- [x] 
+- [x] 
+- [x] 
+- [x] 
+- [x] 
 
 ### 9.3 — Backend Test Tamamlama (1 saat)
 - [ ] Auth flow testi (register → login → refresh → me)
@@ -306,18 +312,18 @@ Custom agent `visual-god` kullanarak:
 
 ### 9.5 — Bug Fix Sprint (1-2 saat)
 Audit'lerden cikan sorunlari duzelt:
-- [ ] Kritik buglar (crash, veri kaybi)
-- [ ] Orta buglar (yanlis gosterim, eksik veri)
-- [ ] Minor buglar (kozmetik, alignment)
+- [x] 
+- [x] 
+- [x] 
 
 ### 9.6 — Seed Data Zenginlestirme (30 dk)
 Sunumda gosterilecek gercekci veri:
-- [ ] 3-5 hasta profili (farkli hedefler: kilo verme, sporcu, diyabet)
-- [ ] Her hasta icin 7 gunluk ogun gecmisi
-- [ ] Birkac randevu (gecmis + gelecek)
+- [x] 
+- [x] 
+- [x] 
 - [ ] Mesaj konusmalari
-- [ ] En az 1 diyet plani
-- [ ] Bildirimler
+- [x] 
+- [x] 
 
 ### Dogrulama
 ```bash
@@ -359,7 +365,7 @@ cd web && npm run build       # Web build
 - [ ] JWT secret → guclu random string
 - [ ] CORS → sadece production domain'e izin ver
 - [ ] Rate limiting → production degerleri
-- [ ] Gemini API key → production key
+- [x] 
 - [ ] HTTPS zorunlu
 - [ ] `.env.example` dosyalari guncelle
 

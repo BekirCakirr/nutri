@@ -21,8 +21,8 @@ export async function createShoppingList(name: string): Promise<ShoppingList> {
 }
 
 export async function addShoppingItem(listId: string, item: Partial<ShoppingItem>): Promise<ShoppingItem> {
-  // TODO: Backend POST /shopping-lists/:id/items endpoint needed
-  return { id: 'item-' + Date.now(), ...item } as ShoppingItem;
+  const { data } = await apiClient.post(`/shopping-lists/${listId}/items`, item);
+  return (data.data ?? data) as ShoppingItem;
 }
 
 export async function toggleShoppingItem(listId: string, itemId: string): Promise<boolean> {
@@ -30,8 +30,8 @@ export async function toggleShoppingItem(listId: string, itemId: string): Promis
   return true;
 }
 
-export async function deleteShoppingItem(_listId: string, _itemId: string): Promise<void> {
-  // TODO: Backend DELETE /shopping-lists/items/:id endpoint needed
+export async function deleteShoppingItem(_listId: string, itemId: string): Promise<void> {
+  await apiClient.delete(`/shopping-lists/items/${itemId}`);
 }
 
 export async function shareShoppingList(_listId: string, _userId: string): Promise<void> {
