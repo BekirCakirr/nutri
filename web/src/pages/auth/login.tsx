@@ -30,8 +30,8 @@ export default function LoginPage() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'dr.ayse@nutriai.com',
-      password: '123456',
+      email: 'elif.kaya@nutriai.com',
+      password: 'elif1234',
     },
   })
 
