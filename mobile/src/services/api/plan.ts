@@ -21,11 +21,19 @@ export async function getDayPlan(date: string): Promise<DayPlan | null> {
 }
 
 export async function createPlan(plan: Partial<WeeklyPlan>): Promise<WeeklyPlan> {
-  const { data } = await apiClient.post('/plans', plan);
-  return (data.data ?? data) as WeeklyPlan;
+  try {
+    const { data } = await apiClient.post('/plans', plan);
+    return (data.data ?? data) as WeeklyPlan;
+  } catch {
+    throw new Error('Plan oluşturulamadı');
+  }
 }
 
 export async function updatePlan(id: string, planData: Partial<WeeklyPlan>): Promise<WeeklyPlan> {
-  const { data } = await apiClient.patch(`/plans/${id}/status`, planData);
-  return (data.data ?? data) as WeeklyPlan;
+  try {
+    const { data } = await apiClient.patch(`/plans/${id}/status`, planData);
+    return (data.data ?? data) as WeeklyPlan;
+  } catch {
+    throw new Error('Plan güncellenemedi');
+  }
 }

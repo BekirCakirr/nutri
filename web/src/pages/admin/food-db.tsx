@@ -72,7 +72,7 @@ export default function AdminFoodDBPage() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
 
   const filtered = mockFoods.filter((f) => {
     const matchesSearch = f.name.toLowerCase().includes(search.toLowerCase())

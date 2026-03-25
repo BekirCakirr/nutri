@@ -40,6 +40,9 @@ import { WaterIntakeChart } from '@/components/charts/water-intake-chart'
 import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 import { usePatientDetail } from '@/hooks/use-patient-detail'
+import { useMeals } from '@/hooks/use-meals'
+import { useAppointments } from '@/hooks/use-appointments'
+import { useMessages } from '@/hooks/use-messages'
 
 // ── Fallback patient (used when API data hasn't loaded yet) ─────
 
@@ -64,24 +67,15 @@ const fallbackPatient = {
   nextAppointment: '2026-03-02 10:00',
 }
 
-const mockMeals = [
-  { id: '1', date: '2026-02-25', type: 'Kahvaltı', items: 'Yulaf ezmesi, muz, bal', calories: 420, status: 'verified' },
-  { id: '2', date: '2026-02-25', type: 'Öğle', items: 'Tavuk salata, tam buğday ekmek', calories: 550, status: 'unverified' },
-  { id: '3', date: '2026-02-24', type: 'Akşam', items: 'Izgara somon, sebze sote', calories: 620, status: 'verified' },
-  { id: '4', date: '2026-02-24', type: 'Ara Öğün', items: 'Badem, elma', calories: 210, status: 'verified' },
-]
+// Mock data removed — now using useMeals, useAppointments, and useMessages hooks
 
-const mockAppointments = [
-  { id: '1', date: '2026-03-02', time: '10:00', type: 'Takip', status: 'upcoming', mode: 'Video' },
-  { id: '2', date: '2026-02-18', time: '14:00', type: 'Plan Değerlendirme', status: 'completed', mode: 'Yüz yüze' },
-  { id: '3', date: '2026-02-04', time: '11:00', type: 'İlk Görüşme', status: 'completed', mode: 'Video' },
-]
-
-const mockMessages = [
-  { id: '1', from: 'Ayşe Yılmaz', text: 'Merhaba, bugünkü öğle yemeğim uygun muydu?', time: '14:30', isPatient: true },
-  { id: '2', from: 'Dr. Ayşe', text: 'Evet, gayet iyi bir tercih olmuş. Protein miktarı yeterli.', time: '14:45', isPatient: false },
-  { id: '3', from: 'Ayşe Yılmaz', text: 'Teşekkürler, yarınki randevuda görüşürüz!', time: '14:50', isPatient: true },
-]
+// Meal type label mapping for API data
+const mealTypeLabels: Record<string, string> = {
+  breakfast: 'Kahvaltı',
+  lunch: 'Öğle',
+  dinner: 'Akşam',
+  snack: 'Ara Öğün',
+}
 
 // ── Chart data tailored for this patient ──────────────────────────
 
@@ -187,8 +181,26 @@ export default function PatientDetailPage() {
   const { patient: apiPatient, isLoading: patientLoading } = usePatientDetail(id)
   const [activeTab, setActiveTab] = useState<TabValue>('overview')
 
+  // Real data hooks
+  const { meals, fetchMeals, isLoading: mealsLoading } = useMeals(id)
+  const { appointments, fetchAppointments, isLoading: appointmentsLoading } = useAppointments(id)
+  const { conversations, fetchConversations } = useMessages()
+
+  // Fetch sub-data when tabs are activated
+  useEffect(() => {
+    if (activeTab === 'nutrition' && id) fetchMeals()
+  }, [activeTab, id, fetchMeals])
+
+  useEffect(() => {
+    if (activeTab === 'appointments' && id) fetchAppointments()
+  }, [activeTab, id, fetchAppointments])
+
+  useEffect(() => {
+    if (activeTab === 'messages') fetchConversations()
+  }, [activeTab, fetchConversations])
+
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
 
   if (isLoading || patientLoading) return <DetailPageSkeleton />
 
@@ -484,25 +496,33 @@ export default function PatientDetailPage() {
                 <CardDescription>Hastanin son kaydettigi yemekler</CardDescription>
               </CardHeader>
               <CardContent>
+                {mealsLoading ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">Yukleniyor...</p>
+                ) : meals.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">Henuz ogun kaydı yok.</p>
+                ) : (
                 <div className="space-y-2">
-                  {mockMeals.map((meal) => (
+                  {meals.map((meal) => {
+                    const mealTypeLabel = mealTypeLabels[meal.type] || meal.name || meal.type
+                    const itemsText = meal.items?.map((i) => i.name).join(', ') || meal.notes || ''
+                    return (
                     <div
                       key={meal.id}
                       className="flex items-center gap-4 rounded-lg border px-4 py-3 transition-colors hover:bg-secondary/50"
                     >
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
-                        {(() => { const Icon = getMealTypeIcon(meal.type); return <Icon className="h-5 w-5 text-muted-foreground" />; })()}
+                        {(() => { const Icon = getMealTypeIcon(mealTypeLabel); return <Icon className="h-5 w-5 text-muted-foreground" />; })()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium">{meal.type}</p>
+                          <p className="text-sm font-medium">{mealTypeLabel}</p>
                           <Badge
-                            variant={meal.status === 'verified' ? 'success' : 'warning'}
+                            variant={meal.logged ? 'success' : 'warning'}
                           >
-                            {meal.status === 'verified' ? 'Onayli' : 'Bekliyor'}
+                            {meal.logged ? 'Onayli' : 'Bekliyor'}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{meal.items}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{itemsText}</p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-sm font-semibold tabular-nums">
@@ -511,8 +531,10 @@ export default function PatientDetailPage() {
                         <p className="text-xs text-muted-foreground">{meal.date}</p>
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
+                )}
               </CardContent>
             </Card>
           </>
@@ -676,9 +698,18 @@ export default function PatientDetailPage() {
               </CardAction>
             </CardHeader>
             <CardContent>
+              {appointmentsLoading ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">Yukleniyor...</p>
+              ) : appointments.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">Henuz randevu yok.</p>
+              ) : (
               <div className="space-y-2">
-                {mockAppointments.map((apt) => {
-                  const isUpcoming = apt.status === 'upcoming'
+                {appointments.map((apt) => {
+                  const isUpcoming = apt.status === 'scheduled'
+                  const typeLabels: Record<string, string> = { consultation: 'Takip', follow_up: 'Kontrol', assessment: 'Plan Degerlendirme', initial: 'Ilk Gorusme' }
+                  const typeLabel = typeLabels[apt.type] || apt.title || apt.type
+                  const hasVideo = !!apt.meetingUrl
+                  const modeLabel = hasVideo ? 'Video' : (apt.location || 'Yuz yuze')
                   return (
                     <div
                       key={apt.id}
@@ -704,34 +735,38 @@ export default function PatientDetailPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{apt.type}</p>
+                        <p className="text-sm font-medium">{typeLabel}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {apt.date} &middot; {apt.time}
+                          {apt.date} &middot; {apt.startTime}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <Badge variant="outline">
-                          {apt.mode === 'Video' ? (
+                          {hasVideo ? (
                             <Video className="h-3 w-3 mr-1" />
                           ) : (
                             <MapPin className="h-3 w-3 mr-1" />
                           )}
-                          {apt.mode}
+                          {modeLabel}
                         </Badge>
-                        <Badge variant={isUpcoming ? 'info' : 'success'}>
-                          {isUpcoming ? 'Yaklasan' : 'Tamamlandi'}
+                        <Badge variant={isUpcoming ? 'info' : apt.status === 'cancelled' ? 'destructive' : 'success'}>
+                          {isUpcoming ? 'Yaklasan' : apt.status === 'cancelled' ? 'Iptal' : 'Tamamlandi'}
                         </Badge>
                       </div>
                     </div>
                   )
                 })}
               </div>
+              )}
             </CardContent>
           </Card>
         )}
 
         {/* ─── Mesajlar ─────────────────────────────────────── */}
-        {activeTab === 'messages' && (
+        {activeTab === 'messages' && (() => {
+          // Find the conversation for this patient
+          const patientConversation = conversations.find((c: any) => c.participantIds?.includes(id) || c.participantId === id || c.id === id)
+          return (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Son Mesajlar</CardTitle>
@@ -748,41 +783,26 @@ export default function PatientDetailPage() {
               </CardAction>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {mockMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={cn(
-                      'flex',
-                      msg.isPatient ? 'justify-start' : 'justify-end'
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        'max-w-[75%] rounded-2xl px-4 py-2.5',
-                        msg.isPatient
-                          ? 'bg-secondary rounded-bl-sm'
-                          : 'bg-primary text-primary-foreground rounded-br-sm'
-                      )}
-                    >
-                      <p className="text-sm font-medium mb-0.5">
-                        {msg.isPatient ? msg.from : 'Siz'}
-                      </p>
-                      <p className="text-sm leading-relaxed">{msg.text}</p>
-                      <p
-                        className={cn(
-                          'text-[11px] mt-1 tabular-nums',
-                          msg.isPatient
-                            ? 'text-muted-foreground'
-                            : 'text-primary-foreground/70'
-                        )}
-                      >
-                        {msg.time}
+              {patientConversation ? (
+                <div className="space-y-3">
+                  <div className="flex justify-start">
+                    <div className="max-w-[75%] rounded-2xl px-4 py-2.5 bg-secondary rounded-bl-sm">
+                      <p className="text-sm font-medium mb-0.5">{patientConversation.participantName ?? mockPatient.fullName}</p>
+                      <p className="text-sm leading-relaxed">{patientConversation.lastMessage}</p>
+                      <p className="text-[11px] mt-1 tabular-nums text-muted-foreground">
+                        {patientConversation.lastMessageAt ? new Date(patientConversation.lastMessageAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                  {patientConversation.unreadCount > 0 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      {patientConversation.unreadCount} okunmamis mesaj
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-4 text-center">Henuz mesaj yok.</p>
+              )}
 
               <div className="mt-4 pt-4 border-t">
                 <Button
@@ -795,7 +815,8 @@ export default function PatientDetailPage() {
               </div>
             </CardContent>
           </Card>
-        )}
+          )
+        })()}
 
         {/* ─── Raporlar ─────────────────────────────────────── */}
         {activeTab === 'reports' && (

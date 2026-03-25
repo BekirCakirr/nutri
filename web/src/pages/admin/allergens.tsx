@@ -75,7 +75,7 @@ export default function AdminAllergensPage() {
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
 
   const filtered = mockAllergens.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase())

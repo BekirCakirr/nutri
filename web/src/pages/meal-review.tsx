@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { toast } from 'sonner'
 import { useMeals } from '@/hooks/use-meals'
 import {
   Search,
@@ -592,7 +593,7 @@ function KanbanColumn({
 /* ─── Main Page Component ──────────────────────── */
 
 export default function MealReviewPage() {
-  const { meals: hookMeals, fetchMeals } = useMeals()
+  const { meals: hookMeals, fetchMeals, error: mealsError } = useMeals()
   const [reviews, setReviews] = useState(mockReviews)
   const [search, setSearch] = useState('')
   const [mealTypeFilter, setMealTypeFilter] = useState('all')
@@ -600,10 +601,16 @@ export default function MealReviewPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    fetchMeals()
-    const t = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(t)
+    const load = async () => {
+      try { await fetchMeals() } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
+
+  useEffect(() => {
+    if (mealsError) toast.error(mealsError)
+  }, [mealsError])
 
   // Map API meals to review format when available
   useEffect(() => {

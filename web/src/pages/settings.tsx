@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Save,
   Loader2,
@@ -24,17 +24,38 @@ import { cn } from '@/lib/utils'
 
 export default function SettingsPage() {
   const user = useAuthStore(s => s.user)
+  const updateProfile = useAuthStore(s => s.updateProfile)
   const { theme, setTheme } = useUiStore()
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
+
+  // Refs for form fields
+  const nameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
+  const bioRef = useRef<HTMLTextAreaElement>(null)
 
   if (isLoading) return <FormPageSkeleton />
 
   const handleSave = async () => {
     setIsSaving(true)
-    await new Promise(r => setTimeout(r, 800))
-    setIsSaving(false)
+    try {
+      const fullName = nameRef.current?.value ?? ''
+      const nameParts = fullName.trim().split(/\s+/)
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+      await updateProfile({
+        firstName,
+        lastName,
+        phone: phoneRef.current?.value || undefined,
+        bio: bioRef.current?.value || undefined,
+      })
+    } catch {
+      // Profile update failed — store handles error state
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -78,15 +99,15 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Ad Soyad</Label>
-                  <Input id="name" defaultValue={user ? `${user.firstName} ${user.lastName}` : 'Dr. Ayse Yılmaz'} />
+                  <Input id="name" ref={nameRef} defaultValue={user ? `${user.firstName} ${user.lastName}` : ''} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">E-posta</Label>
-                  <Input id="email" defaultValue={user?.email || 'dr.ayse@nutriai.com'} />
+                  <Input id="email" ref={emailRef} defaultValue={user?.email || ''} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefon</Label>
-                  <Input id="phone" defaultValue="+90 532 123 4567" />
+                  <Input id="phone" ref={phoneRef} defaultValue={user?.phone || ''} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="specialization">Uzmanlık Alanı</Label>
@@ -107,7 +128,8 @@ export default function SettingsPage() {
                 <Label htmlFor="about">Hakkımda</Label>
                 <Textarea
                   id="about"
-                  defaultValue="10 yıllık deneyimli klinik diyetisyen. Kilo yonetimi ve metabolik hastalıklar konusunda uzman."
+                  ref={bioRef}
+                  defaultValue={user?.bio || ''}
                   rows={3}
                   className="resize-none"
                 />

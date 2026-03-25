@@ -2,12 +2,16 @@ import type { Recipe } from '@/types';
 import apiClient from './client';
 
 export async function getRecipes(category?: string): Promise<Recipe[]> {
-  const params: Record<string, string> = {};
-  if (category) params.category = category;
-  const { data } = await apiClient.get('/recipes', { params });
-  const result = data.data ?? data;
-  const items = result?.recipes ?? (Array.isArray(result) ? result : []);
-  return items as Recipe[];
+  try {
+    const params: Record<string, string> = {};
+    if (category) params.category = category;
+    const { data } = await apiClient.get('/recipes', { params });
+    const result = data.data ?? data;
+    const items = result?.recipes ?? (Array.isArray(result) ? result : []);
+    return items as Recipe[];
+  } catch {
+    return [];
+  }
 }
 
 export async function getRecipeById(id: string): Promise<Recipe | null> {
@@ -25,10 +29,14 @@ export async function getRecipeCategories(): Promise<string[]> {
 }
 
 export async function searchRecipes(query: string): Promise<Recipe[]> {
-  const { data } = await apiClient.get('/recipes', { params: { q: query } });
-  const result = data.data ?? data;
-  const items = result?.recipes ?? (Array.isArray(result) ? result : []);
-  return items as Recipe[];
+  try {
+    const { data } = await apiClient.get('/recipes', { params: { q: query } });
+    const result = data.data ?? data;
+    const items = result?.recipes ?? (Array.isArray(result) ? result : []);
+    return items as Recipe[];
+  } catch {
+    return [];
+  }
 }
 
 export async function getFavoriteRecipes(): Promise<Recipe[]> {

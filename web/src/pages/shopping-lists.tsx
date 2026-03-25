@@ -53,8 +53,13 @@ export default function ShoppingListsPage() {
   const { shoppingLists: hookLists, fetchShoppingLists } = useShoppingLists()
   const [lists, setLists] = useState(mockLists)
 
+  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    fetchShoppingLists()
+    const load = async () => {
+      try { await fetchShoppingLists() } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
 
   useEffect(() => {
@@ -73,8 +78,6 @@ export default function ShoppingListsPage() {
   }, [hookLists])
   const [selectedList, setSelectedList] = useState<string | null>('1')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
 
   const currentList = lists.find((l) => l.id === selectedList)
 

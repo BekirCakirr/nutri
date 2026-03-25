@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import {
   Users,
   CalendarDays,
@@ -70,18 +71,23 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const { allPatients, fetchPatients } = usePatients()
-  const { appointments, upcoming, fetchAppointments } = useAppointments()
+  const { appointments, upcoming, fetchAppointments, error: appointmentsError } = useAppointments()
   const [isLoading, setIsLoading] = useState(true)
 
   const greeting = useMemo(() => getGreeting(), [])
   const displayName = user ? `${user.firstName}` : 'Diyetisyen'
 
   useEffect(() => {
-    fetchPatients()
-    fetchAppointments()
-    const timer = setTimeout(() => setIsLoading(false), 600)
-    return () => clearTimeout(timer)
+    const load = async () => {
+      try { await Promise.allSettled([fetchPatients(), fetchAppointments()]) } catch {}
+      setIsLoading(false)
+    }
+    load()
   }, [])
+
+  useEffect(() => {
+    if (appointmentsError) toast.error(appointmentsError)
+  }, [appointmentsError])
 
   // Derive dashboard data from real data
   const upcomingAppointments = useMemo(() =>

@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import axios from "axios";
+import { toast } from "sonner";
 import { API_URL } from "./constants";
 
 // ── snake_case → camelCase key transformer ──────────────────────────────────
@@ -137,6 +138,11 @@ api.interceptors.response.use(
       "message" in error.response.data
         ? (error.response.data as { message: string }).message
         : error.message;
+
+    // Show global error toast for non-auth errors
+    if (error.response?.status !== 401) {
+      toast.error(message ?? "Bir hata oluştu");
+    }
 
     return Promise.reject(new Error(message));
   },

@@ -66,7 +66,7 @@ export default function AdminRecipesPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
 
   const filtered = recipes.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())

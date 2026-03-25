@@ -102,7 +102,7 @@ export default function PatientListPage() {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const { allPatients } = usePatients()
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { setIsLoading(false) }, [])
 
   // Map store patients to local Patient type
   const mappedPatients: Patient[] = useMemo(() =>

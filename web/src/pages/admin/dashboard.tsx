@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Users,
   UserCheck,
@@ -24,6 +24,14 @@ import { PageContainer } from '@/components/shared/page-container'
 import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
+import {
+  getStats as fetchAdminStats,
+  getSystemHealth as fetchSystemHealth,
+  getUsers as fetchAdminUsers,
+  type AdminStats,
+  type AdminUser,
+} from '@/services/admin.service'
+import type { SystemHealth as ApiSystemHealth } from '@/services/admin.service'
 
 interface SystemHealth {
   name: string
@@ -62,6 +70,46 @@ const mockRegistrations: RecentRegistration[] = [
   { id: '6', name: 'Canan Demir', email: 'canan.d@mail.com', role: 'patient', date: '3 saat önce' },
 ]
 
+/** Convert API AdminUser to local RecentRegistration format */
+function toRecentRegistration(user: AdminUser): RecentRegistration {
+  const role = user.role === 'dietitian' ? 'dietitian' : 'patient'
+  const createdDate = new Date(user.createdAt)
+  const now = new Date()
+  const diffMs = now.getTime() - createdDate.getTime()
+  const diffMin = Math.floor(diffMs / 60_000)
+  let dateStr: string
+  if (diffMin < 1) dateStr = 'az önce'
+  else if (diffMin < 60) dateStr = `${diffMin} dk önce`
+  else if (diffMin < 1440) dateStr = `${Math.floor(diffMin / 60)} saat önce`
+  else dateStr = `${Math.floor(diffMin / 1440)} gün önce`
+
+  const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email
+  return { id: user.id, name, email: user.email, role, date: dateStr }
+}
+
+/** Convert API SystemHealth to local SystemHealth format */
+function toLocalHealth(apiHealth: ApiSystemHealth): SystemHealth[] {
+  const dbStatus: SystemHealth['status'] =
+    apiHealth.database.status === 'connected' ? 'operational' : 'down'
+  const apiStatus: SystemHealth['status'] =
+    apiHealth.status === 'ok' ? 'operational' : 'degraded'
+
+  return [
+    {
+      name: 'API Sunucusu',
+      status: apiStatus,
+      latency: '-',
+      uptime: `${Math.floor(apiHealth.uptime / 3600)} saat`,
+    },
+    {
+      name: 'Veritabanı',
+      status: dbStatus,
+      latency: `${apiHealth.database.latencyMs}ms`,
+      uptime: '-',
+    },
+  ]
+}
+
 const statusConfig = {
   operational: { label: 'Aktif', icon: CheckCircle2, badge: 'success' as const },
   degraded: { label: 'Yavaş', icon: AlertTriangle, badge: 'warning' as const },
@@ -77,13 +125,59 @@ const healthIcons: Record<string, typeof Server> = {
 export default function AdminDashboardPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  const [stats, setStats] = useState(mockStats)
+  const [health, setHealth] = useState<SystemHealth[]>(mockHealth)
+  const [registrations, setRegistrations] = useState<RecentRegistration[]>(mockRegistrations)
+
+  const loadData = useCallback(async () => {
+    const results = await Promise.allSettled([
+      fetchAdminStats(),
+      fetchSystemHealth(),
+      fetchAdminUsers({ page: 1, limit: 6 }),
+    ])
+
+    // Stats
+    if (results[0].status === 'fulfilled') {
+      const s = results[0].value as AdminStats
+      setStats({
+        totalUsers: s.totalUsers,
+        totalDietitians: s.totalDietitians,
+        totalPatients: s.totalPatients,
+        activeSessions: s.activePatients,
+      })
+    }
+
+    // Health
+    if (results[1].status === 'fulfilled') {
+      const h = results[1].value as ApiSystemHealth
+      setHealth(toLocalHealth(h))
+    }
+
+    // Recent registrations
+    if (results[2].status === 'fulfilled') {
+      const resp = results[2].value
+      if (resp.items.length > 0) {
+        setRegistrations(
+          resp.items
+            .filter((u: AdminUser) => u.role !== 'admin')
+            .slice(0, 6)
+            .map(toRecentRegistration)
+        )
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    loadData().finally(() => setIsLoading(false))
+  }, [loadData])
 
   if (isLoading) return <DashboardSkeleton />
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setRefreshing(true)
-    setTimeout(() => setRefreshing(false), 1000)
+    await loadData().catch(() => {})
+    setRefreshing(false)
   }
 
   return (
@@ -101,26 +195,26 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in-stagger">
         <StatCard
           title="Toplam Kullanıcı"
-          value={mockStats.totalUsers.toLocaleString('tr-TR')}
+          value={stats.totalUsers.toLocaleString('tr-TR')}
           icon={Users}
           color="blue"
           featured
         />
         <StatCard
           title="Diyetisyenler"
-          value={mockStats.totalDietitians.toLocaleString('tr-TR')}
+          value={stats.totalDietitians.toLocaleString('tr-TR')}
           icon={UserCheck}
           color="green"
         />
         <StatCard
           title="Hastalar"
-          value={mockStats.totalPatients.toLocaleString('tr-TR')}
+          value={stats.totalPatients.toLocaleString('tr-TR')}
           icon={UserPlus}
           color="purple"
         />
         <StatCard
           title="Aktif Oturum"
-          value={mockStats.activeSessions.toLocaleString('tr-TR')}
+          value={stats.activeSessions.toLocaleString('tr-TR')}
           icon={Activity}
           color="yellow"
         />
@@ -135,7 +229,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockHealth.map((service) => {
+              {health.map((service) => {
                 const config = statusConfig[service.status]
                 const ServiceIcon = healthIcons[service.name] ?? Server
                 return (
@@ -179,7 +273,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              {mockRegistrations.map((reg) => (
+              {registrations.map((reg) => (
                 <div
                   key={reg.id}
                   className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-secondary/50"

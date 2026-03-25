@@ -56,8 +56,12 @@ export async function getTodayMeals(): Promise<Meal[]> {
     await delay();
     return mockMeals.filter((m) => m.date === '2026-02-25');
   }
-  const { data } = await apiClient.get('/meals/today');
-  return (data.data || []).map(mapDbMealToMobile);
+  try {
+    const { data } = await apiClient.get('/meals/today');
+    return (data.data || []).map(mapDbMealToMobile);
+  } catch {
+    return [];
+  }
 }
 
 export async function getMealHistory(startDate: string, endDate: string): Promise<Meal[]> {
@@ -65,10 +69,14 @@ export async function getMealHistory(startDate: string, endDate: string): Promis
     await delay();
     return mockMeals.filter((m) => m.date >= startDate && m.date <= endDate);
   }
-  const { data } = await apiClient.get('/meals/history', {
-    params: { startDate, endDate },
-  });
-  return (data.data || []).map(mapDbMealToMobile);
+  try {
+    const { data } = await apiClient.get('/meals/history', {
+      params: { startDate, endDate },
+    });
+    return (data.data || []).map(mapDbMealToMobile);
+  } catch {
+    return [];
+  }
 }
 
 export async function addMeal(
@@ -97,16 +105,20 @@ export async function addMeal(
     snack: 'morning_snack',
   };
 
-  const { data } = await apiClient.post('/meals', {
-    mealType: mealTypeMap[type] || type,
-    logDate: date,
-    items: items.map((item) => ({
-      foodId: parseInt(item.food.id, 10),
-      amount: item.quantity,
-    })),
-    entryMethod: 'manual',
-  });
-  return mapDbMealToMobile(data.data);
+  try {
+    const { data } = await apiClient.post('/meals', {
+      mealType: mealTypeMap[type] || type,
+      logDate: date,
+      items: items.map((item) => ({
+        foodId: parseInt(item.food.id, 10),
+        amount: item.quantity,
+      })),
+      entryMethod: 'manual',
+    });
+    return mapDbMealToMobile(data.data);
+  } catch {
+    throw new Error('Öğün eklenemedi');
+  }
 }
 
 export async function updateMeal(id: string, mealData: Partial<Meal>): Promise<Meal> {
@@ -115,11 +127,15 @@ export async function updateMeal(id: string, mealData: Partial<Meal>): Promise<M
     const found = mockMeals.find((m) => m.id === id);
     return { ...found!, ...mealData };
   }
-  const { data } = await apiClient.put(`/meals/${id}`, {
-    mealType: mealData.type,
-    notes: mealData.notes,
-  });
-  return mapDbMealToMobile(data.data);
+  try {
+    const { data } = await apiClient.put(`/meals/${id}`, {
+      mealType: mealData.type,
+      notes: mealData.notes,
+    });
+    return mapDbMealToMobile(data.data);
+  } catch {
+    throw new Error('Öğün güncellenemedi');
+  }
 }
 
 export async function deleteMeal(id: string): Promise<void> {
@@ -127,7 +143,11 @@ export async function deleteMeal(id: string): Promise<void> {
     await delay(400);
     return;
   }
-  await apiClient.delete(`/meals/${id}`);
+  try {
+    await apiClient.delete(`/meals/${id}`);
+  } catch {
+    throw new Error('Öğün silinemedi');
+  }
 }
 
 export async function getMealById(id: string): Promise<Meal | null> {
@@ -135,6 +155,10 @@ export async function getMealById(id: string): Promise<Meal | null> {
     await delay(400);
     return mockMeals.find((m) => m.id === id) ?? null;
   }
-  const { data } = await apiClient.get(`/meals/${id}`);
-  return data.data ? mapDbMealToMobile(data.data) : null;
+  try {
+    const { data } = await apiClient.get(`/meals/${id}`);
+    return data.data ? mapDbMealToMobile(data.data) : null;
+  } catch {
+    return null;
+  }
 }

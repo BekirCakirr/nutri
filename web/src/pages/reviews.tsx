@@ -46,7 +46,7 @@ export default function ReviewsPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { fetchReviews(); const t = setTimeout(() => setIsLoading(false), 400); return () => clearTimeout(t) }, [])
+  useEffect(() => { const load = async () => { try { await fetchReviews() } catch {} setIsLoading(false) }; load() }, [])
 
   const handleReply = (reviewId: string) => {
     respondToReview(reviewId, replyText)
