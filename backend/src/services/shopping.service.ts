@@ -210,6 +210,62 @@ export async function toggleItem(itemId: string, userId: string) {
   return result.rows[0];
 }
 
+export async function addItemToList(
+  listId: string,
+  userId: string,
+  item: { foodName: string; amount?: string; category?: string; allergenWarning?: boolean; estimatedPriceTl?: number }
+) {
+  // Verify ownership
+  const patientId = await getPatientProfileId(userId);
+  const listCheck = await query(
+    "SELECT id FROM shopping_lists WHERE id = $1 AND patient_id = $2",
+    [listId, patientId]
+  );
+  if (listCheck.rows.length === 0) {
+    throw Object.assign(new Error("Liste bulunamadi veya erisim yetkiniz yok"), { statusCode: 404 });
+  }
+
+  // Get max sort_order
+  const maxOrder = await query(
+    "SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM shopping_list_items WHERE shopping_list_id = $1",
+    [listId]
+  );
+
+  const result = await query(
+    `INSERT INTO shopping_list_items (shopping_list_id, food_name, amount, category, allergen_warning, estimated_price_tl, sort_order)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [
+      listId,
+      item.foodName,
+      item.amount || null,
+      item.category || null,
+      item.allergenWarning || false,
+      item.estimatedPriceTl || null,
+      maxOrder.rows[0].next_order,
+    ]
+  );
+
+  return result.rows[0];
+}
+
+export async function deleteItem(itemId: string, userId: string) {
+  // Verify ownership through join
+  const patientId = await getPatientProfileId(userId);
+  const itemCheck = await query(
+    `SELECT sli.id FROM shopping_list_items sli
+     JOIN shopping_lists sl ON sl.id = sli.shopping_list_id
+     WHERE sli.id = $1 AND sl.patient_id = $2`,
+    [itemId, patientId]
+  );
+  if (itemCheck.rows.length === 0) {
+    throw Object.assign(new Error("Oge bulunamadi veya erisim yetkiniz yok"), { statusCode: 404 });
+  }
+
+  await query("DELETE FROM shopping_list_items WHERE id = $1", [itemId]);
+  return { deleted: true };
+}
+
 export async function deleteShoppingList(listId: string, userId: string) {
   const patientId = await getPatientProfileId(userId);
 

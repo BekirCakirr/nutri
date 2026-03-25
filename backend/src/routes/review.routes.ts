@@ -35,6 +35,16 @@ router.post(
   reviewController.createReview
 );
 
+router.post(
+  "/:id/respond",
+  authenticate,
+  authorize("dietitian"),
+  validate(z.object({
+    response: z.string().min(1, "Yanit metni gerekli").max(2000),
+  })),
+  reviewController.respondToReview
+);
+
 router.delete(
   "/:id",
   authenticate,

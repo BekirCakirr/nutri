@@ -116,6 +116,56 @@ export async function toggleItem(
   }
 }
 
+export async function addItem(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const item = await shoppingService.addItemToList(
+      req.params.id as string,
+      req.user!.userId,
+      req.body
+    );
+    sendSuccess({
+      res,
+      data: item,
+      message: "Oge basariyla eklendi",
+      statusCode: 201,
+    });
+  } catch (err: any) {
+    if (err.statusCode) {
+      sendError({ res, message: err.message, statusCode: err.statusCode });
+      return;
+    }
+    next(err);
+  }
+}
+
+export async function deleteItem(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await shoppingService.deleteItem(
+      req.params.itemId as string,
+      req.user!.userId
+    );
+    sendSuccess({
+      res,
+      data: null,
+      message: "Oge basariyla silindi",
+    });
+  } catch (err: any) {
+    if (err.statusCode) {
+      sendError({ res, message: err.message, statusCode: err.statusCode });
+      return;
+    }
+    next(err);
+  }
+}
+
 export async function deleteList(
   req: Request,
   res: Response,

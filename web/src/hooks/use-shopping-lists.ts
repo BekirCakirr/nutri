@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo } from "react";
 import {
   getShoppingLists,
   toggleItem as toggleItemApi,
+  addItem as addItemApi,
+  deleteItem as deleteItemApi,
 } from "@/services/shopping.service";
 
 // ---------------------------------------------------------------------------
@@ -94,10 +96,10 @@ export function useShoppingLists(patientId?: string) {
     ) => {
       setError(null);
       try {
-        // TODO: Backend POST /shopping-lists/:id/items endpoint needed
+        const result = await addItemApi(listId, { foodName: item.name, amount: item.quantity, category: item.category });
         const newItem: ShoppingListItem = {
+          id: (result as any)?.id ?? `sli_${Date.now()}`,
           ...item,
-          id: `sli_${Date.now()}`,
           checked: false,
         };
         setShoppingLists((prev) =>
@@ -124,7 +126,7 @@ export function useShoppingLists(patientId?: string) {
     async (listId: string, itemId: string) => {
       setError(null);
       try {
-        // TODO: Backend DELETE /shopping-lists/items/:id endpoint needed
+        await deleteItemApi(itemId);
         setShoppingLists((prev) =>
           prev.map((sl) =>
             sl.id === listId

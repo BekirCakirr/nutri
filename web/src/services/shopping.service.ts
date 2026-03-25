@@ -28,6 +28,18 @@ export async function deleteList(id: string): Promise<{ success: boolean }> {
   return { success: true };
 }
 
+export async function addItem(
+  listId: string,
+  item: { foodName: string; amount?: string; category?: string },
+): Promise<unknown> {
+  const { data } = await api.post(`/shopping-lists/${listId}/items`, item);
+  return data;
+}
+
+export async function deleteItem(itemId: string): Promise<void> {
+  await api.delete(`/shopping-lists/items/${itemId}`);
+}
+
 export async function shareList(_listId: string, _patientId: string): Promise<{ success: boolean }> {
   // Share code is generated on creation — just return success
   return { success: true };
