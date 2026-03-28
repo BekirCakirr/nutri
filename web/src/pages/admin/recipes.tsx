@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Search,
   Check,
@@ -32,6 +32,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PageContainer } from '@/components/shared/page-container'
+import { getRecipes } from '@/services/recipe.service'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
@@ -46,15 +47,6 @@ interface RecipeSubmission {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-const mockSubmissions: RecipeSubmission[] = [
-  { id: '1', title: 'Avokadolu Tost', category: 'Atıştırmalık', submittedBy: 'Dr. Mehmet Kara', submittedAt: '2026-02-25', calories: 290, status: 'pending' },
-  { id: '2', title: 'Karabuğday Pilavı', category: 'Ana Yemek', submittedBy: 'Dr. Zehra Gül', submittedAt: '2026-02-24', calories: 320, status: 'pending' },
-  { id: '3', title: 'Smoothie Bowl', category: 'Atıştırmalık', submittedBy: 'Dr. Ali Vural', submittedAt: '2026-02-24', calories: 250, status: 'pending' },
-  { id: '4', title: 'Mercimek Köftesi', category: 'Ana Yemek', submittedBy: 'Dr. Ayşe Yılmaz', submittedAt: '2026-02-23', calories: 180, status: 'approved' },
-  { id: '5', title: 'Chia Puding', category: 'Tatlı', submittedBy: 'Dr. Mehmet Kara', submittedAt: '2026-02-22', calories: 200, status: 'approved' },
-  { id: '6', title: 'Çikolatalı Kek (Şekerli)', category: 'Tatlı', submittedBy: 'Dr. Zehra Gül', submittedAt: '2026-02-21', calories: 450, status: 'rejected' },
-]
-
 const statusMap = {
   pending: { label: 'Bekliyor', variant: 'warning' as const },
   approved: { label: 'Onaylandı', variant: 'success' as const },
@@ -62,11 +54,32 @@ const statusMap = {
 }
 
 export default function AdminRecipesPage() {
-  const [recipes, setRecipes] = useState(mockSubmissions)
+  const [recipes, setRecipes] = useState<RecipeSubmission[]>([])
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
+
+  const loadRecipes = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const result = await getRecipes({ page: 1, limit: 50 })
+      setRecipes(result.items.map((r: any) => ({
+        id: r.id,
+        title: r.name ?? r.title ?? '',
+        category: r.category ?? '',
+        submittedBy: r.authorName ?? '',
+        submittedAt: r.createdAt ? r.createdAt.split('T')[0] : '',
+        calories: r.caloriesPerServing ?? r.nutritionPerServing?.calories ?? 0,
+        status: (r.isPublic ? 'approved' : 'pending') as RecipeSubmission['status'],
+      })))
+    } catch {
+      // silently fail
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { loadRecipes() }, [loadRecipes])
 
   const filtered = recipes.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())

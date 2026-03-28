@@ -61,91 +61,6 @@ interface MealReview {
 
 type ColumnStatus = 'pending' | 'approved' | 'rejected'
 
-/* ─── Mock data ────────────────────────────────── */
-
-const mockReviews: MealReview[] = [
-  {
-    id: '1',
-    patientName: 'Ayşe Yılmaz',
-    patientId: '1',
-    date: '2026-02-25',
-    mealType: 'Kahvaltı',
-    items: ['Yulaf ezmesi (200g)', 'Muz (1 adet)', 'Bal (1 yemek kaşığı)', 'Ceviz (30g)'],
-    totalCalories: 420,
-    protein: 12,
-    carbs: 65,
-    fat: 14,
-    imageUrl: null,
-    status: 'pending',
-    aiScore: 82,
-    aiSummary: 'Dengeli kahvaltı. Protein biraz düşük, bir yumurta veya yoğurt eklenebilir.',
-  },
-  {
-    id: '2',
-    patientName: 'Mehmet Kaya',
-    patientId: '2',
-    date: '2026-02-25',
-    mealType: 'Öğle',
-    items: ['Tavuk göğsü (150g)', 'Bulgur pilavı (200g)', 'Mevsim salata', 'Ayran (1 bardak)'],
-    totalCalories: 580,
-    protein: 42,
-    carbs: 68,
-    fat: 12,
-    imageUrl: null,
-    status: 'pending',
-    aiScore: 94,
-    aiSummary: 'Mükemmel öğün dengesi. Yüksek protein, düşük yağ, yeterli lif.',
-  },
-  {
-    id: '3',
-    patientName: 'Fatma Demir',
-    patientId: '3',
-    date: '2026-02-25',
-    mealType: 'Akşam',
-    items: ['Izgara somon (200g)', 'Kuşkonmaz (150g)', 'Kinoa (100g)'],
-    totalCalories: 520,
-    protein: 45,
-    carbs: 30,
-    fat: 22,
-    imageUrl: null,
-    status: 'pending',
-    aiScore: 90,
-    aiSummary: 'Omega-3 açısından zengin. Karb oranı biraz düşük ama akşam yemeği için uygun.',
-  },
-  {
-    id: '4',
-    patientName: 'Zeynep Çelik',
-    patientId: '5',
-    date: '2026-02-25',
-    mealType: 'Ara Öğün',
-    items: ['Yoğurt (200g)', 'Çilek (100g)', 'Chia tohumu (1 yemek kaşığı)'],
-    totalCalories: 180,
-    protein: 10,
-    carbs: 22,
-    fat: 6,
-    imageUrl: null,
-    status: 'pending',
-    aiScore: 78,
-    aiSummary: 'Hafif ve besleyici ara öğün. Porsiyon biraz küçük olabilir.',
-  },
-  {
-    id: '5',
-    patientName: 'Elif Arslan',
-    patientId: '7',
-    date: '2026-02-24',
-    mealType: 'Kahvaltı',
-    items: ['Omlet (3 yumurta)', 'Tam buğday ekmek (2 dilim)', 'Peynir (40g)', 'Domates-salatalık'],
-    totalCalories: 480,
-    protein: 28,
-    carbs: 35,
-    fat: 24,
-    imageUrl: null,
-    status: 'pending',
-    aiScore: 86,
-    aiSummary: 'Protein açısından zengin kahvaltı. Yağ oranı biraz yüksek, peynir porsiyon kontrolü önerilir.',
-  },
-]
-
 /* ─── Kanban column config ─────────────────────── */
 
 const columnConfig: Record<ColumnStatus, { label: string; badgeVariant: 'warning' | 'success' | 'destructive'; emptyIcon: typeof Clock; emptyText: string }> = {
@@ -594,7 +509,7 @@ function KanbanColumn({
 
 export default function MealReviewPage() {
   const { meals: hookMeals, fetchMeals, error: mealsError } = useMeals()
-  const [reviews, setReviews] = useState(mockReviews)
+  const [reviews, setReviews] = useState<MealReview[]>([])
   const [search, setSearch] = useState('')
   const [mealTypeFilter, setMealTypeFilter] = useState('all')
   const [notes, setNotes] = useState<Record<string, string>>({})

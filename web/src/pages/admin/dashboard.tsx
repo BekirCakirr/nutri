@@ -47,29 +47,6 @@ interface RecentRegistration {
   role: 'patient' | 'dietitian'
   date: string
 }
-
-const mockStats = {
-  totalUsers: 1_247,
-  totalDietitians: 86,
-  totalPatients: 1_143,
-  activeSessions: 312,
-}
-
-const mockHealth: SystemHealth[] = [
-  { name: 'API Sunucusu', status: 'operational', latency: '45ms', uptime: '%99.98' },
-  { name: 'Veritabanı', status: 'operational', latency: '12ms', uptime: '%99.95' },
-  { name: 'Depolama', status: 'degraded', latency: '320ms', uptime: '%98.70' },
-]
-
-const mockRegistrations: RecentRegistration[] = [
-  { id: '1', name: 'Elif Arslan', email: 'elif.arslan@mail.com', role: 'patient', date: '5 dk önce' },
-  { id: '2', name: 'Dr. Ahmet Yıldırım', email: 'ahmet.y@mail.com', role: 'dietitian', date: '12 dk önce' },
-  { id: '3', name: 'Selin Korkmaz', email: 'selin.k@mail.com', role: 'patient', date: '28 dk önce' },
-  { id: '4', name: 'Burak Şahin', email: 'burak.s@mail.com', role: 'patient', date: '1 saat önce' },
-  { id: '5', name: 'Dr. Merve Öztürk', email: 'merve.oz@mail.com', role: 'dietitian', date: '2 saat önce' },
-  { id: '6', name: 'Canan Demir', email: 'canan.d@mail.com', role: 'patient', date: '3 saat önce' },
-]
-
 /** Convert API AdminUser to local RecentRegistration format */
 function toRecentRegistration(user: AdminUser): RecentRegistration {
   const role = user.role === 'dietitian' ? 'dietitian' : 'patient'
@@ -126,9 +103,9 @@ export default function AdminDashboardPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  const [stats, setStats] = useState(mockStats)
-  const [health, setHealth] = useState<SystemHealth[]>(mockHealth)
-  const [registrations, setRegistrations] = useState<RecentRegistration[]>(mockRegistrations)
+  const [stats, setStats] = useState({ totalUsers: 0, totalDietitians: 0, totalPatients: 0, activeSessions: 0 })
+  const [health, setHealth] = useState<SystemHealth[]>([])
+  const [registrations, setRegistrations] = useState<RecentRegistration[]>([])
 
   const loadData = useCallback(async () => {
     const results = await Promise.allSettled([
@@ -157,14 +134,12 @@ export default function AdminDashboardPage() {
     // Recent registrations
     if (results[2].status === 'fulfilled') {
       const resp = results[2].value
-      if (resp.items.length > 0) {
-        setRegistrations(
-          resp.items
-            .filter((u: AdminUser) => u.role !== 'admin')
-            .slice(0, 6)
-            .map(toRecentRegistration)
-        )
-      }
+      setRegistrations(
+        resp.items
+          .filter((u: AdminUser) => u.role !== 'admin')
+          .slice(0, 6)
+          .map(toRecentRegistration)
+      )
     }
   }, [])
 

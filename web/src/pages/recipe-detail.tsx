@@ -2,93 +2,81 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Clock, Flame, Users, Plus, ImageIcon, Printer } from 'lucide-react'
 import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
+import { EmptyState } from '@/components/shared/empty-state'
 import { getRecipe } from '@/services/recipe.service'
+import type { Recipe } from '@/services/recipe.service'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
-const mockRecipe = {
-  id: '1',
-  title: 'Izgara Tavuk Salata',
-  description: 'Protein açısından zengin, düşük kalorili sağlıklı bir ana yemek. Taze sebzeler ve ızgara tavuk göğsü ile hazırlanan bu salata, diyet yapanlar için ideal bir öğün seçeneğidir.',
-  category: 'Ana Yemek',
-  difficulty: 'Kolay',
-  prepTime: 15,
-  cookTime: 10,
-  servings: 2,
-  calories: 380,
-  protein: 35,
-  carbs: 12,
-  fat: 18,
-  fiber: 4,
-  sodium: 520,
-  ingredients: [
-    { name: 'Tavuk göğsü', amount: '300g' },
-    { name: 'Marul (karışık)', amount: '200g' },
-    { name: 'Kiraz domates', amount: '150g' },
-    { name: 'Salatalık', amount: '1 adet' },
-    { name: 'Kırmızı soğan', amount: '1/2 adet' },
-    { name: 'Zeytinyağı', amount: '2 yemek kaşığı' },
-    { name: 'Limon suyu', amount: '1 yemek kaşığı' },
-    { name: 'Tuz', amount: 'Bir tutam' },
-    { name: 'Karabiber', amount: 'Bir tutam' },
-    { name: 'Kekik', amount: '1 çay kaşığı' },
-  ],
-  steps: [
-    'Tavuk göğsünü tuz, karabiber ve kekik ile marine edin.',
-    'Izgarayı orta-yüksek ısıda ısıtın.',
-    'Tavuğu her iki tarafını da 5-6 dakika pişirin.',
-    'Pişen tavuğu 5 dakika dinlendirin, ardından dilimleyin.',
-    'Marulu yıkayıp kurulayın ve servis tabağına yerleştirin.',
-    'Domatesleri ikiye kesin, salatalığı dilimleyin, soğanı halka halka doğrayın.',
-    'Sebzeleri marulun üzerine yerleştirin.',
-    'Zeytinyağı ve limon suyunu karıştırarak sos hazırlayın.',
-    'Dilimlenmiş tavuğu salatanın üzerine ekleyin.',
-    'Sosu üzerine gezdirip servis edin.',
-  ],
+const difficultyLabel: Record<string, string> = {
+  easy: 'Kolay',
+  medium: 'Orta',
+  hard: 'Zor',
+  expert: 'Uzman',
 }
 
 export default function RecipeDetailPage() {
   const { id } = useParams()
-  const [apiRecipe, setApiRecipe] = useState<any>(null)
-
+  const navigate = useNavigate()
+  const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
   useEffect(() => {
+    if (!id) { setNotFound(true); setIsLoading(false); return }
     const load = async () => {
       try {
-        if (id) {
-          const data = await getRecipe(id)
-          if (data) {
-            setApiRecipe({
-              ...mockRecipe,
-              id: data.id ?? mockRecipe.id,
-              title: (data as any).name ?? mockRecipe.title,
-              description: (data as any).description ?? mockRecipe.description,
-              category: (data as any).category ?? mockRecipe.category,
-              calories: (data as any).caloriesPerServing ?? (data as any).calories ?? mockRecipe.calories,
-              protein: (data as any).proteinPerServing ?? (data as any).protein ?? mockRecipe.protein,
-              carbs: (data as any).carbsPerServing ?? (data as any).carbs ?? mockRecipe.carbs,
-              fat: (data as any).fatPerServing ?? (data as any).fat ?? mockRecipe.fat,
-              prepTime: (data as any).prepTimeMin ?? mockRecipe.prepTime,
-              cookTime: (data as any).cookTimeMin ?? mockRecipe.cookTime,
-              servings: (data as any).servings ?? mockRecipe.servings,
-              difficulty: (data as any).difficulty ?? mockRecipe.difficulty,
-            })
-          }
-        }
-      } catch {}
-      setIsLoading(false)
+        const data = await getRecipe(id)
+        if (data) setRecipe(data)
+        else setNotFound(true)
+      } catch {
+        setNotFound(true)
+      } finally {
+        setIsLoading(false)
+      }
     }
     load()
   }, [id])
 
-  // Use API data if available, fallback to mock
-  const recipe = apiRecipe ?? mockRecipe
-  void id
-  const navigate = useNavigate()
-
   if (isLoading) return <DetailPageSkeleton />
+
+  if (notFound || !recipe) {
+    return (
+      <div className="mx-auto max-w-4xl">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/recipes')} className="-ml-2 mb-4">
+          <ArrowLeft className="h-4 w-4" />
+          Tarifler
+        </Button>
+        <EmptyState
+          icon={ImageIcon}
+          title="Tarif bulunamadı"
+          description="Bu tarif mevcut değil veya kaldırılmış olabilir."
+        />
+      </div>
+    )
+  }
+
+  const calories = (recipe as any).nutritionPerServing?.calories ?? (recipe as any).caloriesPerServing ?? (recipe as any).calories ?? 0
+  const protein = (recipe as any).nutritionPerServing?.protein ?? (recipe as any).proteinPerServing ?? (recipe as any).protein ?? 0
+  const carbs = (recipe as any).nutritionPerServing?.carbohydrates ?? (recipe as any).carbsPerServing ?? (recipe as any).carbs ?? 0
+  const fat = (recipe as any).nutritionPerServing?.fat ?? (recipe as any).fatPerServing ?? (recipe as any).fat ?? 0
+  const fiber = (recipe as any).nutritionPerServing?.fiber ?? (recipe as any).fiber ?? 0
+  const sodium = (recipe as any).nutritionPerServing?.sodium ?? (recipe as any).sodium ?? 0
+  const prepTime = (recipe as any).prepTimeMinutes ?? (recipe as any).prepTimeMin ?? (recipe as any).prepTime ?? 0
+  const cookTime = (recipe as any).cookTimeMinutes ?? (recipe as any).cookTimeMin ?? (recipe as any).cookTime ?? 0
+  const title = (recipe as any).name ?? recipe.title ?? ''
+  const description = recipe.description ?? ''
+  const difficulty = difficultyLabel[recipe.difficulty] ?? recipe.difficulty
+  const category = (recipe as any).categoryLabel ?? recipe.category ?? ''
+  const ingredients: Array<{ name: string; amount: string }> = ((recipe as any).ingredients ?? []).map((ing: any) => ({
+    name: ing.name ?? '',
+    amount: ing.amount != null ? `${ing.amount}${ing.unit ? ` ${ing.unit}` : ''}` : '',
+  }))
+  const steps: string[] = ((recipe as any).steps ?? []).map((s: any) =>
+    typeof s === 'string' ? s : (s.instruction ?? '')
+  )
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 animate-fade-up">
@@ -99,10 +87,10 @@ export default function RecipeDetailPage() {
         </Button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
-            <Badge variant="outline">{recipe.category}</Badge>
-            <Badge variant="success">{recipe.difficulty}</Badge>
+            <Badge variant="outline">{category}</Badge>
+            <Badge variant="success">{difficulty}</Badge>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">{recipe.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         </div>
         <div className="flex gap-2 shrink-0">
           <Button variant="outline" size="icon-sm"><Printer className="h-4 w-4" /></Button>
@@ -111,19 +99,23 @@ export default function RecipeDetailPage() {
       </div>
 
       {/* Image placeholder */}
-      <div className="h-56 bg-secondary/50 rounded-xl flex items-center justify-center">
-        <ImageIcon className="h-10 w-10 text-muted-foreground/20" />
-      </div>
+      {recipe.imageUrl ? (
+        <img src={recipe.imageUrl} alt={title} className="h-56 w-full object-cover rounded-xl" />
+      ) : (
+        <div className="h-56 bg-secondary/50 rounded-xl flex items-center justify-center">
+          <ImageIcon className="h-10 w-10 text-muted-foreground/20" />
+        </div>
+      )}
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground leading-relaxed">{recipe.description}</p>
+      {description && <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>}
 
       {/* Quick info */}
       <div className="flex items-center gap-6 flex-wrap text-sm">
-        <span className="flex items-center gap-1.5 text-muted-foreground"><Clock className="h-4 w-4" />Hazırlık: {recipe.prepTime} dk</span>
-        <span className="flex items-center gap-1.5 text-muted-foreground"><Clock className="h-4 w-4" />Pişirme: {recipe.cookTime} dk</span>
-        <span className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4" />{recipe.servings} kişilik</span>
-        <span className="flex items-center gap-1.5 text-muted-foreground"><Flame className="h-4 w-4" />{recipe.calories} kcal</span>
+        {prepTime > 0 && <span className="flex items-center gap-1.5 text-muted-foreground"><Clock className="h-4 w-4" />Hazırlık: {prepTime} dk</span>}
+        {cookTime > 0 && <span className="flex items-center gap-1.5 text-muted-foreground"><Clock className="h-4 w-4" />Pişirme: {cookTime} dk</span>}
+        {recipe.servings > 0 && <span className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4" />{recipe.servings} kişilik</span>}
+        {calories > 0 && <span className="flex items-center gap-1.5 text-muted-foreground"><Flame className="h-4 w-4" />{calories} kcal</span>}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -133,12 +125,12 @@ export default function RecipeDetailPage() {
             <CardHeader><CardTitle className="text-sm">Besin Değerleri</CardTitle></CardHeader>
             <CardContent className="space-y-2.5">
               {[
-                ['Kalori', `${recipe.calories} kcal`],
-                ['Protein', `${recipe.protein}g`],
-                ['Karbonhidrat', `${recipe.carbs}g`],
-                ['Yağ', `${recipe.fat}g`],
-                ['Lif', `${recipe.fiber}g`],
-                ['Sodyum', `${recipe.sodium}mg`],
+                ['Kalori', `${calories} kcal`],
+                ['Protein', `${protein}g`],
+                ['Karbonhidrat', `${carbs}g`],
+                ['Yağ', `${fat}g`],
+                ['Lif', `${fiber}g`],
+                ['Sodyum', `${sodium}mg`],
               ].map(([label, val], i) => (
                 <div key={label}>
                   <div className="flex justify-between text-sm">
@@ -151,19 +143,21 @@ export default function RecipeDetailPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="text-sm">Malzemeler</CardTitle></CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {recipe.ingredients.map((ing: any, i: number) => (
-                  <li key={i} className="flex items-center justify-between text-sm">
-                    <span>{ing.name}</span>
-                    <span className="text-muted-foreground tabular-nums">{ing.amount}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          {ingredients.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle className="text-sm">Malzemeler</CardTitle></CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {ingredients.map((ing, i) => (
+                    <li key={i} className="flex items-center justify-between text-sm">
+                      <span>{ing.name}</span>
+                      <span className="text-muted-foreground tabular-nums">{ing.amount}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right column — Steps */}
@@ -171,16 +165,20 @@ export default function RecipeDetailPage() {
           <Card>
             <CardHeader><CardTitle className="text-sm">Hazırlanışı</CardTitle></CardHeader>
             <CardContent>
-              <ol className="space-y-4">
-                {recipe.steps.map((step: any, i: number) => (
-                  <li key={i} className="flex gap-4">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                      {i + 1}
-                    </div>
-                    <p className="text-sm pt-0.5 leading-relaxed">{step}</p>
-                  </li>
-                ))}
-              </ol>
+              {steps.length > 0 ? (
+                <ol className="space-y-4">
+                  {steps.map((step, i) => (
+                    <li key={i} className="flex gap-4">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                        {i + 1}
+                      </div>
+                      <p className="text-sm pt-0.5 leading-relaxed">{step}</p>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="text-sm text-muted-foreground">Hazırlanış adımları mevcut değil.</p>
+              )}
             </CardContent>
           </Card>
         </div>

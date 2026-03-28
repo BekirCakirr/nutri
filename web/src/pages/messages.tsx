@@ -46,42 +46,6 @@ interface Message {
   isOwn: boolean
   status: 'sent' | 'delivered' | 'read'
 }
-
-/* ------------------------------------------------------------------ */
-/*  Mock Data                                                          */
-/* ------------------------------------------------------------------ */
-
-const mockConversations: Conversation[] = [
-  { id: '1', patientName: 'Ayse Yilmaz', lastMessage: 'Tesekkurler, yarinki randevuda gorusuruz!', lastMessageTime: '14:50', unreadCount: 0, isOnline: true, isTyping: false },
-  { id: '2', patientName: 'Mehmet Kaya', lastMessage: 'Bugun cok fazla yedim galiba...', lastMessageTime: '13:20', unreadCount: 2, isOnline: true, isTyping: true },
-  { id: '3', patientName: 'Fatma Demir', lastMessage: 'Antrenman sonrasi ne yesem iyi olur?', lastMessageTime: '11:45', unreadCount: 1, isOnline: false },
-  { id: '4', patientName: 'Zeynep Celik', lastMessage: 'Planimdaki degisikligi gordum, tesekkurler.', lastMessageTime: 'Dun', unreadCount: 0, isOnline: false },
-]
-
-const mockMessages: Record<string, Message[]> = {
-  '1': [
-    { id: '1', text: 'Merhaba, bugunku ogle yemegim hakkinda bir sorum var.', time: '14:20', date: 'Bugun', isOwn: false, status: 'read' },
-    { id: '2', text: 'Tavuk salata yedim ama porsiyon biraz fazla olmus olabilir.', time: '14:21', date: 'Bugun', isOwn: false, status: 'read' },
-    { id: '3', text: 'Merhaba Ayse, tavuk salata guzel bir tercih. Porsiyon ne kadardi?', time: '14:30', date: 'Bugun', isOwn: true, status: 'read' },
-    { id: '4', text: 'Yaklasik 300g tavuk ve bol yesillik.', time: '14:32', date: 'Bugun', isOwn: false, status: 'read' },
-    { id: '5', text: 'Protein miktari yeterli ama tavugu 200g ile sinirlandirebilirsiniz. Geri kalan kaloriyi aksam yemeginden duseriz.', time: '14:40', date: 'Bugun', isOwn: true, status: 'read' },
-    { id: '6', text: 'Anladim, cok tesekkur ederim!', time: '14:45', date: 'Bugun', isOwn: false, status: 'read' },
-    { id: '7', text: 'Rica ederim. Yarinki randevuda detayli konusuruz.', time: '14:48', date: 'Bugun', isOwn: true, status: 'delivered' },
-    { id: '8', text: 'Tesekkurler, yarinki randevuda gorusuruz!', time: '14:50', date: 'Bugun', isOwn: false, status: 'read' },
-  ],
-  '2': [
-    { id: '1', text: 'Hocam dun aksam hafif bir salata yedim, cok iyi hissettim.', time: '18:20', date: 'Dun', isOwn: false, status: 'read' },
-    { id: '2', text: 'Harika, aynen devam!', time: '18:45', date: 'Dun', isOwn: true, status: 'read' },
-    { id: '3', text: 'Hocam bugun iste stresli bir gun gecirdim.', time: '12:50', date: 'Bugun', isOwn: false, status: 'read' },
-    { id: '4', text: 'Ogle yemeginde fazla yedim.', time: '12:51', date: 'Bugun', isOwn: false, status: 'delivered' },
-    { id: '5', text: 'Bugun cok fazla yedim galiba...', time: '13:20', date: 'Bugun', isOwn: false, status: 'delivered' },
-  ],
-  '3': [
-    { id: '1', text: 'Merhaba, bugun sabah antremanim vardi.', time: '11:30', date: 'Bugun', isOwn: false, status: 'read' },
-    { id: '2', text: 'Antrenman sonrasi ne yesem iyi olur?', time: '11:45', date: 'Bugun', isOwn: false, status: 'delivered' },
-  ],
-}
-
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -217,7 +181,7 @@ export default function MessagesPage() {
     load()
   }, [])
 
-  // Map hook conversations to local type (fallback to mock for demo)
+  // Map hook conversations to local type
   const conversations: Conversation[] = hookConversations.length > 0
     ? hookConversations.map((c: any) => ({
       id: c.id,
@@ -228,7 +192,7 @@ export default function MessagesPage() {
       isOnline: c.isOnline ?? false,
       isTyping: false,
     }))
-    : mockConversations
+    : []
 
   // Map hook messages to local type
   const mappedMessages: Message[] = hookMessages.length > 0
@@ -240,7 +204,7 @@ export default function MessagesPage() {
       isOwn: m.isOwn ?? m.senderRole === 'dietitian',
       status: 'read' as const,
     }))
-    : (mockMessages[selectedConversation] || [])
+    : []
 
   const filteredConversations = conversations.filter((c) =>
     c.patientName.toLowerCase().includes(search.toLowerCase())

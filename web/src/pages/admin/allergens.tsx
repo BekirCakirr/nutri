@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Plus,
   Pencil,
@@ -39,7 +39,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
-import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
@@ -54,17 +53,6 @@ interface Allergen {
   affectedPatients: number
 }
 
-const mockAllergens: Allergen[] = [
-  { id: '1', name: 'Gluten', code: 'GLT', severity: 'high', description: 'Buğday, arpa, çavdar ve yulafta bulunan protein karışımı.', commonFoods: 'Ekmek, makarna, pasta, bisküvi', affectedPatients: 12 },
-  { id: '2', name: 'Laktoz', code: 'LCT', severity: 'medium', description: 'Süt ve süt ürünlerinde bulunan şeker.', commonFoods: 'Süt, peynir, yoğurt, tereyağı', affectedPatients: 18 },
-  { id: '3', name: 'Fıstık', code: 'PNT', severity: 'high', description: 'Yer fıstığı ve fıstık ürünlerinde bulunan alerjen.', commonFoods: 'Fıstık ezmesi, çerez, bazı atıştırmalıklar', affectedPatients: 5 },
-  { id: '4', name: 'Kabuklu Deniz Ürünleri', code: 'SHL', severity: 'high', description: 'Karides, yengeç, istakoz gibi kabuklu deniz ürünleri.', commonFoods: 'Karides, midye, istiridye', affectedPatients: 3 },
-  { id: '5', name: 'Yumurta', code: 'EGG', severity: 'medium', description: 'Yumurta beyazı ve sarısında bulunan proteinler.', commonFoods: 'Yumurta, mayonez, bazı hamur işleri', affectedPatients: 8 },
-  { id: '6', name: 'Soya', code: 'SOY', severity: 'low', description: 'Soya fasulyesi ve türevlerinde bulunan protein.', commonFoods: 'Soya sosu, tofu, soya sütü', affectedPatients: 4 },
-  { id: '7', name: 'Ağaç Fındıkları', code: 'TNT', severity: 'high', description: 'Ceviz, badem, fındık gibi ağaç kabuklu yemişler.', commonFoods: 'Ceviz, badem, fındık, kaju', affectedPatients: 7 },
-  { id: '8', name: 'Buğday', code: 'WHT', severity: 'medium', description: 'Buğday ve buğday türevlerinde bulunan protein.', commonFoods: 'Ekmek, un, makarna', affectedPatients: 6 },
-]
-
 const severityMap = {
   low: { label: 'Düşük', variant: 'success' as const },
   medium: { label: 'Orta', variant: 'warning' as const },
@@ -72,19 +60,16 @@ const severityMap = {
 }
 
 export default function AdminAllergensPage() {
+  const [allergens] = useState<Allergen[]>([])
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
 
-  const filtered = mockAllergens.filter((a) =>
+  const filtered = allergens.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  const highCount = mockAllergens.filter(a => a.severity === 'high').length
-  const totalAffected = mockAllergens.reduce((sum, a) => sum + a.affectedPatients, 0)
-
-  if (isLoading) return <ListPageSkeleton />
+  const highCount = allergens.filter(a => a.severity === 'high').length
+  const totalAffected = allergens.reduce((sum, a) => sum + a.affectedPatients, 0)
 
   return (
     <PageContainer
@@ -146,7 +131,7 @@ export default function AdminAllergensPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 animate-in-stagger">
         <StatCard
           title="Toplam Alerjen"
-          value={mockAllergens.length}
+          value={allergens.length}
           icon={ShieldAlert}
           color="blue"
         />

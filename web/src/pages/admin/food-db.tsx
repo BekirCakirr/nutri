@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Search,
   Plus,
@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
+import { searchFoods } from '@/services/food.service'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 
@@ -54,33 +55,44 @@ interface FoodDBItem {
   isVerified: boolean
 }
 
-const mockFoods: FoodDBItem[] = [
-  { id: '1', name: 'Tavuk Göğsü (Pişmiş)', category: 'Protein', caloriesPer100g: 165, protein: 31, carbs: 0, fat: 3.6, source: 'USDA', isVerified: true },
-  { id: '2', name: 'Yulaf Ezmesi', category: 'Tahıl', caloriesPer100g: 389, protein: 17, carbs: 66, fat: 7, source: 'USDA', isVerified: true },
-  { id: '3', name: 'Somon (Izgara)', category: 'Deniz Ürünü', caloriesPer100g: 208, protein: 20, carbs: 0, fat: 13, source: 'USDA', isVerified: true },
-  { id: '4', name: 'Beyaz Peynir', category: 'Süt Ürünü', caloriesPer100g: 264, protein: 18, carbs: 1.5, fat: 21, source: 'Özel', isVerified: false },
-  { id: '5', name: 'Kuru Fasulye (Pişmiş)', category: 'Baklagil', caloriesPer100g: 127, protein: 9, carbs: 22, fat: 0.5, source: 'USDA', isVerified: true },
-  { id: '6', name: 'Elma', category: 'Meyve', caloriesPer100g: 52, protein: 0.3, carbs: 14, fat: 0.2, source: 'USDA', isVerified: true },
-  { id: '7', name: 'Zeytinyağı', category: 'Yağ', caloriesPer100g: 884, protein: 0, carbs: 0, fat: 100, source: 'USDA', isVerified: true },
-  { id: '8', name: 'Kinoa', category: 'Tahıl', caloriesPer100g: 120, protein: 4.4, carbs: 21, fat: 1.9, source: 'Topluluk', isVerified: false },
-  { id: '9', name: 'Yoğurt (Tam Yağlı)', category: 'Süt Ürünü', caloriesPer100g: 61, protein: 3.5, carbs: 4.7, fat: 3.3, source: 'USDA', isVerified: true },
-  { id: '10', name: 'Brokoli', category: 'Sebze', caloriesPer100g: 34, protein: 2.8, carbs: 7, fat: 0.4, source: 'USDA', isVerified: true },
-]
-
 export default function AdminFoodDBPage() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
+  const [foods, setFoods] = useState<FoodDBItem[]>([])
 
-  const filtered = mockFoods.filter((f) => {
+  const loadFoods = useCallback(async (query: string) => {
+    setIsLoading(true)
+    try {
+      const results = await searchFoods(query || 'a')
+      setFoods(results.map((f: any) => ({
+        id: f.id,
+        name: f.name ?? '',
+        category: f.category ?? '',
+        caloriesPer100g: f.caloriesPer100g ?? f.nutrition?.calories ?? 0,
+        protein: f.proteinPer100g ?? f.nutrition?.protein ?? 0,
+        carbs: f.carbsPer100g ?? f.nutrition?.carbohydrates ?? 0,
+        fat: f.fatPer100g ?? f.nutrition?.fat ?? 0,
+        source: f.source ?? '',
+        isVerified: f.isVerified ?? false,
+      })))
+    } catch {
+      // silently fail — keep existing data
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { loadFoods(search) }, [])
+
+  const filtered = foods.filter((f) => {
     const matchesSearch = f.name.toLowerCase().includes(search.toLowerCase())
     const matchesCategory = categoryFilter === 'all' || f.category === categoryFilter
     return matchesSearch && matchesCategory
   })
 
-  const categories = [...new Set(mockFoods.map(f => f.category))]
+  const categories = [...new Set(foods.map(f => f.category))]
 
   if (isLoading) return <ListPageSkeleton />
 

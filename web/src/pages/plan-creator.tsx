@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { usePatients } from '@/hooks/use-patients'
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
@@ -152,15 +152,12 @@ const dailyTargets = {
 
 export default function PlanCreatorPage() {
   const { patientId } = useParams()
-  const { allPatients } = usePatients()
+  const { allPatients, isLoading: patientsLoading } = usePatients()
   const [selectedPatient, setSelectedPatient] = useState(patientId || '')
   const [selectedDay, setSelectedDay] = useState<string>('Pazartesi')
   const [planTitle, setPlanTitle] = useState('Kilo Verme Programı - Hafta 1')
   const [items, setItems] = useState<Record<string, PlanItem[]>>(sampleItems)
-  const [isPageLoading, setIsPageLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsPageLoading(false), 400); return () => clearTimeout(t) }, [])
-
-  if (isPageLoading) return <PlanCreatorSkeleton />
+  if (patientsLoading) return <PlanCreatorSkeleton />
 
   /* ---------- helpers ---------- */
 
