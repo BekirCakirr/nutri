@@ -1,20 +1,31 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { CameraStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
+import { useCamera } from '../../hooks'
 
 type Nav = StackNavigationProp<CameraStackParamList>
 
 export default function CameraCaptureScreen() {
   const navigation = useNavigation<Nav>()
   const [mode, setMode] = useState<'photo' | 'barcode'>('photo')
+  const { takePhoto, pickImage, isProcessing } = useCamera()
 
-  const handleCapture = () => {
-    // Simulate photo capture
-    navigation.navigate('PhotoAnalysis', { photoUri: 'mock://photo.jpg' })
+  const handleCapture = async () => {
+    const result = await takePhoto()
+    if (result?.uri) {
+      navigation.navigate('PhotoAnalysis', { photoUri: result.uri, base64: result.base64 })
+    }
+  }
+
+  const handleGallery = async () => {
+    const result = await pickImage()
+    if (result?.uri) {
+      navigation.navigate('PhotoAnalysis', { photoUri: result.uri, base64: result.base64 })
+    }
   }
 
   return (
@@ -65,14 +76,29 @@ export default function CameraCaptureScreen() {
           </View>
 
           {/* Capture button */}
-          <View className="items-center">
+          <View className="flex-row justify-center items-center gap-10">
+            <TouchableOpacity
+              onPress={handleGallery}
+              className="w-14 h-14 rounded-full bg-white/10 items-center justify-center"
+              disabled={isProcessing}
+            >
+              <Ionicons name="images-outline" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+
             <TouchableOpacity
               onPress={handleCapture}
               className="w-20 h-20 rounded-full border-4 border-white items-center justify-center"
               activeOpacity={0.7}
+              disabled={isProcessing}
             >
-              <View className="w-16 h-16 rounded-full bg-white" />
+              {isProcessing ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <View className="w-16 h-16 rounded-full bg-white" />
+              )}
             </TouchableOpacity>
+            
+            <View className="w-14 h-14" /> {/* Spacer to center capture button */}
           </View>
 
           {/* Bottom shortcuts */}

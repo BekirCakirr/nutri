@@ -60,7 +60,6 @@ router.get(
 router.get(
   "/history",
   authenticate,
-  authorize("patient"),
   mealController.getMealHistory
 );
 

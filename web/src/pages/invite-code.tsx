@@ -41,15 +41,6 @@ interface InviteCode {
   status: 'active' | 'used' | 'expired' | 'deactivated'
 }
 
-const mockCodes: InviteCode[] = [
-  { id: '1', code: 'NUTRI-A3K7-XP2M', createdAt: '2026-02-25', usedBy: null, usedAt: null, status: 'active' },
-  { id: '2', code: 'NUTRI-B8F2-QR5N', createdAt: '2026-02-24', usedBy: null, usedAt: null, status: 'active' },
-  { id: '3', code: 'NUTRI-C1D9-YT4L', createdAt: '2026-02-20', usedBy: 'Selin Koc', usedAt: '2026-02-21', status: 'used' },
-  { id: '4', code: 'NUTRI-D6H3-WS8K', createdAt: '2026-02-18', usedBy: 'Emre Aydın', usedAt: '2026-02-19', status: 'used' },
-  { id: '5', code: 'NUTRI-E4J7-UV2P', createdAt: '2026-02-15', usedBy: null, usedAt: null, status: 'expired' },
-  { id: '6', code: 'NUTRI-F9M1-ZX6R', createdAt: '2026-02-10', usedBy: null, usedAt: null, status: 'deactivated' },
-]
-
 const statusMap: Record<
   InviteCode['status'],
   { label: string; variant: 'success' | 'info' | 'warning' | 'destructive' }
@@ -61,33 +52,28 @@ const statusMap: Record<
 }
 
 export default function InviteCodePage() {
-  const { inviteCodes: hookCodes, fetchInviteCodes } = useInviteCode()
-  const [codes, setCodes] = useState(mockCodes)
+  const { inviteCodes: hookCodes, fetchInviteCodes, isLoading } = useInviteCode()
+  const [codes, setCodes] = useState<InviteCode[]>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [qrDialogOpen, setQrDialogOpen] = useState(false)
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        await fetchInviteCodes()
-        // If hook returns data, use it; otherwise keep mock for demo
-        if (hookCodes.length > 0) {
-          setCodes(hookCodes.map((c: any) => ({
-            id: c.id,
-            code: c.code ?? '',
-            createdAt: c.createdAt?.split('T')[0] ?? '',
-            usedBy: c.usedBy ?? null,
-            usedAt: c.usedAt ?? null,
-            status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
-          })))
-        }
-      } catch {}
-      setIsLoading(false)
-    }
-    load()
+    fetchInviteCodes()
   }, [])
+
+  useEffect(() => {
+    if (hookCodes) {
+      setCodes(hookCodes.map((c: any) => ({
+        id: c.id,
+        code: c.code ?? '',
+        createdAt: c.createdAt?.split('T')[0] ?? '',
+        usedBy: c.usedBy ?? null,
+        usedAt: c.usedAt ?? null,
+        status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
+      })))
+    }
+  }, [hookCodes])
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code)

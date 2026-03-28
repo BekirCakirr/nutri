@@ -18,52 +18,18 @@ import { cn } from '@/lib/utils'
 interface ShoppingItem { id: string; name: string; amount: string; category: string; checked: boolean }
 interface ShoppingList { id: string; name: string; patientName: string; createdAt: string; status: 'active' | 'completed'; items: ShoppingItem[] }
 
-const mockLists: ShoppingList[] = [
-  { id: '1', name: 'Haftalık Alışveriş - Ayşe Yılmaz', patientName: 'Ayşe Yılmaz', createdAt: '2026-02-24', status: 'active', items: [
-    { id: '1', name: 'Tavuk göğsü', amount: '1 kg', category: 'Et', checked: false },
-    { id: '2', name: 'Somon fileto', amount: '500g', category: 'Et', checked: false },
-    { id: '3', name: 'Yumurta', amount: '1 koli', category: 'Et', checked: true },
-    { id: '4', name: 'Brokoli', amount: '500g', category: 'Sebze', checked: false },
-    { id: '5', name: 'Ispanak', amount: '300g', category: 'Sebze', checked: false },
-    { id: '6', name: 'Domates', amount: '1 kg', category: 'Sebze', checked: true },
-    { id: '7', name: 'Muz', amount: '1 demet', category: 'Meyve', checked: false },
-    { id: '8', name: 'Elma', amount: '1 kg', category: 'Meyve', checked: false },
-    { id: '9', name: 'Yoğurt', amount: '1 kg', category: 'Süt Ürünleri', checked: false },
-    { id: '10', name: 'Beyaz peynir', amount: '250g', category: 'Süt Ürünleri', checked: true },
-    { id: '11', name: 'Yulaf ezmesi', amount: '500g', category: 'Diğer', checked: false },
-    { id: '12', name: 'Kinoa', amount: '300g', category: 'Diğer', checked: false },
-    { id: '13', name: 'Badem', amount: '200g', category: 'Diğer', checked: false },
-  ]},
-  { id: '2', name: 'Diyet Planı - Mehmet Kaya', patientName: 'Mehmet Kaya', createdAt: '2026-02-22', status: 'active', items: [
-    { id: '14', name: 'Hindi göğsü', amount: '500g', category: 'Et', checked: false },
-    { id: '15', name: 'Mercimek', amount: '500g', category: 'Diğer', checked: false },
-    { id: '16', name: 'Bulgur', amount: '1 kg', category: 'Diğer', checked: true },
-    { id: '17', name: 'Havuç', amount: '500g', category: 'Sebze', checked: false },
-    { id: '18', name: 'Kabak', amount: '500g', category: 'Sebze', checked: false },
-  ]},
-  { id: '3', name: 'Geçen hafta listesi', patientName: 'Fatma Demir', createdAt: '2026-02-15', status: 'completed', items: [
-    { id: '19', name: 'Tavuk', amount: '1 kg', category: 'Et', checked: true },
-    { id: '20', name: 'Pirinç', amount: '1 kg', category: 'Diğer', checked: true },
-  ]},
-]
-
 const categoryOrder = ['Sebze', 'Meyve', 'Et', 'Süt Ürünleri', 'Diğer']
 
 export default function ShoppingListsPage() {
-  const { shoppingLists: hookLists, fetchShoppingLists } = useShoppingLists()
-  const [lists, setLists] = useState(mockLists)
+  const { shoppingLists: hookLists, fetchShoppingLists, isLoading } = useShoppingLists()
+  const [lists, setLists] = useState<ShoppingList[]>([])
 
-  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    const load = async () => {
-      try { await fetchShoppingLists() } catch {}
-      setIsLoading(false)
-    }
-    load()
+    fetchShoppingLists()
   }, [])
 
   useEffect(() => {
-    if (hookLists.length > 0) {
+    if (hookLists) {
       setLists(hookLists.map((l: any) => ({
         id: l.id, name: l.name ?? '', status: l.status ?? 'active',
         itemCount: l.items?.length ?? l.itemCount ?? 0,
@@ -76,7 +42,8 @@ export default function ShoppingListsPage() {
       })) as any)
     }
   }, [hookLists])
-  const [selectedList, setSelectedList] = useState<string | null>('1')
+  
+  const [selectedList, setSelectedList] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const currentList = lists.find((l) => l.id === selectedList)

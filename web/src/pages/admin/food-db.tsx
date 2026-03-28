@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Search,
   Plus,
@@ -39,7 +39,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
-import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 
 interface FoodDBItem {
@@ -71,8 +70,6 @@ export default function AdminFoodDBPage() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
 
   const filtered = mockFoods.filter((f) => {
     const matchesSearch = f.name.toLowerCase().includes(search.toLowerCase())
@@ -82,7 +79,7 @@ export default function AdminFoodDBPage() {
 
   const categories = [...new Set(mockFoods.map(f => f.category))]
 
-  if (isLoading) return <ListPageSkeleton />
+
 
   return (
     <PageContainer

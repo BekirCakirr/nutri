@@ -58,7 +58,12 @@ export type HomeStackParamList = {
 // ─── Meals Stack ─────────────────────────────────────────────────────
 export type MealsStackParamList = {
   MealLog: undefined
-  AddMeal: { selectedFood?: import('@/types').Food; selectedQuantity?: number; selectedUnit?: string } | undefined
+  AddMeal: { 
+    selectedFood?: import('@/types').Food; 
+    selectedQuantity?: number; 
+    selectedUnit?: string;
+    aiFoods?: Array<{ food: import('@/types').Food; quantity: number; unit: string }>;
+  } | undefined
   FoodSearch: { returnTo?: 'AddMeal' } | undefined
   FoodDetail: { foodId: string; returnTo?: 'AddMeal' }
   MealDetail: { mealId: string }
@@ -72,7 +77,7 @@ export type MealsStackParamList = {
 // ─── Camera Stack ────────────────────────────────────────────────────
 export type CameraStackParamList = {
   CameraCapture: undefined
-  PhotoAnalysis: { photoUri: string }
+  PhotoAnalysis: { photoUri: string; base64?: string }
   AdjustPortions: { analysisId: string }
   Barcode: undefined
   OCR: undefined

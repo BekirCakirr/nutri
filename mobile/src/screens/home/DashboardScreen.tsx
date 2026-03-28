@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import { View, Text, StyleSheet, Image, Animated } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
@@ -15,9 +15,7 @@ import { StreakCounter } from '../../components/tracking/StreakCounter'
 import { XPBar } from '../../components/gamification/XPBar'
 import { DietitianCard } from '../../components/dietitian/DietitianCard'
 import { NotificationBadge } from '../../components/notifications/NotificationBadge'
-import { mockMeals } from '../../mock/meals'
-import { mockDietitian } from '../../mock/dietitian'
-import { mockGamificationData } from '../../mock/gamification'
+import { useMeals, useTracking, useDietitian, useGamification } from '../../hooks'
 import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -28,18 +26,6 @@ import { useStaggeredList } from '../../components/ui/useStaggeredList'
 
 type Nav = StackNavigationProp<HomeStackParamList, 'Dashboard'>
 
-const todayMeals = mockMeals.filter((m) => m.date === '2026-02-25')
-const totalConsumed = todayMeals.reduce((s, m) => s + m.totalNutrition.calories, 0)
-const totalProtein = todayMeals.reduce((s, m) => s + m.totalNutrition.protein, 0)
-const totalCarbs = todayMeals.reduce((s, m) => s + m.totalNutrition.carbs, 0)
-const totalFat = todayMeals.reduce((s, m) => s + m.totalNutrition.fat, 0)
-
-const dailyGoals = [
-  { id: 'cal', label: 'Kalori', current: totalConsumed, target: 1650, unit: 'kcal', color: colors.primary.main },
-  { id: 'water', label: 'Su', current: 6, target: 10, unit: 'bardak', color: nutritionColors.water.main },
-  { id: 'protein', label: 'Protein', current: Math.round(totalProtein), target: 82, unit: 'g', color: nutritionColors.macro.protein },
-  { id: 'exercise', label: 'Egzersiz', current: 35, target: 45, unit: 'dk', color: '#F59E0B' },
-]
 
 const mealTypeMap: Record<string, 'breakfast' | 'lunch' | 'dinner' | 'snack'> = {
   breakfast: 'breakfast',
@@ -50,9 +36,28 @@ const mealTypeMap: Record<string, 'breakfast' | 'lunch' | 'dinner' | 'snack'> = 
 
 export default function DashboardScreen() {
   const navigation = useNavigation<Nav>()
-  const [waterGlasses, setWaterGlasses] = useState(6)
   const heroFadeIn = useFadeIn(0)
-  const mealAnimStyles = useStaggeredList(todayMeals.length, 200)
+  
+  const { todayMeals, fetchTodayMeals } = useMeals()
+  const { todayCalories, todayMacros, waterGlasses, addWater, waterTarget, loadToday, exerciseMinutes } = useTracking()
+  const { pairedDietitian, loadPairedDietitian } = useDietitian()
+  const { xp, xpToNextLevel, level, streak, loadAll } = useGamification()
+
+  useEffect(() => {
+    fetchTodayMeals()
+    loadToday()
+    loadPairedDietitian()
+    loadAll()
+  }, [fetchTodayMeals, loadToday, loadPairedDietitian, loadAll])
+
+  const mealAnimStyles = useStaggeredList(todayMeals?.length || 0, 200)
+
+  const dailyGoals = [
+    { id: 'cal', label: 'Kalori', current: todayCalories || 0, target: 1650, unit: 'kcal', color: colors.primary.main },
+    { id: 'water', label: 'Su', current: waterGlasses || 0, target: waterTarget || 10, unit: 'bardak', color: nutritionColors.water.main },
+    { id: 'protein', label: 'Protein', current: Math.round(todayMacros?.protein || 0), target: 82, unit: 'g', color: nutritionColors.macro.protein },
+    { id: 'exercise', label: 'Egzersiz', current: exerciseMinutes || 0, target: 45, unit: 'dk', color: '#F59E0B' },
+  ]
 
   return (
     <ScreenWrapper contentStyle={{ paddingBottom: 100 }}>
@@ -79,28 +84,28 @@ export default function DashboardScreen() {
 
       {/* Hero: Calorie Ring + Macros */}
       <Animated.View style={[styles.heroCard, heroFadeIn.style]}>
-        <CalorieRing consumed={totalConsumed} target={1650} size={160} strokeWidth={14} />
+        <CalorieRing consumed={todayCalories || 0} target={1650} size={160} strokeWidth={14} />
         <View style={styles.macroRow}>
           <View style={styles.macroItem}>
             <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.protein }]} />
-            <Text style={styles.macroValue}>{Math.round(totalProtein)}g</Text>
+            <Text style={styles.macroValue}>{Math.round(todayMacros?.protein || 0)}g</Text>
             <Text style={styles.macroLabel}>Protein</Text>
           </View>
           <View style={styles.macroItem}>
             <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.carbs }]} />
-            <Text style={styles.macroValue}>{Math.round(totalCarbs)}g</Text>
+            <Text style={styles.macroValue}>{Math.round(todayMacros?.carbs || 0)}g</Text>
             <Text style={styles.macroLabel}>Karb.</Text>
           </View>
           <View style={styles.macroItem}>
             <View style={[styles.macroDot, { backgroundColor: nutritionColors.macro.fat }]} />
-            <Text style={styles.macroValue}>{Math.round(totalFat)}g</Text>
+            <Text style={styles.macroValue}>{Math.round(todayMacros?.fat || 0)}g</Text>
             <Text style={styles.macroLabel}>Yağ</Text>
           </View>
         </View>
         <MacroBar
-          protein={totalProtein}
-          carbs={totalCarbs}
-          fat={totalFat}
+          protein={todayMacros?.protein || 0}
+          carbs={todayMacros?.carbs || 0}
+          fat={todayMacros?.fat || 0}
           showLabels={false}
           height={6}
           style={{ width: '100%', marginTop: spacing.sm }}
@@ -110,13 +115,13 @@ export default function DashboardScreen() {
       {/* Streak + XP Row */}
       <View style={styles.gamificationRow}>
         <View style={styles.gamificationItem}>
-          <StreakCounter count={mockGamificationData.streak} bestStreak={14} />
+          <StreakCounter count={streak || 0} bestStreak={14} />
         </View>
         <View style={styles.gamificationItem}>
           <XPBar
-            level={mockGamificationData.level}
-            currentXP={mockGamificationData.xp}
-            maxXP={mockGamificationData.xpToNextLevel}
+            level={level || 1}
+            currentXP={xp || 0}
+            maxXP={xpToNextLevel || 100}
           />
         </View>
       </View>
@@ -127,41 +132,53 @@ export default function DashboardScreen() {
       {/* Today's Meals */}
       <SectionHeader title="Bugünün Öğünleri" />
       <View style={{ gap: spacing.sm, marginBottom: spacing.lg }}>
-        {todayMeals.map((meal, index) => (
-          <Animated.View key={meal.id} style={mealAnimStyles[index]}>
-            <MealCard
-              mealType={mealTypeMap[meal.type] || 'snack'}
-              time={meal.time}
-              totalCalories={meal.totalNutrition.calories}
-              foods={meal.items.map((i) => ({
-                name: i.food.name,
-                calories: Math.round(i.food.nutrition.calories * i.quantity),
-              }))}
-            />
-          </Animated.View>
-        ))}
+        {todayMeals?.length > 0 ? (
+          todayMeals.map((meal, index) => (
+            <Animated.View key={meal.id} style={mealAnimStyles?.[index]}>
+              <MealCard
+                mealType={mealTypeMap[meal.type] || 'snack'}
+                time={meal.time || ''}
+                totalCalories={meal.totalNutrition?.calories || 0}
+                foods={(meal.items || []).map((i) => ({
+                  name: i.food?.name || 'Bilinmeyen',
+                  calories: Math.round((i.food?.nutrition?.calories || 0) * (i.quantity || 1)),
+                }))}
+              />
+            </Animated.View>
+          ))
+        ) : (
+          <Text style={{ textAlign: 'center', color: colors.text.disabled, marginVertical: spacing.md }}>
+            Henüz öğün eklenmedi
+          </Text>
+        )}
       </View>
 
       {/* Water Tracker */}
       <WaterTracker
-        currentGlasses={waterGlasses}
-        targetGlasses={10}
-        onAddGlass={() => setWaterGlasses((p) => Math.min(p + 1, 15))}
-        onRemoveGlass={() => setWaterGlasses((p) => Math.max(p - 1, 0))}
+        currentGlasses={waterGlasses || 0}
+        targetGlasses={waterTarget || 10}
+        onAddGlass={() => addWater(200)}
+        onRemoveGlass={() => {}} // Feature not supported natively
         style={{ marginBottom: spacing.lg }}
       />
 
       {/* Dietitian Card */}
       <SectionHeader title="Diyetisyeniniz" />
-      <DietitianCard
-        name={mockDietitian.name}
-        specialty={mockDietitian.title}
-        avatar={mockDietitian.avatar}
-        rating={mockDietitian.rating}
-        reviewCount={mockDietitian.reviewCount}
-        isAvailable={mockDietitian.available}
-        style={{ marginBottom: spacing.lg }}
-      />
+      {pairedDietitian ? (
+        <DietitianCard
+          name={pairedDietitian.name || 'Diyetisyen'}
+          specialty={pairedDietitian.title || 'Uzman'}
+          avatar={pairedDietitian.avatar}
+          rating={pairedDietitian.rating || 5.0}
+          reviewCount={pairedDietitian.reviewCount || 0}
+          isAvailable={pairedDietitian.available || false}
+          style={{ marginBottom: spacing.lg }}
+        />
+      ) : (
+        <Text style={{ textAlign: 'center', color: colors.text.disabled, marginVertical: spacing.md, marginBottom: spacing.lg }}>
+          Henüz bir diyetisyenle eşleşmediniz.
+        </Text>
+      )}
 
       {/* Quick Reports */}
       <SectionHeader title="Raporlar" />

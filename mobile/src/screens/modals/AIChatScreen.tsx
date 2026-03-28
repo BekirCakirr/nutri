@@ -5,16 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
 
-type Message = {
-  id: string
-  text: string
-  sender: 'user' | 'ai'
-  time: string
-}
-
-const initialMessages: Message[] = [
-  { id: '1', text: 'Merhaba! Ben NutriAI asistanınızım 🤖 Size beslenme, diyet ve sağlıklı yaşam konularında yardımcı olabilirim. Ne sormak istersiniz?', sender: 'ai', time: '11:00' },
-]
+import { useAI } from '../../hooks'
 
 const quickSuggestions = [
   'Bugün ne yemeliyim?',
@@ -25,31 +16,14 @@ const quickSuggestions = [
 
 export default function AIChatScreen() {
   const navigation = useNavigation()
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const { messages: aiMessages, isLoading, sendMessage } = useAI()
   const [input, setInput] = useState('')
   const scrollRef = useRef<ScrollView>(null)
 
-  const sendMessage = () => {
-    if (!input.trim()) return
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      text: input.trim(),
-      sender: 'user',
-      time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-    }
-    setMessages(prev => [...prev, userMsg])
+  const handleSend = () => {
+    if (!input.trim() || isLoading) return
+    sendMessage(input.trim())
     setInput('')
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        text: 'İlginç bir soru! Beslenme verilerinize baktığımda, bugün protein alımınız biraz düşük. Öğle yemeği için ızgara tavuk veya mercimek çorbası öneririm. 🥗',
-        sender: 'ai',
-        time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-      }
-      setMessages(prev => [...prev, aiMsg])
-    }, 1500)
   }
 
   return (
@@ -71,43 +45,68 @@ export default function AIChatScreen() {
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
           showsVerticalScrollIndicator={false}
         >
-          {messages.map((msg) => (
+          {/* Static Greeting */}
+          <View className="mb-3 items-start">
+            <View className="rounded-2xl px-4 py-3 max-w-[85%] bg-white border border-[#E8F0EC]" style={{ borderBottomLeftRadius: 4 }}>
+              <View className="flex-row items-center mb-1">
+                <View className="w-5 h-5 rounded-full bg-[#1A5C37] items-center justify-center mr-1">
+                  <Text className="text-[8px] text-white font-bold">AI</Text>
+                </View>
+                <Text className="text-[10px] text-[#A8BFB2]">NutriAI</Text>
+              </View>
+              <Text className="text-sm leading-5 text-[#1A2E23]">
+                Merhaba! Ben NutriAI asistanınızım 🤖 Size beslenme, diyet ve sağlıklı yaşam konularında yardımcı olabilirim. Ne sormak istersiniz?
+              </Text>
+            </View>
+          </View>
+
+          {aiMessages.map((msg) => (
             <View
               key={msg.id}
               className="mb-3"
-              style={{ alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}
+              style={{ alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
             >
-              {msg.sender === 'ai' && (
-                <View className="flex-row items-center mb-1">
-                  <View className="w-5 h-5 rounded-full bg-[#1A5C37] items-center justify-center mr-1">
-                    <Text className="text-[8px] text-white font-bold">AI</Text>
-                  </View>
-                  <Text className="text-[10px] text-[#A8BFB2]">NutriAI</Text>
-                </View>
-              )}
               <View
                 className="rounded-2xl px-4 py-3 max-w-[85%]"
                 style={{
-                  backgroundColor: msg.sender === 'user' ? '#1A5C37' : '#FFFFFF',
-                  borderWidth: msg.sender === 'ai' ? 1 : 0,
+                  backgroundColor: msg.role === 'user' ? '#1A5C37' : '#FFFFFF',
+                  borderWidth: msg.role === 'assistant' ? 1 : 0,
                   borderColor: '#E8F0EC',
-                  borderBottomRightRadius: msg.sender === 'user' ? 4 : 16,
-                  borderBottomLeftRadius: msg.sender === 'ai' ? 4 : 16,
+                  borderBottomRightRadius: msg.role === 'user' ? 4 : 16,
+                  borderBottomLeftRadius: msg.role === 'assistant' ? 4 : 16,
                 }}
               >
+                {msg.role === 'assistant' && (
+                  <View className="flex-row items-center mb-1">
+                    <View className="w-5 h-5 rounded-full bg-[#1A5C37] items-center justify-center mr-1">
+                      <Text className="text-[8px] text-white font-bold">AI</Text>
+                    </View>
+                    <Text className="text-[10px] text-[#A8BFB2]">NutriAI</Text>
+                  </View>
+                )}
                 <Text
                   className="text-sm leading-5"
-                  style={{ color: msg.sender === 'user' ? '#FFFFFF' : '#1A2E23' }}
+                  style={{ color: msg.role === 'user' ? '#FFFFFF' : '#1A2E23' }}
                 >
-                  {msg.text}
+                  {msg.content}
                 </Text>
               </View>
-              <Text className="text-[10px] text-[#A8BFB2] mt-0.5 mx-1">{msg.time}</Text>
+              <Text className="text-[10px] text-[#A8BFB2] mt-0.5 mx-1">
+                {new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+              </Text>
             </View>
           ))}
 
+          {isLoading && (
+            <View className="mb-3 items-start">
+              <View className="rounded-2xl px-4 py-3 bg-white border border-[#E8F0EC]" style={{ borderBottomLeftRadius: 4 }}>
+                <Text className="text-sm text-[#A8BFB2]">Yazıyor...</Text>
+              </View>
+            </View>
+          )}
+
           {/* Quick suggestions */}
-          {messages.length <= 1 && (
+          {aiMessages.length === 0 && !isLoading && (
             <View className="flex-row flex-wrap mt-2 mb-4">
               {quickSuggestions.map((s, i) => (
                 <TouchableOpacity
@@ -132,13 +131,15 @@ export default function AIChatScreen() {
             onChangeText={setInput}
             placeholder="Mesajınızı yazın..."
             placeholderTextColor="#A8BFB2"
-            onSubmitEditing={sendMessage}
+            onSubmitEditing={handleSend}
             returnKeyType="send"
+            editable={!isLoading}
           />
           <TouchableOpacity
-            className="w-10 h-10 rounded-full bg-[#1A5C37] items-center justify-center ml-2"
+            className={`w-10 h-10 rounded-full items-center justify-center ml-2 ${input.trim() && !isLoading ? 'bg-[#1A5C37]' : 'bg-[#A8BFB2]'}`}
             activeOpacity={0.8}
-            onPress={sendMessage}
+            onPress={handleSend}
+            disabled={!input.trim() || isLoading}
           >
             <Ionicons name="send" size={16} color="#FFFFFF" />
           </TouchableOpacity>

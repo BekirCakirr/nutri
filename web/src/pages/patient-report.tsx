@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useReports } from '@/hooks/use-reports'
 import {
@@ -162,16 +162,11 @@ function getAdherenceLabel(value: number) {
 export default function PatientReportPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { fetchReports } = useReports()
+  const { fetchReports, isLoading } = useReports()
 
-  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
-    const load = async () => {
-      try { if (id) await fetchReports(id) } catch {}
-      setIsLoading(false)
-    }
-    load()
-  }, [id])
+    if (id) fetchReports(id)
+  }, [id, fetchReports])
 
   if (isLoading) return <DetailPageSkeleton />
 

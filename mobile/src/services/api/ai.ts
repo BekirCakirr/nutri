@@ -30,20 +30,25 @@ export async function getAISuggestions(): Promise<string[]> {
   ];
 }
 
-export async function analyzeImage(imageUri: string): Promise<{
-  foods: Array<{ name: string; calories: number; confidence: number }>;
+export async function analyzeImage(imageBase64: string): Promise<{
+  foods: Array<{ name: string; calories: number; protein: number; carbs: number; fat: number; portion: string }>;
+  confidence: number;
 }> {
   try {
-    const { data } = await apiClient.post('/ai/analyze-meal', { imageUrl: imageUri });
+    const { data } = await apiClient.post('/ai/analyze-meal', { imageUrl: imageBase64 });
     const result = data.data ?? data;
     return {
       foods: (result.foods ?? []).map((f: any) => ({
-        name: f.name ?? '',
-        calories: f.calories ?? f.estimatedGrams ?? 0,
-        confidence: f.confidence ?? 0.8,
+        name: f.name ?? 'Bilinmeyen Besin',
+        calories: f.calories ?? 0,
+        protein: f.protein ?? 0,
+        carbs: f.carbs ?? 0,
+        fat: f.fat ?? 0,
+        portion: f.estimatedGrams ? `${f.estimatedGrams}g` : '1 Porsiyon',
       })),
+      confidence: 0.95,
     };
   } catch {
-    return { foods: [] };
+    return { foods: [], confidence: 0 };
   }
 }

@@ -8,72 +8,36 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
-const mockRecipe = {
-  id: '1',
-  title: 'Izgara Tavuk Salata',
-  description: 'Protein açısından zengin, düşük kalorili sağlıklı bir ana yemek. Taze sebzeler ve ızgara tavuk göğsü ile hazırlanan bu salata, diyet yapanlar için ideal bir öğün seçeneğidir.',
-  category: 'Ana Yemek',
-  difficulty: 'Kolay',
-  prepTime: 15,
-  cookTime: 10,
-  servings: 2,
-  calories: 380,
-  protein: 35,
-  carbs: 12,
-  fat: 18,
-  fiber: 4,
-  sodium: 520,
-  ingredients: [
-    { name: 'Tavuk göğsü', amount: '300g' },
-    { name: 'Marul (karışık)', amount: '200g' },
-    { name: 'Kiraz domates', amount: '150g' },
-    { name: 'Salatalık', amount: '1 adet' },
-    { name: 'Kırmızı soğan', amount: '1/2 adet' },
-    { name: 'Zeytinyağı', amount: '2 yemek kaşığı' },
-    { name: 'Limon suyu', amount: '1 yemek kaşığı' },
-    { name: 'Tuz', amount: 'Bir tutam' },
-    { name: 'Karabiber', amount: 'Bir tutam' },
-    { name: 'Kekik', amount: '1 çay kaşığı' },
-  ],
-  steps: [
-    'Tavuk göğsünü tuz, karabiber ve kekik ile marine edin.',
-    'Izgarayı orta-yüksek ısıda ısıtın.',
-    'Tavuğu her iki tarafını da 5-6 dakika pişirin.',
-    'Pişen tavuğu 5 dakika dinlendirin, ardından dilimleyin.',
-    'Marulu yıkayıp kurulayın ve servis tabağına yerleştirin.',
-    'Domatesleri ikiye kesin, salatalığı dilimleyin, soğanı halka halka doğrayın.',
-    'Sebzeleri marulun üzerine yerleştirin.',
-    'Zeytinyağı ve limon suyunu karıştırarak sos hazırlayın.',
-    'Dilimlenmiş tavuğu salatanın üzerine ekleyin.',
-    'Sosu üzerine gezdirip servis edin.',
-  ],
-}
-
 export default function RecipeDetailPage() {
   const { id } = useParams()
-  const [apiRecipe, setApiRecipe] = useState<any>(null)
-
+  const [recipe, setRecipe] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+
   useEffect(() => {
     const load = async () => {
+      setIsLoading(true)
       try {
         if (id) {
-          const data = await getRecipe(id)
+          const rawData = await getRecipe(id)
+          const data = rawData as any
           if (data) {
-            setApiRecipe({
-              ...mockRecipe,
-              id: data.id ?? mockRecipe.id,
-              title: (data as any).name ?? mockRecipe.title,
-              description: (data as any).description ?? mockRecipe.description,
-              category: (data as any).category ?? mockRecipe.category,
-              calories: (data as any).caloriesPerServing ?? (data as any).calories ?? mockRecipe.calories,
-              protein: (data as any).proteinPerServing ?? (data as any).protein ?? mockRecipe.protein,
-              carbs: (data as any).carbsPerServing ?? (data as any).carbs ?? mockRecipe.carbs,
-              fat: (data as any).fatPerServing ?? (data as any).fat ?? mockRecipe.fat,
-              prepTime: (data as any).prepTimeMin ?? mockRecipe.prepTime,
-              cookTime: (data as any).cookTimeMin ?? mockRecipe.cookTime,
-              servings: (data as any).servings ?? mockRecipe.servings,
-              difficulty: (data as any).difficulty ?? mockRecipe.difficulty,
+            setRecipe({
+              id: data.id ?? '',
+              title: data.name ?? 'İsimsiz Tarif',
+              description: data.description ?? '',
+              category: data.category ?? '',
+              calories: data.caloriesPerServing ?? data.calories ?? 0,
+              protein: data.proteinPerServing ?? data.protein ?? 0,
+              carbs: data.carbsPerServing ?? data.carbs ?? 0,
+              fat: data.fatPerServing ?? data.fat ?? 0,
+              prepTime: data.prepTimeMin ?? 0,
+              cookTime: data.cookTimeMin ?? 0,
+              servings: data.servings ?? 1,
+              difficulty: data.difficulty ?? '',
+              fiber: data.fiber ?? 0,
+              sodium: data.sodium ?? 0,
+              ingredients: data.ingredients ?? [],
+              steps: data.steps ?? [],
             })
           }
         }
@@ -83,12 +47,9 @@ export default function RecipeDetailPage() {
     load()
   }, [id])
 
-  // Use API data if available, fallback to mock
-  const recipe = apiRecipe ?? mockRecipe
-  void id
   const navigate = useNavigate()
 
-  if (isLoading) return <DetailPageSkeleton />
+  if (isLoading || !recipe) return <DetailPageSkeleton />
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 animate-fade-up">

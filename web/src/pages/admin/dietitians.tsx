@@ -55,14 +55,7 @@ interface DietitianRow {
   registeredAt: string
 }
 
-const mockDietitians: DietitianRow[] = [
-  { id: '1', name: 'Dr. Ayşe Yılmaz', email: 'dr.ayse@nutriai.com', specialization: 'Kilo Yönetimi', licenseNumber: 'DYT-001234', patients: 47, rating: 4.8, verificationStatus: 'verified', status: 'active', registeredAt: '2025-06-15' },
-  { id: '2', name: 'Dr. Mehmet Kara', email: 'mehmet.kara@nutriai.com', specialization: 'Spor Beslenmesi', licenseNumber: 'DYT-005678', patients: 32, rating: 4.5, verificationStatus: 'pending', status: 'active', registeredAt: '2026-02-20' },
-  { id: '3', name: 'Dr. Zehra Gül', email: 'zehra.gul@nutriai.com', specialization: 'Klinik Beslenme', licenseNumber: 'DYT-009012', patients: 0, rating: 0, verificationStatus: 'pending', status: 'active', registeredAt: '2026-02-24' },
-  { id: '4', name: 'Dr. Ali Vural', email: 'ali.vural@nutriai.com', specialization: 'Diyabet Yönetimi', licenseNumber: 'DYT-003456', patients: 28, rating: 4.6, verificationStatus: 'verified', status: 'active', registeredAt: '2025-08-10' },
-  { id: '5', name: 'Dr. Canan Yıldız', email: 'canan.y@nutriai.com', specialization: 'Pediatrik Beslenme', licenseNumber: 'DYT-007890', patients: 15, rating: 4.2, verificationStatus: 'verified', status: 'active', registeredAt: '2025-10-01' },
-  { id: '6', name: 'Dr. Hakan Demir', email: 'hakan.d@nutriai.com', specialization: 'Genel Beslenme', licenseNumber: 'DYT-INVALID', patients: 5, rating: 2.1, verificationStatus: 'rejected', status: 'suspended', registeredAt: '2025-12-05' },
-]
+
 
 const verificationMap = {
   verified: { label: 'Onaylı', variant: 'success' as const, icon: CheckCircle2 },
@@ -107,7 +100,7 @@ export default function AdminDietitians() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
-  const [dietitians, setDietitians] = useState<DietitianRow[]>(mockDietitians)
+  const [dietitians, setDietitians] = useState<DietitianRow[]>([])
 
   const loadDietitians = useCallback(async () => {
     try {

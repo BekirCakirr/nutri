@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import {
   Save,
   Loader2,
@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
-import { FormPageSkeleton } from '@/components/shared/page-skeletons'
+
 import { useAuthStore } from '@/stores/auth-store'
 import { useUiStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
@@ -27,16 +27,12 @@ export default function SettingsPage() {
   const updateProfile = useAuthStore(s => s.updateProfile)
   const { theme, setTheme } = useUiStore()
   const [isSaving, setIsSaving] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
 
   // Refs for form fields
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const phoneRef = useRef<HTMLInputElement>(null)
   const bioRef = useRef<HTMLTextAreaElement>(null)
-
-  if (isLoading) return <FormPageSkeleton />
 
   const handleSave = async () => {
     setIsSaving(true)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Search,
   Check,
@@ -32,7 +32,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PageContainer } from '@/components/shared/page-container'
-import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 
@@ -65,8 +64,6 @@ export default function AdminRecipesPage() {
   const [recipes, setRecipes] = useState(mockSubmissions)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
 
   const filtered = recipes.filter((r) => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
@@ -86,7 +83,7 @@ export default function AdminRecipesPage() {
   const approvedCount = recipes.filter(r => r.status === 'approved').length
   const rejectedCount = recipes.filter(r => r.status === 'rejected').length
 
-  if (isLoading) return <ListPageSkeleton />
+
 
   return (
     <PageContainer

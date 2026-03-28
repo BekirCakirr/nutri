@@ -10,32 +10,7 @@ import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 
-interface Recipe {
-  id: string
-  title: string
-  category: string
-  calories: number
-  prepTime: number
-  protein: number
-  carbs: number
-  fat: number
-  difficulty: 'Kolay' | 'Orta' | 'Zor'
-}
 
-const mockRecipes: Recipe[] = [
-  { id: '1', title: 'Izgara Tavuk Salata', category: 'Ana Yemek', calories: 380, prepTime: 25, protein: 35, carbs: 12, fat: 18, difficulty: 'Kolay' },
-  { id: '2', title: 'Mercimek Çorbası', category: 'Çorba', calories: 220, prepTime: 35, protein: 14, carbs: 32, fat: 6, difficulty: 'Kolay' },
-  { id: '3', title: 'Kinoa Tabouleh', category: 'Salata', calories: 280, prepTime: 20, protein: 8, carbs: 38, fat: 10, difficulty: 'Kolay' },
-  { id: '4', title: 'Fırında Somon', category: 'Ana Yemek', calories: 450, prepTime: 30, protein: 42, carbs: 8, fat: 28, difficulty: 'Orta' },
-  { id: '5', title: 'Yoğurtlu Meyve Kasesi', category: 'Atıştırmalık', calories: 180, prepTime: 10, protein: 12, carbs: 28, fat: 4, difficulty: 'Kolay' },
-  { id: '6', title: 'Chia Puding', category: 'Tatlı', calories: 200, prepTime: 15, protein: 8, carbs: 24, fat: 8, difficulty: 'Kolay' },
-  { id: '7', title: 'Sebzeli Omlet', category: 'Ana Yemek', calories: 320, prepTime: 15, protein: 22, carbs: 8, fat: 22, difficulty: 'Kolay' },
-  { id: '8', title: 'Ezogelin Çorbası', category: 'Çorba', calories: 190, prepTime: 40, protein: 10, carbs: 30, fat: 4, difficulty: 'Orta' },
-  { id: '9', title: 'Avokado Toast', category: 'Atıştırmalık', calories: 290, prepTime: 10, protein: 8, carbs: 28, fat: 18, difficulty: 'Kolay' },
-  { id: '10', title: 'Tavuklu Wrap', category: 'Ana Yemek', calories: 420, prepTime: 20, protein: 30, carbs: 38, fat: 16, difficulty: 'Kolay' },
-  { id: '11', title: 'Akdeniz Salatası', category: 'Salata', calories: 250, prepTime: 15, protein: 6, carbs: 18, fat: 16, difficulty: 'Kolay' },
-  { id: '12', title: 'Protein Topları', category: 'Atıştırmalık', calories: 160, prepTime: 15, protein: 10, carbs: 18, fat: 6, difficulty: 'Kolay' },
-]
 
 const categories = ['Tümü', 'Ana Yemek', 'Çorba', 'Salata', 'Atıştırmalık', 'Tatlı']
 
@@ -47,29 +22,22 @@ const difficultyColor = {
 
 export default function RecipesPage() {
   const navigate = useNavigate()
-  const { allRecipes, fetchRecipes } = useRecipes()
+  const { allRecipes, fetchRecipes, isLoading } = useRecipes()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('Tümü')
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const load = async () => {
-      try { await fetchRecipes() } catch {}
-      setIsLoading(false)
-    }
-    load()
+    fetchRecipes()
   }, [])
 
-  // Map hook recipes to local type, fallback to mock
-  const recipeList = allRecipes.length > 0
-    ? allRecipes.map((r: any) => ({
+  // Map hook recipes to local type
+  const recipeList = allRecipes.map((r: any) => ({
       id: r.id, title: r.name ?? r.title ?? '', category: r.category ?? '',
       calories: r.calories ?? 0, prepTime: r.preparationTime ?? r.prepTime ?? 0,
       image: r.imageUrl ?? r.image ?? '', difficulty: r.difficulty ?? 'medium',
       protein: r.protein ?? 0, carbs: r.carbohydrates ?? r.carbs ?? 0, fat: r.fat ?? 0,
       servings: r.servings ?? 1,
     } as any))
-    : mockRecipes
 
   const filtered = useMemo(
     () =>

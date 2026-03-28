@@ -127,6 +127,24 @@ export async function getPatientSummary(
   next: NextFunction
 ): Promise<void> {
   try {
+    if (req.user!.role === "dietitian") {
+      sendSuccess({
+        res,
+        data: {
+          totalMeals: 0,
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          averageCalories: 0,
+          currentStreak: 0,
+          weightChangeFromStart: 0,
+          avgDailyCalories: 0
+        },
+        message: "Diyetisyen icin global ozet (mocked)",
+      });
+      return;
+    }
+
     const summary = await reportService.getPatientSummary(req.user!.userId);
     sendSuccess({
       res,

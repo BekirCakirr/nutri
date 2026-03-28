@@ -199,10 +199,7 @@ export default function PatientDetailPage() {
     if (activeTab === 'messages') fetchConversations()
   }, [activeTab, fetchConversations])
 
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
-
-  if (isLoading || patientLoading) return <DetailPageSkeleton />
+  if (patientLoading) return <DetailPageSkeleton />
 
   // Map API patient to display format, fallback to static data
   const p = apiPatient as any

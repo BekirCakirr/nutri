@@ -42,11 +42,13 @@ function getRatingBadge(rating: number) {
 }
 
 export default function ReviewsPage() {
-  const { reviews: fetchedReviews, averageRating, fetchReviews, respondToReview } = useReviews()
+  const { reviews: fetchedReviews, averageRating, fetchReviews, respondToReview, isLoading } = useReviews()
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { const load = async () => { try { await fetchReviews() } catch {} setIsLoading(false) }; load() }, [])
+
+  useEffect(() => {
+    fetchReviews()
+  }, [])
 
   const handleReply = (reviewId: string) => {
     respondToReview(reviewId, replyText)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Plus,
   Pencil,
@@ -39,7 +39,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
-import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
@@ -74,8 +73,6 @@ const severityMap = {
 export default function AdminAllergensPage() {
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
 
   const filtered = mockAllergens.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase())
@@ -84,7 +81,7 @@ export default function AdminAllergensPage() {
   const highCount = mockAllergens.filter(a => a.severity === 'high').length
   const totalAffected = mockAllergens.reduce((sum, a) => sum + a.affectedPatients, 0)
 
-  if (isLoading) return <ListPageSkeleton />
+
 
   return (
     <PageContainer

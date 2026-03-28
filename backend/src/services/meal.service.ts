@@ -66,9 +66,10 @@ export async function getTodayMeals(userId: string) {
 export async function getMealHistory(
   userId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  targetPatientId?: string
 ) {
-  const patientId = await getPatientProfileId(userId);
+  const patientId = targetPatientId || await getPatientProfileId(userId);
 
   const mealsResult = await query(
     `SELECT * FROM meal_logs

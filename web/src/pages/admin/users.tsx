@@ -61,18 +61,7 @@ interface UserRow {
   registeredAt: string
 }
 
-const mockUsers: UserRow[] = [
-  { id: '1', name: 'Admin Kullanıcı', email: 'admin@nutriai.com', role: 'admin', status: 'active', lastLogin: '2026-02-25 14:30', registeredAt: '2025-01-01' },
-  { id: '2', name: 'Dr. Ayşe Yılmaz', email: 'dr.ayse@nutriai.com', role: 'dietitian', status: 'active', lastLogin: '2026-02-25 10:00', registeredAt: '2025-06-15' },
-  { id: '3', name: 'Mehmet Kaya', email: 'mehmet.k@email.com', role: 'patient', status: 'active', lastLogin: '2026-02-25 13:15', registeredAt: '2025-09-20' },
-  { id: '4', name: 'Fatma Demir', email: 'fatma.d@email.com', role: 'patient', status: 'active', lastLogin: '2026-02-25 11:45', registeredAt: '2025-10-05' },
-  { id: '5', name: 'Dr. Ali Vural', email: 'ali.vural@nutriai.com', role: 'dietitian', status: 'active', lastLogin: '2026-02-24 16:00', registeredAt: '2025-08-10' },
-  { id: '6', name: 'Zeynep Çelik', email: 'zeynep.c@email.com', role: 'patient', status: 'active', lastLogin: '2026-02-24 14:00', registeredAt: '2025-11-01' },
-  { id: '7', name: 'Hasan Yıldız', email: 'hasan.y@email.com', role: 'patient', status: 'inactive', lastLogin: '2026-02-20 09:00', registeredAt: '2025-12-01' },
-  { id: '8', name: 'Dr. Hakan Demir', email: 'hakan.d@nutriai.com', role: 'dietitian', status: 'suspended', lastLogin: '2026-01-15 10:00', registeredAt: '2025-12-05' },
-  { id: '9', name: 'Elif Arslan', email: 'elif.a@email.com', role: 'patient', status: 'active', lastLogin: '2026-02-25 13:45', registeredAt: '2025-09-15' },
-  { id: '10', name: 'Burak Şahin', email: 'burak.s@email.com', role: 'patient', status: 'active', lastLogin: '2026-02-25 10:00', registeredAt: '2026-01-10' },
-]
+
 
 const roleMap = {
   admin: { label: 'Admin', variant: 'destructive' as const },
@@ -125,7 +114,7 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
-  const [users, setUsers] = useState<UserRow[]>(mockUsers)
+  const [users, setUsers] = useState<UserRow[]>([])
 
   const loadUsers = useCallback(async () => {
     try {

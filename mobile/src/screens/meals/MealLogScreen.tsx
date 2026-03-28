@@ -67,8 +67,8 @@ export default function MealLogScreen() {
       dinner: [],
       snack: [],
     }
-    for (const meal of todayMeals) {
-      if (grouped[meal.type]) {
+    for (const meal of todayMeals || []) {
+      if (meal?.type && grouped[meal.type]) {
         grouped[meal.type].push(meal)
       }
     }
@@ -77,11 +77,11 @@ export default function MealLogScreen() {
 
   const totals = useMemo(() => {
     let calories = 0, protein = 0, carbs = 0, fat = 0
-    for (const meal of todayMeals) {
-      calories += meal.totalNutrition.calories
-      protein += meal.totalNutrition.protein
-      carbs += meal.totalNutrition.carbs
-      fat += meal.totalNutrition.fat
+    for (const meal of todayMeals || []) {
+      calories += meal?.totalNutrition?.calories || 0
+      protein += meal?.totalNutrition?.protein || 0
+      carbs += meal?.totalNutrition?.carbs || 0
+      fat += meal?.totalNutrition?.fat || 0
     }
     return { calories: Math.round(calories), protein: Math.round(protein), carbs: Math.round(carbs), fat: Math.round(fat) }
   }, [todayMeals])
@@ -164,8 +164,8 @@ export default function MealLogScreen() {
             <Animated.View key={meal.id} style={staggeredStyles[idx]}>
               <MealCard
                 mealType={meal.type}
-                foods={meal.items.map((i) => ({ name: i.food.name, calories: Math.round(i.food.nutrition.calories * i.quantity) }))}
-                totalCalories={Math.round(meal.totalNutrition.calories)}
+                foods={(meal.items || []).map((i) => ({ name: i.food?.name || 'Bilinmeyen', calories: Math.round((i.food?.nutrition?.calories || 0) * (i.quantity || 1)) }))}
+                totalCalories={Math.round(meal.totalNutrition?.calories || 0)}
                 time={meal.time}
                 onPress={() => navigation.navigate('MealDetail', { mealId: meal.id })}
                 style={styles.mealCard}

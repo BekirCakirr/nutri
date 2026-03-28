@@ -193,15 +193,9 @@ function formatDate(dateStr: string): string {
 export default function AppointmentsPage() {
   const [view, setView] = useState<'week' | 'list'>('week')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { appointments: rawAppointments, fetchAppointments, error: appointmentsError } = useAppointments()
-
-  const [isLoading, setIsLoading] = useState(true)
+  const { appointments: rawAppointments, fetchAppointments, error: appointmentsError, isLoading } = useAppointments()
   useEffect(() => {
-    const load = async () => {
-      try { await fetchAppointments() } catch {}
-      setIsLoading(false)
-    }
-    load()
+    fetchAppointments()
   }, [])
 
   useEffect(() => {

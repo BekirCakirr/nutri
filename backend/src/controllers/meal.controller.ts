@@ -29,7 +29,7 @@ export async function getMealHistory(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, patientId } = req.query;
     if (!startDate || !endDate) {
       sendError({
         res,
@@ -39,10 +39,21 @@ export async function getMealHistory(
       return;
     }
 
+    // Role tabanli erisim kontrolu
+    let targetPatientId = "";
+    if (req.user!.role === "dietitian") {
+      if (!patientId) {
+        sendError({ res, message: "Diyetisyen icin patientId parametresi zorunludur", statusCode: 400 });
+        return;
+      }
+      targetPatientId = patientId as string;
+    }
+
     const meals = await mealService.getMealHistory(
       req.user!.userId,
       startDate as string,
-      endDate as string
+      endDate as string,
+      targetPatientId
     );
     sendSuccess({
       res,

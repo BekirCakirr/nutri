@@ -11,30 +11,31 @@ import { AppHeader } from '../../components/common/AppHeader'
 type Nav = StackNavigationProp<CameraStackParamList>
 type Route = RouteProp<CameraStackParamList, 'PhotoAnalysis'>
 
-// Mock AI analysis result
-const mockAnalysis = {
-  confidence: 0.92,
-  foods: [
-    { name: 'Tavuk Göğsü (Izgara)', calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: '150g' },
-    { name: 'Pilav', calories: 206, protein: 4.3, carbs: 44.5, fat: 0.4, portion: '1 porsiyon' },
-    { name: 'Yeşil Salata', calories: 20, protein: 1.5, carbs: 3.6, fat: 0.2, portion: '1 kase' },
-  ],
-}
+import { analyzeImage } from '../../services/api/ai'
 
 export default function PhotoAnalysisScreen() {
   const navigation = useNavigation<Nav>()
   const route = useRoute<Route>()
   const [analyzing, setAnalyzing] = useState(true)
-  const [result, setResult] = useState<typeof mockAnalysis | null>(null)
+  const [result, setResult] = useState<Awaited<ReturnType<typeof analyzeImage>> | null>(null)
 
   useEffect(() => {
-    // Simulate AI analysis delay
-    const timer = setTimeout(() => {
-      setAnalyzing(false)
-      setResult(mockAnalysis)
-    }, 2000)
-    return () => clearTimeout(timer)
-  }, [])
+    async function fetchAnalysis() {
+      if (!route.params.base64) {
+        setAnalyzing(false)
+        return
+      }
+      try {
+        const res = await analyzeImage(route.params.base64)
+        setResult(res)
+      } catch (error) {
+        console.warn('AI analysis failed', error)
+      } finally {
+        setAnalyzing(false)
+      }
+    }
+    fetchAnalysis()
+  }, [route.params.base64])
 
   const totalCal = result?.foods.reduce((s, f) => s + f.calories, 0) ?? 0
 
@@ -100,7 +101,31 @@ export default function PhotoAnalysisScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-white border-2 border-[#1A5C37] rounded-xl py-4 items-center"
-                onPress={() => navigation.goBack()}
+                onPress={() => {
+                  const mappedFoods = result.foods.map((f, i) => ({
+                    food: {
+                      id: `ai-${Date.now()}-${i}`,
+                      name: f.name,
+                      category: 'other' as const,
+                      servingSize: 1,
+                      servingUnit: f.portion,
+                      nutrition: {
+                        calories: f.calories,
+                        protein: f.protein,
+                        carbs: f.carbs,
+                        fat: f.fat
+                      }
+                    },
+                    quantity: 1,
+                    unit: f.portion
+                  }))
+                  
+                  // Cross tab navigation to MealsTab -> AddMeal
+                  navigation.navigate('MealsTab' as any, {
+                    screen: 'AddMeal',
+                    params: { aiFoods: mappedFoods }
+                  })
+                }}
               >
                 <Text className="text-base font-semibold text-[#1A5C37]">Öğüne Ekle ✅</Text>
               </TouchableOpacity>

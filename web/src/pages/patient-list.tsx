@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Search,
@@ -100,9 +100,7 @@ export default function PatientListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
-  const { allPatients } = usePatients()
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => { setIsLoading(false) }, [])
+  const { allPatients, isLoading } = usePatients()
 
   // Map store patients to local Patient type
   const mappedPatients: Patient[] = useMemo(() =>

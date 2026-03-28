@@ -53,6 +53,18 @@ export default function AddMealScreen() {
       // Clear params
       navigation.setParams({ selectedFood: undefined, selectedQuantity: undefined, selectedUnit: undefined })
     }
+    if (params?.aiFoods) {
+      setItems((prev) => {
+        const newItems = [...prev]
+        params.aiFoods!.forEach((aiItem) => {
+          if (!newItems.some((i) => i.food.id === aiItem.food.id)) {
+            newItems.push(aiItem)
+          }
+        })
+        return newItems
+      })
+      navigation.setParams({ aiFoods: undefined })
+    }
   }, [route.params])
 
   const totals = useMemo(() => {
