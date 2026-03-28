@@ -1,10 +1,10 @@
 import rateLimit from "express-rate-limit";
 import { sendError } from "../utils";
 
-/** General API rate limiter — 100 requests per minute per IP. */
+/** General API rate limiter — 500 requests per minute per IP (generous for dev). */
 export const apiLimiter = rateLimit({
   windowMs: 60_000,
-  max: 100,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {

@@ -35,22 +35,23 @@ const server = http.createServer(app);
 // ── Security middleware ─────────────────────────────────────────────────────
 
 app.use(helmet());
-app.use(apiLimiter);
+// apiLimiter moved after CORS
 
 // ── Core middleware ─────────────────────────────────────────────────────────
 
 const corsOrigin =
   env.nodeEnv === "production"
-    ? env.corsOrigin.filter((o) => o !== "*")
+    ? env.corsOrigin
     : env.corsOrigin;
 
 app.use(
   cors({
-    origin: corsOrigin.length > 0 ? corsOrigin : false,
+    origin: corsOrigin.length > 0 ? corsOrigin : true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
+app.use(apiLimiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 

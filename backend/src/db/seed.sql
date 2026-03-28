@@ -193,7 +193,7 @@ INSERT INTO patient_profiles (
   'Mehmet', 'Kaya', '1985-11-20', 'male',
   180, 92.0, 85.0,
   'very_active', 'muscle_gain', 16,
-  'high_protein', 10, 7.0,
+  'normal', 10, 7.0,
   'with_dietitian', 1890.0, 3260.0, 2800.0,
   180.0, 320.0, 85.0,
   true, 120, 2, 2
@@ -224,8 +224,8 @@ INSERT INTO patient_profiles (
   'b0000000-0000-0000-0000-000000000003',
   'Fatma', 'Demir', '1978-03-10', 'female',
   160, 78.0, 68.0,
-  'lightly_active', 'weight_loss', 20,
-  'diabetic', 8, 8.0,
+  'lightly_active', 'disease_management', 20,
+  'normal', 8, 8.0,
   'with_dietitian', 1380.0, 1890.0, 1500.0,
   90.0, 150.0, 50.0,
   true, 50, 1, 0
@@ -256,7 +256,7 @@ INSERT INTO patient_profiles (
   'b0000000-0000-0000-0000-000000000004',
   'Zeynep', 'Celik', '1993-07-25', 'female',
   168, 65.0, 65.0,
-  'moderately_active', 'maintain', 24,
+  'moderately_active', 'maintenance', 24,
   'normal', 10, 8.5,
   'with_dietitian', 1420.0, 2200.0, 2200.0,
   110.0, 260.0, 70.0,
@@ -302,12 +302,11 @@ INSERT INTO notifications (user_id, type, title, body) VALUES
 
 -- ── Meal plan for Ayse ──────────────────────────────────────────────────────
 INSERT INTO meal_plans (
-  id, patient_id, created_by_type, created_by_dietitian_id,
+  patient_id, created_by_type, created_by_dietitian_id,
   title, start_date, end_date,
   daily_calorie_target, daily_protein_target, daily_carb_target, daily_fat_target,
   special_notes, status
 ) VALUES (
-  'mp000000-0000-0000-0000-000000000001',
   'bb000000-0000-0000-0000-000000000001',
   'dietitian', 'de000000-0000-0000-0000-000000000001',
   'Kilo Verme Programi - Hafta 1', CURRENT_DATE, CURRENT_DATE + 7,
@@ -336,7 +335,7 @@ INSERT INTO meal_logs (patient_id, meal_type, log_date, entry_method, total_calo
 -- ── Exercise logs for Ayse ──────────────────────────────────────────────────
 INSERT INTO exercise_logs (patient_id, exercise_type, duration_min, intensity, calories_burned) VALUES
   ('bb000000-0000-0000-0000-000000000001', 'walking', 45, 'moderate', 220),
-  ('bb000000-0000-0000-0000-000000000001', 'yoga', 30, 'light', 120),
+  ('bb000000-0000-0000-0000-000000000001', 'yoga', 30, 'low', 120),
   ('bb000000-0000-0000-0000-000000000001', 'walking', 50, 'moderate', 250);
 
 -- ── Sleep logs for Ayse ─────────────────────────────────────────────────────
