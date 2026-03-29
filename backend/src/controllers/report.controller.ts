@@ -10,11 +10,13 @@ export async function getWeeklyReports(
   try {
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
+    const targetPatientId = req.user!.role === 'dietitian' ? (req.query.patientId as string) : undefined;
 
     const result = await reportService.getWeeklyReports(
       req.user!.userId,
       page,
-      limit
+      limit,
+      targetPatientId
     );
     sendSuccess({
       res,
@@ -127,25 +129,34 @@ export async function getPatientSummary(
   next: NextFunction
 ): Promise<void> {
   try {
+    let targetUserId = req.user!.userId;
     if (req.user!.role === "dietitian") {
-      sendSuccess({
-        res,
-        data: {
-          totalMeals: 0,
-          pending: 0,
-          approved: 0,
-          rejected: 0,
-          averageCalories: 0,
-          currentStreak: 0,
-          weightChangeFromStart: 0,
-          avgDailyCalories: 0
-        },
-        message: "Diyetisyen icin global ozet (mocked)",
-      });
-      return;
+      if (req.query.patientId) {
+        // Find the user_id for this patient_profile
+        const patientParams = req.query.patientId as string;
+        targetUserId = req.user!.userId; // Will pass targetPatientId directly to service
+      } else {
+        // Global dietitian summary
+        sendSuccess({
+          res,
+          data: {
+            totalMeals: 0,
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+            averageCalories: 0,
+            currentStreak: 0,
+            weightChangeFromStart: 0,
+            avgDailyCalories: 0
+          },
+          message: "Diyetisyen icin global ozet (mocked)",
+        });
+        return;
+      }
     }
 
-    const summary = await reportService.getPatientSummary(req.user!.userId);
+    const targetPatientId = req.user!.role === "dietitian" ? (req.query.patientId as string) : undefined;
+    const summary = await reportService.getPatientSummary(targetUserId, targetPatientId);
     sendSuccess({
       res,
       data: summary,

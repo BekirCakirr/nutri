@@ -44,28 +44,7 @@ import { useMeals } from '@/hooks/use-meals'
 import { useAppointments } from '@/hooks/use-appointments'
 import { useMessages } from '@/hooks/use-messages'
 
-// ── Fallback patient (used when API data hasn't loaded yet) ─────
-
-const fallbackPatient = {
-  id: '1',
-  fullName: 'Ayşe Yılmaz',
-  age: 32,
-  email: 'ayse.yilmaz@email.com',
-  phone: '+90 532 111 2233',
-  status: 'active' as const,
-  gender: 'Kadın',
-  heightCm: 165,
-  weightKg: 72,
-  bmi: 26.4,
-  bodyFatPercentage: 28,
-  goal: 'Kilo Verme',
-  adherenceScore: 87,
-  dailyCalorieTarget: 1800,
-  allergies: ['Gluten', 'Laktoz'],
-  dietaryPreference: 'Omnivore',
-  startDate: '2025-09-15',
-  nextAppointment: '2026-03-02 10:00',
-}
+// ── Fallback patient removed — now using real API data ──────────
 
 // Mock data removed — now using useMeals, useAppointments, and useMessages hooks
 
@@ -200,38 +179,63 @@ export default function PatientDetailPage() {
   }, [activeTab, fetchConversations])
 
   if (patientLoading) return <DetailPageSkeleton />
+  if (!patientLoading && !apiPatient) {
+    return (
+      <div className="mx-auto max-w-7xl space-y-6">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/patients')} className="text-muted-foreground -ml-2">
+          <ArrowLeft className="h-4 w-4" />
+          Hasta Listesi
+        </Button>
+        <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border bg-card/50">
+          <User className="h-10 w-10 text-muted-foreground mb-4 opacity-50" />
+          <h2 className="text-lg font-semibold">Hasta Bulunamadı</h2>
+          <p className="text-sm text-muted-foreground mt-1 text-balance">
+            Aradığınız hasta profiline ulaşılamıyor veya profil silinmiş olabilir.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
-  // Map API patient to display format, fallback to static data
+  // Map API patient to display format, safely handling snake_case vs camelCase
   const p = apiPatient as any
-  const mockPatient = p ? {
-    id: p.id ?? fallbackPatient.id,
-    fullName: `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || fallbackPatient.fullName,
-    age: p.dateOfBirth ? Math.floor((Date.now() - new Date(p.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : fallbackPatient.age,
-    email: p.email ?? fallbackPatient.email,
-    phone: p.phone ?? fallbackPatient.phone,
-    status: p.status ?? fallbackPatient.status,
-    gender: p.gender === 'female' ? 'Kadın' : p.gender === 'male' ? 'Erkek' : fallbackPatient.gender,
-    heightCm: p.height ?? fallbackPatient.heightCm,
-    weightKg: p.weight ?? fallbackPatient.weightKg,
-    bmi: (p.height && p.weight) ? Math.round((p.weight / ((p.height / 100) ** 2)) * 10) / 10 : fallbackPatient.bmi,
-    bodyFatPercentage: (p as any).bodyFatPercentage ?? fallbackPatient.bodyFatPercentage,
-    goal: (p.goals?.[0]) ?? fallbackPatient.goal,
-    adherenceScore: p.adherenceScore ?? fallbackPatient.adherenceScore,
-    dailyCalorieTarget: (p as any).dailyCalorieTarget ?? fallbackPatient.dailyCalorieTarget,
-    allergies: p.allergies ?? fallbackPatient.allergies,
-    dietaryPreference: (p as any).dietaryPreference ?? fallbackPatient.dietaryPreference,
-    startDate: p.createdAt ?? fallbackPatient.startDate,
-    nextAppointment: p.nextAppointment ?? fallbackPatient.nextAppointment,
-  } : fallbackPatient
+  const patientData = {
+    id: p.id,
+    fullName: `${p.first_name ?? p.firstName ?? ''} ${p.last_name ?? p.lastName ?? ''}`.trim() || 'İsimsiz Hasta',
+    age: (p.dateOfBirth || p.date_of_birth || p.birth_date) 
+      ? Math.floor((Date.now() - new Date(p.dateOfBirth || p.date_of_birth || p.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
+      : (p.age || 30),
+    email: p.email ?? '-',
+    phone: p.phone ?? '-',
+    status: p.status ?? 'active',
+    gender: p.gender === 'female' ? 'Kadın' : p.gender === 'male' ? 'Erkek' : 'Belirtilmemiş',
+    heightCm: p.height ?? p.height_cm ?? 0,
+    weightKg: p.current_weight_kg ?? p.weight ?? 0,
+    bmi: ((p.height ?? p.height_cm) && (p.current_weight_kg ?? p.weight)) 
+      ? Math.round(((p.current_weight_kg ?? p.weight) / (((p.height ?? p.height_cm) / 100) ** 2)) * 10) / 10 
+      : 0,
+    bodyFatPercentage: p.body_fat_percentage ?? p.bodyFatPercentage ?? 0,
+    goal: p.goals?.[0] ?? p.goal_type ?? p.goalType ?? 'Belirtilmemiş',
+    adherenceScore: p.adherence_score ?? p.adherenceScore ?? 0,
+    dailyCalorieTarget: p.daily_calorie_target ?? p.dailyCalorieTarget ?? 2000,
+    allergies: p.allergies ?? [],
+    dietaryPreference: p.diet_type ?? p.dietType ?? p.dietaryPreference ?? 'Standart',
+    startDate: p.createdAt ?? p.created_at ?? new Date().toISOString(),
+    nextAppointment: p.next_appointment ?? p.nextAppointment ?? 'Yok',
+  }
 
-  const initials = mockPatient.fullName
+  const initials = patientData.fullName
     .split(' ')
-    .map((n) => n[0])
+    .filter(Boolean)
+    .map((n: string) => n[0])
     .join('')
-  const bmiInfo = getBmiLabel(mockPatient.bmi)
-  const daysSinceStart = Math.floor(
-    (Date.now() - new Date(mockPatient.startDate).getTime()) / (1000 * 60 * 60 * 24)
-  )
+    .substring(0, 2)
+    .toUpperCase()
+
+  const bmiInfo = getBmiLabel(patientData.bmi)
+  const daysSinceStart = Math.max(0, Math.floor(
+    (Date.now() - new Date(patientData.startDate).getTime()) / (1000 * 60 * 60 * 24)
+  ))
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -255,28 +259,28 @@ export default function PatientDetailPage() {
               <div className="flex items-center gap-4 flex-1 min-w-0">
                 <Avatar className="h-16 w-16 shrink-0">
                   <AvatarFallback
-                    className={cn('text-xl font-bold', getInitialColor(mockPatient.fullName))}
+                    className={cn('text-xl font-bold', getInitialColor(patientData.fullName))}
                   >
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-xl font-bold tracking-tight">{mockPatient.fullName}</h1>
+                    <h1 className="text-xl font-bold tracking-tight">{patientData.fullName}</h1>
                     <Badge variant="success">Aktif</Badge>
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground">
-                    {mockPatient.age} yas, {mockPatient.gender} &middot; {mockPatient.goal} &middot;{' '}
+                    {patientData.age} yas, {patientData.gender} &middot; {patientData.goal} &middot;{' '}
                     {daysSinceStart} gundur takipte
                   </p>
                   <div className="mt-2 flex items-center gap-3 flex-wrap">
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <Mail className="h-3 w-3" />
-                      {mockPatient.email}
+                      {patientData.email}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <Phone className="h-3 w-3" />
-                      {mockPatient.phone}
+                      {patientData.phone}
                     </span>
                   </div>
                 </div>
@@ -286,7 +290,7 @@ export default function PatientDetailPage() {
               <div className="flex items-center gap-4 sm:gap-6">
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">BMI</p>
-                  <p className="text-lg font-bold tabular-nums">{mockPatient.bmi}</p>
+                  <p className="text-lg font-bold tabular-nums">{patientData.bmi}</p>
                   <Badge variant={bmiInfo.variant} className="mt-0.5">
                     {bmiInfo.label}
                   </Badge>
@@ -294,7 +298,7 @@ export default function PatientDetailPage() {
                 <Separator orientation="vertical" className="h-12 hidden sm:block" />
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">Kilo</p>
-                  <p className="text-lg font-bold tabular-nums">{mockPatient.weightKg} kg</p>
+                  <p className="text-lg font-bold tabular-nums">{patientData.weightKg} kg</p>
                   <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 justify-center mt-0.5">
                     <TrendingDown className="h-3 w-3" />
                     -4 kg
@@ -306,12 +310,12 @@ export default function PatientDetailPage() {
                   <p
                     className={cn(
                       'text-lg font-bold tabular-nums',
-                      getAdherenceColor(mockPatient.adherenceScore)
+                      getAdherenceColor(patientData.adherenceScore)
                     )}
                   >
-                    %{mockPatient.adherenceScore}
+                    %{patientData.adherenceScore}
                   </p>
-                  <Progress value={mockPatient.adherenceScore} className="h-1.5 w-14 mt-1" />
+                  <Progress value={patientData.adherenceScore} className="h-1.5 w-14 mt-1" />
                 </div>
               </div>
 
@@ -373,25 +377,25 @@ export default function PatientDetailPage() {
               {[
                 {
                   label: 'Kilo',
-                  value: `${mockPatient.weightKg} kg`,
+                  value: `${patientData.weightKg} kg`,
                   icon: Scale,
                   color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30',
                 },
                 {
                   label: 'Boy',
-                  value: `${mockPatient.heightCm} cm`,
+                  value: `${patientData.heightCm} cm`,
                   icon: User,
                   color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/30',
                 },
                 {
                   label: 'Vücut Yağ Oranı',
-                  value: `%${mockPatient.bodyFatPercentage}`,
+                  value: `%${patientData.bodyFatPercentage}`,
                   icon: Heart,
                   color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/30',
                 },
                 {
                   label: 'Günlük Hedef',
-                  value: `${mockPatient.dailyCalorieTarget} kcal`,
+                  value: `${patientData.dailyCalorieTarget} kcal`,
                   icon: Target,
                   color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30',
                 },
@@ -426,18 +430,18 @@ export default function PatientDetailPage() {
                 <CardContent>
                   <div className="space-y-0">
                     {[
-                      { label: 'E-posta', value: mockPatient.email },
-                      { label: 'Telefon', value: mockPatient.phone },
-                      { label: 'Beslenme Tercihi', value: mockPatient.dietaryPreference },
+                      { label: 'E-posta', value: patientData.email },
+                      { label: 'Telefon', value: patientData.phone },
+                      { label: 'Beslenme Tercihi', value: patientData.dietaryPreference },
                       {
                         label: 'Alerjiler',
-                        value: mockPatient.allergies.length > 0 ? null : 'Yok',
-                        badges: mockPatient.allergies,
+                        value: patientData.allergies.length > 0 ? null : 'Yok',
+                        badges: patientData.allergies,
                       },
-                      { label: 'Baslangic Tarihi', value: mockPatient.startDate },
+                      { label: 'Baslangic Tarihi', value: patientData.startDate },
                       {
                         label: 'Sonraki Randevu',
-                        value: mockPatient.nextAppointment,
+                        value: patientData.nextAppointment,
                       },
                     ].map((row, idx) => (
                       <div key={row.label}>
@@ -590,15 +594,15 @@ export default function PatientDetailPage() {
                   <span
                     className={cn(
                       'text-sm font-bold tabular-nums',
-                      getAdherenceColor(mockPatient.adherenceScore)
+                      getAdherenceColor(patientData.adherenceScore)
                     )}
                   >
-                    %{mockPatient.adherenceScore}
+                    %{patientData.adherenceScore}
                   </span>
                 </div>
-                <Progress value={mockPatient.adherenceScore} className="h-2" />
+                <Progress value={patientData.adherenceScore} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-2">
-                  Hasta son 7 gunde ortalama %{mockPatient.adherenceScore} oraninda plana uyum
+                  Hasta son 7 gunde ortalama %{patientData.adherenceScore} oraninda plana uyum
                   gostermistir.
                 </p>
               </div>
@@ -627,7 +631,7 @@ export default function PatientDetailPage() {
                     </div>
                     <span className="text-sm font-medium">Kilo Takibi</span>
                   </div>
-                  <p className="text-2xl font-bold tabular-nums">{mockPatient.weightKg} kg</p>
+                  <p className="text-2xl font-bold tabular-nums">{patientData.weightKg} kg</p>
                   <div className="flex items-center gap-2 mt-1">
                     <TrendingDown className="h-3.5 w-3.5 text-emerald-500" />
                     <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
@@ -784,7 +788,7 @@ export default function PatientDetailPage() {
                 <div className="space-y-3">
                   <div className="flex justify-start">
                     <div className="max-w-[75%] rounded-2xl px-4 py-2.5 bg-secondary rounded-bl-sm">
-                      <p className="text-sm font-medium mb-0.5">{patientConversation.participantName ?? mockPatient.fullName}</p>
+                      <p className="text-sm font-medium mb-0.5">{patientConversation.participantName ?? patientData.fullName}</p>
                       <p className="text-sm leading-relaxed">{patientConversation.lastMessage}</p>
                       <p className="text-[11px] mt-1 tabular-nums text-muted-foreground">
                         {patientConversation.lastMessageAt ? new Date(patientConversation.lastMessageAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}

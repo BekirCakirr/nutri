@@ -20,9 +20,10 @@ async function getPatientProfileId(userId: string): Promise<string> {
 export async function getWeeklyReports(
   userId: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  targetPatientId?: string
 ) {
-  const patientId = await getPatientProfileId(userId);
+  const patientId = targetPatientId || await getPatientProfileId(userId);
   const offset = (page - 1) * limit;
 
   const countResult = await query(
@@ -257,8 +258,8 @@ export async function getDailySummary(userId: string, date: string) {
   };
 }
 
-export async function getPatientSummary(userId: string) {
-  const patientId = await getPatientProfileId(userId);
+export async function getPatientSummary(userId: string, targetPatientId?: string) {
+  const patientId = targetPatientId || await getPatientProfileId(userId);
 
   // Total meals logged
   const totalMealsResult = await query(

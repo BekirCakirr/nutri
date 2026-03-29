@@ -105,11 +105,9 @@ export default function AdminDietitians() {
   const loadDietitians = useCallback(async () => {
     try {
       const result = await fetchAdminUsers({ role: 'dietitian', page: 1, limit: 100, search: search.trim() || undefined })
-      if (result.items.length > 0) {
-        setDietitians(result.items.map(toDietitianRow))
-      }
-    } catch {
-      // Keep mock data as fallback
+      setDietitians(result.items.map(toDietitianRow))
+    } catch (error) {
+      console.error('Failed to load dietitians:', error)
     }
   }, [search])
 

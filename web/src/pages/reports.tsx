@@ -110,11 +110,11 @@ export default function ReportsPage() {
   const patientSummary = useMemo(() =>
     allPatients.map((p: any) => ({
       id: p.id,
-      name: `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || 'Hasta',
-      adherence: p.adherenceScore ?? 0,
-      avgCalories: p.avgCalories ?? 0,
-      meals: p.totalMeals ?? 0,
-      weight: p.weightChange ? `${p.weightChange > 0 ? '+' : ''}${p.weightChange} kg` : '-',
+      name: `${p.firstName || p.first_name || ''} ${p.lastName || p.last_name || ''}`.trim() || 'Hasta',
+      adherence: p.adherence_score ?? p.adherenceScore ?? 0,
+      avgCalories: p.avg_calories ?? p.avgCalories ?? 0,
+      meals: p.total_meals ?? p.totalMeals ?? 0,
+      weight: p.weight_change || p.weightChange ? `${(p.weight_change || p.weightChange) > 0 ? '+' : ''}${p.weight_change || p.weightChange} kg` : '-',
       status: p.status ?? 'active',
     })),
     [allPatients],

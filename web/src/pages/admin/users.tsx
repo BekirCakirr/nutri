@@ -125,11 +125,9 @@ export default function AdminUsersPage() {
       if (search.trim()) filters.search = search.trim()
 
       const result = await fetchAdminUsers(filters)
-      if (result.items.length > 0) {
-        setUsers(result.items.map(toUserRow))
-      }
-    } catch {
-      // Keep current data (mock fallback) on error
+      setUsers(result.items.map(toUserRow))
+    } catch (err) {
+      console.error('Failed to load users:', err)
     }
   }, [roleFilter, statusFilter, search])
 

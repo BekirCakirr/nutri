@@ -42,9 +42,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { PageContainer } from '@/components/shared/page-container'
 import { PlanCreatorSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
+import { searchFoods, type FoodItem } from '@/services/food.service'
 
 /* ------------------------------------------------------------------ */
 /*  Constants & mock data                                              */
@@ -105,36 +113,6 @@ interface PlanItem {
   fat: number
 }
 
-const sampleItems: Record<string, PlanItem[]> = {
-  'Pazartesi-Kahvaltı': [
-    { id: '1', name: 'Yulaf ezmesi', portion: '200g', calories: 280, protein: 10, carbs: 48, fat: 6 },
-    { id: '2', name: 'Muz', portion: '1 adet', calories: 90, protein: 1, carbs: 23, fat: 0 },
-  ],
-  'Pazartesi-Öğle': [
-    { id: '3', name: 'Tavuk göğsü', portion: '150g', calories: 240, protein: 36, carbs: 0, fat: 10 },
-    { id: '4', name: 'Bulgur pilavı', portion: '200g', calories: 220, protein: 6, carbs: 46, fat: 2 },
-  ],
-  'Pazartesi-Akşam': [
-    { id: '5', name: 'Izgara somon', portion: '200g', calories: 360, protein: 40, carbs: 0, fat: 20 },
-    { id: '6', name: 'Sebze sote', portion: '250g', calories: 120, protein: 4, carbs: 18, fat: 4 },
-  ],
-  'Pazartesi-Ara Öğün': [
-    { id: '7', name: 'Badem', portion: '30g', calories: 170, protein: 6, carbs: 6, fat: 14 },
-  ],
-  'Salı-Kahvaltı': [
-    { id: '8', name: 'Omlet (2 yumurta)', portion: '150g', calories: 220, protein: 14, carbs: 2, fat: 16 },
-    { id: '9', name: 'Tam buğday ekmek', portion: '2 dilim', calories: 140, protein: 6, carbs: 26, fat: 2 },
-  ],
-  'Salı-Öğle': [
-    { id: '10', name: 'Mercimek çorbası', portion: '300ml', calories: 180, protein: 12, carbs: 28, fat: 3 },
-    { id: '11', name: 'Salata', portion: '200g', calories: 80, protein: 2, carbs: 12, fat: 3 },
-  ],
-  'Çarşamba-Kahvaltı': [
-    { id: '12', name: 'Yoğurt', portion: '200g', calories: 120, protein: 10, carbs: 8, fat: 5 },
-    { id: '13', name: 'Granola', portion: '50g', calories: 210, protein: 5, carbs: 35, fat: 7 },
-  ],
-}
-
 /* ------------------------------------------------------------------ */
 /*  Target macros (example daily targets for the calorie counter)     */
 /* ------------------------------------------------------------------ */
@@ -156,9 +134,35 @@ export default function PlanCreatorPage() {
   const [selectedPatient, setSelectedPatient] = useState(patientId || '')
   const [selectedDay, setSelectedDay] = useState<string>('Pazartesi')
   const [planTitle, setPlanTitle] = useState('Kilo Verme Programı - Hafta 1')
-  const [items, setItems] = useState<Record<string, PlanItem[]>>(sampleItems)
+  const [items, setItems] = useState<Record<string, PlanItem[]>>({})
   const [isPageLoading, setIsPageLoading] = useState(true)
+
+  // Search Modal State
+  const [addFoodModal, setAddFoodModal] = useState<{ day: string; meal: string } | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<FoodItem[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+
   useEffect(() => { const t = setTimeout(() => setIsPageLoading(false), 400); return () => clearTimeout(t) }, [])
+
+  useEffect(() => {
+    if (!searchQuery) {
+      setSearchResults([])
+      return
+    }
+    const timer = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const results = await searchFoods(searchQuery)
+        setSearchResults(results)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setIsSearching(false)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
   if (isPageLoading) return <PlanCreatorSkeleton />
 
@@ -233,10 +237,45 @@ export default function PlanCreatorPage() {
     if (next >= 0 && next < days.length) setSelectedDay(days[next])
   }
 
-  /* ---------- macro helper ---------- */
+  /* ---------- macros helper ---------- */
 
   const macroPercent = (value: number, target: number) =>
     Math.min(Math.round((value / target) * 100), 100)
+
+  /* ---------- add food ---------- */
+
+  const handleAddFood = (food: FoodItem) => {
+    if (!addFoodModal) return
+    const { day, meal } = addFoodModal
+    const slotKey = `${day}-${meal}`
+    
+    // Default to 100g portion
+    const newItem: PlanItem = {
+      id: `${food.id}-${Date.now()}`,
+      name: food.name,
+      portion: '100g',
+      calories: (food as any).caloriesPer100g || (food as any).calories_per_100g || (food as any).nutrition?.calories || 0,
+      protein: (food as any).proteinPer100g || (food as any).protein_per_100g || (food as any).nutrition?.proteinG || 0,
+      carbs: (food as any).carbsPer100g || (food as any).carbs_per_100g || (food as any).nutrition?.carbsG || 0,
+      fat: (food as any).fatPer100g || (food as any).fat_per_100g || (food as any).nutrition?.fatG || 0,
+    }
+
+    setItems((prev) => ({
+      ...prev,
+      [slotKey]: [...(prev[slotKey] || []), newItem],
+    }))
+
+    setAddFoodModal(null)
+    setSearchQuery('')
+  }
+
+  const handleRemoveFood = (day: string, meal: string, itemId: string) => {
+    const slotKey = `${day}-${meal}`
+    setItems((prev) => ({
+      ...prev,
+      [slotKey]: (prev[slotKey] || []).filter((i) => i.id !== itemId),
+    }))
+  }
 
   /* ------------------------------------------------------------------ */
   /*  Render                                                             */
@@ -515,6 +554,7 @@ export default function PlanCreatorPage() {
                                     <Button
                                       variant="ghost"
                                       size="icon-xs"
+                                      onClick={() => handleRemoveFood(day, meal, item.id)}
                                       className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                                     >
                                       <Trash2 className="h-3 w-3" />
@@ -557,6 +597,7 @@ export default function PlanCreatorPage() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => setAddFoodModal({ day, meal })}
                             className="w-full mt-2 h-7 text-xs text-muted-foreground hover:text-foreground"
                           >
                             <Plus className="h-3 w-3" />
@@ -752,6 +793,61 @@ export default function PlanCreatorPage() {
           </Card>
         </div>
       </div>
+
+      {/* Add Food Modal */}
+      <Dialog 
+        open={addFoodModal !== null} 
+        onOpenChange={(open) => {
+          if (!open) { setAddFoodModal(null); setSearchQuery(''); }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Yiyecek Ekle</DialogTitle>
+            <DialogDescription>
+              {addFoodModal?.day} - {addFoodModal?.meal} için arama yapın.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Input 
+              placeholder="Yiyecek ara (örn: tavuk, elma)..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+            />
+            
+            <ScrollArea className="h-[300px] mt-4 rounded-md border p-2">
+              {isSearching ? (
+                <div className="p-4 text-center text-sm text-muted-foreground">Aranıyor...</div>
+              ) : searchResults.length > 0 ? (
+                <div className="space-y-2">
+                  {searchResults.map((food) => (
+                    <div 
+                      key={food.id} 
+                      className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md transition-colors cursor-pointer border border-transparent hover:border-border"
+                      onClick={() => handleAddFood(food)}
+                    >
+                      <div className="flex-1 min-w-0 pr-4">
+                        <p className="text-sm font-medium truncate">{food.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          100g: {(food as any).caloriesPer100g || (food as any).calories_per_100g || (food as any).nutrition?.calories || 0} kcal &middot; P: {(food as any).proteinPer100g || (food as any).protein_per_100g || (food as any).nutrition?.proteinG || 0}g
+                        </p>
+                      </div>
+                      <Button size="sm" variant="secondary" className="h-7 w-7 p-0 shrink-0">
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : searchQuery ? (
+                <div className="p-4 text-center text-sm text-muted-foreground">Sonuç bulunamadı</div>
+              ) : (
+                <div className="p-4 text-center text-sm text-muted-foreground">Aramak için yazmaya başlayın</div>
+              )}
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageContainer>
   )
 }
