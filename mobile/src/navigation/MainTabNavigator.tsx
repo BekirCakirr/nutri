@@ -1,3 +1,4 @@
+import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
 import { StyleSheet, View, Platform } from 'react-native'
@@ -24,6 +25,7 @@ export default function MainTabNavigator() {
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tab.Screen
@@ -100,26 +102,26 @@ const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 24 : 16,
-    left: 16,
-    right: 16,
-    height: 64,
-    backgroundColor: colors.background.paper,
-    borderRadius: borderRadius.xl,
+    left: 20,
+    right: 20,
+    height: 70,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 35,
     borderTopWidth: 0,
-    shadowColor: colors.primary[900],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    elevation: 6,
-    paddingBottom: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
   },
   tabBarLabel: {
     fontSize: fontSizes.xs,
-    fontWeight: fontWeights.semibold,
-    marginTop: -2,
+    fontWeight: fontWeights.bold,
+    marginTop: -4,
   },
   tabBarItem: {
-    paddingTop: 8,
+    paddingTop: 14,
   },
   iconWrap: {
     alignItems: 'center',
@@ -132,18 +134,20 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   cameraButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: colors.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 35,
+    borderWidth: 4,
+    borderColor: '#F8F9FA',
     shadowColor: colors.primary[700],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
   cameraInner: {
     alignItems: 'center',

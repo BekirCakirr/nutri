@@ -10,18 +10,18 @@ import {
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import type { StackNavigationProp } from '@react-navigation/stack'
 import type { MealsStackParamList } from '../../navigation/types'
-import type { Food } from '@/types'
+import type { Food } from '../../types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { FoodListItem } from '../../components/nutrition/FoodListItem'
-import { useFoodStore } from '@/stores/foodStore'
+import { useFoodStore } from '../../stores/foodStore'
 import { colors } from '../../theme/colors'
 import { spacing, borderRadius } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 import { shadows } from '../../theme/shadows'
 
-type Nav = NativeStackNavigationProp<MealsStackParamList, 'FoodSearch'>
+type Nav = StackNavigationProp<MealsStackParamList, 'FoodSearch'>
 type TabKey = 'search' | 'recent' | 'favorites'
 
 const tabs: { key: TabKey; label: string }[] = [

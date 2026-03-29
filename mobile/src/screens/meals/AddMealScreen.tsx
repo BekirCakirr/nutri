@@ -10,11 +10,11 @@ import { shadows } from '../../theme/shadows'
 import { AnimatedPressable } from '../../components/ui/AnimatedPressable'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import type { StackNavigationProp } from '@react-navigation/stack'
 import type { RouteProp } from '@react-navigation/native'
-import type { MealsStackParamList } from '@/navigation/types'
-import type { Food, MealType, MealItem } from '@/types'
-import { useMealStore } from '@/stores/mealStore'
+import type { MealsStackParamList } from '../../navigation/types'
+import type { Food, MealType, MealItem } from '../../types'
+import { useMealStore } from '../../stores/mealStore'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { MealTypeSelector } from '../../components/nutrition/MealTypeSelector'
 import { MacroBar } from '../../components/nutrition/MacroBar'
@@ -24,7 +24,7 @@ import { colors } from '../../theme/colors'
 import { spacing, borderRadius } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
-type Nav = NativeStackNavigationProp<MealsStackParamList, 'AddMeal'>
+type Nav = StackNavigationProp<MealsStackParamList, 'AddMeal'>
 type Route = RouteProp<MealsStackParamList, 'AddMeal'>
 
 export default function AddMealScreen() {

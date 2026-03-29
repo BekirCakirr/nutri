@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { createStackNavigator } from '@react-navigation/stack'
+import React, { useEffect } from 'react'
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import type { RootStackParamList } from './types'
 import { useAuthStore } from '../stores/authStore'
 
@@ -34,6 +34,7 @@ export default function RootNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        ...TransitionPresets.SlideFromRightIOS,
       }}
     >
       {!isAuthenticated ? (
@@ -45,7 +46,11 @@ export default function RootNavigator() {
           <Stack.Screen name="Main" component={MainTabNavigator} />
 
           {/* Modal screens */}
-          <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Group screenOptions={{ 
+            presentation: 'modal',
+            ...TransitionPresets.ModalPresentationIOS,
+            gestureEnabled: true,
+          }}>
             <Stack.Screen name="DietitianProfile" component={DietitianProfileScreen} />
             <Stack.Screen name="BookAppointment" component={BookAppointmentScreen} />
             <Stack.Screen name="VideoCall" component={VideoCallScreen} />

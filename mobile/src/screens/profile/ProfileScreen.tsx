@@ -28,45 +28,45 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
   {
     title: 'Hesap',
     items: [
-      { icon: 'person-outline', title: 'Profili Düzenle', screen: 'EditProfile', color: '#1A5C37' },
-      { icon: 'body-outline', title: 'Kişisel Veriler', subtitle: 'Boy, kilo, yaş', screen: 'PersonalData', color: '#4A7FB5' },
-      { icon: 'flag-outline', title: 'Hedeflerim', screen: 'Goals', color: '#E8A040' },
+      { icon: 'person-outline', title: 'Profili Düzenle', screen: 'EditProfile', color: '#10B981' },
+      { icon: 'body-outline', title: 'Kişisel Veriler', subtitle: 'Boy, kilo, yaş', screen: 'PersonalData', color: '#3B82F6' },
+      { icon: 'flag-outline', title: 'Hedeflerim', screen: 'Goals', color: '#F59E0B' },
     ],
   },
   {
     title: 'Sağlık',
     items: [
       { icon: 'medical-outline', title: 'Alerji Yönetimi', screen: 'AllergyManagement', color: '#EF4444' },
-      { icon: 'people-outline', title: 'Aile Modu', screen: 'FamilyMode', color: '#8B6BAA' },
-      { icon: 'fitness-outline', title: 'Diyetisyen Bağlantısı', screen: 'DietitianConnection', color: '#4ECDC4' },
+      { icon: 'people-outline', title: 'Aile Modu', screen: 'FamilyMode', color: '#8B5CF6' },
+      { icon: 'fitness-outline', title: 'Diyetisyen Bağlantısı', screen: 'DietitianConnection', color: '#14B8A6' },
     ],
   },
   {
     title: 'Uygulama',
     items: [
-      { icon: 'settings-outline', title: 'Ayarlar', screen: 'Settings', color: '#5A7264' },
-      { icon: 'notifications-outline', title: 'Bildirimler', screen: 'NotificationSettings', color: '#F59E0B' },
-      { icon: 'alarm-outline', title: 'Hatırlatıcılar', screen: 'Reminders', color: '#C75B4A' },
-      { icon: 'color-palette-outline', title: 'Tema', screen: 'Theme', color: '#8B6BAA' },
-      { icon: 'language-outline', title: 'Dil', screen: 'Language', color: '#4A7FB5' },
+      { icon: 'settings-outline', title: 'Ayarlar', screen: 'Settings', color: '#64748B' },
+      { icon: 'notifications-outline', title: 'Bildirimler', screen: 'NotificationSettings', color: '#EAB308' },
+      { icon: 'alarm-outline', title: 'Hatırlatıcılar', screen: 'Reminders', color: '#F43F5E' },
+      { icon: 'color-palette-outline', title: 'Tema', screen: 'Theme', color: '#A855F7' },
+      { icon: 'language-outline', title: 'Dil', screen: 'Language', color: '#0EA5E9' },
     ],
   },
   {
     title: 'Premium',
     items: [
-      { icon: 'diamond-outline', title: 'Abonelik', subtitle: 'Premium Plan', screen: 'Subscription', color: '#E8A040' },
-      { icon: 'trophy-outline', title: 'Başarılar', screen: 'Achievements', color: '#1A5C37' },
-      { icon: 'watch-outline', title: 'Bağlı Cihazlar', screen: 'ConnectedDevices', color: '#4ECDC4' },
+      { icon: 'diamond-outline', title: 'Abonelik', subtitle: 'Premium Plan', screen: 'Subscription', color: '#F59E0B' },
+      { icon: 'trophy-outline', title: 'Başarılar', screen: 'Achievements', color: '#10B981' },
+      { icon: 'watch-outline', title: 'Bağlı Cihazlar', screen: 'ConnectedDevices', color: '#14B8A6' },
     ],
   },
   {
     title: 'Destek & Bilgi',
     items: [
-      { icon: 'download-outline', title: 'Veri Dışa Aktarma', screen: 'DataExport', color: '#5A7264' },
-      { icon: 'help-circle-outline', title: 'Yardım & Destek', screen: 'HelpSupport', color: '#4A7FB5' },
-      { icon: 'information-circle-outline', title: 'Hakkında', screen: 'About', color: '#1A5C37' },
-      { icon: 'shield-checkmark-outline', title: 'Gizlilik Politikası', screen: 'PrivacyPolicy', color: '#5A7264' },
-      { icon: 'document-text-outline', title: 'Kullanım Şartları', screen: 'TermsOfService', color: '#5A7264' },
+      { icon: 'download-outline', title: 'Veri Dışa Aktarma', screen: 'DataExport', color: '#475569' },
+      { icon: 'help-circle-outline', title: 'Yardım & Destek', screen: 'HelpSupport', color: '#3B82F6' },
+      { icon: 'information-circle-outline', title: 'Hakkında', screen: 'About', color: '#10B981' },
+      { icon: 'shield-checkmark-outline', title: 'Gizlilik Politikası', screen: 'PrivacyPolicy', color: '#64748B' },
+      { icon: 'document-text-outline', title: 'Kullanım Şartları', screen: 'TermsOfService', color: '#64748B' },
     ],
   },
 ]
@@ -75,78 +75,89 @@ export default function ProfileScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
-      <ScrollView className="flex-1 bg-[#F8FAF9]" showsVerticalScrollIndicator={false}>
-        {/* Profile header */}
-        <View className="bg-[#1A2E23] px-5 pt-8 pb-6">
-          <View className="flex-row items-center">
-            <View className="w-16 h-16 rounded-full bg-[#2D4A3A] items-center justify-center mr-4">
-              <Text className="text-2xl font-bold text-white">
-                {mockUser.name.split(' ').map(n => n[0]).join('')}
-              </Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-xl font-bold text-white">{mockUser.name}</Text>
-              <Text className="text-sm text-white/60">{mockUser.email}</Text>
-              <View className="flex-row items-center mt-1">
-                <View className="bg-[#4ECDC4]/20 rounded-full px-2.5 py-0.5">
-                  <Text className="text-xs font-bold text-[#4ECDC4]">⭐ {mockUser.plan}</Text>
-                </View>
-                <Text className="text-xs text-white/40 ml-2">{mockUser.joinDate}'dan beri</Text>
+    <ScreenWrapper padded={false} contentStyle={{ backgroundColor: '#F8F9FA' }}>
+      <ScrollView className="flex-1 bg-[#F8F9FA]" showsVerticalScrollIndicator={false}>
+        {/* Modern Dark Header Card wrapped in container */}
+        <View className="px-5 pt-6 pb-4">
+          <View className="bg-[#111827] rounded-[32px] p-6 shadow-xl shadow-black/20 overflow-hidden relative">
+            {/* Subtle glow circles for depth inside card */}
+            <View className="absolute -top-10 -right-10 w-40 h-40 bg-[#10B981] opacity-20 rounded-full blur-3xl" />
+            <View className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#3B82F6] opacity-20 rounded-full blur-3xl" />
+            
+            <View className="flex-row items-center relative z-10">
+              <View className="w-16 h-16 rounded-full bg-white/10 items-center justify-center mr-4 border border-white/20">
+                <Text className="text-2xl font-black text-white">
+                  {mockUser.name.split(' ').map(n => n[0]).join('')}
+                </Text>
               </View>
+              <View className="flex-1">
+                <Text className="text-[22px] font-bold text-white mb-0.5">{mockUser.name}</Text>
+                <Text className="text-sm text-gray-400 font-medium">{mockUser.email}</Text>
+                <View className="flex-row items-center mt-2">
+                  <View className="bg-[#10B981]/20 border border-[#10B981]/30 rounded-full px-2.5 py-1 flex-row items-center">
+                    <Ionicons name="star" size={12} color="#10B981" />
+                    <Text className="text-xs font-bold text-[#10B981] ml-1 uppercase">{mockUser.plan}</Text>
+                  </View>
+                  <Text className="text-xs font-medium text-gray-500 ml-3">{mockUser.joinDate}'dan beri</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('EditProfile')}
+                className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/10"
+                activeOpacity={0.7}
+              >
+                <Ionicons name="pencil" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('EditProfile')}
-              className="w-10 h-10 rounded-full bg-[#2D4A3A] items-center justify-center"
-            >
-              <Ionicons name="pencil-outline" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
 
-          {/* Stats row */}
-          <View className="flex-row mt-5 gap-3">
-            <View className="flex-1 bg-[#2D4A3A] rounded-xl p-3 items-center">
-              <Text className="text-xl font-extrabold text-white">{mockUser.stats.streak}</Text>
-              <Text className="text-[10px] text-white/50">🔥 Gün Serisi</Text>
-            </View>
-            <View className="flex-1 bg-[#2D4A3A] rounded-xl p-3 items-center">
-              <Text className="text-xl font-extrabold text-white">{mockUser.stats.logged}</Text>
-              <Text className="text-[10px] text-white/50">📋 Öğün Kaydı</Text>
-            </View>
-            <View className="flex-1 bg-[#2D4A3A] rounded-xl p-3 items-center">
-              <Text className="text-xl font-extrabold text-white">{mockUser.stats.lost} kg</Text>
-              <Text className="text-[10px] text-white/50">📉 Verilen</Text>
+            {/* Stats row inside header */}
+            <View className="flex-row mt-6 gap-3 relative z-10">
+              <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 items-center">
+                <Text className="text-2xl font-black text-white">{mockUser.stats.streak}</Text>
+                <Text className="text-[10px] font-medium text-gray-400 mt-1 uppercase tracking-wider">Gün Serisi</Text>
+              </View>
+              <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 items-center">
+                <Text className="text-2xl font-black text-white">{mockUser.stats.logged}</Text>
+                <Text className="text-[10px] font-medium text-gray-400 mt-1 uppercase tracking-wider">Öğün Kaydı</Text>
+              </View>
+              <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 items-center">
+                <Text className="text-2xl font-black text-[#10B981]">{mockUser.stats.lost}</Text>
+                <Text className="text-[10px] font-medium text-gray-400 mt-1 uppercase tracking-wider">Kg Verildi</Text>
+              </View>
             </View>
           </View>
         </View>
 
         {/* Menu sections */}
-        <View className="px-4 pt-4">
+        <View className="px-5 pt-2 pb-6">
           {menuSections.map((section, si) => (
-            <View key={si} className="mb-4">
-              <Text className="text-xs font-bold text-[#5A7264] uppercase tracking-wide mb-2 ml-1">
+            <View key={si} className="mb-6">
+              <Text className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">
                 {section.title}
               </Text>
-              <View className="bg-white rounded-2xl border border-[#E8F0EC] overflow-hidden">
+              <View className="bg-white rounded-[24px] border border-gray-100 shadow-sm shadow-black/5 overflow-hidden">
                 {section.items.map((item, ii) => (
                   <TouchableOpacity
                     key={ii}
-                    className="flex-row items-center px-4 py-3.5 border-b border-[#E8F0EC]"
-                    style={ii === section.items.length - 1 ? { borderBottomWidth: 0 } : {}}
+                    className={`flex-row items-center px-4 py-4 ${
+                      ii === section.items.length - 1 ? '' : 'border-b border-gray-100'
+                    }`}
                     activeOpacity={0.6}
                     onPress={() => navigation.navigate(item.screen)}
                   >
                     <View
-                      className="w-9 h-9 rounded-full items-center justify-center mr-3"
-                      style={{ backgroundColor: item.color + '18' }}
+                      className="w-10 h-10 rounded-xl items-center justify-center mr-4"
+                      style={{ backgroundColor: item.color + '15' }}
                     >
-                      <Ionicons name={item.icon} size={18} color={item.color} />
+                      <Ionicons name={item.icon} size={20} color={item.color} />
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-[15px] font-semibold text-[#1A2E23]">{item.title}</Text>
-                      {item.subtitle && <Text className="text-xs text-[#5A7264]">{item.subtitle}</Text>}
+                    <View className="flex-1 justify-center">
+                      <Text className="text-[16px] font-semibold text-gray-800">{item.title}</Text>
+                      {item.subtitle && <Text className="text-[13px] font-medium text-gray-500 mt-0.5">{item.subtitle}</Text>}
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color="#D4E2DA" />
+                    <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
+                      <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                    </View>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -155,8 +166,11 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout */}
-        <TouchableOpacity className="mx-4 mb-8 bg-white rounded-xl py-4 items-center border border-[#FEE2E2]" activeOpacity={0.7}>
-          <Text className="text-base font-semibold text-[#EF4444]">Çıkış Yap</Text>
+        <TouchableOpacity 
+          className="mx-5 mb-10 bg-red-50 rounded-[24px] py-4 items-center border border-red-100" 
+          activeOpacity={0.7}
+        >
+          <Text className="text-[16px] font-bold text-red-500">Çıkış Yap</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>

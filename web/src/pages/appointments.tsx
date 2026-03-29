@@ -83,11 +83,32 @@ function mapMode(type: string): AppointmentItem['mode'] {
 /* ─── Calendar config ───────────────────────────── */
 
 const weekDayLabels = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
-const weekDates = ['02', '03', '04', '05', '06', '07', '08']
-const weekMonthPrefix = '2026-03-'
-const weekLabel = '2 Mart - 8 Mart 2026'
-const todayDate = '03'
 const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
+
+function getWeekDates(baseDate: Date) {
+  const day = baseDate.getDay()
+  const diff = day === 0 ? -6 : 1 - day // Monday
+  const monday = new Date(baseDate)
+  monday.setDate(baseDate.getDate() + diff)
+
+  const months = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara']
+  const dates: string[] = []
+  const dateStrs: string[] = []
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    dates.push(String(d.getDate()).padStart(2, '0'))
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const y = d.getFullYear()
+    dateStrs.push(`${y}-${m}-${String(d.getDate()).padStart(2, '0')}`)
+  }
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  const label = `${monday.getDate()} ${months[monday.getMonth()]} - ${sunday.getDate()} ${months[sunday.getMonth()]} ${sunday.getFullYear()}`
+  const todayStr = String(new Date().getDate()).padStart(2, '0')
+  const isSameWeek = monday.getMonth() === new Date().getMonth() && monday.getFullYear() === new Date().getFullYear()
+  return { dates, dateStrs, label, todayDate: isSameWeek ? todayStr : '' }
+}
 
 /* ─── Color-coded appointment types ─────────────── */
 
@@ -193,6 +214,13 @@ function formatDate(dateStr: string): string {
 export default function AppointmentsPage() {
   const [view, setView] = useState<'week' | 'list'>('week')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [weekOffset, setWeekOffset] = useState(0)
+  const weekBase = useMemo(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + weekOffset * 7)
+    return d
+  }, [weekOffset])
+  const week = useMemo(() => getWeekDates(weekBase), [weekBase])
   const { appointments: rawAppointments, fetchAppointments, error: appointmentsError, isLoading } = useAppointments()
   useEffect(() => {
     fetchAppointments()
@@ -391,13 +419,13 @@ export default function AppointmentsPage() {
               </div>
               <CardAction>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon-xs" aria-label="Önceki hafta">
+                  <Button variant="ghost" size="icon-xs" aria-label="Önceki hafta" onClick={() => setWeekOffset(w => w - 1)}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   <span className="text-sm font-medium text-muted-foreground px-2 tabular-nums">
-                    {weekLabel}
+                    {week.label}
                   </span>
-                  <Button variant="ghost" size="icon-xs" aria-label="Sonraki hafta">
+                  <Button variant="ghost" size="icon-xs" aria-label="Sonraki hafta" onClick={() => setWeekOffset(w => w + 1)}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -410,7 +438,7 @@ export default function AppointmentsPage() {
                   <div className="grid grid-cols-[60px_repeat(7,1fr)] gap-1 mb-1">
                     <div />
                     {weekDayLabels.map((day, i) => {
-                      const isToday = weekDates[i] === todayDate
+                      const isToday = week.dates[i] === week.todayDate
                       return (
                         <div
                           key={day}
@@ -431,7 +459,7 @@ export default function AppointmentsPage() {
                               ? 'bg-primary text-primary-foreground'
                               : 'text-foreground'
                           )}>
-                            {weekDates[i]}
+                            {week.dates[i]}
                           </span>
                         </div>
                       )
@@ -454,8 +482,8 @@ export default function AppointmentsPage() {
                           </span>
                         </div>
                         {weekDayLabels.map((_, dayIdx) => {
-                          const dateStr = `${weekMonthPrefix}${weekDates[dayIdx]}`
-                          const isToday = weekDates[dayIdx] === todayDate
+                          const dateStr = week.dateStrs[dayIdx]
+                          const isToday = week.dates[dayIdx] === week.todayDate
                           const apt = allAppointments.find(
                             (a) => a.date === dateStr && a.time === hour && a.status === 'upcoming'
                           )

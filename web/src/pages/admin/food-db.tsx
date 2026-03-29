@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Search,
   Plus,
@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   XCircle,
   Apple,
+  Loader2,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -40,46 +41,86 @@ import {
 } from '@/components/ui/select'
 import { PageContainer } from '@/components/shared/page-container'
 import { EmptyState } from '@/components/shared/empty-state'
+import { searchFoods } from '@/services/food.service'
+import type { FoodItem } from '@/types/food'
+import { useDebounce } from '@/hooks/use-debounce'
+import { toast } from 'sonner'
+import api from '@/lib/axios'
 
-interface FoodDBItem {
-  id: string
-  name: string
-  category: string
-  caloriesPer100g: number
-  protein: number
-  carbs: number
-  fat: number
-  source: string
-  isVerified: boolean
-}
-
-const mockFoods: FoodDBItem[] = [
-  { id: '1', name: 'Tavuk Göğsü (Pişmiş)', category: 'Protein', caloriesPer100g: 165, protein: 31, carbs: 0, fat: 3.6, source: 'USDA', isVerified: true },
-  { id: '2', name: 'Yulaf Ezmesi', category: 'Tahıl', caloriesPer100g: 389, protein: 17, carbs: 66, fat: 7, source: 'USDA', isVerified: true },
-  { id: '3', name: 'Somon (Izgara)', category: 'Deniz Ürünü', caloriesPer100g: 208, protein: 20, carbs: 0, fat: 13, source: 'USDA', isVerified: true },
-  { id: '4', name: 'Beyaz Peynir', category: 'Süt Ürünü', caloriesPer100g: 264, protein: 18, carbs: 1.5, fat: 21, source: 'Özel', isVerified: false },
-  { id: '5', name: 'Kuru Fasulye (Pişmiş)', category: 'Baklagil', caloriesPer100g: 127, protein: 9, carbs: 22, fat: 0.5, source: 'USDA', isVerified: true },
-  { id: '6', name: 'Elma', category: 'Meyve', caloriesPer100g: 52, protein: 0.3, carbs: 14, fat: 0.2, source: 'USDA', isVerified: true },
-  { id: '7', name: 'Zeytinyağı', category: 'Yağ', caloriesPer100g: 884, protein: 0, carbs: 0, fat: 100, source: 'USDA', isVerified: true },
-  { id: '8', name: 'Kinoa', category: 'Tahıl', caloriesPer100g: 120, protein: 4.4, carbs: 21, fat: 1.9, source: 'Topluluk', isVerified: false },
-  { id: '9', name: 'Yoğurt (Tam Yağlı)', category: 'Süt Ürünü', caloriesPer100g: 61, protein: 3.5, carbs: 4.7, fat: 3.3, source: 'USDA', isVerified: true },
-  { id: '10', name: 'Brokoli', category: 'Sebze', caloriesPer100g: 34, protein: 2.8, carbs: 7, fat: 0.4, source: 'USDA', isVerified: true },
+const CATEGORIES = [
+  'Meyve', 'Sebze', 'Et & Balık', 'Süt Ürünleri', 'Tahıllar',
+  'Baklagiller', 'Yağlar', 'İçecekler', 'Atıştırmalıklar', 'Diğer',
 ]
 
 export default function AdminFoodDBPage() {
+  const [foods, setFoods] = useState<FoodItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const debouncedSearch = useDebounce(search, 300)
 
-  const filtered = mockFoods.filter((f) => {
-    const matchesSearch = f.name.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = categoryFilter === 'all' || f.category === categoryFilter
-    return matchesSearch && matchesCategory
+  // New food form state
+  const [newFood, setNewFood] = useState({
+    name: '',
+    category: '',
+    calories_per_100g: '',
+    protein_per_100g: '',
+    carbs_per_100g: '',
+    fat_per_100g: '',
   })
 
-  const categories = [...new Set(mockFoods.map(f => f.category))]
+  const fetchFoods = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const result = await searchFoods(debouncedSearch || '')
+      setFoods(result)
+    } catch {
+      toast.error('Besin veritabanı yüklenemedi')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [debouncedSearch])
 
+  useEffect(() => {
+    fetchFoods()
+  }, [fetchFoods])
 
+  const filtered = foods.filter((f) => {
+    const matchesCategory = categoryFilter === 'all' || (f as any).category === categoryFilter
+    return matchesCategory
+  })
+
+  const handleCreateFood = async () => {
+    try {
+      await api.post('/foods', {
+        name: newFood.name,
+        category: newFood.category || 'Diğer',
+        calories_per_100g: Number(newFood.calories_per_100g) || 0,
+        protein_per_100g: Number(newFood.protein_per_100g) || 0,
+        carbs_per_100g: Number(newFood.carbs_per_100g) || 0,
+        fat_per_100g: Number(newFood.fat_per_100g) || 0,
+      })
+      toast.success('Besin eklendi')
+      setDialogOpen(false)
+      setNewFood({ name: '', category: '', calories_per_100g: '', protein_per_100g: '', carbs_per_100g: '', fat_per_100g: '' })
+      fetchFoods()
+    } catch {
+      toast.error('Besin eklenemedi')
+    }
+  }
+
+  const handleDeleteFood = async (id: string | number) => {
+    try {
+      await api.delete(`/foods/${id}`)
+      toast.success('Besin silindi')
+      setFoods(prev => prev.filter(f => String(f.id) !== String(id)))
+    } catch {
+      toast.error('Besin silinemedi')
+    }
+  }
+
+  const categories = [...new Set(foods.map(f => (f as any).category).filter(Boolean))]
 
   return (
     <PageContainer
@@ -101,15 +142,19 @@ export default function AdminFoodDBPage() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Besin Adı</Label>
-                <Input placeholder="Tavuk Göğsü" />
+                <Input
+                  placeholder="Tavuk Göğsü"
+                  value={newFood.name}
+                  onChange={e => setNewFood(p => ({ ...p, name: e.target.value }))}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Kategori</Label>
-                  <Select>
+                  <Select value={newFood.category} onValueChange={v => setNewFood(p => ({ ...p, category: v }))}>
                     <SelectTrigger><SelectValue placeholder="Seçin" /></SelectTrigger>
                     <SelectContent>
-                      {categories.map(cat => (
+                      {CATEGORIES.map(cat => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
                     </SelectContent>
@@ -117,38 +162,47 @@ export default function AdminFoodDBPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Kalori (100g)</Label>
-                  <Input type="number" placeholder="165" />
+                  <Input
+                    type="number"
+                    placeholder="165"
+                    value={newFood.calories_per_100g}
+                    onChange={e => setNewFood(p => ({ ...p, calories_per_100g: e.target.value }))}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Protein (g)</Label>
-                  <Input type="number" placeholder="31" />
+                  <Input
+                    type="number"
+                    placeholder="31"
+                    value={newFood.protein_per_100g}
+                    onChange={e => setNewFood(p => ({ ...p, protein_per_100g: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Karbonhidrat (g)</Label>
-                  <Input type="number" placeholder="0" />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newFood.carbs_per_100g}
+                    onChange={e => setNewFood(p => ({ ...p, carbs_per_100g: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Yağ (g)</Label>
-                  <Input type="number" placeholder="3.6" />
+                  <Input
+                    type="number"
+                    placeholder="3.6"
+                    value={newFood.fat_per_100g}
+                    onChange={e => setNewFood(p => ({ ...p, fat_per_100g: e.target.value }))}
+                  />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Kaynak</Label>
-                <Select>
-                  <SelectTrigger><SelectValue placeholder="Seçin" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="usda">USDA</SelectItem>
-                    <SelectItem value="custom">Özel</SelectItem>
-                    <SelectItem value="community">Topluluk</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>İptal</Button>
-              <Button onClick={() => setDialogOpen(false)}>Ekle</Button>
+              <Button onClick={handleCreateFood} disabled={!newFood.name}>Ekle</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -200,15 +254,23 @@ export default function AdminFoodDBPage() {
               <TableHead className="text-center">Protein</TableHead>
               <TableHead className="text-center hidden md:table-cell">Karb.</TableHead>
               <TableHead className="text-center hidden md:table-cell">Yağ</TableHead>
-              <TableHead className="hidden lg:table-cell">Kaynak</TableHead>
               <TableHead className="text-center">Durum</TableHead>
               <TableHead className="text-right">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {isLoading ? (
               <TableRow>
-                <TableCell colSpan={9}>
+                <TableCell colSpan={8}>
+                  <div className="flex items-center justify-center py-8 gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Besinler yükleniyor...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8}>
                   <EmptyState icon={Apple} title="Besin bulunamadı" description="Arama kriterlerinize uygun besin yok." />
                 </TableCell>
               </TableRow>
@@ -218,17 +280,14 @@ export default function AdminFoodDBPage() {
                   <span className="text-sm font-medium">{food.name}</span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{food.category}</Badge>
+                  <Badge variant="outline">{(food as any).category || '—'}</Badge>
                 </TableCell>
-                <TableCell className="text-center tabular-nums text-sm">{food.caloriesPer100g}</TableCell>
-                <TableCell className="text-center tabular-nums text-sm">{food.protein}g</TableCell>
-                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.carbs}g</TableCell>
-                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.fat}g</TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <span className="text-xs text-muted-foreground">{food.source}</span>
-                </TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{(food as any).caloriesPer100g ?? (food as any).calories_per_100g ?? '—'}</TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{(food as any).proteinPer100g ?? (food as any).protein_per_100g ?? '—'}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{(food as any).carbsPer100g ?? (food as any).carbs_per_100g ?? '—'}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{(food as any).fatPer100g ?? (food as any).fat_per_100g ?? '—'}g</TableCell>
                 <TableCell className="text-center">
-                  {food.isVerified ? (
+                  {(food as any).isVerified || (food as any).is_verified ? (
                     <Badge variant="success" className="gap-1">
                       <CheckCircle2 className="h-3 w-3" />
                       Onaylı
@@ -245,7 +304,12 @@ export default function AdminFoodDBPage() {
                     <Button variant="ghost" size="icon" className="h-8 w-8">
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => handleDeleteFood(food.id)}
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>

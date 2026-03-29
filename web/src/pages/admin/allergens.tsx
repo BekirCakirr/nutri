@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Plus,
   Pencil,
@@ -7,6 +7,7 @@ import {
   Search,
   ShieldAlert,
   Users,
+  Loader2,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -42,46 +43,84 @@ import { PageContainer } from '@/components/shared/page-container'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import api from '@/lib/axios'
 
 interface Allergen {
-  id: string
+  id: number
   name: string
-  code: string
-  severity: 'low' | 'medium' | 'high'
-  description: string
-  commonFoods: string
-  affectedPatients: number
+  name_en?: string
+  category: string
+  icon?: string
+  description?: string
+  affected_patients?: number
 }
 
-const mockAllergens: Allergen[] = [
-  { id: '1', name: 'Gluten', code: 'GLT', severity: 'high', description: 'Buğday, arpa, çavdar ve yulafta bulunan protein karışımı.', commonFoods: 'Ekmek, makarna, pasta, bisküvi', affectedPatients: 12 },
-  { id: '2', name: 'Laktoz', code: 'LCT', severity: 'medium', description: 'Süt ve süt ürünlerinde bulunan şeker.', commonFoods: 'Süt, peynir, yoğurt, tereyağı', affectedPatients: 18 },
-  { id: '3', name: 'Fıstık', code: 'PNT', severity: 'high', description: 'Yer fıstığı ve fıstık ürünlerinde bulunan alerjen.', commonFoods: 'Fıstık ezmesi, çerez, bazı atıştırmalıklar', affectedPatients: 5 },
-  { id: '4', name: 'Kabuklu Deniz Ürünleri', code: 'SHL', severity: 'high', description: 'Karides, yengeç, istakoz gibi kabuklu deniz ürünleri.', commonFoods: 'Karides, midye, istiridye', affectedPatients: 3 },
-  { id: '5', name: 'Yumurta', code: 'EGG', severity: 'medium', description: 'Yumurta beyazı ve sarısında bulunan proteinler.', commonFoods: 'Yumurta, mayonez, bazı hamur işleri', affectedPatients: 8 },
-  { id: '6', name: 'Soya', code: 'SOY', severity: 'low', description: 'Soya fasulyesi ve türevlerinde bulunan protein.', commonFoods: 'Soya sosu, tofu, soya sütü', affectedPatients: 4 },
-  { id: '7', name: 'Ağaç Fındıkları', code: 'TNT', severity: 'high', description: 'Ceviz, badem, fındık gibi ağaç kabuklu yemişler.', commonFoods: 'Ceviz, badem, fındık, kaju', affectedPatients: 7 },
-  { id: '8', name: 'Buğday', code: 'WHT', severity: 'medium', description: 'Buğday ve buğday türevlerinde bulunan protein.', commonFoods: 'Ekmek, un, makarna', affectedPatients: 6 },
-]
-
-const severityMap = {
-  low: { label: 'Düşük', variant: 'success' as const },
-  medium: { label: 'Orta', variant: 'warning' as const },
-  high: { label: 'Yüksek', variant: 'destructive' as const },
+const severityLabel = (category: string) => {
+  if (category === 'food_allergen') return { label: 'Gıda Alerjeni', variant: 'destructive' as const }
+  if (category === 'food_intolerance') return { label: 'İntolerans', variant: 'warning' as const }
+  return { label: 'Diğer', variant: 'secondary' as const }
 }
 
 export default function AdminAllergensPage() {
+  const [allergens, setAllergens] = useState<Allergen[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  const filtered = mockAllergens.filter((a) =>
+  const [newAllergen, setNewAllergen] = useState({
+    name: '',
+    name_en: '',
+    category: 'food_allergen',
+    description: '',
+  })
+
+  const fetchAllergens = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const { data } = await api.get('/allergens')
+      const result = data as any
+      setAllergens(result.data?.allergens ?? result.allergens ?? [])
+    } catch {
+      toast.error('Alerjenler yüklenemedi')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchAllergens()
+  }, [fetchAllergens])
+
+  const handleCreate = async () => {
+    try {
+      await api.post('/allergens', newAllergen)
+      toast.success('Alerjen eklendi')
+      setDialogOpen(false)
+      setNewAllergen({ name: '', name_en: '', category: 'food_allergen', description: '' })
+      fetchAllergens()
+    } catch {
+      toast.error('Alerjen eklenemedi')
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/allergens/${id}`)
+      toast.success('Alerjen silindi')
+      setAllergens(prev => prev.filter(a => a.id !== id))
+    } catch {
+      toast.error('Alerjen silinemedi')
+    }
+  }
+
+  const filtered = allergens.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  const highCount = mockAllergens.filter(a => a.severity === 'high').length
-  const totalAffected = mockAllergens.reduce((sum, a) => sum + a.affectedPatients, 0)
-
-
+  const allergenCount = allergens.filter(a => a.category === 'food_allergen').length
+  const intoleranceCount = allergens.filter(a => a.category === 'food_intolerance').length
+  const totalAffected = allergens.reduce((sum, a) => sum + (a.affected_patients || 0), 0)
 
   return (
     <PageContainer
@@ -104,36 +143,45 @@ export default function AdminAllergensPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Alerjen Adı</Label>
-                  <Input placeholder="Gluten" />
+                  <Input
+                    placeholder="Gluten"
+                    value={newAllergen.name}
+                    onChange={e => setNewAllergen(p => ({ ...p, name: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Kod</Label>
-                  <Input placeholder="GLT" maxLength={3} />
+                  <Label>İngilizce Adı</Label>
+                  <Input
+                    placeholder="Gluten"
+                    value={newAllergen.name_en}
+                    onChange={e => setNewAllergen(p => ({ ...p, name_en: e.target.value }))}
+                  />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Şiddet Seviyesi</Label>
-                <Select>
+                <Label>Kategori</Label>
+                <Select value={newAllergen.category} onValueChange={v => setNewAllergen(p => ({ ...p, category: v }))}>
                   <SelectTrigger><SelectValue placeholder="Seçin" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Düşük</SelectItem>
-                    <SelectItem value="medium">Orta</SelectItem>
-                    <SelectItem value="high">Yüksek</SelectItem>
+                    <SelectItem value="food_allergen">Gıda Alerjeni</SelectItem>
+                    <SelectItem value="food_intolerance">Gıda İntoleransı</SelectItem>
+                    <SelectItem value="other">Diğer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label>Açıklama</Label>
-                <Textarea placeholder="Alerjen hakkında açıklama..." rows={2} />
-              </div>
-              <div className="space-y-2">
-                <Label>Yaygın Besinler</Label>
-                <Input placeholder="Ekmek, makarna, pasta" />
+                <Textarea
+                  placeholder="Alerjen hakkında açıklama..."
+                  rows={2}
+                  value={newAllergen.description}
+                  onChange={e => setNewAllergen(p => ({ ...p, description: e.target.value }))}
+                />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>İptal</Button>
-              <Button onClick={() => setDialogOpen(false)}>Ekle</Button>
+              <Button onClick={handleCreate} disabled={!newAllergen.name}>Ekle</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -142,16 +190,16 @@ export default function AdminAllergensPage() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 animate-in-stagger">
         <StatCard
-          title="Toplam Alerjen"
-          value={mockAllergens.length}
+          title="Gıda Alerjeni"
+          value={allergenCount}
           icon={ShieldAlert}
-          color="blue"
+          color="red"
         />
         <StatCard
-          title="Yüksek Şiddet"
-          value={highCount}
+          title="İntolerans"
+          value={intoleranceCount}
           icon={AlertTriangle}
-          color="red"
+          color="yellow"
         />
         <StatCard
           title="Etkilenen Hasta"
@@ -177,69 +225,80 @@ export default function AdminAllergensPage() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Kod</TableHead>
               <TableHead>Alerjen</TableHead>
-              <TableHead>Şiddet</TableHead>
-              <TableHead className="hidden md:table-cell">Yaygın Besinler</TableHead>
+              <TableHead className="hidden md:table-cell">İngilizce</TableHead>
+              <TableHead>Kategori</TableHead>
               <TableHead className="text-center">Etkilenen Hasta</TableHead>
               <TableHead className="text-right">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={5}>
+                  <div className="flex items-center justify-center py-8 gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Alerjenler yükleniyor...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5}>
                   <EmptyState icon={AlertTriangle} title="Alerjen bulunamadı" description="Kayıtlı alerjen bulunmuyor." />
                 </TableCell>
               </TableRow>
-            ) : filtered.map((allergen) => (
-              <TableRow key={allergen.id}>
-                <TableCell>
-                  <code className="rounded bg-muted px-2 py-0.5 text-xs font-mono font-semibold">
-                    {allergen.code}
-                  </code>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
-                      allergen.severity === 'high'
-                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                        : allergen.severity === 'medium'
-                          ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                          : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                    )}>
-                      <AlertTriangle className="h-3.5 w-3.5" />
+            ) : filtered.map((allergen) => {
+              const cat = severityLabel(allergen.category)
+              return (
+                <TableRow key={allergen.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
+                        allergen.category === 'food_allergen'
+                          ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                          : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                      )}>
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium">{allergen.name}</span>
+                        {allergen.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">{allergen.description}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-sm font-medium">{allergen.name}</span>
-                      <p className="text-xs text-muted-foreground line-clamp-1 md:hidden">{allergen.commonFoods}</p>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <span className="text-sm text-muted-foreground">{allergen.name_en || '—'}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={cat.variant}>
+                      {cat.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="text-sm font-semibold tabular-nums">{allergen.affected_patients || 0}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(allergen.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={severityMap[allergen.severity].variant}>
-                    {severityMap[allergen.severity].label}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate hidden md:table-cell">
-                  {allergen.commonFoods}
-                </TableCell>
-                <TableCell className="text-center">
-                  <span className="text-sm font-semibold tabular-nums">{allergen.affectedPatients}</span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </Card>

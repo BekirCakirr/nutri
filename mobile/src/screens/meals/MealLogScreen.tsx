@@ -8,10 +8,10 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import type { MealsStackParamList } from '@/navigation/types'
-import type { Meal, MealType } from '@/types'
-import { useMealStore } from '@/stores/mealStore'
+import type { StackNavigationProp } from '@react-navigation/stack'
+import type { MealsStackParamList } from '../../navigation/types'
+import type { Meal, MealType } from '../../types'
+import { useMealStore } from '../../stores/mealStore'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { CalorieRing } from '../../components/nutrition/CalorieRing'
 import { MacroBar } from '../../components/nutrition/MacroBar'
@@ -27,7 +27,7 @@ import { fontSizes, fontWeights } from '../../theme/typography'
 import { shadows } from '../../theme/shadows'
 import { mealTypeConfig } from '../../theme/icons'
 
-type Nav = NativeStackNavigationProp<MealsStackParamList>
+type Nav = StackNavigationProp<MealsStackParamList>
 
 const turkishMonths = [
   'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -46,7 +46,7 @@ function formatDate(date: Date): string {
     date.getDate() === today.getDate() &&
     date.getMonth() === today.getMonth() &&
     date.getFullYear() === today.getFullYear()
-  return isToday ? `Bugün ${day} ${month} ${year}` : `${day} ${month} ${year}`
+  return isToday ? `Bugün, ${day} ${month}` : `${day} ${month} ${year}`
 }
 
 export default function MealLogScreen() {
@@ -102,159 +102,269 @@ export default function MealLogScreen() {
   let cardIndex = 0
 
   return (
-    <ScreenWrapper scrollable>
+    <ScreenWrapper scrollable contentStyle={styles.containerStyle}>
+      {/* Premium Glow Effect */}
+      <View style={styles.glowTopRight} />
+
       {/* Date Picker Row */}
       <View style={styles.dateRow}>
-        <AnimatedPressable onPress={() => changeDate(-1)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+        <AnimatedPressable style={styles.navBtn} onPress={() => changeDate(-1)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
         </AnimatedPressable>
         <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-        <AnimatedPressable onPress={() => changeDate(1)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+        <AnimatedPressable style={styles.navBtn} onPress={() => changeDate(1)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <Ionicons name="chevron-forward" size={24} color={colors.text.primary} />
         </AnimatedPressable>
       </View>
 
-      {/* Calorie Ring */}
-      <View style={styles.ringContainer}>
-        <CalorieRing consumed={totals.calories} target={CALORIE_TARGET} />
+      {/* Unified Daily Overview Card */}
+      <View style={styles.overviewCard}>
+        <View style={styles.overviewHeader}>
+          <Text style={styles.overviewTitle}>Günlük Alım</Text>
+          <Ionicons name="pie-chart" size={24} color={colors.primary.main} />
+        </View>
+
+        <View style={styles.ringContainer}>
+          <CalorieRing consumed={totals.calories} target={CALORIE_TARGET} size={180} strokeWidth={16} />
+        </View>
+
+        <View style={styles.macroCard}>
+          <MacroBar protein={totals.protein} carbs={totals.carbs} fat={totals.fat} style={styles.macroBar} />
+          <CalorieSummary consumed={totals.calories} target={CALORIE_TARGET} style={styles.summary} />
+        </View>
       </View>
 
-      {/* Macro Bar */}
-      <MacroBar protein={totals.protein} carbs={totals.carbs} fat={totals.fat} style={styles.macroBar} />
-
-      {/* Calorie Summary */}
-      <CalorieSummary consumed={totals.calories} target={CALORIE_TARGET} style={styles.summary} />
-
       {/* Meals Section */}
-      <SectionHeader title="Öğünler" />
+      <SectionHeader title="Öğünler" style={styles.sectionMargin} />
 
-      {MEAL_TYPES.map((type) => {
-        const mealsForType = mealsByType[type]
-        const config = mealTypeConfig[type]
-        const color = nutritionColors.mealType[type]
+      <View style={styles.mealsListWrapper}>
+        {MEAL_TYPES.map((type) => {
+          const mealsForType = mealsByType[type]
+          const config = mealTypeConfig[type]
+          const color = nutritionColors.mealType[type]
 
-        if (mealsForType.length === 0) {
-          const idx = cardIndex++
-          return (
-            <Animated.View key={type} style={staggeredStyles[idx]}>
-              <AnimatedPressable
-                style={styles.emptyMealCard}
-                onPress={() => navigation.navigate('AddMeal', {})}
-              >
-                <View style={styles.emptyMealLeft}>
-                  <View style={[styles.emptyIcon, { backgroundColor: color + '18' }]}>
-                    <Ionicons name={config.icon} size={20} color={color} />
+          if (mealsForType.length === 0) {
+            const idx = cardIndex++
+            return (
+              <Animated.View key={`empty-${type}`} style={staggeredStyles[idx]}>
+                <AnimatedPressable
+                  style={styles.emptyMealCard}
+                  onPress={() => navigation.navigate('AddMeal', {})}
+                >
+                  <View style={styles.emptyMealLeft}>
+                    <View style={[styles.emptyIcon, { backgroundColor: color + '15' }]}>
+                      <Ionicons name={config.icon} size={24} color={color} />
+                    </View>
+                    <View>
+                      <Text style={styles.emptyMealTitle}>{config.label}</Text>
+                      <Text style={styles.emptyMealSub}>Önerilen: Yakala! 💪</Text>
+                    </View>
                   </View>
-                  <Text style={styles.emptyMealTitle}>{config.label}</Text>
-                </View>
-                <View style={styles.emptyMealRight}>
-                  <Text style={styles.emptyCalories}>0 kcal</Text>
-                  <View style={styles.addSmallBtn}>
-                    <Ionicons name="add" size={18} color={colors.primary.main} />
+                  <View style={styles.emptyMealRight}>
+                    <Text style={styles.emptyCalories}>0 kcal</Text>
+                    <View style={styles.addSmallBtn}>
+                      <Ionicons name="add" size={20} color={colors.primary.main} />
+                    </View>
                   </View>
+                </AnimatedPressable>
+              </Animated.View>
+            )
+          }
+
+          return mealsForType.map((meal) => {
+            const idx = cardIndex++
+            return (
+              <Animated.View key={meal.id} style={staggeredStyles[idx]}>
+                <View style={styles.mealCardShadow}>
+                  <MealCard
+                    mealType={meal.type}
+                    foods={(meal.items || []).map((i) => ({ name: i.food?.name || 'Bilinmeyen', calories: Math.round((i.food?.nutrition?.calories || 0) * (i.quantity || 1)) }))}
+                    totalCalories={Math.round(meal.totalNutrition?.calories || 0)}
+                    time={meal.time}
+                    onPress={() => navigation.navigate('MealDetail', { mealId: meal.id })}
+                    style={styles.mealCard}
+                  />
                 </View>
-              </AnimatedPressable>
-            </Animated.View>
-          )
-        }
+              </Animated.View>
+            )
+          })
+        })}
+      </View>
 
-        return mealsForType.map((meal) => {
-          const idx = cardIndex++
-          return (
-            <Animated.View key={meal.id} style={staggeredStyles[idx]}>
-              <MealCard
-                mealType={meal.type}
-                foods={(meal.items || []).map((i) => ({ name: i.food?.name || 'Bilinmeyen', calories: Math.round((i.food?.nutrition?.calories || 0) * (i.quantity || 1)) }))}
-                totalCalories={Math.round(meal.totalNutrition?.calories || 0)}
-                time={meal.time}
-                onPress={() => navigation.navigate('MealDetail', { mealId: meal.id })}
-                style={styles.mealCard}
-              />
-            </Animated.View>
-          )
-        })
-      })}
-
-      <View style={{ height: 80 }} />
+      <View style={{ height: 100 }} />
 
       {/* FAB */}
       <FloatingActionButton
-        icon={<Ionicons name="add" size={28} color="#FFFFFF" />}
+        icon={<Ionicons name="add" size={32} color="#FFFFFF" />}
         onPress={() => navigation.navigate('AddMeal', {})}
         position="bottom-right"
+        style={styles.fabShadow}
       />
     </ScreenWrapper>
   )
 }
 
 const styles = StyleSheet.create({
+  containerStyle: {
+    paddingBottom: 120,
+    backgroundColor: '#F8F9FA',
+  },
+  glowTopRight: {
+    position: 'absolute',
+    top: -80,
+    right: -40,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: nutritionColors.macro.protein + '20', // Soft yellow/orange glow
+    transform: [{ scale: 1.5 }],
+  },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    marginBottom: spacing.md,
+  },
+  navBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.background.paper,
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   dateText: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.semibold,
+    fontSize: fontSizes.xl,
+    fontWeight: fontWeights.bold,
     color: colors.text.primary,
-    marginHorizontal: spacing.md,
+  },
+  overviewCard: {
+    backgroundColor: colors.background.paper,
+    borderRadius: 32,
+    padding: spacing.xl,
+    marginBottom: spacing.xxl,
+    shadowColor: '#1F2937',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.06,
+    shadowRadius: 24,
+    elevation: 6,
+  },
+  overviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  overviewTitle: {
+    fontWeight: fontWeights.bold,
+    fontSize: fontSizes.lg,
+    color: colors.text.primary,
   },
   ringContainer: {
     alignItems: 'center',
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.lg,
+  },
+  macroCard: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 20,
+    padding: spacing.lg,
+    marginTop: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   macroBar: {
-    marginVertical: spacing.sm,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
   summary: {
-    marginBottom: spacing.md,
+    marginBottom: 0,
+  },
+  sectionMargin: {
+    marginBottom: spacing.lg,
+  },
+  mealsListWrapper: {
+    gap: spacing.md,
   },
   emptyMealCard: {
     backgroundColor: colors.background.paper,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    borderRadius: 24,
+    padding: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    ...shadows.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
   },
   emptyMealLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   emptyIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
   },
   emptyMealTitle: {
     fontSize: fontSizes.lg,
-    fontWeight: fontWeights.medium,
+    fontWeight: fontWeights.semibold,
     color: colors.text.primary,
+  },
+  emptyMealSub: {
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.medium,
+    color: colors.text.secondary,
+    marginTop: 2,
   },
   emptyMealRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   emptyCalories: {
-    fontSize: fontSizes.md,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
     color: colors.text.disabled,
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
   },
   addSmallBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.primary[50],
     alignItems: 'center',
     justifyContent: 'center',
   },
+  mealCardShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    elevation: 3,
+  },
   mealCard: {
-    marginBottom: spacing.sm,
+    borderRadius: 24,
+  },
+  fabShadow: {
+    shadowColor: colors.primary.main,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
 })

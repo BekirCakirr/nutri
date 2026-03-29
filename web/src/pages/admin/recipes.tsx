@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Search,
   Check,
@@ -10,12 +10,12 @@ import {
   XCircle,
   UtensilsCrossed,
   ChefHat,
+  Loader2,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   Select,
   SelectContent,
@@ -34,25 +34,24 @@ import {
 import { PageContainer } from '@/components/shared/page-container'
 import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
+import { getRecipes, updateRecipe } from '@/services/recipe.service'
+import { toast } from 'sonner'
 
-interface RecipeSubmission {
+interface RecipeRow {
   id: string
-  title: string
-  category: string
-  submittedBy: string
-  submittedAt: string
-  calories: number
-  status: 'pending' | 'approved' | 'rejected'
+  name: string
+  description?: string
+  difficulty: string
+  calories_per_serving?: number
+  caloriesPerServing?: number
+  is_approved?: boolean
+  isApproved?: boolean
+  created_by?: string
+  createdBy?: string
+  created_at?: string
+  createdAt?: string
+  tags?: string[]
 }
-
-const mockSubmissions: RecipeSubmission[] = [
-  { id: '1', title: 'Avokadolu Tost', category: 'Atıştırmalık', submittedBy: 'Dr. Mehmet Kara', submittedAt: '2026-02-25', calories: 290, status: 'pending' },
-  { id: '2', title: 'Karabuğday Pilavı', category: 'Ana Yemek', submittedBy: 'Dr. Zehra Gül', submittedAt: '2026-02-24', calories: 320, status: 'pending' },
-  { id: '3', title: 'Smoothie Bowl', category: 'Atıştırmalık', submittedBy: 'Dr. Ali Vural', submittedAt: '2026-02-24', calories: 250, status: 'pending' },
-  { id: '4', title: 'Mercimek Köftesi', category: 'Ana Yemek', submittedBy: 'Dr. Ayşe Yılmaz', submittedAt: '2026-02-23', calories: 180, status: 'approved' },
-  { id: '5', title: 'Chia Puding', category: 'Tatlı', submittedBy: 'Dr. Mehmet Kara', submittedAt: '2026-02-22', calories: 200, status: 'approved' },
-  { id: '6', title: 'Çikolatalı Kek (Şekerli)', category: 'Tatlı', submittedBy: 'Dr. Zehra Gül', submittedAt: '2026-02-21', calories: 450, status: 'rejected' },
-]
 
 const statusMap = {
   pending: { label: 'Bekliyor', variant: 'warning' as const },
@@ -60,30 +59,78 @@ const statusMap = {
   rejected: { label: 'Reddedildi', variant: 'destructive' as const },
 }
 
+function getStatus(r: RecipeRow): 'pending' | 'approved' | 'rejected' {
+  const approved = r.is_approved ?? r.isApproved
+  if (approved === true) return 'approved'
+  if (approved === false) return 'pending'
+  return 'pending'
+}
+
 export default function AdminRecipesPage() {
-  const [recipes, setRecipes] = useState(mockSubmissions)
+  const [recipes, setRecipes] = useState<RecipeRow[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
+  const fetchRecipes = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const response = await getRecipes()
+      setRecipes(response.items as unknown as RecipeRow[])
+    } catch {
+      toast.error('Tarifler yüklenemedi')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchRecipes()
+  }, [fetchRecipes])
+
+  const handleApprove = async (id: string) => {
+    try {
+      await updateRecipe(id, { is_approved: true } as any)
+      setRecipes(prev =>
+        prev.map(r => r.id === id ? { ...r, is_approved: true, isApproved: true } : r)
+      )
+      toast.success('Tarif onaylandı')
+    } catch {
+      toast.error('Tarif onaylanamadı')
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    try {
+      await updateRecipe(id, { is_approved: false } as any)
+      setRecipes(prev =>
+        prev.map(r => r.id === id ? { ...r, is_approved: false, isApproved: false } : r)
+      )
+      toast.success('Tarif reddedildi')
+    } catch {
+      toast.error('Tarif reddedilemedi')
+    }
+  }
+
   const filtered = recipes.filter((r) => {
-    const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || r.status === statusFilter
+    const matchesSearch = r.name.toLowerCase().includes(search.toLowerCase())
+    const status = getStatus(r)
+    const matchesStatus = statusFilter === 'all' || status === statusFilter
     return matchesSearch && matchesStatus
   })
 
-  const handleApprove = (id: string) => {
-    setRecipes(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' as const } : r))
+  const pendingCount = recipes.filter(r => getStatus(r) === 'pending').length
+  const approvedCount = recipes.filter(r => getStatus(r) === 'approved').length
+  const rejectedCount = recipes.filter(r => getStatus(r) === 'rejected').length
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '—'
+    try {
+      return new Date(dateStr).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })
+    } catch {
+      return dateStr
+    }
   }
-
-  const handleReject = (id: string) => {
-    setRecipes(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' as const } : r))
-  }
-
-  const pendingCount = recipes.filter(r => r.status === 'pending').length
-  const approvedCount = recipes.filter(r => r.status === 'approved').length
-  const rejectedCount = recipes.filter(r => r.status === 'rejected').length
-
-
 
   return (
     <PageContainer
@@ -154,8 +201,7 @@ export default function AdminRecipesPage() {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Tarif</TableHead>
-              <TableHead>Kategori</TableHead>
-              <TableHead className="hidden md:table-cell">Gönderen</TableHead>
+              <TableHead>Zorluk</TableHead>
               <TableHead className="hidden lg:table-cell">Tarih</TableHead>
               <TableHead className="text-center">Kalori</TableHead>
               <TableHead className="text-center">Durum</TableHead>
@@ -163,70 +209,82 @@ export default function AdminRecipesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={6}>
+                  <div className="flex items-center justify-center py-8 gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Tarifler yükleniyor...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>
                   <EmptyState icon={ChefHat} title="Tarif bulunamadı" description="Onay bekleyen tarif bulunmuyor." />
                 </TableCell>
               </TableRow>
-            ) : filtered.map((recipe) => (
-              <TableRow key={recipe.id}>
-                <TableCell>
-                  <span className="text-sm font-medium">{recipe.title}</span>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{recipe.category}</Badge>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">
-                        {recipe.submittedBy.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-muted-foreground">{recipe.submittedBy}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <span className="text-sm text-muted-foreground">{recipe.submittedAt}</span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <span className="text-sm tabular-nums">{recipe.calories} kcal</span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant={statusMap[recipe.status].variant}>
-                    {statusMap[recipe.status].label}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                    {recipe.status === 'pending' && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
-                          onClick={() => handleApprove(recipe.id)}
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => handleReject(recipe.id)}
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            ) : filtered.map((recipe) => {
+              const status = getStatus(recipe)
+              const calories = recipe.calories_per_serving ?? recipe.caloriesPerServing ?? 0
+              return (
+                <TableRow key={recipe.id}>
+                  <TableCell>
+                    <div>
+                      <span className="text-sm font-medium">{recipe.name}</span>
+                      {recipe.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{recipe.description}</p>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {recipe.difficulty === 'easy' ? 'Kolay' : recipe.difficulty === 'medium' ? 'Orta' : 'Zor'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <span className="text-sm text-muted-foreground">
+                      {formatDate(recipe.created_at ?? recipe.createdAt)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="text-sm tabular-nums">{calories} kcal</span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={statusMap[status].variant}>
+                      {statusMap[status].label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                      {status === 'pending' && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                            onClick={() => handleApprove(recipe.id)}
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleReject(recipe.id)}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </Card>

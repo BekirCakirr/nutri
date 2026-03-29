@@ -9,15 +9,15 @@ import {
 } from 'react-native'
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import type { StackNavigationProp } from '@react-navigation/stack'
 import type { MealsStackParamList } from '../../navigation/types'
-import type { Food, FoodCategory } from '@/types'
+import type { Food, FoodCategory } from '../../types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { PortionSlider } from '../../components/nutrition/PortionSlider'
 import { NutritionLabel } from '../../components/nutrition/NutritionLabel'
 import { MacroBar } from '../../components/nutrition/MacroBar'
-import { useFoodStore } from '@/stores/foodStore'
-import * as foodApi from '@/services/api/food'
+import { useFoodStore } from '../../stores/foodStore'
+import * as foodApi from '../../services/api/food'
 import { colors, nutritionColors } from '../../theme/colors'
 import { spacing, borderRadius } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -25,7 +25,7 @@ import { shadows } from '../../theme/shadows'
 import { AnimatedPressable } from '../../components/ui/AnimatedPressable'
 import { useFadeIn } from '../../components/ui/useFadeIn'
 
-type Nav = NativeStackNavigationProp<MealsStackParamList, 'FoodDetail'>
+type Nav = StackNavigationProp<MealsStackParamList, 'FoodDetail'>
 type Route = RouteProp<MealsStackParamList, 'FoodDetail'>
 
 const categoryIcons: Record<string, string> = {

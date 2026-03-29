@@ -26,6 +26,7 @@ import reportRoutes from "./routes/report.routes";
 import trackingRoutes from "./routes/tracking.routes";
 import adminRoutes from "./routes/admin.routes";
 import aiRoutes from "./routes/ai.routes";
+import allergenRoutes from "./routes/allergen.routes";
 
 import { sendSuccess, sendError } from "./utils";
 
@@ -116,6 +117,7 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/tracking", trackingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/ai", aiLimiter, aiRoutes);
+app.use("/api/allergens", allergenRoutes);
 
 // ── 404 handler ─────────────────────────────────────────────────────────────
 
