@@ -79,7 +79,7 @@ export default function AdminAllergensPage() {
     setIsLoading(true)
     try {
       const { data } = await api.get('/allergens')
-      const result = data as any
+      const result = data as { data?: { allergens: Allergen[] }; allergens?: Allergen[] }
       setAllergens(result.data?.allergens ?? result.allergens ?? [])
     } catch {
       toast.error('Alerjenler yüklenemedi')

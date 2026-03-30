@@ -38,6 +38,13 @@ export interface AdminUserFilters {
   limit?: number;
 }
 
+interface ApiUserListResponse {
+  users?: AdminUser[];
+  total?: number;
+  page?: number;
+  limit?: number;
+}
+
 export async function getStats(): Promise<AdminStats> {
   const { data } = await api.get("/admin/dashboard");
   return data as AdminStats;
@@ -47,8 +54,8 @@ export async function getUsers(
   filters?: AdminUserFilters,
 ): Promise<PaginatedResponse<AdminUser>> {
   const { data } = await api.get("/admin/users", { params: filters });
-  const result = data as any;
-  const items = result.users ?? (Array.isArray(result) ? result : []);
+  const result = data as ApiUserListResponse;
+  const items = result.users ?? (Array.isArray(data) ? (data as AdminUser[]) : []);
   const total = result.total ?? items.length;
   const page = result.page ?? filters?.page ?? 1;
   const limit = result.limit ?? filters?.limit ?? 10;

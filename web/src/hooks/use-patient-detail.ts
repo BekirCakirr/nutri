@@ -50,7 +50,7 @@ export function usePatientDetail(patientId: string | undefined) {
       if (!selectedPatient) return;
       setIsLoading(true);
       try {
-        const updated = await updatePatientApi(selectedPatient.id, data as any);
+        const updated = await updatePatientApi(selectedPatient.id, data as unknown as Parameters<typeof updatePatientApi>[1]);
         selectPatient(updated as unknown as Patient);
       } catch {
         setError("Failed to update patient");

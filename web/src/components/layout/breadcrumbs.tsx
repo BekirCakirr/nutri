@@ -1,5 +1,6 @@
 import { useLocation, Link } from 'react-router-dom'
 import { ChevronRight, Home } from 'lucide-react'
+import { usePatients } from '@/hooks/use-patients'
 
 const routeLabels: Record<string, string> = {
   '': 'Dashboard',
@@ -30,6 +31,7 @@ const routeLabels: Record<string, string> = {
 export function Breadcrumbs() {
   const location = useLocation()
   const segments = location.pathname.split('/').filter(Boolean)
+  const { allPatients } = usePatients()
 
   if (segments.length === 0) {
     return (
@@ -50,7 +52,16 @@ export function Breadcrumbs() {
       {segments.map((segment, index) => {
         const path = '/' + segments.slice(0, index + 1).join('/')
         const isLast = index === segments.length - 1
-        const label = routeLabels[segment] || decodeURIComponent(segment)
+        let label = routeLabels[segment] || decodeURIComponent(segment)
+
+        if (segment.length > 30 || (segment.length > 20 && segment.includes('-'))) {
+          const patient = allPatients.find((p: any) => p.id === segment)
+          if (patient) {
+            label = `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() || 'Hasta Detayı'
+          } else if (label.includes('-') && label.length > 24) {
+            label = 'Detay'
+          }
+        }
 
         return (
           <span key={path} className="flex items-center gap-1.5">

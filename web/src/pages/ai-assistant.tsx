@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { ChatSkeleton } from '@/components/shared/page-skeletons'
+
 
 import { sendMessage as sendAiMessage } from '@/services/ai.service'
 
@@ -45,8 +45,6 @@ export default function AIAssistantPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [isPageLoading, setIsPageLoading] = useState(true)
-  useEffect(() => { const t = setTimeout(() => setIsPageLoading(false), 400); return () => clearTimeout(t) }, [])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,7 +52,6 @@ export default function AIAssistantPage() {
     }
   }, [messages, isLoading])
 
-  if (isPageLoading) return <ChatSkeleton />
 
   const handleSend = async (text?: string) => {
     const messageText = text || input

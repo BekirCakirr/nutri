@@ -10,10 +10,14 @@ export interface ReportFilters {
   endDate?: string;
 }
 
+interface ApiReportListResponse {
+  reports?: Report[];
+}
+
 export async function getReports(filters?: ReportFilters): Promise<Report[]> {
   const { data } = await api.get("/reports/weekly", { params: filters });
-  const result = data as any;
-  return (result.reports ?? (Array.isArray(result) ? result : [])) as Report[];
+  const result = data as ApiReportListResponse;
+  return result.reports ?? (Array.isArray(data) ? (data as Report[]) : []);
 }
 
 export async function generateReport(params: {

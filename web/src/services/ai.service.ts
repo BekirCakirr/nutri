@@ -31,12 +31,17 @@ export interface GeneratedPlan {
   }>;
 }
 
+interface ApiAiChatResponse {
+  reply?: string;
+  content?: string;
+}
+
 export async function sendMessage(
   content: string,
   _context?: Record<string, unknown>,
 ): Promise<AiChatMessage> {
   const { data } = await api.post("/ai/chat", { message: content });
-  const result = data as any;
+  const result = data as ApiAiChatResponse;
   return {
     role: "assistant",
     content: result.reply ?? result.content ?? "",
@@ -44,7 +49,7 @@ export async function sendMessage(
   };
 }
 
-export async function getSuggestions(_patientId?: string): Promise<any[]> {
+export async function getSuggestions(_patientId?: string): Promise<string[]> {
   // AI suggestions not yet a dedicated backend endpoint
   return [];
 }

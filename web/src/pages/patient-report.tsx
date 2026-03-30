@@ -65,12 +65,28 @@ export default function PatientReportPage() {
     if (id) fetchReports(id)
   }, [id, fetchReports])
 
-  const patient = useMemo(() => patients.find((p: any) => p.id === id), [patients, id])
-  const latestReport = useMemo(() => reports?.[0] as any, [reports])
+  type ReportPatientData = Partial<{
+    first_name: string; firstName: string; last_name: string; lastName: string;
+    dateOfBirth: string; date_of_birth: string; birth_date: string; age: number;
+    height_cm: number; current_weight_kg: number; weight: number; bmi: number;
+    target_weight_kg: number; targetWeight: number;
+    goal_type: string; goalType: string;
+    diet_type: string; dietType: string;
+    daily_calorie_target: number; dailyCalorieTarget: number;
+    adherence_score: number; adherenceScore: number;
+  }>
+
+  type ReportDataField = Partial<{
+    report_content: string | Record<string, any>;
+    week_start: string; created_at: string; week_end: string;
+  }>
+
+  const patient = useMemo(() => patients.find((p) => p.id === id), [patients, id])
+  const latestReport = useMemo(() => reports?.[0] as unknown as ReportDataField, [reports])
 
   if (reportsLoading || patientsLoading) return <DetailPageSkeleton />
 
-  const patientData = patient as any
+  const patientData = patient as unknown as ReportPatientData | undefined
 
   const patientName = patientData ? `${patientData.first_name || patientData.firstName || ''} ${patientData.last_name || patientData.lastName || ''}`.trim() || 'Hasta' : 'Hasta'
   const patientInitials = patientName.split(' ').map((n: string) => n[0]).join('')
@@ -104,9 +120,9 @@ export default function PatientReportPage() {
   }
 
   // Parse report_content from backend
-  const content = typeof latestReport.report_content === 'string' ? JSON.parse(latestReport.report_content) : (latestReport.report_content || {})
-  const startDate = new Date(latestReport.week_start || latestReport.created_at || Date.now())
-  const endDate = new Date(latestReport.week_end || Date.now())
+  const content = typeof latestReport?.report_content === 'string' ? JSON.parse(latestReport.report_content) : (latestReport?.report_content || {})
+  const startDate = new Date((latestReport?.week_start || latestReport?.created_at) as string || Date.now())
+  const endDate = new Date(latestReport?.week_end as string || Date.now())
   const periodStr = `${format(startDate, 'd MMM', { locale: tr })} - ${format(endDate, 'd MMMM yyyy', { locale: tr })}`
 
   // Demographics
@@ -201,7 +217,7 @@ export default function PatientReportPage() {
                 <Badge variant="info">{patientData?.goal_type || patientData?.goalType || 'Kilo Verme'}</Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                {patientData?.birth_date ? (new Date().getFullYear() - new Date(patientData.birth_date).getFullYear()) : (patientData?.age || 30)} yas &middot; BMI {bmi} &middot; {patientData?.diet_type || patientData?.dietType || 'Standart'}
+                {patientData?.birth_date ? (new Date().getFullYear() - new Date(patientData.birth_date as string).getFullYear()) : (patientData?.age || 30)} yas &middot; BMI {bmi} &middot; {patientData?.diet_type || patientData?.dietType || 'Standart'}
               </p>
 
               {/* Weight progress bar */}

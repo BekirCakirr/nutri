@@ -72,7 +72,7 @@ export function useMealPlans(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const created = await createPlan(data as any);
+        const created = await createPlan(data as unknown as Parameters<typeof createPlan>[0]);
         setMealPlans((prev) => [...prev, created as unknown as MealPlan]);
         return created as unknown as MealPlan;
       } catch {
@@ -90,7 +90,7 @@ export function useMealPlans(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        await updatePlan(planId, data as any);
+        await updatePlan(planId, data as unknown as Parameters<typeof updatePlan>[1]);
         setMealPlans((prev) =>
           prev.map((mp) =>
             mp.id === planId

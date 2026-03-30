@@ -108,7 +108,7 @@ export const useAuthStore = create<AuthState>()(
       register: async (data: RegisterData) => {
         set({ isLoading: true });
         try {
-          const result = await registerApi(data as any);
+          const result = await registerApi(data as unknown as Parameters<typeof registerApi>[0]);
           set({
             user: result.user as unknown as User,
             token: result.accessToken,
@@ -148,7 +148,7 @@ export const useAuthStore = create<AuthState>()(
       updateProfile: async (data: ProfileUpdateData) => {
         set({ isLoading: true });
         try {
-          const updated = await updateProfileApi(data as any);
+          const updated = await updateProfileApi(data as unknown as Parameters<typeof updateProfileApi>[0]);
           set({
             user: updated as unknown as User,
             isLoading: false,

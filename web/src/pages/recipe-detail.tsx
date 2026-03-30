@@ -8,9 +8,18 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
+type RecipeDetailState = {
+  id: string; title: string; description: string; category: string;
+  calories: number; protein: number; carbs: number; fat: number;
+  prepTime: number; cookTime: number; servings: number; difficulty: string;
+  fiber: number; sodium: number;
+  ingredients: { name: string; amount: string }[];
+  steps: string[];
+}
+
 export default function RecipeDetailPage() {
   const { id } = useParams()
-  const [recipe, setRecipe] = useState<any>(null)
+  const [recipe, setRecipe] = useState<RecipeDetailState | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -19,7 +28,11 @@ export default function RecipeDetailPage() {
       try {
         if (id) {
           const rawData = await getRecipe(id)
-          const data = rawData as any
+          const data = rawData as unknown as Partial<RecipeDetailState> & { 
+            name?: string; caloriesPerServing?: number; proteinPerServing?: number;
+            carbsPerServing?: number; fatPerServing?: number; prepTimeMin?: number;
+            cookTimeMin?: number;
+          };
           if (data) {
             setRecipe({
               id: data.id ?? '',
@@ -116,7 +129,7 @@ export default function RecipeDetailPage() {
             <CardHeader><CardTitle className="text-sm">Malzemeler</CardTitle></CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {recipe.ingredients.map((ing: any, i: number) => (
+                {recipe.ingredients.map((ing, i) => (
                   <li key={i} className="flex items-center justify-between text-sm">
                     <span>{ing.name}</span>
                     <span className="text-muted-foreground tabular-nums">{ing.amount}</span>
@@ -133,7 +146,7 @@ export default function RecipeDetailPage() {
             <CardHeader><CardTitle className="text-sm">Hazırlanışı</CardTitle></CardHeader>
             <CardContent>
               <ol className="space-y-4">
-                {recipe.steps.map((step: any, i: number) => (
+                {recipe.steps.map((step, i) => (
                   <li key={i} className="flex gap-4">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                       {i + 1}

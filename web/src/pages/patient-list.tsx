@@ -103,22 +103,32 @@ export default function PatientListPage() {
   const { allPatients, isLoading } = usePatients()
 
   // Map store patients to local Patient type
+  type RawListPatient = {
+    id: string; firstName?: string; lastName?: string; email?: string;
+    dateOfBirth?: string; gender?: string; status?: string;
+    adherenceScore?: number; lastVisit?: string; nextAppointment?: string;
+    height?: number; weight?: number; targetWeight?: number;
+  };
+
   const mappedPatients: Patient[] = useMemo(() =>
-    allPatients.map((p: any) => ({
-      id: p.id,
-      firstName: p.firstName ?? '',
-      lastName: p.lastName ?? '',
-      email: p.email ?? '',
-      age: computeAge(p.dateOfBirth),
-      gender: p.gender === 'female' ? 'female' as const : 'male' as const,
-      status: (p.status ?? 'active') as Patient['status'],
-      adherence: p.adherenceScore ?? 0,
-      lastVisit: p.lastVisit ?? '',
-      nextAppointment: p.nextAppointment ?? null,
-      weight: p.weight ?? 0,
-      targetWeight: (p as any).targetWeight ?? (p.weight ? p.weight - 5 : 0),
-      bmi: computeBmi(p.height, p.weight),
-    }))
+    allPatients.map((rawP) => {
+      const p = rawP as unknown as RawListPatient;
+      return {
+        id: p.id,
+        firstName: p.firstName ?? '',
+        lastName: p.lastName ?? '',
+        email: p.email ?? '',
+        age: computeAge(p.dateOfBirth),
+        gender: p.gender === 'female' ? 'female' as const : 'male' as const,
+        status: (p.status ?? 'active') as Patient['status'],
+        adherence: p.adherenceScore ?? 0,
+        lastVisit: p.lastVisit ?? '',
+        nextAppointment: p.nextAppointment ?? null,
+        weight: p.weight ?? 0,
+        targetWeight: p.targetWeight ?? (p.weight ? p.weight - 5 : 0),
+        bmi: computeBmi(p.height, p.weight),
+      };
+    })
   , [allPatients])
 
   const filtered = useMemo(() => {

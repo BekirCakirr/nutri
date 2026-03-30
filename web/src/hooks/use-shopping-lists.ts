@@ -98,7 +98,7 @@ export function useShoppingLists(patientId?: string) {
       try {
         const result = await addItemApi(listId, { foodName: item.name, amount: item.quantity, category: item.category });
         const newItem: ShoppingListItem = {
-          id: (result as any)?.id ?? `sli_${Date.now()}`,
+          id: (result as { id?: string })?.id ?? `sli_${Date.now()}`,
           ...item,
           checked: false,
         };

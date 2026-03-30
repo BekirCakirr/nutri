@@ -47,13 +47,25 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
 
+type FoodRow = FoodItem & {
+  caloriesPer100g?: number;
+  calories_per_100g?: number;
+  proteinPer100g?: number;
+  protein_per_100g?: number;
+  carbsPer100g?: number;
+  carbs_per_100g?: number;
+  fatPer100g?: number;
+  fat_per_100g?: number;
+  is_verified?: boolean;
+};
+
 const CATEGORIES = [
   'Meyve', 'Sebze', 'Et & Balık', 'Süt Ürünleri', 'Tahıllar',
   'Baklagiller', 'Yağlar', 'İçecekler', 'Atıştırmalıklar', 'Diğer',
 ]
 
 export default function AdminFoodDBPage() {
-  const [foods, setFoods] = useState<FoodItem[]>([])
+  const [foods, setFoods] = useState<FoodRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -74,7 +86,7 @@ export default function AdminFoodDBPage() {
     setIsLoading(true)
     try {
       const result = await searchFoods(debouncedSearch || '')
-      setFoods(result)
+      setFoods(result as FoodRow[])
     } catch {
       toast.error('Besin veritabanı yüklenemedi')
     } finally {
@@ -87,7 +99,7 @@ export default function AdminFoodDBPage() {
   }, [fetchFoods])
 
   const filtered = foods.filter((f) => {
-    const matchesCategory = categoryFilter === 'all' || (f as any).category === categoryFilter
+    const matchesCategory = categoryFilter === 'all' || f.category === categoryFilter
     return matchesCategory
   })
 
@@ -120,7 +132,7 @@ export default function AdminFoodDBPage() {
     }
   }
 
-  const categories = [...new Set(foods.map(f => (f as any).category).filter(Boolean))]
+  const categories = [...new Set(foods.map(f => f.category).filter(Boolean))]
 
   return (
     <PageContainer
@@ -280,14 +292,14 @@ export default function AdminFoodDBPage() {
                   <span className="text-sm font-medium">{food.name}</span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{(food as any).category || '—'}</Badge>
+                  <Badge variant="outline">{food.category || '—'}</Badge>
                 </TableCell>
-                <TableCell className="text-center tabular-nums text-sm">{(food as any).caloriesPer100g ?? (food as any).calories_per_100g ?? '—'}</TableCell>
-                <TableCell className="text-center tabular-nums text-sm">{(food as any).proteinPer100g ?? (food as any).protein_per_100g ?? '—'}g</TableCell>
-                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{(food as any).carbsPer100g ?? (food as any).carbs_per_100g ?? '—'}g</TableCell>
-                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{(food as any).fatPer100g ?? (food as any).fat_per_100g ?? '—'}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{food.caloriesPer100g ?? food.calories_per_100g ?? '—'}</TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{food.proteinPer100g ?? food.protein_per_100g ?? '—'}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.carbsPer100g ?? food.carbs_per_100g ?? '—'}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.fatPer100g ?? food.fat_per_100g ?? '—'}g</TableCell>
                 <TableCell className="text-center">
-                  {(food as any).isVerified || (food as any).is_verified ? (
+                  {food.isVerified || food.is_verified ? (
                     <Badge variant="success" className="gap-1">
                       <CheckCircle2 className="h-3 w-3" />
                       Onaylı

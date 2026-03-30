@@ -14,10 +14,18 @@ import { EmptyState } from '@/components/shared/empty-state'
 
 const categories = ['Tümü', 'Ana Yemek', 'Çorba', 'Salata', 'Atıştırmalık', 'Tatlı']
 
-const difficultyColor = {
-  Kolay: 'success' as const,
-  Orta: 'warning' as const,
-  Zor: 'destructive' as const,
+const difficultyColor: Record<string, 'success' | 'warning' | 'destructive'> = {
+  Kolay: 'success',
+  Orta: 'warning',
+  Zor: 'destructive',
+}
+
+type RecipeCardData = {
+  id: string; title: string; category: string;
+  calories: number; prepTime: number;
+  image: string; difficulty: string;
+  protein: number; carbs: number; fat: number;
+  servings: number;
 }
 
 export default function RecipesPage() {
@@ -31,17 +39,26 @@ export default function RecipesPage() {
   }, [])
 
   // Map hook recipes to local type
-  const recipeList = allRecipes.map((r: any) => ({
-      id: r.id, title: r.name ?? r.title ?? '', category: r.category ?? '',
-      calories: r.calories ?? 0, prepTime: r.preparationTime ?? r.prepTime ?? 0,
-      image: r.imageUrl ?? r.image ?? '', difficulty: r.difficulty ?? 'medium',
-      protein: r.protein ?? 0, carbs: r.carbohydrates ?? r.carbs ?? 0, fat: r.fat ?? 0,
+  const recipeList: RecipeCardData[] = allRecipes.map((r) => {
+    const raw = r as unknown as Record<string, unknown>;
+    return {
+      id: r.id, 
+      title: r.name ?? (raw.title as string) ?? '', 
+      category: r.category ?? '',
+      calories: r.calories ?? 0, 
+      prepTime: r.preparationTime ?? (raw.prepTime as number) ?? 0,
+      image: r.imageUrl ?? (raw.image as string) ?? '', 
+      difficulty: r.difficulty ?? 'medium',
+      protein: r.protein ?? 0, 
+      carbs: r.carbohydrates ?? (raw.carbs as number) ?? 0, 
+      fat: r.fat ?? 0,
       servings: r.servings ?? 1,
-    } as any))
+    };
+  })
 
   const filtered = useMemo(
     () =>
-      recipeList.filter((r: any) => {
+      recipeList.filter((r) => {
         const matchesSearch = (r.title ?? '').toLowerCase().includes(search.toLowerCase())
         const matchesCategory = category === 'Tümü' || r.category === category
         return matchesSearch && matchesCategory
@@ -95,7 +112,7 @@ export default function RecipesPage() {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-1.5">
                 <Badge variant="outline" className="text-[10px]">{recipe.category}</Badge>
-                <Badge variant={(difficultyColor as any)[recipe.difficulty] ?? 'secondary'} className="text-[10px]">{recipe.difficulty}</Badge>
+                <Badge variant={difficultyColor[recipe.difficulty] ?? 'secondary'} className="text-[10px]">{recipe.difficulty}</Badge>
               </div>
               <h3 className="font-semibold text-sm leading-tight">{recipe.title}</h3>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">

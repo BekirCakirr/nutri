@@ -198,12 +198,24 @@ export default function PatientDetailPage() {
   }
 
   // Map API patient to display format, safely handling snake_case vs camelCase
-  const p = apiPatient as any
+  type RawPatient = {
+    id: string; first_name?: string; firstName?: string; last_name?: string; lastName?: string;
+    dateOfBirth?: string; date_of_birth?: string; birth_date?: string; age?: number;
+    email?: string; phone?: string; status?: string; gender?: string;
+    height?: number; height_cm?: number; current_weight_kg?: number; weight?: number;
+    body_fat_percentage?: number; bodyFatPercentage?: number;
+    goals?: string[]; goal_type?: string; goalType?: string;
+    adherence_score?: number; adherenceScore?: number;
+    daily_calorie_target?: number; dailyCalorieTarget?: number;
+    allergies?: string[]; diet_type?: string; dietType?: string; dietaryPreference?: string;
+    createdAt?: string; created_at?: string; next_appointment?: string; nextAppointment?: string;
+  };
+  const p = apiPatient as unknown as RawPatient
   const patientData = {
     id: p.id,
     fullName: `${p.first_name ?? p.firstName ?? ''} ${p.last_name ?? p.lastName ?? ''}`.trim() || 'İsimsiz Hasta',
     age: (p.dateOfBirth || p.date_of_birth || p.birth_date) 
-      ? Math.floor((Date.now() - new Date(p.dateOfBirth || p.date_of_birth || p.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
+      ? Math.floor((Date.now() - new Date((p.dateOfBirth || p.date_of_birth || p.birth_date) as string).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
       : (p.age || 30),
     email: p.email ?? '-',
     phone: p.phone ?? '-',
@@ -212,7 +224,7 @@ export default function PatientDetailPage() {
     heightCm: p.height ?? p.height_cm ?? 0,
     weightKg: p.current_weight_kg ?? p.weight ?? 0,
     bmi: ((p.height ?? p.height_cm) && (p.current_weight_kg ?? p.weight)) 
-      ? Math.round(((p.current_weight_kg ?? p.weight) / (((p.height ?? p.height_cm) / 100) ** 2)) * 10) / 10 
+      ? Math.round((((p.current_weight_kg ?? p.weight) as number) / ((((p.height ?? p.height_cm) as number) / 100) ** 2)) * 10) / 10 
       : 0,
     bodyFatPercentage: p.body_fat_percentage ?? p.bodyFatPercentage ?? 0,
     goal: p.goals?.[0] ?? p.goal_type ?? p.goalType ?? 'Belirtilmemiş',

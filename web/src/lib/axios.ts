@@ -80,7 +80,7 @@ api.interceptors.response.use(
       response.data = transformKeys(envelope.data);
       // Preserve meta on a custom property for pagination
       if (envelope.meta) {
-        (response as any).meta = transformKeys(envelope.meta);
+        (response as typeof response & { meta?: unknown }).meta = transformKeys(envelope.meta);
       }
     } else {
       response.data = transformKeys(body);

@@ -79,7 +79,7 @@ export function useAppointments(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const created = await createAppointmentApi(data as any);
+        const created = await createAppointmentApi(data as unknown as Parameters<typeof createAppointmentApi>[0]);
         setAppointments((prev) => [...prev, created as unknown as Appointment]);
         return created as unknown as Appointment;
       } catch {
@@ -97,7 +97,7 @@ export function useAppointments(patientId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        await updateAppointmentApi(appointmentId, data as any);
+        await updateAppointmentApi(appointmentId, data as unknown as Parameters<typeof updateAppointmentApi>[1]);
         setAppointments((prev) =>
           prev.map((a) => (a.id === appointmentId ? { ...a, ...data } : a)),
         );

@@ -90,7 +90,7 @@ export default function AdminRecipesPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      await updateRecipe(id, { is_approved: true } as any)
+      await updateRecipe(id, { is_approved: true } as unknown as Parameters<typeof updateRecipe>[1])
       setRecipes(prev =>
         prev.map(r => r.id === id ? { ...r, is_approved: true, isApproved: true } : r)
       )
@@ -102,7 +102,7 @@ export default function AdminRecipesPage() {
 
   const handleReject = async (id: string) => {
     try {
-      await updateRecipe(id, { is_approved: false } as any)
+      await updateRecipe(id, { is_approved: false } as unknown as Parameters<typeof updateRecipe>[1])
       setRecipes(prev =>
         prev.map(r => r.id === id ? { ...r, is_approved: false, isApproved: false } : r)
       )

@@ -77,7 +77,7 @@ export function useRecipes() {
     setIsLoading(true);
     setError(null);
     try {
-      const created = await createRecipeApi(data as any);
+      const created = await createRecipeApi(data as unknown as Parameters<typeof createRecipeApi>[0]);
       setRecipes((prev) => [...prev, created as unknown as Recipe]);
       return created as unknown as Recipe;
     } catch {

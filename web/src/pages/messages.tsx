@@ -193,8 +193,8 @@ export default function MessagesPage() {
   const mappedMessages: Message[] = hookMessages.map((m: any) => ({
       id: m.id,
       text: m.content ?? m.text ?? '',
-      time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' }) : '',
-      date: m.createdAt ? new Date(m.createdAt).toLocaleDateString('tr') : 'Bugün',
+      time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '',
+      date: m.createdAt ? new Date(m.createdAt).toLocaleDateString('tr-TR') : 'Bugün',
       isOwn: m.isOwn ?? m.senderRole === 'dietitian',
       status: 'read' as const,
     }))

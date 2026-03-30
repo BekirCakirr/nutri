@@ -16,7 +16,7 @@ import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 
 interface ShoppingItem { id: string; name: string; amount: string; category: string; checked: boolean }
-interface ShoppingList { id: string; name: string; patientName: string; createdAt: string; status: 'active' | 'completed'; items: ShoppingItem[] }
+interface ShoppingList { id: string; name: string; patientName: string; createdAt: string; updatedAt: string; status: 'active' | 'completed'; items: ShoppingItem[] }
 
 const categoryOrder = ['Sebze', 'Meyve', 'Et', 'Süt Ürünleri', 'Diğer']
 
@@ -30,16 +30,19 @@ export default function ShoppingListsPage() {
 
   useEffect(() => {
     if (hookLists) {
-      setLists(hookLists.map((l: any) => ({
-        id: l.id, name: l.name ?? '', status: l.status ?? 'active',
-        itemCount: l.items?.length ?? l.itemCount ?? 0,
-        completedCount: l.items?.filter((i: any) => i.checked).length ?? l.completedCount ?? 0,
-        sharedWith: l.sharedWith ?? null,
-        updatedAt: l.updatedAt ?? '',
-        patientName: l.patientName ?? '',
-        createdAt: l.createdAt ?? '',
-        items: l.items ?? [],
-      })) as any)
+      setLists(hookLists.map((rawList) => {
+        const l = rawList as unknown as ShoppingList & { itemCount?: number; completedCount?: number; sharedWith?: string; };
+        return {
+          id: l.id, name: l.name ?? '', status: l.status ?? 'active',
+          itemCount: l.items?.length ?? l.itemCount ?? 0,
+          completedCount: l.items?.filter((i) => i.checked).length ?? l.completedCount ?? 0,
+          sharedWith: l.sharedWith ?? null,
+          updatedAt: l.updatedAt ?? '',
+          patientName: l.patientName ?? '',
+          createdAt: l.createdAt ?? '',
+          items: l.items ?? [],
+        } as ShoppingList;
+      }))
     }
   }, [hookLists])
   

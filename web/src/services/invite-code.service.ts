@@ -15,14 +15,20 @@ export interface InviteCodeStats {
   usedCodes: number;
 }
 
+interface ApiInviteCodeResponse {
+  inviteCode?: string;
+}
+
 export async function generateCode(_params?: Record<string, unknown>): Promise<InviteCode> {
   const { data } = await api.post("/dietitians/me/invite-code/regenerate");
-  return { id: "new", code: (data as any).inviteCode ?? data, isActive: true, createdAt: new Date().toISOString() };
+  const result = data as ApiInviteCodeResponse;
+  return { id: "new", code: result.inviteCode ?? String(data), isActive: true, createdAt: new Date().toISOString() };
 }
 
 export async function getCodes(): Promise<InviteCode[]> {
   const { data } = await api.get("/dietitians/me/invite-code");
-  const code = (data as any).inviteCode ?? (typeof data === "string" ? data : "");
+  const result = data as ApiInviteCodeResponse;
+  const code = result.inviteCode ?? (typeof data === "string" ? data : "");
   return code ? [{ id: "current", code, isActive: true, createdAt: new Date().toISOString() }] : [];
 }
 

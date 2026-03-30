@@ -13,6 +13,13 @@ import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 import { useReviews } from '@/hooks/use-reviews'
+import type { Review } from '@/types/review'
+
+type ExtendedReview = Review & { 
+  rating?: number; 
+  dietitianResponse?: string;
+  patientName: string;
+}
 
 function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
   const sizeClass = size === 'md' ? 'h-5 w-5' : 'h-3.5 w-3.5'
@@ -59,8 +66,9 @@ export default function ReviewsPage() {
   // Derive stats from real data
   const totalReviews = fetchedReviews.length
   const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-  fetchedReviews.forEach(r => {
-    const rating = (r as any).rating ?? 0
+  fetchedReviews.forEach(raw => {
+    const r = raw as unknown as ExtendedReview;
+    const rating = r.rating ?? r.overallRating ?? 0;
     if (rating >= 1 && rating <= 5) ratingDistribution[rating]++
   })
 
@@ -144,8 +152,10 @@ export default function ReviewsPage() {
 
       {/* Reviews */}
       <div className="space-y-4 animate-in-stagger">
-        {fetchedReviews.map(review => {
-          const ratingBadge = getRatingBadge(review.rating)
+        {fetchedReviews.map(rawReview => {
+          const review = rawReview as unknown as ExtendedReview;
+          const ratingBadge = getRatingBadge(review.rating ?? review.overallRating ?? 0)
+          const responseText = review.dietitianResponse || review.response?.content;
           return (
             <Card key={review.id} className="py-0 gap-0 transition-all duration-[var(--duration-fast)] hover:shadow-md">
               <CardContent className="p-5 sm:p-6">
@@ -166,7 +176,7 @@ export default function ReviewsPage() {
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <StarRating rating={review.rating} />
+                          <StarRating rating={review.rating ?? review.overallRating ?? 0} />
                         </div>
                       </div>
                       <span className="text-xs text-muted-foreground tabular-nums">
@@ -175,24 +185,24 @@ export default function ReviewsPage() {
                     </div>
 
                     {/* Title & Comment */}
-                    {(review as any).title && (
-                      <p className="text-sm font-semibold">{(review as any).title}</p>
+                    {review.title && (
+                      <p className="text-sm font-semibold">{review.title}</p>
                     )}
                     <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
 
                     {/* Response */}
-                    {((review as any).dietitianResponse || review.response) && (
+                    {responseText && (
                       <div className="rounded-lg border border-primary/10 bg-primary/5 p-3 mt-3">
                         <p className="text-xs font-medium text-primary mb-1">
                           <MessageSquare className="inline h-3 w-3 mr-1" />
                           Yanıtınız
                         </p>
-                        <p className="text-sm text-muted-foreground">{(review as any).dietitianResponse || review.response}</p>
+                        <p className="text-sm text-muted-foreground">{responseText}</p>
                       </div>
                     )}
 
                     {/* Reply button */}
-                    {!((review as any).dietitianResponse || review.response) && replyingTo !== review.id && (
+                    {!responseText && replyingTo !== review.id && (
                       <Button
                         variant="outline"
                         size="sm"

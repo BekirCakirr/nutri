@@ -52,6 +52,23 @@ import {
 import { PageContainer } from '@/components/shared/page-container'
 import { PlanCreatorSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
+
+type ExtendedFoodItem = FoodItem & {
+  caloriesPer100g?: number;
+  calories_per_100g?: number;
+  proteinPer100g?: number;
+  protein_per_100g?: number;
+  carbsPer100g?: number;
+  carbs_per_100g?: number;
+  fatPer100g?: number;
+  fat_per_100g?: number;
+  nutrition?: {
+    calories?: number;
+    proteinG?: number;
+    carbsG?: number;
+    fatG?: number;
+  };
+};
 import { searchFoods, type FoodItem } from '@/services/food.service'
 
 /* ------------------------------------------------------------------ */
@@ -130,12 +147,11 @@ const dailyTargets = {
 
 export default function PlanCreatorPage() {
   const { patientId } = useParams()
-  const { allPatients } = usePatients()
+  const { allPatients, isLoading: isPageLoading } = usePatients()
   const [selectedPatient, setSelectedPatient] = useState(patientId || '')
   const [selectedDay, setSelectedDay] = useState<string>('Pazartesi')
   const [planTitle, setPlanTitle] = useState('Kilo Verme Programı - Hafta 1')
   const [items, setItems] = useState<Record<string, PlanItem[]>>({})
-  const [isPageLoading, setIsPageLoading] = useState(true)
 
   // Search Modal State
   const [addFoodModal, setAddFoodModal] = useState<{ day: string; meal: string } | null>(null)
@@ -143,7 +159,6 @@ export default function PlanCreatorPage() {
   const [searchResults, setSearchResults] = useState<FoodItem[]>([])
   const [isSearching, setIsSearching] = useState(false)
 
-  useEffect(() => { const t = setTimeout(() => setIsPageLoading(false), 400); return () => clearTimeout(t) }, [])
 
   useEffect(() => {
     if (!searchQuery) {
@@ -249,15 +264,16 @@ export default function PlanCreatorPage() {
     const { day, meal } = addFoodModal
     const slotKey = `${day}-${meal}`
     
+    const f = food as unknown as ExtendedFoodItem;
     // Default to 100g portion
     const newItem: PlanItem = {
       id: `${food.id}-${Date.now()}`,
       name: food.name,
       portion: '100g',
-      calories: (food as any).caloriesPer100g || (food as any).calories_per_100g || (food as any).nutrition?.calories || 0,
-      protein: (food as any).proteinPer100g || (food as any).protein_per_100g || (food as any).nutrition?.proteinG || 0,
-      carbs: (food as any).carbsPer100g || (food as any).carbs_per_100g || (food as any).nutrition?.carbsG || 0,
-      fat: (food as any).fatPer100g || (food as any).fat_per_100g || (food as any).nutrition?.fatG || 0,
+      calories: f.caloriesPer100g || f.calories_per_100g || f.nutrition?.calories || 0,
+      protein: f.proteinPer100g || f.protein_per_100g || f.nutrition?.proteinG || 0,
+      carbs: f.carbsPer100g || f.carbs_per_100g || f.nutrition?.carbsG || 0,
+      fat: f.fatPer100g || f.fat_per_100g || f.nutrition?.fatG || 0,
     }
 
     setItems((prev) => ({
@@ -821,7 +837,9 @@ export default function PlanCreatorPage() {
                 <div className="p-4 text-center text-sm text-muted-foreground">Aranıyor...</div>
               ) : searchResults.length > 0 ? (
                 <div className="space-y-2">
-                  {searchResults.map((food) => (
+                  {searchResults.map((rawFood) => {
+                    const food = rawFood as unknown as ExtendedFoodItem;
+                    return (
                     <div 
                       key={food.id} 
                       className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md transition-colors cursor-pointer border border-transparent hover:border-border"
@@ -830,14 +848,15 @@ export default function PlanCreatorPage() {
                       <div className="flex-1 min-w-0 pr-4">
                         <p className="text-sm font-medium truncate">{food.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          100g: {(food as any).caloriesPer100g || (food as any).calories_per_100g || (food as any).nutrition?.calories || 0} kcal &middot; P: {(food as any).proteinPer100g || (food as any).protein_per_100g || (food as any).nutrition?.proteinG || 0}g
+                          100g: {food.caloriesPer100g || food.calories_per_100g || food.nutrition?.calories || 0} kcal &middot; P: {food.proteinPer100g || food.protein_per_100g || food.nutrition?.proteinG || 0}g
                         </p>
                       </div>
                       <Button size="sm" variant="secondary" className="h-7 w-7 p-0 shrink-0">
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : searchQuery ? (
                 <div className="p-4 text-center text-sm text-muted-foreground">Sonuç bulunamadı</div>

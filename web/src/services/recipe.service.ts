@@ -14,10 +14,17 @@ export interface RecipeFilters {
   limit?: number;
 }
 
+interface ApiRecipeListResponse {
+  recipes?: Recipe[];
+  total?: number;
+  page?: number;
+  limit?: number;
+}
+
 export async function getRecipes(
   filters?: RecipeFilters,
 ): Promise<PaginatedResponse<Recipe>> {
-  const params: Record<string, any> = {};
+  const params: Record<string, unknown> = {};
   if (filters?.query) params.q = filters.query;
   if (filters?.difficulty) params.difficulty = filters.difficulty;
   if (filters?.tags?.length) params.tags = filters.tags.join(",");
@@ -27,9 +34,8 @@ export async function getRecipes(
   if (filters?.limit) params.limit = filters.limit;
 
   const { data } = await api.get("/recipes", { params });
-  // Backend returns { recipes, total, page, limit }
-  const result = data as any;
-  const items = result.recipes ?? (Array.isArray(result) ? result : []);
+  const result = data as ApiRecipeListResponse;
+  const items = result.recipes ?? (Array.isArray(data) ? (data as Recipe[]) : []);
   const total = result.total ?? items.length;
   const page = result.page ?? filters?.page ?? 1;
   const limit = result.limit ?? filters?.limit ?? 10;

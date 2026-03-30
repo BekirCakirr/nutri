@@ -16,21 +16,35 @@ export interface FoodCategory {
   label: string;
 }
 
-export async function searchFoods(query: string): Promise<FoodItem[]> {
-  const { data } = await api.get("/foods", { params: { q: query } });
-  // Backend returns { foods, total, page, limit }
-  const result = data as any;
-  return (result.foods ?? (Array.isArray(result) ? result : [])) as FoodItem[];
+/** Shape the backend returns after snake→camelCase transform */
+interface ApiFoodResponse {
+  foods?: FoodItem[];
+  total?: number;
+  page?: number;
+  limit?: number;
 }
 
-export async function getFood(id: string | number): Promise<FoodItem> {
+/** Backend food row fields after camelCase transform */
+interface ApiFoodRow extends FoodItem {
+  caloriesPer100g?: number;
+  proteinPer100g?: number;
+  carbsPer100g?: number;
+  fatPer100g?: number;
+  fiberPer100g?: number;
+}
+
+export async function searchFoods(query: string): Promise<FoodItem[]> {
+  const { data } = await api.get("/foods", { params: { q: query } });
+  const result = data as ApiFoodResponse;
+  return result.foods ?? (Array.isArray(data) ? (data as FoodItem[]) : []);
+}
+
+export async function getFood(id: string | number): Promise<ApiFoodRow> {
   const { data } = await api.get(`/foods/${id}`);
-  return data as FoodItem;
+  return data as ApiFoodRow;
 }
 
 export async function getFoodCategories(): Promise<FoodCategory[]> {
-  // Categories are derived from food data — not a separate endpoint yet
-  // Return common Turkish food categories
   return [
     { id: "meyve", label: "Meyveler" },
     { id: "sebze", label: "Sebzeler" },
@@ -53,10 +67,10 @@ export async function getNutritionInfo(
   const food = await getFood(foodId);
   const factor = quantity / 100;
   return {
-    calories: Math.round(((food as any).caloriesPer100g ?? 0) * factor),
-    protein: Math.round(((food as any).proteinPer100g ?? 0) * factor * 10) / 10,
-    carbs: Math.round(((food as any).carbsPer100g ?? 0) * factor * 10) / 10,
-    fat: Math.round(((food as any).fatPer100g ?? 0) * factor * 10) / 10,
-    fiber: (food as any).fiberPer100g ? Math.round((food as any).fiberPer100g * factor * 10) / 10 : undefined,
+    calories: Math.round((food.caloriesPer100g ?? 0) * factor),
+    protein: Math.round((food.proteinPer100g ?? 0) * factor * 10) / 10,
+    carbs: Math.round((food.carbsPer100g ?? 0) * factor * 10) / 10,
+    fat: Math.round((food.fatPer100g ?? 0) * factor * 10) / 10,
+    fiber: food.fiberPer100g ? Math.round(food.fiberPer100g * factor * 10) / 10 : undefined,
   };
 }
