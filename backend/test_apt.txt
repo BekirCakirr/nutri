@@ -1,0 +1,40 @@
+{"level":"info","time":"2026-03-31T15:57:09.423Z","service":"nutriai-backend","method":"POST","url":"/api/auth/login","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:09.562Z","service":"nutriai-backend","method":"POST","url":"/api/auth/login","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:09.663Z","service":"nutriai-backend","method":"POST","url":"/api/appointments","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:09.673Z","service":"nutriai-backend","method":"POST","url":"/api/appointments","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:09.693Z","service":"nutriai-backend","method":"GET","url":"/api/appointments","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:09.709Z","service":"nutriai-backend","method":"GET","url":"/api/appointments","msg":"request"}
+FAIL src/__tests__/appointment.test.ts
+  Appointments API
+    POST /api/appointments
+      ÔêÜ should return 401 without auth (16 ms)
+      ├ù should create a new appointment (19 ms)
+    GET /api/appointments
+      ÔêÜ should list appointments for patient (16 ms)
+      ÔêÜ should list appointments for dietitian (13 ms)
+    PATCH /api/appointments/:id/status
+      ÔêÜ should allow dietitian to confirm appointment
+      ÔêÜ should allow patient to cancel appointment
+
+  ÔùÅ Appointments API ÔÇ║ POST /api/appointments ÔÇ║ should create a new appointment
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 404
+
+      42 |         });
+      43 |       
+    > 44 |       expect(res.status).toBe(201);
+         |                          ^
+      45 |       expect(res.body.success).toBe(true);
+      46 |       expect(res.body.data).toHaveProperty("id");
+      47 |       appointmentId = res.body.data.id;
+
+      at Object.<anonymous> (src/__tests__/appointment.test.ts:44:26)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 5 passed, 6 total
+Snapshots:   0 total
+Time:        3.582 s, estimated 14 s
+Ran all test suites matching src/__tests__/appointment.test.ts.

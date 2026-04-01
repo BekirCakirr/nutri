@@ -36,4 +36,10 @@ router.get(
   reportController.getPatientSummary
 );
 
+router.delete(
+  "/weekly/:id",
+  authenticate,
+  reportController.deleteReport
+);
+
 export default router;

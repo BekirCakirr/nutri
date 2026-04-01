@@ -29,7 +29,7 @@ export default function AllergyScreen() {
         totalSteps={7}
       >
         <AllergySelector
-          allergies={undefined as any}
+          allergies={[]}
           selectedIds={selectedIds}
           onToggle={handleToggle}
           title=""

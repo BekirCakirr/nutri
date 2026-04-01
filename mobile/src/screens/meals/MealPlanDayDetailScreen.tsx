@@ -75,7 +75,7 @@ export default function MealPlanDayDetailScreen() {
                     className="w-9 h-9 rounded-xl items-center justify-center mr-3"
                     style={{ backgroundColor: config.color + '18' }}
                   >
-                    <Ionicons name={config.icon as any} size={18} color={config.color} />
+                    <Ionicons name={config.icon as keyof typeof Ionicons.glyphMap} size={18} color={config.color} />
                   </View>
                   <View className="flex-1">
                     <Text className="text-base font-bold text-[#1A2E23]">{config.label}</Text>

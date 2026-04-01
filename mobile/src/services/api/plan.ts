@@ -16,7 +16,7 @@ export async function getDayPlan(date: string): Promise<DayPlan | null> {
   const plan = await getActivePlan();
   if (!plan) return null;
   const dayIndex = new Date(date).getDay();
-  const days = (plan as any).days ?? [];
+  const days = plan.days ?? [];
   return days[dayIndex === 0 ? 6 : dayIndex - 1] ?? null;
 }
 

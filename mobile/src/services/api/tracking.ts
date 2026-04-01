@@ -39,10 +39,10 @@ export async function addWeightEntry(date: string, kg: number): Promise<WeightEn
 
 export async function addExerciseEntry(entry: Omit<ExerciseEntry, 'date'> & { date: string }): Promise<ExerciseEntry> {
   await apiClient.post('/tracking/exercise', {
-    exerciseType: (entry as any).type ?? 'other',
-    durationMin: (entry as any).duration ?? 30,
-    intensity: (entry as any).intensity ?? 'moderate',
-    caloriesBurned: (entry as any).calories ?? 0,
+    exerciseType: entry.type ?? 'other',
+    durationMin: entry.minutes ?? 30,
+    intensity: 'moderate',
+    caloriesBurned: entry.caloriesBurned ?? 0,
   });
   return entry;
 }
@@ -50,10 +50,12 @@ export async function addExerciseEntry(entry: Omit<ExerciseEntry, 'date'> & { da
 const qualityMap: Record<number, string> = { 1: 'poor', 2: 'fair', 3: 'good', 4: 'excellent', 5: 'excellent' };
 
 export async function addSleepEntry(entry: SleepEntry): Promise<SleepEntry> {
-  const numQuality = (entry as any).quality ?? 3;
+  const numQuality = entry.quality ?? 3;
+  const now = new Date();
+  const sleepStart = new Date(now.getTime() - entry.hours * 3600000).toISOString();
   await apiClient.post('/tracking/sleep', {
-    sleepStart: (entry as any).startTime ?? new Date().toISOString(),
-    sleepEnd: (entry as any).endTime ?? new Date().toISOString(),
+    sleepStart,
+    sleepEnd: now.toISOString(),
     quality: qualityMap[numQuality] ?? 'good',
   });
   return entry;

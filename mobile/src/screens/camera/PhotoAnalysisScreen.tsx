@@ -121,7 +121,8 @@ export default function PhotoAnalysisScreen() {
                   }))
                   
                   // Cross tab navigation to MealsTab -> AddMeal
-                  navigation.navigate('MealsTab' as any, {
+                  // @ts-expect-error - cross-stack navigation param typing
+                  navigation.navigate('MealsTab', {
                     screen: 'AddMeal',
                     params: { aiFoods: mappedFoods }
                   })

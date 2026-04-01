@@ -37,7 +37,7 @@ export default function CalorieHistoryScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Kalori Geçmişi" onBack={() => navigation.goBack()} />
+      <AppHeader title="Kalori Geçmişi (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Period selector */}
         <View className="flex-row mb-4 gap-2">

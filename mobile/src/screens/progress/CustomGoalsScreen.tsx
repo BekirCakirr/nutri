@@ -35,7 +35,7 @@ export default function CustomGoalsScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Özel Hedefler" onBack={() => navigation.goBack()} />
+      <AppHeader title="Özel Hedefler (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Summary */}
         <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">

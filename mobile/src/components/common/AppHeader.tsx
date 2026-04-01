@@ -54,7 +54,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         )}
       </View>
       <View style={styles.right}>
-        {rightAction ? rightAction : (rightIcon && onRightPress) ? <TouchableOpacity onPress={onRightPress} style={styles.backButton}><Ionicons name={rightIcon as any} size={24} color={colors.text.primary} /></TouchableOpacity> : <View style={styles.placeholder} />}
+        {rightAction ? rightAction : (rightIcon && onRightPress) ? <TouchableOpacity onPress={onRightPress} style={styles.backButton}><Ionicons name={rightIcon as keyof typeof Ionicons.glyphMap} size={24} color={colors.text.primary} /></TouchableOpacity> : <View style={styles.placeholder} />}
       </View>
     </View>
   )

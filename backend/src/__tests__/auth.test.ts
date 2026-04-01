@@ -68,7 +68,7 @@ describe("Auth API", () => {
         email: testPatient.email,
         password: "wrongpassword"
       });
-      expect(res.status).toBe(400); // Or 401 depending on validation
+      expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
     });
   });

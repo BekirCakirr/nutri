@@ -32,7 +32,7 @@ export default function StepsScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Adım Sayıcı" onBack={() => navigation.goBack()} />
+      <AppHeader title="Adım Sayıcı (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Main progress */}
         <View className="bg-white rounded-2xl p-6 border border-[#E8F0EC] mb-4 items-center">

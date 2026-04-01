@@ -42,7 +42,7 @@ export default function MacroTrackingScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Makro Takibi" onBack={() => navigation.goBack()} />
+      <AppHeader title="Makro Takibi (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Total calories from macros */}
         <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4 items-center">

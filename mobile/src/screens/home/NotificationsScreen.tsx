@@ -72,7 +72,10 @@ export default function NotificationsScreen() {
                   key={notif.id}
                   title={notif.title}
                   message={notif.body}
-                  type={notif.type as any}
+                  type={
+                    (notif.type === 'meal_reminder' || notif.type === 'water_reminder') ? 'reminder' :
+                    (notif.type === 'achievement') ? 'achievement' : 'info'
+                  }
                   time={new Date(notif.createdAt).toLocaleTimeString('tr-TR', {
                     hour: '2-digit',
                     minute: '2-digit',

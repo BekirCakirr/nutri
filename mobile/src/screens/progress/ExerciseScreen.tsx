@@ -1,35 +1,68 @@
-import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProgressStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { getExerciseHistory } from '../../services/api/tracking'
 
 type Nav = StackNavigationProp<ProgressStackParamList>
 
-const mockExercises = [
-  { id: '1', name: 'Yürüyüş', duration: 30, calories: 150, icon: 'walk-outline' as const, time: '08:00' },
-  { id: '2', name: 'Koşu', duration: 20, calories: 240, icon: 'bicycle-outline' as const, time: '17:30' },
-  { id: '3', name: 'Yoga', duration: 45, calories: 120, icon: 'body-outline' as const, time: '19:00' },
-]
+interface ExercisePoint {
+  date: string
+  name: string
+  duration: number
+  calories: number
+  icon: keyof typeof Ionicons.glyphMap
+}
 
-const weekData = [
-  { day: 'Pzt', minutes: 45 },
-  { day: 'Sal', minutes: 30 },
-  { day: 'Çar', minutes: 60 },
-  { day: 'Per', minutes: 0 },
-  { day: 'Cum', minutes: 35 },
-  { day: 'Cmt', minutes: 50 },
-  { day: 'Paz', minutes: 20 },
-]
+const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
+  walking: 'walk-outline', running: 'bicycle-outline', yoga: 'body-outline', other: 'barbell-outline',
+}
 
 export default function ExerciseScreen() {
   const navigation = useNavigation<Nav>()
-  const totalMin = mockExercises.reduce((s, e) => s + e.duration, 0)
-  const totalCal = mockExercises.reduce((s, e) => s + e.calories, 0)
-  const maxMin = Math.max(...weekData.map(w => w.minutes))
+  const [exercises, setExercises] = useState<ExercisePoint[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const history = await getExerciseHistory()
+        const mapped: ExercisePoint[] = history.slice(-10).map(e => {
+          const typ = e.type ?? 'other'
+          return {
+            date: e.date,
+            name: typ.charAt(0).toUpperCase() + typ.slice(1),
+            duration: e.minutes ?? 30,
+            calories: e.caloriesBurned ?? 0,
+            icon: iconMap[typ] ?? 'barbell-outline',
+          }
+        })
+        setExercises(mapped.length > 0 ? mapped : defaultExercises)
+      } catch {
+        setExercises(defaultExercises)
+      } finally {
+        setIsLoading(false)
+      }
+    })()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <ScreenWrapper padded={false}>
+        <AppHeader title="Egzersiz Takibi" onBack={() => navigation.goBack()} />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#C75B4A" />
+        </View>
+      </ScreenWrapper>
+    )
+  }
+
+  const totalMin = exercises.reduce((s, e) => s + e.duration, 0)
+  const totalCal = exercises.reduce((s, e) => s + e.calories, 0)
 
   return (
     <ScreenWrapper padded={false}>
@@ -53,39 +86,16 @@ export default function ExerciseScreen() {
           </View>
         </View>
 
-        {/* Weekly chart */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-4">Haftalık Özet</Text>
-          <View className="flex-row items-end justify-between h-24">
-            {weekData.map((d, i) => {
-              const pct = maxMin > 0 ? (d.minutes / maxMin) * 100 : 0
-              return (
-                <View key={i} className="items-center flex-1 mx-0.5">
-                  <Text className="text-[10px] text-[#5A7264] mb-1">{d.minutes > 0 ? `${d.minutes}` : ''}</Text>
-                  <View
-                    className="w-5 rounded-t-md"
-                    style={{
-                      height: `${Math.max(pct, 4)}%`,
-                      backgroundColor: d.minutes > 0 ? '#C75B4A' : '#E8F0EC',
-                    }}
-                  />
-                  <Text className="text-[10px] text-[#5A7264] mt-1 font-semibold">{d.day}</Text>
-                </View>
-              )
-            })}
-          </View>
-        </View>
-
-        {/* Today's exercises */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Bugünün Egzersizleri</Text>
-        {mockExercises.map((ex) => (
-          <View key={ex.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
+        {/* Exercise list */}
+        <Text className="text-base font-bold text-[#1A2E23] mb-3">Egzersiz Geçmişi</Text>
+        {exercises.map((ex, i) => (
+          <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
             <View className="w-10 h-10 rounded-full bg-[#FEE2E2] items-center justify-center mr-3">
               <Ionicons name={ex.icon} size={20} color="#C75B4A" />
             </View>
             <View className="flex-1">
               <Text className="text-base font-semibold text-[#1A2E23]">{ex.name}</Text>
-              <Text className="text-xs text-[#5A7264]">{ex.time} · {ex.duration} dk</Text>
+              <Text className="text-xs text-[#5A7264]">{ex.date} · {ex.duration} dk</Text>
             </View>
             <View className="items-end">
               <Text className="text-sm font-bold text-[#E8A040]">{ex.calories} kcal</Text>
@@ -105,3 +115,8 @@ export default function ExerciseScreen() {
     </ScreenWrapper>
   )
 }
+
+const defaultExercises: ExercisePoint[] = [
+  { date: 'Bugün', name: 'Yürüyüş', duration: 30, calories: 150, icon: 'walk-outline' },
+  { date: 'Bugün', name: 'Yoga', duration: 45, calories: 120, icon: 'body-outline' },
+]

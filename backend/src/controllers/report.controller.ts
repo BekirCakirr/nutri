@@ -170,3 +170,24 @@ export async function getPatientSummary(
     next(err);
   }
 }
+
+export async function deleteReport(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await reportService.deleteReport(req.params.id as string, req.user!.userId);
+    sendSuccess({
+      res,
+      data: null,
+      message: "Rapor basariyla silindi",
+    });
+  } catch (err: any) {
+    if (err.statusCode) {
+      sendError({ res, message: err.message, statusCode: err.statusCode });
+      return;
+    }
+    next(err);
+  }
+}

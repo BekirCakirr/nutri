@@ -47,7 +47,7 @@ export default function HeartRateScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Kalp Hızı" onBack={() => navigation.goBack()} />
+      <AppHeader title="Kalp Hızı (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Current heart rate */}
         <View className="bg-white rounded-2xl p-6 border border-[#E8F0EC] mb-4 items-center">

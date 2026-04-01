@@ -33,7 +33,7 @@ export default function ProgressPhotosScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader
-        title="İlerleme Fotoğrafları"
+        title="İlerleme Fotoğrafları (Demo)"
         onBack={() => navigation.goBack()}
         rightAction={
           <TouchableOpacity className="p-1">

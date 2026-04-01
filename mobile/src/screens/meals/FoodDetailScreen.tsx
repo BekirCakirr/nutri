@@ -131,7 +131,7 @@ export default function FoodDetailScreen() {
           <Image source={{ uri: food.image }} style={styles.foodImage} />
         ) : (
           <View style={[styles.iconPlaceholder, { backgroundColor: iconColor + '20' }]}>
-            <Ionicons name={iconName as any} size={56} color={iconColor} />
+            <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={56} color={iconColor} />
           </View>
         )}
       </Animated.View>

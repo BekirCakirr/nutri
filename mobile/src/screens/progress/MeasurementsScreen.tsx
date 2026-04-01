@@ -35,7 +35,7 @@ export default function MeasurementsScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Vücut Ölçüleri" onBack={() => navigation.goBack()} />
+      <AppHeader title="Vücut Ölçüleri (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Summary card */}
         <View className="bg-[#1A2E23] rounded-2xl p-5 mb-4">

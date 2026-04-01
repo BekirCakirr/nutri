@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import {
   getReports,
   generateReport as generateReportApi,
+  deleteReport as deleteReportApi,
 } from "@/services/report.service";
 
 // ---------------------------------------------------------------------------
@@ -75,7 +76,7 @@ export function useReports() {
     setIsLoading(true);
     setError(null);
     try {
-      // TODO: Backend DELETE /reports/:id endpoint needed
+      await deleteReportApi(reportId);
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     } catch {
       setError("Failed to delete report");

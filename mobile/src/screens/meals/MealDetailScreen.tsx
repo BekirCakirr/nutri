@@ -138,7 +138,7 @@ export default function MealDetailScreen() {
       {/* Meal Type Header */}
       <Animated.View style={[styles.header, fadeIn.style]}>
         <View style={[styles.typeIconCircle, { backgroundColor: typeColor + '20' }]}>
-          <Ionicons name={typeIcon as any} size={28} color={typeColor} />
+          <Ionicons name={typeIcon as keyof typeof Ionicons.glyphMap} size={28} color={typeColor} />
         </View>
         <View style={styles.headerInfo}>
           <Text style={styles.typeLabel}>{typeLabel}</Text>

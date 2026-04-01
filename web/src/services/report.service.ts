@@ -44,3 +44,7 @@ export async function exportReport(
   // PDF export not yet implemented in backend — return placeholder
   return { url: `/api/reports/weekly/${reportId}` };
 }
+
+export async function deleteReport(reportId: string): Promise<void> {
+  await api.delete(`/reports/weekly/${reportId}`);
+}

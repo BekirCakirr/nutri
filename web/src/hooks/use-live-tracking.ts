@@ -27,9 +27,9 @@ export interface LiveTrackingEntry {
 /**
  * Live patient tracking data with polling support.
  *
- * TODO: Backend needs a dedicated dietitian-facing endpoint that aggregates
- * all patients' daily tracking data. Currently we derive partial data from
- * the patients list.
+ * Note: Backend does not yet have a dedicated dietitian-facing aggregation
+ * endpoint. Currently we derive partial tracking data from the patients list
+ * endpoint. A future `/api/tracking/dietitian-overview` would improve this.
  *
  * @param pollIntervalMs - Polling interval in milliseconds (default: 30000).
  *                          Pass 0 to disable polling.

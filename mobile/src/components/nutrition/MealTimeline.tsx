@@ -42,7 +42,7 @@ export const MealTimeline: React.FC<MealTimelineProps> = ({
                 <Text style={styles.calories}>{meal.calories} kcal</Text>
               </View>
               <Text style={styles.mealType}>
-                {(mealTypeConfig as any)[meal.mealType]?.label ?? meal.mealType}
+                {(mealTypeConfig as Record<string, { label: string }>)[meal.mealType]?.label ?? meal.mealType}
               </Text>
               <Text style={styles.description} numberOfLines={2}>
                 {meal.description}

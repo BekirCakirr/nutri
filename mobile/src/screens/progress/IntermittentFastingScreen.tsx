@@ -51,7 +51,7 @@ export default function IntermittentFastingScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Aralıklı Oruç" onBack={() => navigation.goBack()} />
+      <AppHeader title="Aralıklı Oruç (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Plan selector */}
         <View className="flex-row mb-4 gap-2">

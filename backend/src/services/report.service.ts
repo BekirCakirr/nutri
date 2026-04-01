@@ -331,3 +331,20 @@ export async function getPatientSummary(userId: string, targetPatientId?: string
     avgDailyCalories,
   };
 }
+
+export async function deleteReport(reportId: string, userId: string) {
+  const patientId = await getPatientProfileId(userId);
+
+  const result = await query(
+    "DELETE FROM ai_weekly_reports WHERE id = $1 AND patient_id = $2 RETURNING id",
+    [reportId, patientId]
+  );
+
+  if (result.rows.length === 0) {
+    throw Object.assign(new Error("Rapor bulunamadi veya silme yetkiniz yok"), {
+      statusCode: 404,
+    });
+  }
+
+  return result.rows[0];
+}

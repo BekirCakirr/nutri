@@ -46,7 +46,7 @@ export default function StressScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Stres Seviyesi" onBack={() => navigation.goBack()} />
+      <AppHeader title="Stres Seviyesi (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Current stress */}
         <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4 items-center">

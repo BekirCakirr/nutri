@@ -1,0 +1,39 @@
+{"level":"info","time":"2026-03-31T15:57:21.372Z","service":"nutriai-backend","method":"POST","url":"/api/auth/login","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:21.521Z","service":"nutriai-backend","method":"POST","url":"/api/auth/login","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:21.633Z","service":"nutriai-backend","method":"POST","url":"/api/plans","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:21.649Z","service":"nutriai-backend","method":"POST","url":"/api/plans","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:21.706Z","service":"nutriai-backend","method":"POST","url":"/api/plans","msg":"request"}
+{"level":"info","time":"2026-03-31T15:57:21.716Z","service":"nutriai-backend","method":"GET","url":"/api/plans","msg":"request"}
+FAIL src/__tests__/plan.test.ts
+  Plan API
+    POST /api/plans
+      ÔêÜ should return 401 without auth (18 ms)
+      ├ù should allow dietitian to create plan for patient (58 ms)
+      ÔêÜ should reject patient from creating plan (10 ms)
+    GET /api/plans
+      ÔêÜ should list plans for authenticated user (17 ms)
+    PATCH /api/plans/:id/status
+      ÔêÜ should update plan status
+
+  ÔùÅ Plan API ÔÇ║ POST /api/plans ÔÇ║ should allow dietitian to create plan for patient
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 404
+
+      48 |         });
+      49 |       
+    > 50 |       expect(res.status).toBe(201);
+         |                          ^
+      51 |       expect(res.body.success).toBe(true);
+      52 |       expect(res.body.data).toHaveProperty("id");
+      53 |       planId = res.body.data.id;
+
+      at Object.<anonymous> (src/__tests__/plan.test.ts:50:26)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 4 passed, 5 total
+Snapshots:   0 total
+Time:        3.893 s, estimated 14 s
+Ran all test suites matching src/__tests__/plan.test.ts.

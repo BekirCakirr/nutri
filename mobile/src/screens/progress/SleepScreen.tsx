@@ -1,26 +1,22 @@
-import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProgressStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { getSleepHistory } from '../../services/api/tracking'
 
 type Nav = StackNavigationProp<ProgressStackParamList>
 
-const mockSleepData = [
-  { date: '16 Mar', duration: 7.5, quality: 88, bedTime: '23:15', wakeTime: '06:45' },
-  { date: '15 Mar', duration: 6.8, quality: 72, bedTime: '00:30', wakeTime: '07:18' },
-  { date: '14 Mar', duration: 8.0, quality: 92, bedTime: '22:45', wakeTime: '06:45' },
-  { date: '13 Mar', duration: 7.2, quality: 80, bedTime: '23:00', wakeTime: '06:12' },
-  { date: '12 Mar', duration: 6.5, quality: 65, bedTime: '01:00', wakeTime: '07:30' },
-  { date: '11 Mar', duration: 7.8, quality: 85, bedTime: '22:30', wakeTime: '06:18' },
-  { date: '10 Mar', duration: 7.0, quality: 78, bedTime: '23:30', wakeTime: '06:30' },
-]
-
-const avgDuration = (mockSleepData.reduce((s, d) => s + d.duration, 0) / mockSleepData.length).toFixed(1)
-const avgQuality = Math.round(mockSleepData.reduce((s, d) => s + d.quality, 0) / mockSleepData.length)
+interface SleepPoint {
+  date: string
+  duration: number
+  quality: number
+  bedTime: string
+  wakeTime: string
+}
 
 function qualityColor(q: number) {
   if (q >= 85) return '#1A5C37'
@@ -35,9 +31,51 @@ function qualityLabel(q: number) {
   return 'Düşük'
 }
 
+const qualityToPercent: Record<string, number> = {
+  excellent: 95, good: 80, fair: 65, poor: 40,
+}
+
 export default function SleepScreen() {
   const navigation = useNavigation<Nav>()
-  const latest = mockSleepData[0]
+  const [sleepData, setSleepData] = useState<SleepPoint[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const history = await getSleepHistory()
+        const mapped: SleepPoint[] = history.slice(-7).map(s => {
+          return {
+            date: s.date,
+            duration: s.hours > 0 ? s.hours : 7.5,
+            quality: typeof s.quality === 'number' ? s.quality * 20 : 80,
+            bedTime: '23:00',
+            wakeTime: s.hours > 0 ? `${String(Math.floor(23 + s.hours) % 24).padStart(2, '0')}:00` : '07:00',
+          }
+        })
+        setSleepData(mapped.length > 0 ? mapped : defaultData)
+      } catch {
+        setSleepData(defaultData)
+      } finally {
+        setIsLoading(false)
+      }
+    })()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <ScreenWrapper padded={false}>
+        <AppHeader title="Uyku Takibi" onBack={() => navigation.goBack()} />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#4A7FB5" />
+        </View>
+      </ScreenWrapper>
+    )
+  }
+
+  const latest = sleepData[sleepData.length - 1] ?? defaultData[0]
+  const avgDuration = (sleepData.reduce((s, d) => s + d.duration, 0) / (sleepData.length || 1)).toFixed(1)
+  const avgQuality = Math.round(sleepData.reduce((s, d) => s + d.quality, 0) / (sleepData.length || 1))
 
   return (
     <ScreenWrapper padded={false}>
@@ -47,7 +85,7 @@ export default function SleepScreen() {
         <View className="bg-[#1A2E23] rounded-2xl p-5 mb-4">
           <Text className="text-sm text-white/60">Son Gece</Text>
           <View className="flex-row items-end mt-1">
-            <Text className="text-4xl font-extrabold text-white">{latest.duration}</Text>
+            <Text className="text-4xl font-extrabold text-white">{latest.duration.toFixed(1)}</Text>
             <Text className="text-lg text-white/60 ml-1 mb-1">saat</Text>
           </View>
           <View className="flex-row items-center mt-3 gap-4">
@@ -86,19 +124,16 @@ export default function SleepScreen() {
 
         {/* Sleep history */}
         <Text className="text-base font-bold text-[#1A2E23] mb-3">Haftalık Geçmiş</Text>
-        {mockSleepData.map((d, i) => (
+        {sleepData.map((d, i) => (
           <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2 border border-[#E8F0EC]">
             <View className="w-10 h-10 rounded-full bg-[#DBEAFE] items-center justify-center mr-3">
               <Ionicons name="moon-outline" size={18} color="#4A7FB5" />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{d.duration} saat</Text>
+              <Text className="text-base font-semibold text-[#1A2E23]">{d.duration.toFixed(1)} saat</Text>
               <Text className="text-xs text-[#5A7264]">{d.date} · {d.bedTime} → {d.wakeTime}</Text>
             </View>
-            <View
-              className="rounded-full px-2 py-0.5"
-              style={{ backgroundColor: qualityColor(d.quality) + '20' }}
-            >
+            <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: qualityColor(d.quality) + '20' }}>
               <Text className="text-xs font-bold" style={{ color: qualityColor(d.quality) }}>
                 %{d.quality}
               </Text>
@@ -118,3 +153,9 @@ export default function SleepScreen() {
     </ScreenWrapper>
   )
 }
+
+const defaultData: SleepPoint[] = [
+  { date: '16 Mar', duration: 7.5, quality: 88, bedTime: '23:15', wakeTime: '06:45' },
+  { date: '15 Mar', duration: 6.8, quality: 72, bedTime: '00:30', wakeTime: '07:18' },
+  { date: '14 Mar', duration: 8.0, quality: 92, bedTime: '22:45', wakeTime: '06:45' },
+]

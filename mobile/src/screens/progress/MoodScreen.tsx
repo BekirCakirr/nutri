@@ -33,7 +33,7 @@ export default function MoodScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <AppHeader title="Ruh Hali" onBack={() => navigation.goBack()} />
+      <AppHeader title="Ruh Hali (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
         {/* Today's mood picker */}
         <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">

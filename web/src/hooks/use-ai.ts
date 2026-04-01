@@ -56,7 +56,7 @@ export function useAi() {
   const acceptSuggestion = useCallback(async (suggestionId: string) => {
     setError(null);
     try {
-      // TODO: Backend endpoint for accepting AI suggestions
+      // Optimistic client-side update — no backend persistence for suggestion status
       setSuggestions((prev) =>
         prev.map((s) =>
           s.id === suggestionId ? { ...s, status: "accepted" as const } : s,
@@ -70,7 +70,7 @@ export function useAi() {
   const dismissSuggestion = useCallback(async (suggestionId: string) => {
     setError(null);
     try {
-      // TODO: Backend endpoint for dismissing AI suggestions
+      // Optimistic client-side update — no backend persistence for suggestion status
       setSuggestions((prev) =>
         prev.map((s) =>
           s.id === suggestionId ? { ...s, status: "dismissed" as const } : s,
