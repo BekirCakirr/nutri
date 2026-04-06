@@ -25,38 +25,38 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Lutfen tum alanlari doldurun.')
+      setError('Lütfen tüm alanları doldurun.')
       return
     }
     setError('')
     try {
       await login(email, password)
     } catch {
-      setError('Giris basarisiz. Lutfen bilgilerinizi kontrol edin.')
+      setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
     }
   }
 
   return (
     <ScreenWrapper keyboardAvoiding padded={false}>
       <AppHeader title="" onBack={() => navigation.goBack()} transparent />
-      <View className="flex-1 px-6 pt-4 bg-[#F8FAF9]">
-        <View className="w-16 h-16 rounded-2xl bg-[#E8F5EC] items-center justify-center mb-6 shadow-sm border border-[#C8E6CF]/30">
+      <View style={styles.content}>
+        <View style={styles.logoBox}>
           <Image
             source={require('../../../assets/logo-icon.png')}
-            className="w-10 h-10"
+            style={styles.logoImage}
             resizeMode="contain"
           />
         </View>
-        <Text className="text-3xl font-bold text-[#1A2E23] mb-2">Tekrar Hoş Geldiniz</Text>
-        <Text className="text-base text-[#5A7264] mb-8">Hesabınıza giriş yapın</Text>
+        <Text style={styles.title}>Tekrar Hoş Geldiniz</Text>
+        <Text style={styles.subtitle}>Hesabınıza giriş yapın</Text>
 
         {error ? (
-          <View className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-            <Text className="text-base text-red-500">{error}</Text>
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
 
-        <View className="gap-5">
+        <View style={styles.inputGroup}>
           <Input
             label="E-posta"
             placeholder="ornek@nutriai.com"
@@ -77,9 +77,9 @@ export default function LoginScreen() {
 
         <TouchableOpacity
           onPress={() => navigation.navigate('ForgotPassword')}
-          className="self-end mt-2 mb-8"
+          style={styles.forgotBtn}
         >
-          <Text className="text-base font-medium text-[#1A5C37]">Şifremi Unuttum</Text>
+          <Text style={styles.forgotText}>Şifremi Unuttum</Text>
         </TouchableOpacity>
 
         <Button
@@ -88,18 +88,103 @@ export default function LoginScreen() {
           loading={isLoading}
           fullWidth
           size="lg"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={styles.loginBtn}
         />
       </View>
 
-      <View className="flex-row justify-center py-8 bg-[#F8FAF9]">
-        <Text className="text-base text-[#5A7264]">Hesabınız yok mu? </Text>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Hesabınız yok mu? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text className="text-base font-semibold text-[#1A5C37]">Kayıt Ol</Text>
+          <Text style={styles.footerLink}>Kayıt Ol</Text>
         </TouchableOpacity>
       </View>
     </ScreenWrapper>
   )
 }
 
-// Stylesheet replaced with Tailwind CSS classes
+const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    backgroundColor: colors.background.default,
+  },
+  logoBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: `${colors.primary[100]}50`,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  logoImage: {
+    width: 40,
+    height: 40,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: fontWeights.bold,
+    color: colors.text.primary,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    marginBottom: 32,
+  },
+  errorBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#EF4444',
+  },
+  inputGroup: {
+    gap: 20,
+  },
+  forgotBtn: {
+    alignSelf: 'flex-end',
+    marginTop: 8,
+    marginBottom: 32,
+  },
+  forgotText: {
+    fontSize: 16,
+    fontWeight: fontWeights.medium,
+    color: colors.primary.main,
+  },
+  loginBtn: {
+    shadowColor: colors.primary.main,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 32,
+    backgroundColor: colors.background.default,
+  },
+  footerText: {
+    fontSize: 16,
+    color: colors.text.secondary,
+  },
+  footerLink: {
+    fontSize: 16,
+    fontWeight: fontWeights.semibold,
+    color: colors.primary.main,
+  },
+})

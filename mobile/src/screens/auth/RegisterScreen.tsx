@@ -27,15 +27,15 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password.trim()) {
-      setError('Lutfen tum alanlari doldurun.')
+      setError('Lütfen tüm alanları doldurun.')
       return
     }
     if (password !== confirmPassword) {
-      setError('Sifreler eslesmiyor.')
+      setError('Şifreler eşleşmiyor.')
       return
     }
     if (password.length < 6) {
-      setError('Sifre en az 6 karakter olmalidir.')
+      setError('Şifre en az 6 karakter olmalıdır.')
       return
     }
     setError('')
@@ -43,54 +43,28 @@ export default function RegisterScreen() {
       await register(name, email, password)
       navigation.navigate('EmailVerification')
     } catch {
-      setError('Kayit basarisiz. Lutfen tekrar deneyin.')
+      setError('Kayıt başarısız. Lütfen tekrar deneyin.')
     }
   }
 
   return (
     <ScreenWrapper keyboardAvoiding padded={false}>
       <AppHeader title="" onBack={() => navigation.goBack()} transparent />
-      <View className="flex-1 px-6 pt-2 bg-[#F8FAF9]">
-        <Text className="text-3xl font-bold text-[#1A2E23] mb-2">Hesap Oluşturun</Text>
-        <Text className="text-base text-[#5A7264] mb-6">Sağlıklı yaşama ilk adımınızı atın</Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>Hesap Oluşturun</Text>
+        <Text style={styles.subtitle}>Sağlıklı yaşama ilk adımınızı atın</Text>
 
         {error ? (
-          <View className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-            <Text className="text-base text-red-500">{error}</Text>
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
 
-        <View className="gap-4 mb-8">
-          <Input
-            label="Ad Soyad"
-            placeholder="Adınız ve soyadınız"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
-          <Input
-            label="E-posta"
-            placeholder="ornek@nutriai.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <Input
-            label="Şifre"
-            placeholder="En az 6 karakter"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <Input
-            label="Şifre Tekrar"
-            placeholder="Şifrenizi tekrar girin"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
+        <View style={styles.inputGroup}>
+          <Input label="Ad Soyad" placeholder="Adınız ve soyadınız" value={name} onChangeText={setName} autoCapitalize="words" />
+          <Input label="E-posta" placeholder="ornek@nutriai.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+          <Input label="Şifre" placeholder="En az 6 karakter" value={password} onChangeText={setPassword} secureTextEntry />
+          <Input label="Şifre Tekrar" placeholder="Şifrenizi tekrar girin" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
         </View>
 
         <Button
@@ -99,18 +73,74 @@ export default function RegisterScreen() {
           loading={isLoading}
           fullWidth
           size="lg"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={styles.registerBtn}
         />
       </View>
 
-      <View className="flex-row justify-center py-8 bg-[#F8FAF9]">
-        <Text className="text-base text-[#5A7264]">Zaten hesabınız var mı? </Text>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Zaten hesabınız var mı? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text className="text-base font-semibold text-[#1A5C37]">Giriş Yap</Text>
+          <Text style={styles.footerLink}>Giriş Yap</Text>
         </TouchableOpacity>
       </View>
     </ScreenWrapper>
   )
 }
 
-// Stylesheet replaced with Tailwind CSS classes
+const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    backgroundColor: colors.background.default,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: fontWeights.bold,
+    color: colors.text.primary,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    marginBottom: 24,
+  },
+  errorBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#EF4444',
+  },
+  inputGroup: {
+    gap: 16,
+    marginBottom: 32,
+  },
+  registerBtn: {
+    shadowColor: colors.primary.main,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 32,
+    backgroundColor: colors.background.default,
+  },
+  footerText: {
+    fontSize: 16,
+    color: colors.text.secondary,
+  },
+  footerLink: {
+    fontSize: 16,
+    fontWeight: fontWeights.semibold,
+    color: colors.primary.main,
+  },
+})

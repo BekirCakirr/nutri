@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OnboardingStackParamList } from '../../navigation/types'
@@ -7,6 +7,9 @@ import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
+import { colors } from '../../theme/colors'
+import { spacing } from '../../theme/spacing'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<OnboardingStackParamList, 'BasicInfo'>
 
@@ -33,72 +36,52 @@ export default function BasicInfoScreen() {
         currentStep={1}
         totalSteps={7}
       >
-        <View className="gap-4">
-          <Input
-            label="Doğum Tarihi"
-            placeholder="GG/AA/YYYY"
-            value={birthDate}
-            onChangeText={setBirthDate}
-            keyboardType="number-pad"
-          />
+        <View style={styles.inputGroup}>
+          <Input label="Doğum Tarihi" placeholder="GG/AA/YYYY" value={birthDate} onChangeText={setBirthDate} keyboardType="number-pad" />
 
-          <Text className="text-base font-medium text-[#1A2E23] mb-1">Cinsiyet</Text>
-          <View className="flex-row gap-3 mb-4">
+          <Text style={styles.sectionLabel}>Cinsiyet</Text>
+          <View style={styles.genderRow}>
             {genders.map((g) => (
               <TouchableOpacity
                 key={g.id}
                 onPress={() => setGender(g.id)}
-                className={`flex-1 py-4 rounded-xl border-2 items-center ${
-                  gender === g.id
-                    ? 'border-[#1A5C37] bg-[#E8F5EC]'
-                    : 'border-[#D4E2DA] bg-white'
-                }`}
+                style={[styles.genderCard, gender === g.id && styles.genderCardSelected]}
                 activeOpacity={0.7}
               >
-                <Text className="text-xl mb-1">{g.emoji}</Text>
-                <Text
-                  className={`text-sm font-semibold ${
-                    gender === g.id ? 'text-[#1A5C37]' : 'text-[#5A7264]'
-                  }`}
-                >
-                  {g.label}
-                </Text>
+                <Text style={styles.genderEmoji}>{g.emoji}</Text>
+                <Text style={[styles.genderLabel, gender === g.id && styles.genderLabelSelected]}>{g.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <View className="flex-row gap-4">
-            <View className="flex-1">
-              <Input
-                label="Boy (cm)"
-                placeholder="165"
-                value={height}
-                onChangeText={setHeight}
-                keyboardType="number-pad"
-              />
+          <View style={styles.bodyRow}>
+            <View style={styles.bodyCol}>
+              <Input label="Boy (cm)" placeholder="165" value={height} onChangeText={setHeight} keyboardType="number-pad" />
             </View>
-            <View className="flex-1">
-              <Input
-                label="Kilo (kg)"
-                placeholder="68"
-                value={weight}
-                onChangeText={setWeight}
-                keyboardType="decimal-pad"
-              />
+            <View style={styles.bodyCol}>
+              <Input label="Kilo (kg)" placeholder="68" value={weight} onChangeText={setWeight} keyboardType="decimal-pad" />
             </View>
           </View>
         </View>
 
-        <View className="flex-1" />
-        <Button
-          title="Devam Et"
-          onPress={() => navigation.navigate('Goal')}
-          disabled={!canContinue}
-          fullWidth
-          size="lg"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-        />
+        <View style={styles.spacer} />
+        <Button title="Devam Et" onPress={() => navigation.navigate('Goal')} disabled={!canContinue} fullWidth size="lg" style={styles.btn} />
       </OnboardingStep>
     </ScreenWrapper>
   )
 }
+
+const styles = StyleSheet.create({
+  inputGroup: { gap: 16 },
+  sectionLabel: { fontSize: 16, fontWeight: fontWeights.medium, color: colors.text.primary, marginBottom: 4 },
+  genderRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
+  genderCard: { flex: 1, paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: colors.border, backgroundColor: '#fff', alignItems: 'center' },
+  genderCardSelected: { borderColor: colors.primary.main, backgroundColor: colors.primary[50] },
+  genderEmoji: { fontSize: 20, marginBottom: 4 },
+  genderLabel: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.secondary },
+  genderLabelSelected: { color: colors.primary.main },
+  bodyRow: { flexDirection: 'row', gap: 16 },
+  bodyCol: { flex: 1 },
+  spacer: { flex: 1 },
+  btn: { shadowColor: colors.primary.main, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+})

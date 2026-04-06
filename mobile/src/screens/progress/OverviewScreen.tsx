@@ -1,14 +1,16 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProgressStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
+import { colors } from '../../theme/colors'
+import { spacing } from '../../theme/spacing'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProgressStackParamList>
 
-// Summary data for the dashboard
 const summaryData = {
   weight: { current: 74.5, target: 70, unit: 'kg' },
   water: { current: 1750, target: 2500, unit: 'ml' },
@@ -18,15 +20,7 @@ const summaryData = {
   exercise: { minutes: 35, calories: 280 },
 }
 
-type CardItem = {
-  title: string
-  icon: keyof typeof Ionicons.glyphMap
-  value: string
-  sub: string
-  color: string
-  bgColor: string
-  screen: keyof ProgressStackParamList
-}
+type CardItem = { title: string; icon: keyof typeof Ionicons.glyphMap; value: string; sub: string; color: string; bgColor: string; screen: keyof ProgressStackParamList }
 
 const cards: CardItem[] = [
   { title: 'Kilo', icon: 'scale-outline', value: `${summaryData.weight.current} kg`, sub: `Hedef: ${summaryData.weight.target} kg`, color: '#1A5C37', bgColor: '#E8F5EC', screen: 'Weight' },
@@ -56,61 +50,64 @@ export default function OverviewScreen() {
 
   return (
     <ScreenWrapper padded={false}>
-      <ScrollView className="flex-1 bg-[#F8FAF9]" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="px-5 pt-6 pb-3">
-          <Text className="text-2xl font-extrabold text-[#1A2E23]">İlerleme</Text>
-          <Text className="text-sm text-[#5A7264] mt-1">Sağlık verilerinizin özeti</Text>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
+        <View style={st.headerArea}>
+          <Text style={st.headerTitle}>İlerleme</Text>
+          <Text style={st.headerSub}>Sağlık verilerinizin özeti</Text>
         </View>
 
-        {/* Primary stat cards grid (2 columns) */}
-        <View className="px-4 flex-row flex-wrap">
+        <View style={st.grid}>
           {cards.map((card, idx) => (
-            <TouchableOpacity
-              key={idx}
-              className="w-[48%] mx-[1%] mb-3 bg-white rounded-2xl p-4 border border-[#E8F0EC]"
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate(card.screen)}
-            >
-              <View className="flex-row items-center mb-3">
-                <View
-                  className="w-9 h-9 rounded-full items-center justify-center mr-2.5"
-                  style={{ backgroundColor: card.bgColor }}
-                >
+            <TouchableOpacity key={idx} style={st.card} activeOpacity={0.7} onPress={() => navigation.navigate(card.screen)}>
+              <View style={st.cardHeader}>
+                <View style={[st.cardIcon, { backgroundColor: card.bgColor }]}>
                   <Ionicons name={card.icon} size={18} color={card.color} />
                 </View>
-                <Text className="text-xs font-semibold text-[#5A7264]">{card.title}</Text>
+                <Text style={st.cardTitle}>{card.title}</Text>
               </View>
-              <Text className="text-xl font-bold text-[#1A2E23]">{card.value}</Text>
-              <Text className="text-xs text-[#5A7264] mt-0.5">{card.sub}</Text>
+              <Text style={st.cardValue}>{card.value}</Text>
+              <Text style={st.cardSub}>{card.sub}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Divider */}
-        <View className="mx-5 my-2 h-px bg-[#D4E2DA]" />
+        <View style={st.divider} />
 
-        {/* Secondary navigation cards */}
-        <View className="px-5 py-3">
-          <Text className="text-lg font-bold text-[#1A2E23] mb-3">Diğer Takipler</Text>
+        <View style={st.secondaryArea}>
+          <Text style={st.sectionTitle}>Diğer Takipler</Text>
           {secondaryCards.map((item, idx) => (
-            <TouchableOpacity
-              key={idx}
-              className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]"
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate(item.screen)}
-            >
-              <View className="w-10 h-10 rounded-full bg-[#E8F5EC] items-center justify-center mr-3">
-                <Ionicons name={item.icon} size={20} color="#1A5C37" />
+            <TouchableOpacity key={idx} style={st.secondaryCard} activeOpacity={0.7} onPress={() => navigation.navigate(item.screen)}>
+              <View style={st.secondaryIcon}>
+                <Ionicons name={item.icon} size={20} color={colors.primary.main} />
               </View>
-              <Text className="flex-1 text-base font-semibold text-[#1A2E23]">{item.title}</Text>
-              <Ionicons name="chevron-forward" size={18} color="#5A7264" />
+              <Text style={st.secondaryLabel}>{item.title}</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.text.secondary} />
             </TouchableOpacity>
           ))}
         </View>
 
-        <View className="h-8" />
+        <View style={{ height: 32 }} />
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default },
+  headerArea: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 12 },
+  headerTitle: { fontSize: 24, fontWeight: fontWeights.bold, color: colors.text.primary },
+  headerSub: { fontSize: 14, color: colors.text.secondary, marginTop: 4 },
+  grid: { paddingHorizontal: 16, flexDirection: 'row', flexWrap: 'wrap' },
+  card: { width: '48%', marginHorizontal: '1%', marginBottom: 12, backgroundColor: '#fff', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC' },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  cardIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  cardTitle: { fontSize: 12, fontWeight: fontWeights.semibold, color: colors.text.secondary },
+  cardValue: { fontSize: 20, fontWeight: fontWeights.bold, color: colors.text.primary },
+  cardSub: { fontSize: 12, color: colors.text.secondary, marginTop: 2 },
+  divider: { marginHorizontal: 20, marginVertical: 8, height: 1, backgroundColor: colors.border },
+  secondaryArea: { paddingHorizontal: 20, paddingVertical: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  secondaryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  secondaryIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  secondaryLabel: { flex: 1, fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+})

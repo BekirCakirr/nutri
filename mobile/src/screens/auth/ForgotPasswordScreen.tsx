@@ -18,7 +18,6 @@ export default function ForgotPasswordScreen() {
   const handleSend = async () => {
     if (!email.trim()) return
     setLoading(true)
-    // Simulate API call
     await new Promise((r) => setTimeout(r, 1000))
     setLoading(false)
     setSent(true)
@@ -27,53 +26,29 @@ export default function ForgotPasswordScreen() {
   return (
     <ScreenWrapper keyboardAvoiding padded={false}>
       <AppHeader title="Şifremi Unuttum" onBack={() => navigation.goBack()} />
-      <View className="flex-1 px-6 pt-8 bg-[#F8FAF9]">
+      <View style={styles.content}>
         {sent ? (
-          <View className="flex-1 justify-center items-center px-4">
-            <View className="w-20 h-20 rounded-full bg-[#E8F5EC] items-center justify-center mb-6">
-              <Text className="text-4xl">💌</Text>
+          <View style={styles.successContainer}>
+            <View style={styles.successIcon}>
+              <Text style={styles.successEmoji}>💌</Text>
             </View>
-            <Text className="text-2xl font-bold text-[#1A2E23] mb-2">E-posta Gönderildi</Text>
-            <Text className="text-base text-[#5A7264] text-center leading-relaxed">
+            <Text style={styles.successTitle}>E-posta Gönderildi</Text>
+            <Text style={styles.successText}>
               Şifre sıfırlama bağlantısı {email} adresine gönderildi.
               Lütfen e-postanızı kontrol edin.
             </Text>
-            <Button
-              title="Giriş Sayfasına Dön"
-              onPress={() => navigation.goBack()}
-              fullWidth
-              size="lg"
-              style={{ marginTop: 32 }}
-            />
+            <Button title="Giriş Sayfasına Dön" onPress={() => navigation.goBack()} fullWidth size="lg" style={{ marginTop: 32 }} />
           </View>
         ) : (
           <>
-            <Text className="text-3xl font-bold text-[#1A2E23] mb-3">Şifrenizi mi unuttunuz?</Text>
-            <Text className="text-lg text-[#5A7264] leading-relaxed mb-8">
+            <Text style={styles.title}>Şifrenizi mi unuttunuz?</Text>
+            <Text style={styles.description}>
               Kayıtlı e-posta adresinizi girin. Şifre sıfırlama bağlantısı göndereceğiz.
             </Text>
-            
-            <View className="mb-6">
-              <Input
-                label="E-posta"
-                placeholder="ornek@nutriai.com"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
+            <View style={styles.inputWrap}>
+              <Input label="E-posta" placeholder="ornek@nutriai.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
             </View>
-            
-            <Button
-              title="Sıfırlama Linki Gönder"
-              onPress={handleSend}
-              loading={loading}
-              disabled={!email.trim()}
-              fullWidth
-              size="lg"
-              style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-            />
+            <Button title="Sıfırlama Linki Gönder" onPress={handleSend} loading={loading} disabled={!email.trim()} fullWidth size="lg" style={styles.sendBtn} />
           </>
         )}
       </View>
@@ -81,4 +56,63 @@ export default function ForgotPasswordScreen() {
   )
 }
 
-// Stylesheet replaced with Tailwind CSS classes
+const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    backgroundColor: colors.background.default,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: fontWeights.bold,
+    color: colors.text.primary,
+    marginBottom: 12,
+  },
+  description: {
+    fontSize: 18,
+    color: colors.text.secondary,
+    lineHeight: 28,
+    marginBottom: 32,
+  },
+  inputWrap: {
+    marginBottom: 24,
+  },
+  sendBtn: {
+    shadowColor: colors.primary.main,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  successContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  successIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  successEmoji: {
+    fontSize: 36,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: fontWeights.bold,
+    color: colors.text.primary,
+    marginBottom: 8,
+  },
+  successText: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+})

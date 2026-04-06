@@ -16,44 +16,44 @@ export default function WelcomeScreen() {
 
   return (
     <ScreenWrapper scrollable={false} padded={false}>
-      <View className="flex-1 justify-between px-6 pt-16 pb-12 bg-[#F8FAF9]">
+      <View style={styles.container}>
         {/* Top brand area */}
-        <View className="items-center mt-8">
-          <View className="w-28 h-28 rounded-3xl bg-[#E8F5EC] items-center justify-center mb-6 shadow-sm border border-[#C8E6CF]/30">
+        <View style={styles.brandArea}>
+          <View style={styles.logoBox}>
             <Image
               source={require('../../../assets/logo-icon.png')}
-              className="w-16 h-16"
+              style={styles.logoImage}
               resizeMode="contain"
             />
           </View>
-          <Text className="text-4xl font-extrabold text-[#154D2E] tracking-tight">
-            Nutri<Text className="text-[#4ECDC4]">AI</Text>
+          <Text style={styles.brandTitle}>
+            Nutri<Text style={styles.brandAccent}>AI</Text>
           </Text>
-          <View className="w-10 h-1.5 rounded-full bg-[#A0D4AD] my-5" />
-          <Text className="text-sm font-medium text-[#5A7264] tracking-widest uppercase">
+          <View style={styles.divider} />
+          <Text style={styles.subtitle}>
             Akıllı Beslenme Asistanı
           </Text>
         </View>
 
         {/* Middle content */}
-        <View className="px-2 mt-4">
-          <Text className="text-3xl font-bold text-[#1A2E23] mb-4 leading-snug">
+        <View style={styles.middleContent}>
+          <Text style={styles.heroTitle}>
             Sağlıklı yaşam{'\n'}yolculuğunuz başlıyor
           </Text>
-          <Text className="text-lg text-[#5A7264] leading-relaxed">
+          <Text style={styles.heroDescription}>
             Diyetisyeninizle birlikte beslenme hedeflerinize ulaşın.
             AI destekli kişisel takip artık çok kolay.
           </Text>
         </View>
 
         {/* Bottom actions */}
-        <View className="gap-4 mt-8">
+        <View style={styles.actions}>
           <Button
             title="Giriş Yap"
             onPress={() => navigation.navigate('Login')}
             fullWidth
             size="lg"
-            style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+            style={styles.loginBtn}
           />
           <Button
             title="Yeni Hesap Oluştur"
@@ -61,7 +61,7 @@ export default function WelcomeScreen() {
             variant="outline"
             fullWidth
             size="lg"
-            style={{ backgroundColor: 'white' }}
+            style={styles.registerBtn}
           />
         </View>
       </View>
@@ -69,4 +69,90 @@ export default function WelcomeScreen() {
   )
 }
 
-// Stylesheet completely removed, refactored to Nativewind tailwind classes
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 64,
+    paddingBottom: 48,
+    backgroundColor: colors.background.default,
+  },
+  brandArea: {
+    alignItems: 'center',
+    marginTop: 32,
+  },
+  logoBox: {
+    width: 112,
+    height: 112,
+    borderRadius: 24,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: `${colors.primary[100]}50`,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  logoImage: {
+    width: 64,
+    height: 64,
+  },
+  brandTitle: {
+    fontSize: 36,
+    fontWeight: fontWeights.bold,
+    color: colors.primary[800],
+    letterSpacing: -0.5,
+  },
+  brandAccent: {
+    color: colors.secondary.main,
+  },
+  divider: {
+    width: 40,
+    height: 6,
+    borderRadius: 100,
+    backgroundColor: colors.primary[200],
+    marginVertical: 20,
+  },
+  subtitle: {
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
+    color: colors.text.secondary,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  middleContent: {
+    paddingHorizontal: 8,
+    marginTop: 16,
+  },
+  heroTitle: {
+    fontSize: 30,
+    fontWeight: fontWeights.bold,
+    color: colors.text.primary,
+    marginBottom: 16,
+    lineHeight: 38,
+  },
+  heroDescription: {
+    fontSize: 18,
+    color: colors.text.secondary,
+    lineHeight: 28,
+  },
+  actions: {
+    gap: 16,
+    marginTop: 32,
+  },
+  loginBtn: {
+    shadowColor: colors.primary[700],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  registerBtn: {
+    backgroundColor: 'white',
+  },
+})

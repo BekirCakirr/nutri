@@ -1,28 +1,18 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
+import { useAuthStore } from '../../stores/authStore'
+import { colors } from '../../theme/colors'
+import { spacing } from '../../theme/spacing'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
-const mockUser = {
-  name: 'Ahmet Yılmaz',
-  email: 'ahmet@email.com',
-  plan: 'Premium',
-  joinDate: 'Ocak 2026',
-  stats: { streak: 18, logged: 245, lost: 3.2 },
-}
-
-type MenuItem = {
-  icon: keyof typeof Ionicons.glyphMap
-  title: string
-  subtitle?: string
-  screen: keyof ProfileStackParamList
-  color: string
-}
+type MenuItem = { icon: keyof typeof Ionicons.glyphMap; title: string; subtitle?: string; screen: keyof ProfileStackParamList; color: string }
 
 const menuSections: { title: string; items: MenuItem[] }[] = [
   {
@@ -73,89 +63,75 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
 
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>()
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
+
+  const displayName = user?.name || 'Kullanıcı'
+  const displayEmail = user?.email || ''
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()
 
   return (
-    <ScreenWrapper padded={false} contentStyle={{ backgroundColor: '#F8F9FA' }}>
-      <ScrollView className="flex-1 bg-[#F8F9FA]" showsVerticalScrollIndicator={false}>
-        {/* Modern Dark Header Card wrapped in container */}
-        <View className="px-5 pt-6 pb-4">
-          <View className="bg-[#111827] rounded-[32px] p-6 shadow-xl shadow-black/20 overflow-hidden relative">
-            {/* Subtle glow circles for depth inside card */}
-            <View className="absolute -top-10 -right-10 w-40 h-40 bg-[#10B981] opacity-20 rounded-full blur-3xl" />
-            <View className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#3B82F6] opacity-20 rounded-full blur-3xl" />
-            
-            <View className="flex-row items-center relative z-10">
-              <View className="w-16 h-16 rounded-full bg-white/10 items-center justify-center mr-4 border border-white/20">
-                <Text className="text-2xl font-black text-white">
-                  {mockUser.name.split(' ').map(n => n[0]).join('')}
-                </Text>
+    <ScreenWrapper padded={false} contentStyle={{ backgroundColor: colors.background.default }}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
+        {/* Header Card */}
+        <View style={st.headerPad}>
+          <View style={st.headerCard}>
+            <View style={st.glowGreen} />
+            <View style={st.glowBlue} />
+            <View style={st.headerRow}>
+              <View style={st.avatar}>
+                <Text style={st.avatarText}>{initials}</Text>
               </View>
-              <View className="flex-1">
-                <Text className="text-[22px] font-bold text-white mb-0.5">{mockUser.name}</Text>
-                <Text className="text-sm text-gray-400 font-medium">{mockUser.email}</Text>
-                <View className="flex-row items-center mt-2">
-                  <View className="bg-[#10B981]/20 border border-[#10B981]/30 rounded-full px-2.5 py-1 flex-row items-center">
+              <View style={st.headerInfo}>
+                <Text style={st.headerName}>{displayName}</Text>
+                <Text style={st.headerEmail}>{displayEmail}</Text>
+                <View style={st.badgeRow}>
+                  <View style={st.premiumBadge}>
                     <Ionicons name="star" size={12} color="#10B981" />
-                    <Text className="text-xs font-bold text-[#10B981] ml-1 uppercase">{mockUser.plan}</Text>
+                    <Text style={st.premiumText}>PREMIUM</Text>
                   </View>
-                  <Text className="text-xs font-medium text-gray-500 ml-3">{mockUser.joinDate}'dan beri</Text>
                 </View>
               </View>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('EditProfile')}
-                className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/10"
-                activeOpacity={0.7}
-              >
+              <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={st.editBtn} activeOpacity={0.7}>
                 <Ionicons name="pencil" size={18} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-
-            {/* Stats row inside header */}
-            <View className="flex-row mt-6 gap-3 relative z-10">
-              <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 items-center">
-                <Text className="text-2xl font-black text-white">{mockUser.stats.streak}</Text>
-                <Text className="text-[10px] font-medium text-gray-400 mt-1 uppercase tracking-wider">Gün Serisi</Text>
-              </View>
-              <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 items-center">
-                <Text className="text-2xl font-black text-white">{mockUser.stats.logged}</Text>
-                <Text className="text-[10px] font-medium text-gray-400 mt-1 uppercase tracking-wider">Öğün Kaydı</Text>
-              </View>
-              <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 items-center">
-                <Text className="text-2xl font-black text-[#10B981]">{mockUser.stats.lost}</Text>
-                <Text className="text-[10px] font-medium text-gray-400 mt-1 uppercase tracking-wider">Kg Verildi</Text>
-              </View>
+            <View style={st.statsRow}>
+              {[
+                { value: '18', label: 'Gün Serisi' },
+                { value: '245', label: 'Öğün Kaydı' },
+                { value: '3.2', label: 'Kg Verildi', highlight: true },
+              ].map((stat, i) => (
+                <View key={i} style={st.statCard}>
+                  <Text style={[st.statValue, stat.highlight && st.statHighlight]}>{stat.value}</Text>
+                  <Text style={st.statLabel}>{stat.label}</Text>
+                </View>
+              ))}
             </View>
           </View>
         </View>
 
-        {/* Menu sections */}
-        <View className="px-5 pt-2 pb-6">
+        {/* Menu Sections */}
+        <View style={st.menuArea}>
           {menuSections.map((section, si) => (
-            <View key={si} className="mb-6">
-              <Text className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">
-                {section.title}
-              </Text>
-              <View className="bg-white rounded-[24px] border border-gray-100 shadow-sm shadow-black/5 overflow-hidden">
+            <View key={si} style={st.menuSection}>
+              <Text style={st.sectionTitle}>{section.title}</Text>
+              <View style={st.menuGroup}>
                 {section.items.map((item, ii) => (
                   <TouchableOpacity
                     key={ii}
-                    className={`flex-row items-center px-4 py-4 ${
-                      ii === section.items.length - 1 ? '' : 'border-b border-gray-100'
-                    }`}
+                    style={[st.menuItem, ii < section.items.length - 1 && st.menuItemBorder]}
                     activeOpacity={0.6}
                     onPress={() => navigation.navigate(item.screen)}
                   >
-                    <View
-                      className="w-10 h-10 rounded-xl items-center justify-center mr-4"
-                      style={{ backgroundColor: item.color + '15' }}
-                    >
+                    <View style={[st.menuIcon, { backgroundColor: item.color + '15' }]}>
                       <Ionicons name={item.icon} size={20} color={item.color} />
                     </View>
-                    <View className="flex-1 justify-center">
-                      <Text className="text-[16px] font-semibold text-gray-800">{item.title}</Text>
-                      {item.subtitle && <Text className="text-[13px] font-medium text-gray-500 mt-0.5">{item.subtitle}</Text>}
+                    <View style={st.menuTextArea}>
+                      <Text style={st.menuTitle}>{item.title}</Text>
+                      {item.subtitle && <Text style={st.menuSub}>{item.subtitle}</Text>}
                     </View>
-                    <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
+                    <View style={st.chevronWrap}>
                       <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                     </View>
                   </TouchableOpacity>
@@ -166,13 +142,46 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout */}
-        <TouchableOpacity 
-          className="mx-5 mb-10 bg-red-50 rounded-[24px] py-4 items-center border border-red-100" 
-          activeOpacity={0.7}
-        >
-          <Text className="text-[16px] font-bold text-red-500">Çıkış Yap</Text>
+        <TouchableOpacity style={st.logoutBtn} activeOpacity={0.7} onPress={() => logout()}>
+          <Text style={st.logoutText}>Çıkış Yap</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default },
+  headerPad: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16 },
+  headerCard: { backgroundColor: '#111827', borderRadius: 32, padding: 24, overflow: 'hidden' },
+  glowGreen: { position: 'absolute', top: -40, right: -40, width: 160, height: 160, backgroundColor: '#10B981', opacity: 0.2, borderRadius: 80 },
+  glowBlue: { position: 'absolute', bottom: -40, left: -40, width: 128, height: 128, backgroundColor: '#3B82F6', opacity: 0.2, borderRadius: 64 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', zIndex: 10 },
+  avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  avatarText: { fontSize: 24, fontWeight: fontWeights.bold, color: '#fff' },
+  headerInfo: { flex: 1 },
+  headerName: { fontSize: 22, fontWeight: fontWeights.bold, color: '#fff', marginBottom: 2 },
+  headerEmail: { fontSize: 14, fontWeight: fontWeights.medium, color: '#9CA3AF' },
+  badgeRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
+  premiumBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(16,185,129,0.2)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.3)', borderRadius: 100, paddingHorizontal: 10, paddingVertical: 4 },
+  premiumText: { fontSize: 12, fontWeight: fontWeights.bold, color: '#10B981', marginLeft: 4 },
+  editBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  statsRow: { flexDirection: 'row', marginTop: 24, gap: 12, zIndex: 10 },
+  statCard: { flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 16, padding: 16, alignItems: 'center' },
+  statValue: { fontSize: 24, fontWeight: fontWeights.bold, color: '#fff' },
+  statHighlight: { color: '#10B981' },
+  statLabel: { fontSize: 10, fontWeight: fontWeights.medium, color: '#9CA3AF', marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
+  menuArea: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24 },
+  menuSection: { marginBottom: 24 },
+  sectionTitle: { fontSize: 12, fontWeight: fontWeights.bold, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 12, marginLeft: 8 },
+  menuGroup: { backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#F3F4F6', overflow: 'hidden' },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16 },
+  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  menuIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+  menuTextArea: { flex: 1, justifyContent: 'center' },
+  menuTitle: { fontSize: 16, fontWeight: fontWeights.semibold, color: '#1F2937' },
+  menuSub: { fontSize: 13, fontWeight: fontWeights.medium, color: '#6B7280', marginTop: 2 },
+  chevronWrap: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F9FAFB', alignItems: 'center', justifyContent: 'center' },
+  logoutBtn: { marginHorizontal: 20, marginBottom: 40, backgroundColor: '#FEF2F2', borderRadius: 24, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: '#FECACA' },
+  logoutText: { fontSize: 16, fontWeight: fontWeights.bold, color: '#EF4444' },
+})
