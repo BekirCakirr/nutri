@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -10,12 +10,12 @@ export default function BarcodeScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Barkod Tara" onBack={() => navigation.goBack()} />
-      <View className="flex-1 bg-[#0A0A0A] items-center justify-center">
-        <View className="w-64 h-48 border-2 border-white/30 rounded-2xl items-center justify-center">
+      <View style={{ flex: 1, backgroundColor: '#0A0A0A', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 256, height: 192, borderWidth: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }} /* TODO: border-white/30 */>
           <Ionicons name="barcode-outline" size={64} color="rgba(255,255,255,0.4)" />
-          <Text className="text-white/50 text-sm mt-3">Barkodu çerçeveye alın</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginTop: 12 }}>Barkodu çerçeveye alın</Text>
         </View>
-        <Text className="text-white/30 text-xs mt-8 px-12 text-center">
+        <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, marginTop: 32, paddingHorizontal: 48, textAlign: 'center' }}>
           Ürün barkodunu tarayarak besin değerlerini otomatik olarak ekleyin
         </Text>
       </View>

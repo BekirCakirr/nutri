@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -41,14 +41,14 @@ export default function VitaminsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Vitamin & Mineral (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-sm text-[#5A7264]">Günlük Alım Durumu</Text>
-          <Text className="text-2xl font-extrabold text-[#1A2E23] mt-1">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 14, color: '#5A7264' }}>Günlük Alım Durumu</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>
             {adequate}/{mockVitamins.length} yeterli
           </Text>
-          <Text className="text-xs text-[#5A7264] mt-1">%80 ve üzeri yeterli kabul edilir</Text>
+          <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 4 }}>%80 ve üzeri yeterli kabul edilir</Text>
         </View>
 
         {/* Vitamins list */}
@@ -57,38 +57,36 @@ export default function VitaminsScreen() {
           const isLow = pct < 60
           const isOk = pct >= 80
           return (
-            <View key={i} className="bg-white rounded-xl p-4 mb-2.5 border border-[#E8F0EC]">
-              <View className="flex-row items-center mb-2.5">
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                 <View
-                  className="w-9 h-9 rounded-full items-center justify-center mr-3"
-                  style={{ backgroundColor: v.color + '20' }}
+                  style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: v.color + '20' }}
                 >
                   <Ionicons name={v.icon} size={18} color={v.color} />
                 </View>
-                <Text className="text-base font-semibold text-[#1A2E23] flex-1">{v.name}</Text>
-                <Text className="text-sm font-bold" style={{ color: isLow ? '#EF4444' : isOk ? '#1A5C37' : '#E8A040' }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23', flex: 1 }}>{v.name}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: isLow ? '#EF4444' : isOk ? '#1A5C37' : '#E8A040' }}>
                   %{Math.round(pct)}
                 </Text>
               </View>
               {/* Progress bar */}
-              <View className="h-2.5 bg-[#E8F0EC] rounded-full overflow-hidden">
+              <View style={{ backgroundColor: '#E8F0EC', borderRadius: 9999, overflow: 'hidden' }} /* TODO: h-2.5 */>
                 <View
-                  className="h-full rounded-full"
-                  style={{
+                  style={{ height: '100%', borderRadius: 9999,
                     width: `${pct}%`,
                     backgroundColor: isLow ? '#EF4444' : isOk ? '#1A5C37' : '#E8A040',
                   }}
                 />
               </View>
-              <View className="flex-row justify-between mt-1.5">
-                <Text className="text-xs text-[#5A7264]">{v.current} {v.unit}</Text>
-                <Text className="text-xs text-[#5A7264]">Hedef: {v.target} {v.unit}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{v.current} {v.unit}</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>Hedef: {v.target} {v.unit}</Text>
               </View>
             </View>
           )
         })}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

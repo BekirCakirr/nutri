@@ -1,9 +1,11 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Notification = {
   id: string
@@ -22,73 +24,6 @@ const mockNotifications: Notification[] = [
   { id: '5', title: 'Alerjen Uyarısı', message: 'Son taradığın üründe gluten tespit edildi!', time: 'Dün, 09:15', type: 'alert', read: true },
 ]
 
-export default function NotificationsScreen() {
-  const navigation = useNavigation()
-
-  const getIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'alert': return 'warning'
-      case 'success': return 'trophy'
-      case 'info': return 'chatbubble-ellipses'
-      case 'reminder': return 'water'
-      default: return 'notifications'
-    }
-  }
-
-  const getColor = (type: Notification['type']) => {
-    switch (type) {
-      case 'alert': return 'text-red-500 bg-red-100'
-      case 'success': return 'text-emerald-500 bg-emerald-100'
-      case 'info': return 'text-blue-500 bg-blue-100'
-      case 'reminder': return 'text-blue-400 bg-blue-50'
-      default: return 'text-[#1A5C37] bg-emerald-50'
-    }
-  }
-
-  return (
-    <ScreenWrapper padded={false} scrollable={false}>
-      <AppHeader
-        title="Bildirimler"
-        onBack={() => navigation.goBack()}
-        rightIcon="checkmark-done-outline"
-        onRightPress={() => {}}
-      />
-      
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-4 pt-4" showsVerticalScrollIndicator={false}>
-        <View className="space-y-3 pb-8">
-          {mockNotifications.map((noti) => (
-             <TouchableOpacity 
-               key={noti.id} 
-               className={`flex-row p-4 rounded-2xl border ${noti.read ? 'bg-white border-[#E8F0EC]' : 'bg-[#E8F5EC] border-[#1A5C37]/20'} shadow-sm`}
-               activeOpacity={0.7}
-             >
-                <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${getColor(noti.type).split(' ')[1]}`}>
-                  <Ionicons name={getIcon(noti.type)} size={24} color={getTypeColor(noti.type)} />
-                </View>
-                
-                <View className="flex-1">
-                   <View className="flex-row items-start justify-between mb-1">
-                      <Text className={`font-bold flex-1 pr-2 ${noti.read ? 'text-[#1A2E23]' : 'text-[#1A5C37]'}`}>
-                        {noti.title}
-                      </Text>
-                      <Text className="text-[10px] text-[#A8BFB2]">{noti.time}</Text>
-                   </View>
-                   <Text className={`tracking-wide text-[13px] leading-5 ${noti.read ? 'text-[#5A7264]' : 'text-[#1A2E23] font-medium'}`}>
-                     {noti.message}
-                   </Text>
-                </View>
-
-                {!noti.read && (
-                  <View className="absolute top-4 right-4 w-2 h-2 rounded-full bg-[#EF4444]" />
-                )}
-             </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-    </ScreenWrapper>
-  )
-}
-
 function getTypeColor(type: string) {
   switch (type) {
     case 'alert': return '#EF4444'
@@ -98,3 +33,85 @@ function getTypeColor(type: string) {
     default: return '#1A5C37'
   }
 }
+
+function getTypeBg(type: string) {
+  switch (type) {
+    case 'alert': return '#FEE2E2'
+    case 'success': return '#D1FAE5'
+    case 'info': return '#DBEAFE'
+    case 'reminder': return '#EFF6FF'
+    default: return '#E8F5EC'
+  }
+}
+
+function getIcon(type: Notification['type']): keyof typeof Ionicons.glyphMap {
+  switch (type) {
+    case 'alert': return 'warning'
+    case 'success': return 'trophy'
+    case 'info': return 'chatbubble-ellipses'
+    case 'reminder': return 'water'
+    default: return 'notifications'
+  }
+}
+
+export default function NotificationsScreen() {
+  const navigation = useNavigation()
+
+  return (
+    <ScreenWrapper padded={false} scrollable={false}>
+      <AppHeader
+        title="Bildirimler"
+        onBack={() => navigation.goBack()}
+        rightIcon="checkmark-done-outline"
+        onRightPress={() => {}}
+      />
+
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
+        <View style={st.list}>
+          {mockNotifications.map((noti) => (
+            <TouchableOpacity
+              key={noti.id}
+              style={[st.card, noti.read ? st.cardRead : st.cardUnread]}
+              activeOpacity={0.7}
+            >
+              <View style={[st.iconWrap, { backgroundColor: getTypeBg(noti.type) }]}>
+                <Ionicons name={getIcon(noti.type)} size={24} color={getTypeColor(noti.type)} />
+              </View>
+
+              <View style={st.cardContent}>
+                <View style={st.cardTopRow}>
+                  <Text style={[st.cardTitle, !noti.read && st.cardTitleUnread]} numberOfLines={1}>
+                    {noti.title}
+                  </Text>
+                  <Text style={st.cardTime}>{noti.time}</Text>
+                </View>
+                <Text style={[st.cardMessage, !noti.read && st.cardMessageUnread]}>
+                  {noti.message}
+                </Text>
+              </View>
+
+              {!noti.read && <View style={st.unreadDot} />}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </ScreenWrapper>
+  )
+}
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 16, paddingTop: 16 },
+  list: { gap: 12, paddingBottom: 32 },
+  card: { flexDirection: 'row', padding: 16, borderRadius: 16, borderWidth: 1, position: 'relative' },
+  cardRead: { backgroundColor: '#FFFFFF', borderColor: '#E8F0EC' },
+  cardUnread: { backgroundColor: colors.primary[50], borderColor: `${colors.primary.main}33` },
+  iconWrap: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+  cardContent: { flex: 1 },
+  cardTopRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4 },
+  cardTitle: { fontWeight: fontWeights.bold, fontSize: 14, color: colors.text.primary, flex: 1, paddingRight: 8 },
+  cardTitleUnread: { color: colors.primary.main },
+  cardTime: { fontSize: 10, color: colors.text.disabled },
+  cardMessage: { fontSize: 13, lineHeight: 20, letterSpacing: 0.3, color: colors.text.secondary },
+  cardMessageUnread: { color: colors.text.primary, fontWeight: fontWeights.medium },
+  unreadDot: { position: 'absolute', top: 16, right: 16, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444' },
+})

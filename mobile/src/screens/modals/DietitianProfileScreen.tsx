@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -33,81 +33,80 @@ export default function DietitianProfileScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Diyetisyen Profili" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Profile header */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4 items-center">
-          <View className="w-20 h-20 rounded-full bg-[#4ECDC4]/20 items-center justify-center mb-3">
-            <Text className="text-3xl">👩‍⚕️</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ width: 80, height: 80, borderRadius: 9999, backgroundColor: '#4ECDC433', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <Text style={{ fontSize: 30 }}>👩‍⚕️</Text>
           </View>
-          <Text className="text-xl font-bold text-[#1A2E23]">{mockDietitian.name}</Text>
-          <Text className="text-sm text-[#5A7264] mt-0.5">{mockDietitian.specialty}</Text>
+          <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>{mockDietitian.name}</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264', marginTop: 2 }}>{mockDietitian.specialty}</Text>
 
           {/* Stats row */}
-          <View className="flex-row mt-4 gap-4">
-            <View className="items-center">
-              <View className="flex-row items-center">
+          <View style={{ flexDirection: 'row', marginTop: 16, gap: 16 }}>
+            <View style={{ alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="star" size={14} color="#F59E0B" />
-                <Text className="text-lg font-bold text-[#1A2E23] ml-1">{mockDietitian.rating}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginLeft: 4 }}>{mockDietitian.rating}</Text>
               </View>
-              <Text className="text-[10px] text-[#5A7264]">{mockDietitian.reviews} değerlendirme</Text>
+              <Text style={{ fontSize: 10, color: '#5A7264' }}>{mockDietitian.reviews} değerlendirme</Text>
             </View>
-            <View className="w-px bg-[#E8F0EC]" />
-            <View className="items-center">
-              <Text className="text-lg font-bold text-[#1A2E23]">{mockDietitian.experience}</Text>
-              <Text className="text-[10px] text-[#5A7264]">Deneyim</Text>
+            <View style={{ backgroundColor: '#E8F0EC' }} /* TODO: w-px *//>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{mockDietitian.experience}</Text>
+              <Text style={{ fontSize: 10, color: '#5A7264' }}>Deneyim</Text>
             </View>
-            <View className="w-px bg-[#E8F0EC]" />
-            <View className="items-center">
-              <Text className="text-lg font-bold text-[#1A2E23]">{mockDietitian.patients}+</Text>
-              <Text className="text-[10px] text-[#5A7264]">Hasta</Text>
+            <View style={{ backgroundColor: '#E8F0EC' }} /* TODO: w-px *//>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{mockDietitian.patients}+</Text>
+              <Text style={{ fontSize: 10, color: '#5A7264' }}>Hasta</Text>
             </View>
           </View>
         </View>
 
         {/* Bio */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-2">Hakkında</Text>
-          <Text className="text-sm text-[#5A7264] leading-5">{mockDietitian.bio}</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 8 }}>Hakkında</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264', lineHeight: 20 }}>{mockDietitian.bio}</Text>
         </View>
 
         {/* Education */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-2">Eğitim</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 8 }}>Eğitim</Text>
           {mockDietitian.education.map((e, i) => (
-            <View key={i} className="flex-row items-start mb-1.5">
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 6 }}>
               <Ionicons name="school-outline" size={14} color="#1A5C37" style={{ marginTop: 2 }} />
-              <Text className="text-sm text-[#5A7264] ml-2 flex-1">{e}</Text>
+              <Text style={{ fontSize: 14, color: '#5A7264', marginLeft: 8, flex: 1 }}>{e}</Text>
             </View>
           ))}
         </View>
 
         {/* Certifications */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-2">Sertifikalar</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 8 }}>Sertifikalar</Text>
           {mockDietitian.certifications.map((c, i) => (
-            <View key={i} className="flex-row items-center mb-1.5">
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
               <Ionicons name="ribbon-outline" size={14} color="#E8A040" />
-              <Text className="text-sm text-[#5A7264] ml-2">{c}</Text>
+              <Text style={{ fontSize: 14, color: '#5A7264', marginLeft: 8 }}>{c}</Text>
             </View>
           ))}
         </View>
 
         {/* Price & CTA */}
-        <View className="bg-[#E8F5EC] rounded-2xl p-5 mb-4 border border-[#C8E6CF]/40">
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-sm text-[#5A7264]">Seans Ücreti</Text>
-            <Text className="text-xl font-extrabold text-[#1A2E23]">{mockDietitian.price}</Text>
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#C8E6CF66' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={{ fontSize: 14, color: '#5A7264' }}>Seans Ücreti</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23' }}>{mockDietitian.price}</Text>
           </View>
           <TouchableOpacity
-            className="bg-[#1A5C37] rounded-xl py-4 items-center"
-            style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+            style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
             activeOpacity={0.8}
           >
-            <Text className="text-base font-semibold text-white">📅 Randevu Al</Text>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>📅 Randevu Al</Text>
           </TouchableOpacity>
         </View>
 
-        <View className="h-4" />
+        <View style={{ height: 16 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

@@ -1,20 +1,17 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
-type Allergy = {
-  id: string
-  name: string
-  severity: 'Yüksek' | 'Orta' | 'Düşük'
-  icon: string
-}
+type Allergy = { id: string; name: string; severity: 'Yüksek' | 'Orta' | 'Düşük'; icon: string }
 
 const mockAllergies: Allergy[] = [
   { id: '1', name: 'Fıstık', severity: 'Yüksek', icon: '🥜' },
@@ -40,37 +37,37 @@ function severityColor(s: string) {
 
 export default function AllergyManagementScreen() {
   const navigation = useNavigation<Nav>()
-  const [allergies, setAllergies] = useState(mockAllergies)
+  const [allergies] = useState(mockAllergies)
 
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Alerji Yönetimi" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Info card */}
-        <View className="bg-[#FEF3C7] rounded-2xl p-4 mb-4 flex-row items-center border border-[#F59E0B]/20">
+        <View style={st.warningCard}>
           <Ionicons name="warning-outline" size={22} color="#E8A040" />
-          <View className="flex-1 ml-3">
-            <Text className="text-sm font-bold text-[#1A2E23]">Alerji Uyarısı Aktif</Text>
-            <Text className="text-xs text-[#5A7264]">Yemek eklerken alerjen içeren besinler işaretlenecek.</Text>
+          <View style={st.warningTextArea}>
+            <Text style={st.warningTitle}>Alerji Uyarısı Aktif</Text>
+            <Text style={st.warningDesc}>Yemek eklerken alerjen içeren besinler işaretlenecek.</Text>
           </View>
         </View>
 
         {/* Current allergies */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Alerjilerim ({allergies.length})</Text>
+        <Text style={st.sectionTitle}>Alerjilerim ({allergies.length})</Text>
         {allergies.map((a) => {
           const sc = severityColor(a.severity)
           return (
-            <View key={a.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-              <Text className="text-xl mr-3">{a.icon}</Text>
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-[#1A2E23]">{a.name}</Text>
-                <View className="flex-row items-center mt-0.5">
-                  <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: sc.bg }}>
-                    <Text className="text-[10px] font-bold" style={{ color: sc.color }}>{a.severity}</Text>
+            <View key={a.id} style={st.allergyCard}>
+              <Text style={st.allergyEmoji}>{a.icon}</Text>
+              <View style={st.allergyContent}>
+                <Text style={st.allergyName}>{a.name}</Text>
+                <View style={st.severityRow}>
+                  <View style={[st.severityBadge, { backgroundColor: sc.bg }]}>
+                    <Text style={[st.severityText, { color: sc.color }]}>{a.severity}</Text>
                   </View>
                 </View>
               </View>
-              <TouchableOpacity className="p-2">
+              <TouchableOpacity style={st.deleteBtn}>
                 <Ionicons name="trash-outline" size={18} color="#EF4444" />
               </TouchableOpacity>
             </View>
@@ -78,30 +75,45 @@ export default function AllergyManagementScreen() {
         })}
 
         {/* Common allergens to add */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3 mt-4">Yaygın Alerjenler</Text>
-        <View className="flex-row flex-wrap mb-4">
+        <Text style={[st.sectionTitle, { marginTop: 16 }]}>Yaygın Alerjenler</Text>
+        <View style={st.chipWrap}>
           {commonAllergens.map((a, i) => (
-            <TouchableOpacity
-              key={i}
-              className="bg-white rounded-xl px-3.5 py-2.5 mr-2 mb-2 border border-[#E8F0EC] flex-row items-center"
-              activeOpacity={0.7}
-            >
-              <Text className="mr-1.5">{a.icon}</Text>
-              <Text className="text-sm text-[#1A2E23]">{a.name}</Text>
-              <Ionicons name="add" size={16} color="#1A5C37" className="ml-1" />
+            <TouchableOpacity key={i} style={st.chip} activeOpacity={0.7}>
+              <Text style={st.chipEmoji}>{a.icon}</Text>
+              <Text style={st.chipText}>{a.name}</Text>
+              <Ionicons name="add" size={16} color={colors.primary.main} style={{ marginLeft: 4 }} />
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Add custom */}
-        <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-          activeOpacity={0.8}
-        >
-          <Text className="text-base font-semibold text-white">+ Özel Alerjen Ekle</Text>
+        <TouchableOpacity style={st.primaryBtn} activeOpacity={0.8}>
+          <Text style={st.primaryBtnText}>+ Özel Alerjen Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  warningCard: { backgroundColor: '#FEF3C7', borderRadius: 16, padding: 16, marginBottom: 16, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)' },
+  warningTextArea: { flex: 1, marginLeft: 12 },
+  warningTitle: { fontSize: 14, fontWeight: fontWeights.bold, color: colors.text.primary },
+  warningDesc: { fontSize: 12, color: colors.text.secondary },
+  sectionTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  allergyCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  allergyEmoji: { fontSize: 20, marginRight: 12 },
+  allergyContent: { flex: 1 },
+  allergyName: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  severityRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
+  severityBadge: { borderRadius: 100, paddingHorizontal: 8, paddingVertical: 2 },
+  severityText: { fontSize: 10, fontWeight: fontWeights.bold },
+  deleteBtn: { padding: 8 },
+  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
+  chip: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' },
+  chipEmoji: { marginRight: 6 },
+  chipText: { fontSize: 14, color: colors.text.primary },
+  primaryBtn: { backgroundColor: colors.primary.main, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 32, shadowColor: colors.primary.main, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  primaryBtnText: { fontSize: 16, fontWeight: fontWeights.semibold, color: '#fff' },
+})

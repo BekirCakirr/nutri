@@ -1,21 +1,17 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
 type Achievement = {
-  id: string
-  title: string
-  desc: string
-  icon: string
-  earned: boolean
-  date?: string
+  id: string; title: string; desc: string; icon: string; earned: boolean; date?: string
   progress?: { current: number; total: number }
 }
 
@@ -39,54 +35,71 @@ export default function AchievementsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Başarılar" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View className="bg-[#1A2E23] rounded-2xl p-5 mb-4 items-center">
-          <Text className="text-4xl mb-2">🏆</Text>
-          <Text className="text-2xl font-extrabold text-white">{earned}/{mockAchievements.length}</Text>
-          <Text className="text-sm text-white/50">Başarı Kazanıldı</Text>
+        <View style={st.summaryCard}>
+          <Text style={st.summaryEmoji}>🏆</Text>
+          <Text style={st.summaryValue}>{earned}/{mockAchievements.length}</Text>
+          <Text style={st.summaryLabel}>Başarı Kazanıldı</Text>
         </View>
 
         {/* Earned */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Kazanılan ✅</Text>
+        <Text style={st.sectionTitle}>Kazanılan ✅</Text>
         {mockAchievements.filter(a => a.earned).map((a) => (
-          <View key={a.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-            <Text className="text-2xl mr-3">{a.icon}</Text>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{a.title}</Text>
-              <Text className="text-xs text-[#5A7264]">{a.desc}</Text>
+          <View key={a.id} style={st.earnedCard}>
+            <Text style={st.cardEmoji}>{a.icon}</Text>
+            <View style={st.cardContent}>
+              <Text style={st.cardTitle}>{a.title}</Text>
+              <Text style={st.cardDesc}>{a.desc}</Text>
             </View>
-            <Text className="text-xs text-[#1A5C37] font-bold">{a.date}</Text>
+            <Text style={st.earnedDate}>{a.date}</Text>
           </View>
         ))}
 
         {/* In progress */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3 mt-4">Devam Eden 🔄</Text>
+        <Text style={[st.sectionTitle, { marginTop: 16 }]}>Devam Eden 🔄</Text>
         {mockAchievements.filter(a => !a.earned).map((a) => (
-          <View key={a.id} className="bg-white rounded-xl p-4 mb-2.5 border border-[#E8F0EC]">
-            <View className="flex-row items-center mb-2">
-              <Text className="text-xl mr-3 opacity-50">{a.icon}</Text>
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-[#1A2E23]">{a.title}</Text>
-                <Text className="text-xs text-[#5A7264]">{a.desc}</Text>
+          <View key={a.id} style={st.progressCard}>
+            <View style={st.progressCardTop}>
+              <Text style={[st.cardEmoji, { opacity: 0.5 }]}>{a.icon}</Text>
+              <View style={st.cardContent}>
+                <Text style={st.cardTitle}>{a.title}</Text>
+                <Text style={st.cardDesc}>{a.desc}</Text>
               </View>
             </View>
             {a.progress && (
               <>
-                <View className="h-2 bg-[#E8F0EC] rounded-full overflow-hidden">
-                  <View
-                    className="h-full bg-[#E8A040] rounded-full"
-                    style={{ width: `${(a.progress.current / a.progress.total) * 100}%` }}
-                  />
+                <View style={st.progressBarBg}>
+                  <View style={[st.progressBarFill, { width: `${(a.progress.current / a.progress.total) * 100}%` }]} />
                 </View>
-                <Text className="text-xs text-[#5A7264] mt-1">{a.progress.current}/{a.progress.total}</Text>
+                <Text style={st.progressText}>{a.progress.current}/{a.progress.total}</Text>
               </>
             )}
           </View>
         ))}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }} />
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  summaryCard: { backgroundColor: '#1A2E23', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
+  summaryEmoji: { fontSize: 40, marginBottom: 8 },
+  summaryValue: { fontSize: 28, fontWeight: fontWeights.extrabold, color: '#fff' },
+  summaryLabel: { fontSize: 14, color: 'rgba(255,255,255,0.5)' },
+  sectionTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  earnedCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  cardEmoji: { fontSize: 24, marginRight: 12 },
+  cardContent: { flex: 1 },
+  cardTitle: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  cardDesc: { fontSize: 12, color: colors.text.secondary },
+  earnedDate: { fontSize: 12, fontWeight: fontWeights.bold, color: colors.primary.main },
+  progressCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  progressCardTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  progressBarBg: { height: 8, backgroundColor: '#E8F0EC', borderRadius: 4, overflow: 'hidden' },
+  progressBarFill: { height: '100%', backgroundColor: '#E8A040', borderRadius: 4 },
+  progressText: { fontSize: 12, color: colors.text.secondary, marginTop: 4 },
+})

@@ -1,11 +1,13 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
@@ -31,7 +33,6 @@ const mockGoals: Goal[] = [
   { id: '9', title: 'Egzersiz Hedefi', category: 'Aktivite', value: '4 gün / hafta', icon: 'barbell-outline', color: '#C75B4A', editable: true },
 ]
 
-// Group by category
 const grouped: Record<string, Goal[]> = {}
 mockGoals.forEach(g => {
   if (!grouped[g.category]) grouped[g.category] = []
@@ -44,41 +45,35 @@ export default function GoalsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Hedeflerim" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Info */}
-        <View className="bg-[#E8F5EC] rounded-2xl p-4 mb-4 flex-row items-center border border-[#C8E6CF]/40">
-          <Ionicons name="information-circle-outline" size={20} color="#1A5C37" />
-          <Text className="flex-1 text-xs text-[#5A7264] ml-2">
+        <View style={st.infoCard}>
+          <Ionicons name="information-circle-outline" size={20} color={colors.primary.main} />
+          <Text style={st.infoText}>
             Hedefleriniz yapay zeka önerilerine göre otomatik hesaplanır. Dilediğiniz zaman düzenleyebilirsiniz.
           </Text>
         </View>
 
         {/* Grouped goals */}
         {Object.entries(grouped).map(([category, goals]) => (
-          <View key={category} className="mb-4">
-            <Text className="text-xs font-bold text-[#5A7264] uppercase tracking-wide mb-2 ml-1">
-              {category}
-            </Text>
-            <View className="bg-white rounded-2xl border border-[#E8F0EC] overflow-hidden">
+          <View key={category} style={st.section}>
+            <Text style={st.sectionTitle}>{category}</Text>
+            <View style={st.sectionCard}>
               {goals.map((goal, i) => (
                 <TouchableOpacity
                   key={goal.id}
-                  className="flex-row items-center px-4 py-3.5 border-b border-[#E8F0EC]"
-                  style={i === goals.length - 1 ? { borderBottomWidth: 0 } : {}}
+                  style={[st.menuItem, i < goals.length - 1 && st.menuItemBorder]}
                   activeOpacity={0.6}
                 >
-                  <View
-                    className="w-9 h-9 rounded-full items-center justify-center mr-3"
-                    style={{ backgroundColor: goal.color + '18' }}
-                  >
+                  <View style={[st.menuIcon, { backgroundColor: goal.color + '18' }]}>
                     <Ionicons name={goal.icon} size={18} color={goal.color} />
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-[15px] font-semibold text-[#1A2E23]">{goal.title}</Text>
+                  <View style={st.menuTextArea}>
+                    <Text style={st.menuTitle}>{goal.title}</Text>
                   </View>
-                  <View className="flex-row items-center">
-                    <Text className="text-sm font-bold text-[#1A2E23] mr-1">{goal.value}</Text>
-                    <Ionicons name="pencil-outline" size={14} color="#D4E2DA" />
+                  <View style={st.valueRow}>
+                    <Text style={st.valueText}>{goal.value}</Text>
+                    <Ionicons name="pencil-outline" size={14} color={colors.border} />
                   </View>
                 </TouchableOpacity>
               ))}
@@ -87,21 +82,34 @@ export default function GoalsScreen() {
         ))}
 
         {/* AI recalculate */}
-        <TouchableOpacity
-          className="bg-white border-2 border-[#1A5C37] rounded-xl py-4 items-center mb-3"
-          activeOpacity={0.8}
-        >
-          <Text className="text-base font-semibold text-[#1A5C37]">🤖 AI ile Yeniden Hesapla</Text>
+        <TouchableOpacity style={st.outlineBtn} activeOpacity={0.8}>
+          <Text style={st.outlineBtnText}>🤖 AI ile Yeniden Hesapla</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-          activeOpacity={0.8}
-        >
-          <Text className="text-base font-semibold text-white">+ Özel Hedef Ekle</Text>
+        <TouchableOpacity style={st.primaryBtn} activeOpacity={0.8}>
+          <Text style={st.primaryBtnText}>+ Özel Hedef Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  infoCard: { backgroundColor: colors.primary[50], borderRadius: 16, padding: 16, marginBottom: 16, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: `${colors.primary[100]}66` },
+  infoText: { flex: 1, fontSize: 12, color: colors.text.secondary, marginLeft: 8 },
+  section: { marginBottom: 16 },
+  sectionTitle: { fontSize: 12, fontWeight: fontWeights.bold, color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, marginLeft: 4 },
+  sectionCard: { backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden' },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
+  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#E8F0EC' },
+  menuIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  menuTextArea: { flex: 1 },
+  menuTitle: { fontSize: 15, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  valueRow: { flexDirection: 'row', alignItems: 'center' },
+  valueText: { fontSize: 14, fontWeight: fontWeights.bold, color: colors.text.primary, marginRight: 4 },
+  outlineBtn: { backgroundColor: '#fff', borderWidth: 2, borderColor: colors.primary.main, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 12 },
+  outlineBtnText: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.primary.main },
+  primaryBtn: { backgroundColor: colors.primary.main, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 32, shadowColor: colors.primary.main, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  primaryBtnText: { fontSize: 16, fontWeight: fontWeights.semibold, color: '#fff' },
+})

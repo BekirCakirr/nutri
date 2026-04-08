@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -43,25 +43,25 @@ export default function MacroTrackingScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Makro Takibi (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Total calories from macros */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4 items-center">
-          <Text className="text-sm text-[#5A7264]">Makrolardan Kalori</Text>
-          <Text className="text-3xl font-extrabold text-[#1A2E23] mt-1">{totalCal} kcal</Text>
-          <Text className="text-xs text-[#5A7264] mt-0.5">Hedef: {targetCal} kcal</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 14, color: '#5A7264' }}>Makrolardan Kalori</Text>
+          <Text style={{ fontSize: 30, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{totalCal} kcal</Text>
+          <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>Hedef: {targetCal} kcal</Text>
         </View>
 
         {/* Macro donut (simplified with bars) */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-4">Bugün</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Bugün</Text>
 
           {/* Distribution bar */}
-          <View className="h-4 bg-[#E8F0EC] rounded-full overflow-hidden flex-row mb-4">
+          <View style={{ height: 16, backgroundColor: '#E8F0EC', borderRadius: 9999, overflow: 'hidden', flexDirection: 'row', marginBottom: 16 }}>
             {macros.map((m, i) => (
               <View
                 key={i}
-                className="h-full"
                 style={{
+                  height: '100%',
                   width: `${(m.calories / totalCal) * 100}%`,
                   backgroundColor: m.color,
                 }}
@@ -70,12 +70,12 @@ export default function MacroTrackingScreen() {
           </View>
 
           {/* Legend */}
-          <View className="flex-row justify-between">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {macros.map((m, i) => (
-              <View key={i} className="items-center">
-                <View className="w-3 h-3 rounded-full mb-1" style={{ backgroundColor: m.color }} />
-                <Text className="text-xs font-semibold text-[#1A2E23]">{m.name}</Text>
-                <Text className="text-xs text-[#5A7264]">
+              <View key={i} style={{ alignItems: 'center' }}>
+                <View style={{ width: 12, height: 12, borderRadius: 9999, marginBottom: 4, backgroundColor: m.color }} />
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#1A2E23' }}>{m.name}</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>
                   {Math.round((m.calories / totalCal) * 100)}%
                 </Text>
               </View>
@@ -87,46 +87,45 @@ export default function MacroTrackingScreen() {
         {macros.map((m, i) => {
           const pct = Math.min((m.current / m.target) * 100, 100)
           return (
-            <View key={i} className="bg-white rounded-xl p-4 mb-3 border border-[#E8F0EC]">
-              <View className="flex-row justify-between items-center mb-2">
-                <View className="flex-row items-center">
-                  <View className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: m.color }} />
-                  <Text className="text-base font-semibold text-[#1A2E23]">{m.name}</Text>
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 12, height: 12, borderRadius: 9999, marginRight: 8, backgroundColor: m.color }} />
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{m.name}</Text>
                 </View>
-                <Text className="text-base font-bold" style={{ color: m.color }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: m.color }}>
                   {m.current}g / {m.target}g
                 </Text>
               </View>
-              <View className="h-3 bg-[#E8F0EC] rounded-full overflow-hidden">
+              <View style={{ height: 12, backgroundColor: '#E8F0EC', borderRadius: 9999, overflow: 'hidden' }}>
                 <View
-                  className="h-full rounded-full"
-                  style={{ width: `${pct}%`, backgroundColor: m.color }}
+                  style={{ height: '100%', borderRadius: 9999, width: `${pct}%`, backgroundColor: m.color }}
                 />
               </View>
-              <View className="flex-row justify-between mt-1.5">
-                <Text className="text-xs text-[#5A7264]">%{Math.round(pct)}</Text>
-                <Text className="text-xs text-[#5A7264]">{m.calories} kcal</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>%{Math.round(pct)}</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{m.calories} kcal</Text>
               </View>
             </View>
           )
         })}
 
         {/* Weekly table */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-8 mt-2">
-          <Text className="text-base font-bold text-[#1A2E23] mb-3">Haftalık Özet</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32, marginTop: 8 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Haftalık Özet</Text>
           {/* Header */}
-          <View className="flex-row pb-2 mb-2 border-b border-[#E8F0EC]">
-            <Text className="flex-1 text-xs font-bold text-[#5A7264]">Gün</Text>
-            <Text className="w-16 text-xs font-bold text-center" style={{ color: '#C75B4A' }}>P</Text>
-            <Text className="w-16 text-xs font-bold text-center" style={{ color: '#4A7FB5' }}>K</Text>
-            <Text className="w-16 text-xs font-bold text-center" style={{ color: '#D4A843' }}>Y</Text>
+          <View style={{ flexDirection: 'row', paddingBottom: 8, marginBottom: 8, borderBottomWidth: 1, borderColor: '#E8F0EC' }}>
+            <Text style={{ flex: 1, fontSize: 12, fontWeight: '700', color: '#5A7264' }}>Gün</Text>
+            <Text style={{ width: 64, fontSize: 12, fontWeight: '700', textAlign: 'center', color: '#C75B4A' }}>P</Text>
+            <Text style={{ width: 64, fontSize: 12, fontWeight: '700', textAlign: 'center', color: '#4A7FB5' }}>K</Text>
+            <Text style={{ width: 64, fontSize: 12, fontWeight: '700', textAlign: 'center', color: '#D4A843' }}>Y</Text>
           </View>
           {weeklyMacros.map((w, i) => (
-            <View key={i} className="flex-row py-1.5">
-              <Text className="flex-1 text-sm text-[#1A2E23] font-semibold">{w.day}</Text>
-              <Text className="w-16 text-sm text-center text-[#1A2E23]">{w.protein}g</Text>
-              <Text className="w-16 text-sm text-center text-[#1A2E23]">{w.carbs}g</Text>
-              <Text className="w-16 text-sm text-center text-[#1A2E23]">{w.fat}g</Text>
+            <View key={i} style={{ flexDirection: 'row', paddingVertical: 6 }}>
+              <Text style={{ flex: 1, fontSize: 14, color: '#1A2E23', fontWeight: '600' }}>{w.day}</Text>
+              <Text style={{ width: 64, fontSize: 14, textAlign: 'center', color: '#1A2E23' }}>{w.protein}g</Text>
+              <Text style={{ width: 64, fontSize: 14, textAlign: 'center', color: '#1A2E23' }}>{w.carbs}g</Text>
+              <Text style={{ width: 64, fontSize: 14, textAlign: 'center', color: '#1A2E23' }}>{w.fat}g</Text>
             </View>
           ))}
         </View>

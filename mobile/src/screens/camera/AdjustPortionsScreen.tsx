@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -31,37 +31,35 @@ export default function AdjustPortionsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Porsiyon Ayarla" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
-        <View className="bg-[#E8F5EC] rounded-2xl p-4 mb-6 items-center border border-[#C8E6CF]/40">
-          <Text className="text-sm font-medium text-[#5A7264]">Toplam</Text>
-          <Text className="text-4xl font-extrabold text-[#1A5C37]">{totalCal}</Text>
-          <Text className="text-sm text-[#5A7264]">kcal</Text>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 24, alignItems: 'center', borderWidth: 1, borderColor: '#C8E6CF66' }}>
+          <Text style={{ fontSize: 14, fontWeight: '500', color: '#5A7264' }}>Toplam</Text>
+          <Text style={{ fontSize: 36, fontWeight: '800', color: '#1A5C37' }}>{totalCal}</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264' }}>kcal</Text>
         </View>
 
         {items.map((item) => {
           const step = item.unit === 'g' ? 25 : 0.5
           return (
-            <View key={item.id} className="bg-white rounded-2xl p-4 mb-3 border border-[#E8F0EC]">
-              <View className="flex-row justify-between items-start mb-3">
-                <Text className="text-base font-semibold text-[#1A2E23] flex-1">{item.name}</Text>
-                <Text className="text-base font-bold text-[#1A5C37]">{item.calories} kcal</Text>
+            <View key={item.id} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23', flex: 1 }}>{item.name}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A5C37' }}>{item.calories} kcal</Text>
               </View>
-              <View className="flex-row items-center justify-center gap-5">
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
                 <TouchableOpacity
                   onPress={() => adjustPortion(item.id, -step)}
-                  className="w-11 h-11 rounded-full bg-[#FEE2E2] items-center justify-center"
-                >
+                  style={{ width: 44, height: 44, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name="remove" size={22} color="#EF4444" />
                 </TouchableOpacity>
-                <View className="bg-[#F0F5F2] rounded-xl px-5 py-2 min-w-[100px] items-center">
-                  <Text className="text-xl font-bold text-[#1A2E23]">
+                <View style={{ backgroundColor: '#F0F5F2', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 8, alignItems: 'center' }} /* TODO: min-w-[100px] */>
+                  <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>
                     {item.portion}{item.unit}
                   </Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => adjustPortion(item.id, step)}
-                  className="w-11 h-11 rounded-full bg-[#E8F5EC] items-center justify-center"
-                >
+                  style={{ width: 44, height: 44, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name="add" size={22} color="#1A5C37" />
                 </TouchableOpacity>
               </View>
@@ -70,11 +68,10 @@ export default function AdjustPortionsScreen() {
         })}
 
         <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mt-4 mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 16, marginBottom: 32, shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
           onPress={() => navigation.goBack()}
         >
-          <Text className="text-base font-semibold text-white">Onayla ve Kaydet ✅</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>Onayla ve Kaydet ✅</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>

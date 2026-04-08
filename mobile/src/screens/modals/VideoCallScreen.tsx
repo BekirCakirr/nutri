@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -11,26 +11,26 @@ export default function VideoCallScreen() {
 
   return (
     <ScreenWrapper padded={false} scrollable={false}>
-      <View className="flex-1 bg-[#0F1A14]">
+      <View style={{ flex: 1, backgroundColor: '#0F1A14' }}>
         {/* Remote video (mock) */}
-        <View className="flex-1 items-center justify-center">
-          <View className="w-24 h-24 rounded-full bg-[#4ECDC4]/20 items-center justify-center mb-4">
-            <Text className="text-4xl">👩‍⚕️</Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 96, height: 96, borderRadius: 9999, backgroundColor: '#4ECDC433', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+            <Text style={{ fontSize: 36 }}>👩‍⚕️</Text>
           </View>
-          <Text className="text-xl font-bold text-white">Dr. Elif Özkan</Text>
-          <Text className="text-sm text-white/50 mt-1">Sporcu Beslenmesi Uzmanı</Text>
-          <View className="flex-row items-center mt-3">
-            <View className="w-2 h-2 rounded-full bg-[#4ECDC4] mr-2" />
-            <Text className="text-sm text-[#4ECDC4]">Bağlanıyor...</Text>
+          <Text style={{ fontSize: 20, fontWeight: '700', color: '#FFFFFF' }}>Dr. Elif Özkan</Text>
+          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Sporcu Beslenmesi Uzmanı</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: '#4ECDC4', marginRight: 8 }}/>
+            <Text style={{ fontSize: 14, color: '#4ECDC4' }}>Bağlanıyor...</Text>
           </View>
         </View>
 
         {/* Self video (mini) */}
-        <View className="absolute top-16 right-5 w-24 h-32 rounded-xl bg-[#2D4A3A] items-center justify-center border-2 border-[#4ECDC4]/30">
+        <View style={{ position: 'absolute', top: 64, right: 20, width: 96, height: 128, borderRadius: 12, backgroundColor: '#2D4A3A', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#4ECDC44d' }}>
           {isVideoOn ? (
-            <View className="items-center">
-              <Text className="text-lg">👨</Text>
-              <Text className="text-[8px] text-white/50 mt-1">Ben</Text>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ fontSize: 18 }}>👨</Text>
+              <Text style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Ben</Text>
             </View>
           ) : (
             <Ionicons name="videocam-off" size={20} color="#5A7264" />
@@ -38,64 +38,58 @@ export default function VideoCallScreen() {
         </View>
 
         {/* Call info */}
-        <View className="absolute top-16 left-5">
+        <View style={{ position: 'absolute', top: 64, left: 20 }}>
           <TouchableOpacity
-            className="w-10 h-10 rounded-full bg-white/10 items-center justify-center"
-            onPress={() => navigation.goBack()}
+            style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: bg-white/10 */onPress={() => navigation.goBack()}
           >
             <Ionicons name="chevron-down" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
 
         {/* Timer */}
-        <View className="absolute top-16 left-0 right-0 items-center">
-          <Text className="text-sm text-white/50">00:00</Text>
+        <View style={{ position: 'absolute', top: 64, left: 0, right: 0, alignItems: 'center' }}>
+          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>00:00</Text>
         </View>
 
         {/* Controls */}
-        <View className="bg-[#1A2E23] rounded-t-3xl px-8 py-6">
-          <View className="flex-row justify-between items-center">
+        <View style={{ backgroundColor: '#1A2E23', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 32, paddingVertical: 24 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <TouchableOpacity
-              className="items-center"
-              onPress={() => setIsMuted(!isMuted)}
+              style={{ alignItems: 'center' }}onPress={() => setIsMuted(!isMuted)}
             >
               <View
-                className="w-14 h-14 rounded-full items-center justify-center mb-1"
-                style={{ backgroundColor: isMuted ? '#EF4444' : '#2D4A3A' }}
+                style={{ width: 56, height: 56, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 4, backgroundColor: isMuted ? '#EF4444' : '#2D4A3A' }}
               >
                 <Ionicons name={isMuted ? 'mic-off' : 'mic'} size={22} color="#FFFFFF" />
               </View>
-              <Text className="text-[10px] text-white/50">{isMuted ? 'Sessiz' : 'Mikrofon'}</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>{isMuted ? 'Sessiz' : 'Mikrofon'}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="items-center"
-              onPress={() => setIsVideoOn(!isVideoOn)}
+              style={{ alignItems: 'center' }}onPress={() => setIsVideoOn(!isVideoOn)}
             >
               <View
-                className="w-14 h-14 rounded-full items-center justify-center mb-1"
-                style={{ backgroundColor: !isVideoOn ? '#EF4444' : '#2D4A3A' }}
+                style={{ width: 56, height: 56, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 4, backgroundColor: !isVideoOn ? '#EF4444' : '#2D4A3A' }}
               >
                 <Ionicons name={isVideoOn ? 'videocam' : 'videocam-off'} size={22} color="#FFFFFF" />
               </View>
-              <Text className="text-[10px] text-white/50">{isVideoOn ? 'Kamera' : 'Kapalı'}</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>{isVideoOn ? 'Kamera' : 'Kapalı'}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="items-center">
-              <View className="w-14 h-14 rounded-full bg-[#2D4A3A] items-center justify-center mb-1">
+            <TouchableOpacity style={{ alignItems: 'center' }}>
+              <View style={{ width: 56, height: 56, borderRadius: 9999, backgroundColor: '#2D4A3A', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
                 <Ionicons name="chatbubble-outline" size={22} color="#FFFFFF" />
               </View>
-              <Text className="text-[10px] text-white/50">Mesaj</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Mesaj</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="items-center"
-              onPress={() => navigation.goBack()}
+              style={{ alignItems: 'center' }}onPress={() => navigation.goBack()}
             >
-              <View className="w-14 h-14 rounded-full bg-[#EF4444] items-center justify-center mb-1">
+              <View style={{ width: 56, height: 56, borderRadius: 9999, backgroundColor: '#EF4444', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
                 <Ionicons name="call" size={22} color="#FFFFFF" style={{ transform: [{ rotate: '135deg' }] }} />
               </View>
-              <Text className="text-[10px] text-white/50">Bitir</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Bitir</Text>
             </TouchableOpacity>
           </View>
         </View>

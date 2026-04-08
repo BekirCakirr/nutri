@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -36,16 +36,16 @@ export default function MeasurementsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Vücut Ölçüleri (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary card */}
-        <View className="bg-[#1A2E23] rounded-2xl p-5 mb-4">
-          <View className="flex-row items-center">
-            <View className="w-12 h-12 rounded-full bg-[#2D4A3A] items-center justify-center mr-3">
+        <View style={{ backgroundColor: '#1A2E23', borderRadius: 16, padding: 20, marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ width: 48, height: 48, borderRadius: 9999, backgroundColor: '#2D4A3A', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="body-outline" size={24} color="#4ECDC4" />
             </View>
-            <View className="flex-1">
-              <Text className="text-lg font-bold text-white">{mockMeasurements.length} Ölçü</Text>
-              <Text className="text-xs text-white/50">Son güncelleme: {lastUpdate}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#FFFFFF' }}>{mockMeasurements.length} Ölçü</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Son güncelleme: {lastUpdate}</Text>
             </View>
           </View>
         </View>
@@ -56,27 +56,26 @@ export default function MeasurementsScreen() {
           const isDown = diff < 0
           const isUp = diff > 0
           return (
-            <View key={i} className="bg-white rounded-xl p-4 mb-2.5 border border-[#E8F0EC]">
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-[#E8F5EC] items-center justify-center mr-3">
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
                   <Ionicons name={m.icon} size={18} color="#1A5C37" />
                 </View>
-                <View className="flex-1">
-                  <Text className="text-base font-semibold text-[#1A2E23]">{m.name}</Text>
-                  <Text className="text-xs text-[#5A7264]">Önceki: {m.prevValue} {m.unit}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{m.name}</Text>
+                  <Text style={{ fontSize: 12, color: '#5A7264' }}>Önceki: {m.prevValue} {m.unit}</Text>
                 </View>
-                <View className="items-end">
-                  <Text className="text-lg font-extrabold text-[#1A2E23]">{m.value} {m.unit}</Text>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A2E23' }}>{m.value} {m.unit}</Text>
                   {diff !== 0 && (
-                    <View className="flex-row items-center mt-0.5">
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
                       <Ionicons
                         name={isDown ? 'arrow-down' : 'arrow-up'}
                         size={12}
                         color={isDown ? '#1A5C37' : '#EF4444'}
                       />
                       <Text
-                        className="text-xs font-semibold ml-0.5"
-                        style={{ color: isDown ? '#1A5C37' : '#EF4444' }}
+                        style={{ fontSize: 12, fontWeight: '600', marginLeft: 2, color: isDown ? '#1A5C37' : '#EF4444' }}
                       >
                         {Math.abs(diff).toFixed(1)} {m.unit}
                       </Text>
@@ -90,11 +89,10 @@ export default function MeasurementsScreen() {
 
         {/* Add button */}
         <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mt-4 mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 16, marginBottom: 32, shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
           activeOpacity={0.8}
         >
-          <Text className="text-base font-semibold text-white">+ Yeni Ölçüm Ekle</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>+ Yeni Ölçüm Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>

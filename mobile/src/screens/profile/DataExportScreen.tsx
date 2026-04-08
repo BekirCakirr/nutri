@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
@@ -43,73 +45,66 @@ export default function DataExportScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Veri Dışa Aktarma" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Format selection */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Format Seçin</Text>
+        <Text style={st.sectionTitle}>Format Seçin</Text>
         {formats.map((f, i) => (
-          <TouchableOpacity
-            key={i}
-            className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border"
-            style={{ borderColor: selectedFormat === i ? '#1A5C37' : '#E8F0EC' }}
-            activeOpacity={0.7}
-            onPress={() => setSelectedFormat(i)}
-          >
-            <View
-              className="w-10 h-10 rounded-full items-center justify-center mr-3"
-              style={{ backgroundColor: selectedFormat === i ? '#E8F5EC' : '#F8FAF9' }}
-            >
-              <Ionicons name={f.icon} size={20} color={selectedFormat === i ? '#1A5C37' : '#5A7264'} />
+          <TouchableOpacity key={i} style={[st.formatCard, { borderColor: selectedFormat === i ? colors.primary.main : '#E8F0EC' }]} activeOpacity={0.7} onPress={() => setSelectedFormat(i)}>
+            <View style={[st.formatIcon, { backgroundColor: selectedFormat === i ? colors.primary[50] : colors.background.default }]}>
+              <Ionicons name={f.icon} size={20} color={selectedFormat === i ? colors.primary.main : colors.text.secondary} />
             </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{f.label}</Text>
-              <Text className="text-xs text-[#5A7264]">{f.desc}</Text>
+            <View style={st.formatContent}>
+              <Text style={st.formatLabel}>{f.label}</Text>
+              <Text style={st.formatDesc}>{f.desc}</Text>
             </View>
-            <View
-              className="w-5 h-5 rounded-full border-2 items-center justify-center"
-              style={{ borderColor: selectedFormat === i ? '#1A5C37' : '#D4E2DA' }}
-            >
-              {selectedFormat === i && <View className="w-2.5 h-2.5 rounded-full bg-[#1A5C37]" />}
+            <View style={[st.radio, { borderColor: selectedFormat === i ? colors.primary.main : colors.border }]}>
+              {selectedFormat === i && <View style={st.radioDot} />}
             </View>
           </TouchableOpacity>
         ))}
 
         {/* Data categories */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3 mt-4">Verileri Seçin</Text>
+        <Text style={[st.sectionTitle, { marginTop: 16 }]}>Verileri Seçin</Text>
         {dataCategories.map((cat, i) => (
-          <TouchableOpacity
-            key={i}
-            className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2 border border-[#E8F0EC]"
-            activeOpacity={0.7}
-            onPress={() => toggleCategory(i)}
-          >
-            <View className="w-9 h-9 rounded-full bg-[#E8F5EC] items-center justify-center mr-3">
-              <Ionicons name={cat.icon} size={18} color="#1A5C37" />
+          <TouchableOpacity key={i} style={st.catCard} activeOpacity={0.7} onPress={() => toggleCategory(i)}>
+            <View style={st.catIcon}>
+              <Ionicons name={cat.icon} size={18} color={colors.primary.main} />
             </View>
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-[#1A2E23]">{cat.name}</Text>
-              <Text className="text-xs text-[#5A7264]">{cat.count} kayıt</Text>
+            <View style={st.catContent}>
+              <Text style={st.catName}>{cat.name}</Text>
+              <Text style={st.catCount}>{cat.count} kayıt</Text>
             </View>
-            <View
-              className="w-5 h-5 rounded border items-center justify-center"
-              style={{
-                backgroundColor: selectedCategories.has(i) ? '#1A5C37' : '#FFFFFF',
-                borderColor: selectedCategories.has(i) ? '#1A5C37' : '#D4E2DA',
-              }}
-            >
-              {selectedCategories.has(i) && <Ionicons name="checkmark" size={12} color="#FFFFFF" />}
+            <View style={[st.checkbox, { backgroundColor: selectedCategories.has(i) ? colors.primary.main : '#fff', borderColor: selectedCategories.has(i) ? colors.primary.main : colors.border }]}>
+              {selectedCategories.has(i) && <Ionicons name="checkmark" size={12} color="#fff" />}
             </View>
           </TouchableOpacity>
         ))}
 
         {/* Export button */}
-        <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mt-4 mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-          activeOpacity={0.8}
-        >
-          <Text className="text-base font-semibold text-white">📥 Dışa Aktar</Text>
+        <TouchableOpacity style={st.primaryBtn} activeOpacity={0.8}>
+          <Text style={st.primaryBtnText}>📥 Dışa Aktar</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  formatCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1 },
+  formatIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  formatContent: { flex: 1 },
+  formatLabel: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  formatDesc: { fontSize: 12, color: colors.text.secondary },
+  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary.main },
+  catCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' },
+  catIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  catContent: { flex: 1 },
+  catName: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  catCount: { fontSize: 12, color: colors.text.secondary },
+  checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  primaryBtn: { backgroundColor: colors.primary.main, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 16, marginBottom: 32, shadowColor: colors.primary.main, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  primaryBtnText: { fontSize: 16, fontWeight: fontWeights.semibold, color: '#fff' },
+})

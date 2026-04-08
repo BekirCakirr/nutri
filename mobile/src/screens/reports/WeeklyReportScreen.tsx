@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -18,88 +18,88 @@ export default function WeeklyReportScreen() {
         onRightPress={() => {}}
       />
       
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-4 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 16, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         
         {/* Score Header */}
-        <View className="bg-[#1A5C37] rounded-3xl p-6 mb-6 items-center shadow-lg shadow-[#1A5C37]/30">
-           <Text className="text-[#E8F5EC] text-sm uppercase tracking-wider mb-2 font-medium">Haftalık Sağlık Skoru</Text>
-           <View className="flex-row items-end">
-             <Text className="text-white text-5xl font-extrabold pb-1">85</Text>
-             <Text className="text-[#A8BFB2] text-xl font-bold ml-1 mb-2">/100</Text>
+        <View style={{ backgroundColor: '#1A5C37', borderRadius: 24, padding: 24, marginBottom: 24, alignItems: 'center' }} /* TODO: shadow-lg shadow-[#1A5C37]/30 */>
+           <Text style={{ color: '#E8F5EC', fontSize: 14, textTransform: 'uppercase', marginBottom: 8, fontWeight: '500' }} /* TODO: tracking-wider */>Haftalık Sağlık Skoru</Text>
+           <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+             <Text style={{ color: '#FFFFFF', fontWeight: '800', paddingBottom: 4 }} /* TODO: text-5xl */>85</Text>
+             <Text style={{ color: '#A8BFB2', fontSize: 20, fontWeight: '700', marginLeft: 4, marginBottom: 8 }}>/100</Text>
            </View>
-           <View className="flex-row items-center mt-3 bg-white/10 px-3 py-1.5 rounded-full">
+           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999 }} /* TODO: bg-white/10 */>
              <Ionicons name="trending-up" size={16} color="#4ECDC4" />
-             <Text className="text-[#4ECDC4] text-xs font-bold ml-2">Geçen haftaya göre %12 artış</Text>
+             <Text style={{ color: '#4ECDC4', fontSize: 12, fontWeight: '700', marginLeft: 8 }}>Geçen haftaya göre %12 artış</Text>
            </View>
         </View>
 
         {/* Macros Summary */}
-        <Text className="text-[#1A2E23] font-bold text-lg mb-4">Makro Besin Dengesi</Text>
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-6">
-           <View className="flex-row items-center justify-between mb-4">
-              <View className="items-center flex-1">
-                 <Text className="text-xs text-[#5A7264] uppercase tracking-wide mb-1">Protein</Text>
-                 <Text className="text-xl font-bold text-[#4A7FB5]">%28</Text>
+        <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 16 }}>Makro Besin Dengesi</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 24 }} /* TODO: bg-white */>
+           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <View style={{ alignItems: 'center', flex: 1 }}>
+                 <Text style={{ fontSize: 12, color: '#5A7264', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Protein</Text>
+                 <Text style={{ fontSize: 20, fontWeight: '700', color: '#4A7FB5' }}>%28</Text>
               </View>
-              <View className="w-px h-10 bg-[#E8F0EC]" />
-              <View className="items-center flex-1">
-                 <Text className="text-xs text-[#5A7264] uppercase tracking-wide mb-1">Karb</Text>
-                 <Text className="text-xl font-bold text-[#F59E0B]">%45</Text>
+              <View style={{ height: 40, backgroundColor: '#E8F0EC' }} /* TODO: w-px *//>
+              <View style={{ alignItems: 'center', flex: 1 }}>
+                 <Text style={{ fontSize: 12, color: '#5A7264', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Karb</Text>
+                 <Text style={{ fontSize: 20, fontWeight: '700', color: '#F59E0B' }}>%45</Text>
               </View>
-              <View className="w-px h-10 bg-[#E8F0EC]" />
-              <View className="items-center flex-1">
-                 <Text className="text-xs text-[#5A7264] uppercase tracking-wide mb-1">Yağ</Text>
-                 <Text className="text-xl font-bold text-[#EF4444]">%27</Text>
+              <View style={{ height: 40, backgroundColor: '#E8F0EC' }} /* TODO: w-px *//>
+              <View style={{ alignItems: 'center', flex: 1 }}>
+                 <Text style={{ fontSize: 12, color: '#5A7264', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Yağ</Text>
+                 <Text style={{ fontSize: 20, fontWeight: '700', color: '#EF4444' }}>%27</Text>
               </View>
            </View>
            
-           <View className="h-3 w-full rounded-full flex-row overflow-hidden shadow-inner">
-              <View className="h-full bg-[#4A7FB5]" style={{ width: '28%' }} />
-              <View className="h-full bg-[#F59E0B]" style={{ width: '45%' }} />
-              <View className="h-full bg-[#EF4444]" style={{ width: '27%' }} />
+           <View style={{ height: 12, borderRadius: 9999, flexDirection: 'row', overflow: 'hidden' }} /* TODO: w-full shadow-inner */>
+              <View style={{ backgroundColor: '#4A7FB5', width: '28%' }} /* TODO: h-full */ />
+              <View style={{ backgroundColor: '#F59E0B', width: '45%' }} /* TODO: h-full */ />
+              <View style={{ backgroundColor: '#EF4444', width: '27%' }} /* TODO: h-full */ />
            </View>
         </View>
 
         {/* Highlights */}
-        <Text className="text-[#1A2E23] font-bold text-lg mb-4">Öne Çıkanlar</Text>
-        <View className="flex-row gap-3 mb-6">
-           <View className="flex-1 bg-emerald-50 rounded-2xl p-4 border border-emerald-100 flex-col justify-between" style={{ minHeight: 120 }}>
-              <View className="w-10 h-10 bg-emerald-200 rounded-full items-center justify-center mb-3">
+        <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 16 }}>Öne Çıkanlar</Text>
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+           <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, justifyContent: 'space-between', minHeight: 120 }} /* TODO: bg-emerald-50 border-emerald-100 flex-col */>
+              <View style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-emerald-200 */>
                  <Ionicons name="water" size={20} color="#059669" />
               </View>
               <View>
-                 <Text className="text-emerald-800 font-extrabold text-xl mb-1">14.5<Text className="text-sm font-medium">L</Text></Text>
-                 <Text className="text-emerald-700 text-[10px]">%90 Hedef</Text>
+                 <Text style={{ fontWeight: '800', fontSize: 20, marginBottom: 4 }} /* TODO: text-emerald-800 */>14.5<Text style={{ fontSize: 14, fontWeight: '500' }}>L</Text></Text>
+                 <Text style={{ fontSize: 10 }} /* TODO: text-emerald-700 */>%90 Hedef</Text>
               </View>
            </View>
-           <View className="flex-1 bg-blue-50 rounded-2xl p-4 border border-blue-100 flex-col justify-between" style={{ minHeight: 120 }}>
-              <View className="w-10 h-10 bg-blue-200 rounded-full items-center justify-center mb-3">
+           <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, justifyContent: 'space-between', minHeight: 120 }} /* TODO: bg-blue-50 border-blue-100 flex-col */>
+              <View style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-blue-200 */>
                  <Ionicons name="barbell" size={20} color="#2563EB" />
               </View>
                <View>
-                 <Text className="text-blue-800 font-extrabold text-xl mb-1">3.5<Text className="text-sm font-medium">Sa</Text></Text>
-                 <Text className="text-blue-700 text-[10px]">Aktivite</Text>
+                 <Text style={{ fontWeight: '800', fontSize: 20, marginBottom: 4 }} /* TODO: text-blue-800 */>3.5<Text style={{ fontSize: 14, fontWeight: '500' }}>Sa</Text></Text>
+                 <Text style={{ fontSize: 10 }} /* TODO: text-blue-700 */>Aktivite</Text>
               </View>
            </View>
-           <View className="flex-1 bg-amber-50 rounded-2xl p-4 border border-amber-100 flex-col justify-between" style={{ minHeight: 120 }}>
-              <View className="w-10 h-10 bg-amber-200 rounded-full items-center justify-center mb-3">
+           <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, justifyContent: 'space-between', minHeight: 120 }} /* TODO: bg-amber-50 border-amber-100 flex-col */>
+              <View style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-amber-200 */>
                  <Ionicons name="restaurant" size={20} color="#D97706" />
               </View>
                <View>
-                 <Text className="text-amber-800 font-extrabold text-xl mb-1">21<Text className="text-sm font-medium">Öğün</Text></Text>
-                 <Text className="text-amber-700 text-[10px]">Eksiksiz</Text>
+                 <Text style={{ fontWeight: '800', fontSize: 20, marginBottom: 4 }} /* TODO: text-amber-800 */>21<Text style={{ fontSize: 14, fontWeight: '500' }}>Öğün</Text></Text>
+                 <Text style={{ fontSize: 10 }} /* TODO: text-amber-700 */>Eksiksiz</Text>
               </View>
            </View>
         </View>
 
         {/* AI Insight */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-8 flex-row items-start">
-           <View className="w-10 h-10 rounded-full bg-[#1A5C37] items-center justify-center mr-4">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32, flexDirection: 'row', alignItems: 'flex-start' }} /* TODO: bg-white */>
+           <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#1A5C37', alignItems: 'center', justifyContent: 'center', marginRight: 16 }}>
               <Ionicons name="sparkles" size={20} color="#FFF" />
            </View>
-           <View className="flex-1">
-              <Text className="font-bold text-[#1A2E23] mb-1.5 text-base">Yapay Zeka Yorumu</Text>
-              <Text className="text-[#5A7264] leading-relaxed text-[13px]">
+           <View style={{ flex: 1 }}>
+              <Text style={{ fontWeight: '700', color: '#1A2E23', marginBottom: 6, fontSize: 16 }}>Yapay Zeka Yorumu</Text>
+              <Text style={{ color: '#5A7264', fontSize: 13 }} /* TODO: leading-relaxed */>
                 Harika bir hafta geçirdin! Su tüketimin oldukça başarılı. Hafta sonu karbonhidrat alımında hafif sapmalar olmuş, ancak bunu egzersizle dengelemişsin. Önümüzdeki hafta lif alımını %10 artırmayı hedefleyebiliriz.
               </Text>
            </View>

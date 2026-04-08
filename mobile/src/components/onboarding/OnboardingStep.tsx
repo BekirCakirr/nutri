@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ViewStyle } from 'react-native'
+import { View, Text, ViewStyle, StyleSheet } from 'react-native'
 import { StepIndicator } from './StepIndicator'
 
 interface OnboardingStepProps {
@@ -20,13 +20,13 @@ export const OnboardingStep: React.FC<OnboardingStepProps> = ({
   style,
 }) => {
   return (
-    <View className="flex-1 px-6 pt-4 pb-6 bg-[#F8FAF9]" style={style}>
+    <View style={[{ flex: 1, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 24, backgroundColor: '#F8FAF9' }, style]}>
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
-      <Text className="text-3xl font-bold text-[#1A2E23] mt-6 mb-2">{title}</Text>
+      <Text style={{ fontSize: 30, fontWeight: '700', color: '#1A2E23', marginTop: 24, marginBottom: 8 }}>{title}</Text>
       {description && (
-        <Text className="text-base text-[#5A7264] leading-relaxed mb-6">{description}</Text>
+        <Text style={{ fontSize: 16, color: '#5A7264', marginBottom: 24 }} /* TODO: leading-relaxed */>{description}</Text>
       )}
-      <View className="flex-1">{children}</View>
+      <View style={{ flex: 1 }}>{children}</View>
     </View>
   )
 }

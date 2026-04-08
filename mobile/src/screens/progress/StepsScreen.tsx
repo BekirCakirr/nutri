@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -33,79 +33,78 @@ export default function StepsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Adım Sayıcı (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Main progress */}
-        <View className="bg-white rounded-2xl p-6 border border-[#E8F0EC] mb-4 items-center">
+        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
           {/* Circular progress (simplified) */}
-          <View className="w-40 h-40 rounded-full border-[8px] border-[#F3E8FF] items-center justify-center mb-4">
+          <View style={{ width: 160, height: 160, borderRadius: 9999, borderColor: '#F3E8FF', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }} /* TODO: border-[8px] */>
             <Ionicons name="footsteps-outline" size={28} color="#8B6BAA" />
-            <Text className="text-2xl font-extrabold text-[#1A2E23] mt-1">
+            <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>
               {today.steps.toLocaleString('tr-TR')}
             </Text>
-            <Text className="text-xs text-[#5A7264]">/ {DAILY_GOAL.toLocaleString('tr-TR')}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>/ {DAILY_GOAL.toLocaleString('tr-TR')}</Text>
           </View>
 
           {/* Progress bar */}
-          <View className="w-full h-3 bg-[#F3E8FF] rounded-full overflow-hidden">
+          <View style={{ height: 12, backgroundColor: '#F3E8FF', borderRadius: 9999, overflow: 'hidden' }} /* TODO: w-full */>
             <View
-              className="h-full bg-[#8B6BAA] rounded-full"
-              style={{ width: `${pct}%` }}
+              style={{ height: '100%', backgroundColor: '#8B6BAA', borderRadius: 9999, width: `${pct}%` }}
             />
           </View>
-          <Text className="text-sm text-[#5A7264] mt-2">%{Math.round(pct)} tamamlandı</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264', marginTop: 8 }}>%{Math.round(pct)} tamamlandı</Text>
         </View>
 
         {/* Stats row */}
-        <View className="flex-row mb-4 gap-2">
-          <View className="flex-1 bg-white rounded-xl p-3.5 border border-[#E8F0EC] items-center">
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="navigate-outline" size={18} color="#8B6BAA" />
-            <Text className="text-lg font-bold text-[#1A2E23] mt-1">{distance} km</Text>
-            <Text className="text-[10px] text-[#5A7264]">Mesafe</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 4 }}>{distance} km</Text>
+            <Text style={{ fontSize: 10, color: '#5A7264' }}>Mesafe</Text>
           </View>
-          <View className="flex-1 bg-white rounded-xl p-3.5 border border-[#E8F0EC] items-center">
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="flame-outline" size={18} color="#E8A040" />
-            <Text className="text-lg font-bold text-[#1A2E23] mt-1">{calories}</Text>
-            <Text className="text-[10px] text-[#5A7264]">kcal</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 4 }}>{calories}</Text>
+            <Text style={{ fontSize: 10, color: '#5A7264' }}>kcal</Text>
           </View>
-          <View className="flex-1 bg-white rounded-xl p-3.5 border border-[#E8F0EC] items-center">
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="stats-chart-outline" size={18} color="#1A5C37" />
-            <Text className="text-lg font-bold text-[#1A2E23] mt-1">{avgSteps.toLocaleString('tr-TR')}</Text>
-            <Text className="text-[10px] text-[#5A7264]">Ort.</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 4 }}>{avgSteps.toLocaleString('tr-TR')}</Text>
+            <Text style={{ fontSize: 10, color: '#5A7264' }}>Ort.</Text>
           </View>
         </View>
 
         {/* Weekly chart */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-4">Haftalık</Text>
-          <View className="flex-row items-end justify-between h-28">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Haftalık</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 112 }}>
             {mockStepsData.map((d, i) => {
               const barPct = (d.steps / maxSteps) * 100
               const reachedGoal = d.steps >= DAILY_GOAL
               return (
-                <View key={i} className="items-center flex-1 mx-0.5">
-                  <Text className="text-[9px] text-[#5A7264] mb-1">
+                <View key={i} style={{ alignItems: 'center', flex: 1, marginHorizontal: 2 }}>
+                  <Text style={{ fontSize: 9, color: '#5A7264', marginBottom: 4 }}>
                     {(d.steps / 1000).toFixed(1)}k
                   </Text>
                   <View
-                    className="w-5 rounded-t-md"
                     style={{
+                      width: 20, borderTopLeftRadius: 8, borderTopRightRadius: 8,
                       height: `${barPct}%`,
                       backgroundColor: reachedGoal ? '#8B6BAA' : '#D4E2DA',
                     }}
                   />
-                  <Text className="text-[10px] text-[#5A7264] mt-1 font-semibold">{d.day}</Text>
+                  <Text style={{ fontSize: 10, color: '#5A7264', marginTop: 4, fontWeight: '600' }}>{d.day}</Text>
                 </View>
               )
             })}
           </View>
-          <View className="flex-row items-center mt-3">
-            <View className="h-px flex-1 bg-[#8B6BAA]/30" />
-            <Text className="text-[10px] text-[#8B6BAA] mx-2">Hedef: {(DAILY_GOAL / 1000)}k</Text>
-            <View className="h-px flex-1 bg-[#8B6BAA]/30" />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+            <View style={{ flex: 1, backgroundColor: '#8B6BAA4d' }} /* TODO: h-px *//>
+            <Text style={{ fontSize: 10, color: '#8B6BAA', marginHorizontal: 8 }}>Hedef: {(DAILY_GOAL / 1000)}k</Text>
+            <View style={{ flex: 1, backgroundColor: '#8B6BAA4d' }} /* TODO: h-px *//>
           </View>
         </View>
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

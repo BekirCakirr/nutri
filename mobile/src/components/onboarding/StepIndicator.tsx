@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, ViewStyle } from 'react-native'
+import { View, ViewStyle, StyleSheet } from 'react-native'
 
 interface StepIndicatorProps {
   currentStep: number
@@ -17,7 +17,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   style,
 }) => {
   return (
-    <View className="flex-row items-center justify-center gap-2" style={style}>
+    <View style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }, style]}>
       {Array.from({ length: totalSteps }).map((_, index) => {
         const isActive = index <= currentStep
         const isCurrent = index === currentStep

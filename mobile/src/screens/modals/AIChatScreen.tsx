@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -34,27 +34,25 @@ export default function AIChatScreen() {
         onBack={() => navigation.goBack()}
       />
       <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
       >
         {/* Messages */}
         <ScrollView
           ref={scrollRef}
-          className="flex-1 bg-[#F8FAF9] px-4 pt-3"
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+          style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 16, paddingTop: 12 }}onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
           showsVerticalScrollIndicator={false}
         >
           {/* Static Greeting */}
-          <View className="mb-3 items-start">
-            <View className="rounded-2xl px-4 py-3 max-w-[85%] bg-white border border-[#E8F0EC]" style={{ borderBottomLeftRadius: 4 }}>
-              <View className="flex-row items-center mb-1">
-                <View className="w-5 h-5 rounded-full bg-[#1A5C37] items-center justify-center mr-1">
-                  <Text className="text-[8px] text-white font-bold">AI</Text>
+          <View style={{ marginBottom: 12, alignItems: 'flex-start' }}>
+            <View style={{ borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#E8F0EC', borderBottomLeftRadius: 4 }} /* TODO: max-w-[85%] bg-white */>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <View style={{ width: 20, height: 20, borderRadius: 9999, backgroundColor: '#1A5C37', alignItems: 'center', justifyContent: 'center', marginRight: 4 }}>
+                  <Text style={{ fontSize: 8, color: '#FFFFFF', fontWeight: '700' }}>AI</Text>
                 </View>
-                <Text className="text-[10px] text-[#A8BFB2]">NutriAI</Text>
+                <Text style={{ fontSize: 10, color: '#A8BFB2' }}>NutriAI</Text>
               </View>
-              <Text className="text-sm leading-5 text-[#1A2E23]">
+              <Text style={{ fontSize: 14, lineHeight: 20, color: '#1A2E23' }}>
                 Merhaba! Ben NutriAI asistanınızım 🤖 Size beslenme, diyet ve sağlıklı yaşam konularında yardımcı olabilirim. Ne sormak istersiniz?
               </Text>
             </View>
@@ -63,71 +61,64 @@ export default function AIChatScreen() {
           {aiMessages.map((msg) => (
             <View
               key={msg.id}
-              className="mb-3"
-              style={{ alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
+              style={{ marginBottom: 12, alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
             >
               <View
-                className="rounded-2xl px-4 py-3 max-w-[85%]"
-                style={{
-                  backgroundColor: msg.role === 'user' ? '#1A5C37' : '#FFFFFF',
+                style={{ borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: msg.role === 'user' ? '#1A5C37' : '#FFFFFF',
                   borderWidth: msg.role === 'assistant' ? 1 : 0,
                   borderColor: '#E8F0EC',
                   borderBottomRightRadius: msg.role === 'user' ? 4 : 16,
-                  borderBottomLeftRadius: msg.role === 'assistant' ? 4 : 16,
-                }}
+                  borderBottomLeftRadius: msg.role === 'assistant' ? 4 : 16, }} /* TODO: max-w-[85%] */
               >
                 {msg.role === 'assistant' && (
-                  <View className="flex-row items-center mb-1">
-                    <View className="w-5 h-5 rounded-full bg-[#1A5C37] items-center justify-center mr-1">
-                      <Text className="text-[8px] text-white font-bold">AI</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                    <View style={{ width: 20, height: 20, borderRadius: 9999, backgroundColor: '#1A5C37', alignItems: 'center', justifyContent: 'center', marginRight: 4 }}>
+                      <Text style={{ fontSize: 8, color: '#FFFFFF', fontWeight: '700' }}>AI</Text>
                     </View>
-                    <Text className="text-[10px] text-[#A8BFB2]">NutriAI</Text>
+                    <Text style={{ fontSize: 10, color: '#A8BFB2' }}>NutriAI</Text>
                   </View>
                 )}
                 <Text
-                  className="text-sm leading-5"
-                  style={{ color: msg.role === 'user' ? '#FFFFFF' : '#1A2E23' }}
+                  style={{ fontSize: 14, lineHeight: 20, color: msg.role === 'user' ? '#FFFFFF' : '#1A2E23' }}
                 >
                   {msg.content}
                 </Text>
               </View>
-              <Text className="text-[10px] text-[#A8BFB2] mt-0.5 mx-1">
+              <Text style={{ fontSize: 10, color: '#A8BFB2', marginTop: 2, marginHorizontal: 4 }}>
                 {new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
               </Text>
             </View>
           ))}
 
           {isLoading && (
-            <View className="mb-3 items-start">
-              <View className="rounded-2xl px-4 py-3 bg-white border border-[#E8F0EC]" style={{ borderBottomLeftRadius: 4 }}>
-                <Text className="text-sm text-[#A8BFB2]">Yazıyor...</Text>
+            <View style={{ marginBottom: 12, alignItems: 'flex-start' }}>
+              <View style={{ borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#E8F0EC', borderBottomLeftRadius: 4 }} /* TODO: bg-white */>
+                <Text style={{ fontSize: 14, color: '#A8BFB2' }}>Yazıyor...</Text>
               </View>
             </View>
           )}
 
           {/* Quick suggestions */}
           {aiMessages.length === 0 && !isLoading && (
-            <View className="flex-row flex-wrap mt-2 mb-4">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, marginBottom: 16 }}>
               {quickSuggestions.map((s, i) => (
                 <TouchableOpacity
                   key={i}
-                  className="bg-white rounded-full px-3.5 py-2 mr-2 mb-2 border border-[#E8F0EC]"
-                  activeOpacity={0.7}
+                  style={{ borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */activeOpacity={0.7}
                   onPress={() => { setInput(s); }}
                 >
-                  <Text className="text-xs text-[#1A5C37] font-semibold">{s}</Text>
+                  <Text style={{ fontSize: 12, color: '#1A5C37', fontWeight: '600' }}>{s}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
-          <View className="h-4" />
+          <View style={{ height: 16 }}/>
         </ScrollView>
 
         {/* Input area */}
-        <View className="bg-white border-t border-[#E8F0EC] px-4 py-3 flex-row items-center">
+        <View style={{ borderTopWidth: 1, borderColor: '#E8F0EC', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center' }} /* TODO: bg-white */>
           <TextInput
-            className="flex-1 bg-[#F8FAF9] rounded-full px-4 py-2.5 text-sm text-[#1A2E23] border border-[#E8F0EC]"
-            value={input}
+            style={{ flex: 1, backgroundColor: '#F8FAF9', borderRadius: 9999, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: '#1A2E23', borderWidth: 1, borderColor: '#E8F0EC' }}value={input}
             onChangeText={setInput}
             placeholder="Mesajınızı yazın..."
             placeholderTextColor="#A8BFB2"
@@ -136,7 +127,7 @@ export default function AIChatScreen() {
             editable={!isLoading}
           />
           <TouchableOpacity
-            className={`w-10 h-10 rounded-full items-center justify-center ml-2 ${input.trim() && !isLoading ? 'bg-[#1A5C37]' : 'bg-[#A8BFB2]'}`}
+            style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginLeft: 8, backgroundColor: input.trim() && !isLoading ? '#1A5C37' : '#A8BFB2' }}
             activeOpacity={0.8}
             onPress={handleSend}
             disabled={!input.trim() || isLoading}

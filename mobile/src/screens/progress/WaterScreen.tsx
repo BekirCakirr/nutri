@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -55,7 +55,7 @@ export default function WaterScreen() {
     return (
       <ScreenWrapper padded={false}>
         <AppHeader title="Su Takibi" onBack={() => navigation.goBack()} />
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#4A90B8" />
         </View>
       </ScreenWrapper>
@@ -65,51 +65,47 @@ export default function WaterScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Su Takibi" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Main progress card */}
-        <View className="bg-white rounded-2xl p-6 border border-[#E8F0EC] mb-4 items-center">
-          <View className="w-40 h-40 rounded-full border-[8px] border-[#E4F0F7] items-center justify-center mb-4 relative">
+        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ width: 160, height: 160, borderRadius: 9999, borderColor: '#E4F0F7', alignItems: 'center', justifyContent: 'center', marginBottom: 16, position: 'relative' }} /* TODO: border-[8px] */>
             <View
-              className="absolute top-0 left-0 right-0 bottom-0 rounded-full border-[8px] border-[#4A90B8]"
-              style={{
-                borderTopColor: pct >= 25 ? '#4A90B8' : '#E4F0F7',
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 9999, borderColor: '#4A90B8', borderTopColor: pct >= 25 ? '#4A90B8' : '#E4F0F7',
                 borderRightColor: pct >= 50 ? '#4A90B8' : '#E4F0F7',
                 borderBottomColor: pct >= 75 ? '#4A90B8' : '#E4F0F7',
-                borderLeftColor: pct >= 100 ? '#4A90B8' : '#E4F0F7',
-              }}
+                borderLeftColor: pct >= 100 ? '#4A90B8' : '#E4F0F7', }} /* TODO: border-[8px] */
             />
             <Ionicons name="water" size={28} color="#4A90B8" />
-            <Text className="text-2xl font-extrabold text-[#1A2E23] mt-1">
+            <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>
               {(consumed / 1000).toFixed(1)}L
             </Text>
-            <Text className="text-xs text-[#5A7264]">/ {(DAILY_GOAL / 1000).toFixed(1)}L</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>/ {(DAILY_GOAL / 1000).toFixed(1)}L</Text>
           </View>
 
-          <View className="w-full h-3 bg-[#E4F0F7] rounded-full overflow-hidden">
-            <View className="h-full bg-[#4A90B8] rounded-full" style={{ width: `${pct}%` }} />
+          <View style={{ height: 12, backgroundColor: '#E4F0F7', borderRadius: 9999, overflow: 'hidden' }} /* TODO: w-full */>
+            <View style={{ height: '100%', backgroundColor: '#4A90B8', borderRadius: 9999, width: `${pct}%` }} />
           </View>
-          <Text className="text-sm text-[#5A7264] mt-2">
+          <Text style={{ fontSize: 14, color: '#5A7264', marginTop: 8 }}>
             %{Math.round(pct)} tamamlandı · {glasses} bardak
           </Text>
         </View>
 
         {/* Quick add buttons */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Hızlı Ekle</Text>
-        <View className="flex-row flex-wrap mb-4">
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Hızlı Ekle</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 }}>
           {quickOptions.map((opt, i) => (
             <TouchableOpacity
               key={i}
-              className="w-[48%] mx-[1%] mb-2.5 bg-white rounded-xl p-3.5 border border-[#E8F0EC] flex-row items-center"
-              activeOpacity={0.7}
+              style={{ width: '48%', marginBottom: 10, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' }} /* TODO: mx-[1%] bg-white */activeOpacity={0.7}
               onPress={() => addWater(opt.amount)}
             >
-              <View className="w-9 h-9 rounded-full bg-[#E4F0F7] items-center justify-center mr-2.5">
+              <View style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: '#E4F0F7', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
                 <Ionicons name={opt.icon} size={18} color="#4A90B8" />
               </View>
               <View>
-                <Text className="text-sm font-semibold text-[#1A2E23]">{opt.label}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{opt.label}</Text>
                 {opt.amount > 0 && (
-                  <Text className="text-xs text-[#5A7264]">{opt.amount} ml</Text>
+                  <Text style={{ fontSize: 12, color: '#5A7264' }}>{opt.amount} ml</Text>
                 )}
               </View>
             </TouchableOpacity>
@@ -117,27 +113,27 @@ export default function WaterScreen() {
         </View>
 
         {/* Today's log */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Bugünün Kayıtları</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Bugünün Kayıtları</Text>
         {logs.length === 0 ? (
-          <View className="bg-white rounded-xl p-4 border border-[#E8F0EC] items-center mb-4">
-            <Text className="text-sm text-[#5A7264]">Henüz kayıt yok. Yukarıdan su ekleyin!</Text>
+          <View style={{ borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center', marginBottom: 16 }} /* TODO: bg-white */>
+            <Text style={{ fontSize: 14, color: '#5A7264' }}>Henüz kayıt yok. Yukarıdan su ekleyin!</Text>
           </View>
         ) : (
           logs.map((entry, i) => (
-            <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3 mb-2 border border-[#E8F0EC]">
-              <View className="w-9 h-9 rounded-full bg-[#E4F0F7] items-center justify-center mr-3">
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: '#E4F0F7', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
                 <Ionicons name="water-outline" size={16} color="#4A90B8" />
               </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-[#1A2E23]">{entry.amount} ml</Text>
-                <Text className="text-xs text-[#5A7264]">{entry.time}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{entry.amount} ml</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{entry.time}</Text>
               </View>
-              <Text className="text-xs text-[#5A7264]">{entry.amount >= 500 ? '🫗' : '🥤'}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>{entry.amount >= 500 ? '🫗' : '🥤'}</Text>
             </View>
           ))
         )}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

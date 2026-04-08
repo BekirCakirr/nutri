@@ -1,21 +1,17 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
-type FamilyMember = {
-  id: string
-  name: string
-  role: string
-  emoji: string
-  calories: number
-}
+type FamilyMember = { id: string; name: string; role: string; emoji: string; calories: number }
 
 const mockMembers: FamilyMember[] = [
   { id: '1', name: 'Ahmet (Ben)', role: 'Admin', emoji: '👨', calories: 2200 },
@@ -31,65 +27,72 @@ export default function FamilyModeScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Aile Modu" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Toggle */}
-        <View className="bg-white rounded-2xl p-4 mb-4 border border-[#E8F0EC] flex-row items-center">
-          <View className="w-10 h-10 rounded-full bg-[#F3E8FF] items-center justify-center mr-3">
+        <View style={st.toggleCard}>
+          <View style={st.toggleIcon}>
             <Ionicons name="people" size={20} color="#8B6BAA" />
           </View>
-          <View className="flex-1">
-            <Text className="text-base font-semibold text-[#1A2E23]">Aile Modu</Text>
-            <Text className="text-xs text-[#5A7264]">Ailenizle birlikte beslenme takibi yapın</Text>
+          <View style={st.toggleContent}>
+            <Text style={st.toggleTitle}>Aile Modu</Text>
+            <Text style={st.toggleDesc}>Ailenizle birlikte beslenme takibi yapın</Text>
           </View>
-          <Switch
-            value={enabled}
-            onValueChange={setEnabled}
-            trackColor={{ false: '#D4E2DA', true: '#1A5C37' }}
-            thumbColor="#FFFFFF"
-          />
+          <Switch value={enabled} onValueChange={setEnabled} trackColor={{ false: colors.border, true: colors.primary.main }} thumbColor="#FFFFFF" />
         </View>
 
         {/* Members */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Aile Üyeleri ({mockMembers.length})</Text>
+        <Text style={st.sectionTitle}>Aile Üyeleri ({mockMembers.length})</Text>
         {mockMembers.map((m) => (
-          <View key={m.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-            <Text className="text-2xl mr-3">{m.emoji}</Text>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{m.name}</Text>
-              <View className="flex-row items-center mt-0.5">
-                <View className="bg-[#E8F5EC] rounded-full px-2 py-0.5 mr-2">
-                  <Text className="text-[10px] font-bold text-[#1A5C37]">{m.role}</Text>
+          <View key={m.id} style={st.memberCard}>
+            <Text style={st.memberEmoji}>{m.emoji}</Text>
+            <View style={st.memberContent}>
+              <Text style={st.memberName}>{m.name}</Text>
+              <View style={st.memberMeta}>
+                <View style={st.roleBadge}>
+                  <Text style={st.roleText}>{m.role}</Text>
                 </View>
-                <Text className="text-xs text-[#5A7264]">{m.calories} kcal/gün</Text>
+                <Text style={st.caloriesText}>{m.calories} kcal/gün</Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#D4E2DA" />
+            <Ionicons name="chevron-forward" size={16} color={colors.border} />
           </View>
         ))}
 
         {/* Shared meals toggle */}
-        <View className="bg-white rounded-2xl p-4 mt-4 mb-4 border border-[#E8F0EC] flex-row items-center">
-          <View className="flex-1">
-            <Text className="text-sm font-semibold text-[#1A2E23]">Ortak Öğün Paylaşımı</Text>
-            <Text className="text-xs text-[#5A7264]">Aynı yemekler otomatik herkese eklensin</Text>
+        <View style={[st.toggleCard, { marginTop: 16 }]}>
+          <View style={st.toggleContent}>
+            <Text style={st.toggleTitleSm}>Ortak Öğün Paylaşımı</Text>
+            <Text style={st.toggleDesc}>Aynı yemekler otomatik herkese eklensin</Text>
           </View>
-          <Switch
-            value={sharedMeals}
-            onValueChange={setSharedMeals}
-            trackColor={{ false: '#D4E2DA', true: '#1A5C37' }}
-            thumbColor="#FFFFFF"
-          />
+          <Switch value={sharedMeals} onValueChange={setSharedMeals} trackColor={{ false: colors.border, true: colors.primary.main }} thumbColor="#FFFFFF" />
         </View>
 
         {/* Add member */}
-        <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-          activeOpacity={0.8}
-        >
-          <Text className="text-base font-semibold text-white">+ Aile Üyesi Ekle</Text>
+        <TouchableOpacity style={st.primaryBtn} activeOpacity={0.8}>
+          <Text style={st.primaryBtnText}>+ Aile Üyesi Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  toggleCard: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' },
+  toggleIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3E8FF', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  toggleContent: { flex: 1 },
+  toggleTitle: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  toggleTitleSm: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  toggleDesc: { fontSize: 12, color: colors.text.secondary },
+  sectionTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  memberCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  memberEmoji: { fontSize: 24, marginRight: 12 },
+  memberContent: { flex: 1 },
+  memberName: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  memberMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
+  roleBadge: { backgroundColor: colors.primary[50], borderRadius: 100, paddingHorizontal: 8, paddingVertical: 2, marginRight: 8 },
+  roleText: { fontSize: 10, fontWeight: fontWeights.bold, color: colors.primary.main },
+  caloriesText: { fontSize: 12, color: colors.text.secondary },
+  primaryBtn: { backgroundColor: colors.primary.main, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 32, marginTop: 8, shadowColor: colors.primary.main, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  primaryBtnText: { fontSize: 16, fontWeight: fontWeights.semibold, color: '#fff' },
+})

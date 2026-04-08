@@ -1,22 +1,17 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
-type Device = {
-  id: string
-  name: string
-  type: string
-  icon: keyof typeof Ionicons.glyphMap
-  connected: boolean
-  lastSync?: string
-}
+type Device = { id: string; name: string; type: string; icon: keyof typeof Ionicons.glyphMap; connected: boolean; lastSync?: string }
 
 const mockDevices: Device[] = [
   { id: '1', name: 'Apple Watch SE', type: 'Akıllı Saat', icon: 'watch-outline', connected: true, lastSync: '5 dk önce' },
@@ -38,30 +33,21 @@ export default function ConnectedDevicesScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Bağlı Cihazlar" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Connected devices */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Bağlı ({mockDevices.filter(d => d.connected).length})</Text>
+        <Text style={st.sectionTitle}>Bağlı ({mockDevices.filter(d => d.connected).length})</Text>
         {mockDevices.map((d) => (
-          <View key={d.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-            <View
-              className="w-10 h-10 rounded-full items-center justify-center mr-3"
-              style={{ backgroundColor: d.connected ? '#E8F5EC' : '#F8FAF9' }}
-            >
-              <Ionicons name={d.icon} size={20} color={d.connected ? '#1A5C37' : '#A8BFB2'} />
+          <View key={d.id} style={st.deviceCard}>
+            <View style={[st.deviceIcon, { backgroundColor: d.connected ? colors.primary[50] : colors.background.default }]}>
+              <Ionicons name={d.icon} size={20} color={d.connected ? colors.primary.main : colors.text.disabled} />
             </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{d.name}</Text>
-              <Text className="text-xs text-[#5A7264]">{d.type}</Text>
-              {d.lastSync && <Text className="text-[10px] text-[#A8BFB2]">Son senkronizasyon: {d.lastSync}</Text>}
+            <View style={st.deviceContent}>
+              <Text style={st.deviceName}>{d.name}</Text>
+              <Text style={st.deviceType}>{d.type}</Text>
+              {d.lastSync && <Text style={st.lastSync}>Son senkronizasyon: {d.lastSync}</Text>}
             </View>
-            <View
-              className="rounded-full px-2.5 py-1"
-              style={{ backgroundColor: d.connected ? '#E8F5EC' : '#FEE2E2' }}
-            >
-              <Text
-                className="text-xs font-bold"
-                style={{ color: d.connected ? '#1A5C37' : '#EF4444' }}
-              >
+            <View style={[st.statusBadge, { backgroundColor: d.connected ? colors.primary[50] : '#FEE2E2' }]}>
+              <Text style={[st.statusText, { color: d.connected ? colors.primary.main : '#EF4444' }]}>
                 {d.connected ? 'Bağlı' : 'Bağlı Değil'}
               </Text>
             </View>
@@ -69,25 +55,39 @@ export default function ConnectedDevicesScreen() {
         ))}
 
         {/* Available to connect */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3 mt-4">Bağlanabilir Cihazlar</Text>
-        <View className="flex-row flex-wrap mb-4">
+        <Text style={[st.sectionTitle, { marginTop: 16 }]}>Bağlanabilir Cihazlar</Text>
+        <View style={st.availableGrid}>
           {availableDevices.map((d, i) => (
-            <TouchableOpacity
-              key={i}
-              className="w-[48%] mx-[1%] mb-2.5 bg-white rounded-xl p-4 border border-[#E8F0EC] items-center"
-              activeOpacity={0.7}
-            >
-              <View className="w-12 h-12 rounded-full bg-[#E8F5EC] items-center justify-center mb-2">
-                <Ionicons name={d.icon} size={22} color="#1A5C37" />
+            <TouchableOpacity key={i} style={st.availableCard} activeOpacity={0.7}>
+              <View style={st.availableIcon}>
+                <Ionicons name={d.icon} size={22} color={colors.primary.main} />
               </View>
-              <Text className="text-sm font-semibold text-[#1A2E23]">{d.name}</Text>
-              <Text className="text-xs text-[#1A5C37] mt-1">Bağlan</Text>
+              <Text style={st.availableName}>{d.name}</Text>
+              <Text style={st.connectLink}>Bağlan</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <View className="h-8" />
+        <View style={{ height: 32 }} />
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  deviceCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  deviceIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  deviceContent: { flex: 1 },
+  deviceName: { fontSize: 16, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  deviceType: { fontSize: 12, color: colors.text.secondary },
+  lastSync: { fontSize: 10, color: colors.text.disabled },
+  statusBadge: { borderRadius: 100, paddingHorizontal: 10, paddingVertical: 4 },
+  statusText: { fontSize: 12, fontWeight: fontWeights.bold },
+  availableGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
+  availableCard: { width: '48%', marginHorizontal: '1%', marginBottom: 10, backgroundColor: '#fff', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' },
+  availableIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  availableName: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  connectLink: { fontSize: 12, color: colors.primary.main, marginTop: 4 },
+})

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -26,62 +26,57 @@ export default function CustomFoodScreen() {
   return (
     <ScreenWrapper keyboardAvoiding padded={false}>
       <AppHeader title="Özel Besin Ekle" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Info Card */}
-        <View className="bg-[#E8F5EC] rounded-2xl p-4 mb-6 flex-row items-center border border-[#C8E6CF]/40">
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 24, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#C8E6CF66' }}>
           <Ionicons name="information-circle" size={22} color="#1A5C37" />
-          <Text className="text-sm text-[#1A5C37] ml-3 flex-1">
+          <Text style={{ fontSize: 14, color: '#1A5C37', marginLeft: 12, flex: 1 }}>
             Veritabanımızda bulamadığınız besinleri manuel olarak ekleyebilirsiniz.
           </Text>
         </View>
 
         {/* Name & Brand */}
-        <Text className="text-sm font-semibold text-[#1A2E23] mb-2">Besin Adı *</Text>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23', marginBottom: 8 }}>Besin Adı *</Text>
         <TextInput
-          className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3.5 text-base text-[#1A2E23] mb-4"
-          placeholder="Örn: Ev yapımı granola"
+          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 16 }} /* TODO: bg-white */placeholder="Örn: Ev yapımı granola"
           placeholderTextColor="#9CA8A1"
           value={name}
           onChangeText={setName}
         />
 
-        <Text className="text-sm font-semibold text-[#1A2E23] mb-2">Marka (İsteğe bağlı)</Text>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23', marginBottom: 8 }}>Marka (İsteğe bağlı)</Text>
         <TextInput
-          className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3.5 text-base text-[#1A2E23] mb-4"
-          placeholder="Örn: Homemade"
+          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 16 }} /* TODO: bg-white */placeholder="Örn: Homemade"
           placeholderTextColor="#9CA8A1"
           value={brand}
           onChangeText={setBrand}
         />
 
-        <Text className="text-sm font-semibold text-[#1A2E23] mb-2">Porsiyon</Text>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23', marginBottom: 8 }}>Porsiyon</Text>
         <TextInput
-          className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3.5 text-base text-[#1A2E23] mb-6"
-          placeholder="Örn: 100g / 1 kase"
+          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 24 }} /* TODO: bg-white */placeholder="Örn: 100g / 1 kase"
           placeholderTextColor="#9CA8A1"
           value={serving}
           onChangeText={setServing}
         />
 
         {/* Macros */}
-        <Text className="text-lg font-bold text-[#1A2E23] mb-4">Besin Değerleri</Text>
-        <View className="flex-row gap-3 mb-4">
-          <View className="flex-1">
-            <Text className="text-xs font-medium text-[#5A7264] mb-1">Kalori (kcal) *</Text>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Besin Değerleri</Text>
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Kalori (kcal) *</Text>
             <TextInput
-              className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3 text-base text-[#1A2E23] text-center"
-              placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={calories}
               onChangeText={setCalories}
             />
           </View>
-          <View className="flex-1">
-            <Text className="text-xs font-medium text-[#5A7264] mb-1">Protein (g)</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Protein (g)</Text>
             <TextInput
-              className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3 text-base text-[#1A2E23] text-center"
-              placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={protein}
@@ -89,23 +84,21 @@ export default function CustomFoodScreen() {
             />
           </View>
         </View>
-        <View className="flex-row gap-3 mb-8">
-          <View className="flex-1">
-            <Text className="text-xs font-medium text-[#5A7264] mb-1">Karbonhidrat (g)</Text>
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 32 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Karbonhidrat (g)</Text>
             <TextInput
-              className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3 text-base text-[#1A2E23] text-center"
-              placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={carbs}
               onChangeText={setCarbs}
             />
           </View>
-          <View className="flex-1">
-            <Text className="text-xs font-medium text-[#5A7264] mb-1">Yağ (g)</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Yağ (g)</Text>
             <TextInput
-              className="bg-white rounded-xl border border-[#D4E2DA] px-4 py-3 text-base text-[#1A2E23] text-center"
-              placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={fat}

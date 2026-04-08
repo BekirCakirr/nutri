@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -46,21 +46,21 @@ export default function MealPlanViewScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Beslenme Planı" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Plan overview info */}
-        <View className="bg-[#E8F5EC] rounded-2xl p-5 mb-6 border border-[#C8E6CF]/40">
-          <Text className="text-lg font-bold text-[#1A2E23] mb-1">Haftalık Plan</Text>
-          <Text className="text-sm text-[#5A7264] leading-relaxed">
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: '#C8E6CF66' }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginBottom: 4 }}>Haftalık Plan</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264' }} /* TODO: leading-relaxed */>
             Diyetisyeniniz tarafından sizin için oluşturulan beslenme planı.
           </Text>
-          <View className="flex-row mt-4 gap-4">
-            <View className="flex-1 bg-white/70 rounded-xl p-3 items-center">
-              <Text className="text-2xl font-bold text-[#1A5C37]">{avgCals}</Text>
-              <Text className="text-xs text-[#5A7264]">Ort. Günlük kcal</Text>
+          <View style={{ flexDirection: 'row', marginTop: 16, gap: 16 }}>
+            <View style={{ flex: 1, borderRadius: 12, padding: 12, alignItems: 'center' }} /* TODO: bg-white/70 */>
+              <Text style={{ fontSize: 24, fontWeight: '700', color: '#1A5C37' }}>{avgCals}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. Günlük kcal</Text>
             </View>
-            <View className="flex-1 bg-white/70 rounded-xl p-3 items-center">
-              <Text className="text-2xl font-bold text-[#1A5C37]">{totalDays}</Text>
-              <Text className="text-xs text-[#5A7264]">Günlük Plan</Text>
+            <View style={{ flex: 1, borderRadius: 12, padding: 12, alignItems: 'center' }} /* TODO: bg-white/70 */>
+              <Text style={{ fontSize: 24, fontWeight: '700', color: '#1A5C37' }}>{totalDays}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>Günlük Plan</Text>
             </View>
           </View>
         </View>
@@ -79,28 +79,27 @@ export default function MealPlanViewScreen() {
           }
 
           return (
-            <View key={index} className="mb-5">
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-base font-bold text-[#1A2E23]">{dayName}</Text>
-                <Text className="text-sm font-semibold text-[#1A5C37]">{dayPlan.totalCalories || 0} kcal</Text>
+            <View key={index} style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23' }}>{dayName}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A5C37' }}>{dayPlan.totalCalories || 0} kcal</Text>
               </View>
               {dayPlan.meals?.map((meal, mIndex) => (
                 <View
                   key={mIndex}
-                  className="bg-white rounded-xl px-4 py-3 mb-2 border border-[#E8F0EC] flex-row items-center"
-                >
-                  <View className="flex-1">
-                    <Text className="text-sm font-semibold text-[#1A2E23]">
+                  style={{ borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' }} /* TODO: bg-white */>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>
                       {mealTypeLabels[meal.type] || meal.type}
                     </Text>
-                    <Text className="text-xs text-[#5A7264] mt-0.5">
+                    <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>
                       {meal.name || (meal.foods?.map((f) => f.name).join(', ') || 'Belirtilmemiş')}
                     </Text>
                   </View>
-                  <View className="items-end">
-                    <Text className="text-sm font-bold text-[#1A5C37]">{Math.round(meal.nutrition?.calories || 0)} kcal</Text>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A5C37' }}>{Math.round(meal.nutrition?.calories || 0)} kcal</Text>
                     {meal.nutrition?.protein != null && (
-                      <Text className="text-xs text-[#5A7264]">{meal.nutrition.protein}g Protein</Text>
+                      <Text style={{ fontSize: 12, color: '#5A7264' }}>{meal.nutrition.protein}g Protein</Text>
                     )}
                   </View>
                 </View>
@@ -109,7 +108,7 @@ export default function MealPlanViewScreen() {
           )
         })}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

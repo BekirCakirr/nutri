@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -10,12 +10,12 @@ export default function OCRScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Etiket Oku (OCR)" onBack={() => navigation.goBack()} />
-      <View className="flex-1 bg-[#0A0A0A] items-center justify-center">
-        <View className="w-72 h-44 border-2 border-white/30 rounded-2xl items-center justify-center">
+      <View style={{ flex: 1, backgroundColor: '#0A0A0A', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 288, height: 176, borderWidth: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }} /* TODO: border-white/30 */>
           <Ionicons name="document-text-outline" size={56} color="rgba(255,255,255,0.4)" />
-          <Text className="text-white/50 text-sm mt-3">Besin etiketi çerçeveye alın</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginTop: 12 }}>Besin etiketi çerçeveye alın</Text>
         </View>
-        <Text className="text-white/30 text-xs mt-8 px-12 text-center">
+        <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, marginTop: 32, paddingHorizontal: 48, textAlign: 'center' }}>
           Ürün üzerindeki besin değerleri tablosunu okuyarak otomatik olarak tanımlayın
         </Text>
       </View>

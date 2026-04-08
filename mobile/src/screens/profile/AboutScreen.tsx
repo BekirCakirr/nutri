@@ -1,26 +1,22 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
-const appInfo = {
-  version: '1.0.0',
-  build: '2026.03.17',
-  developer: 'NutriAI Team',
-}
-
+const appInfo = { version: '1.0.0', build: '2026.03.17', developer: 'NutriAI Team' }
 const links = [
   { title: 'Web Sitemiz', icon: 'globe-outline' as const, url: '#' },
   { title: 'Twitter / X', icon: 'logo-twitter' as const, url: '#' },
   { title: 'Instagram', icon: 'logo-instagram' as const, url: '#' },
 ]
-
 const legalItems = [
   { title: 'Gizlilik Politikası', screen: 'PrivacyPolicy' as const },
   { title: 'Kullanım Şartları', screen: 'TermsOfService' as const },
@@ -32,73 +28,69 @@ export default function AboutScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Hakkında" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
-        {/* Logo & version */}
-        <View className="items-center mb-6 mt-4">
-          <View className="w-20 h-20 rounded-2xl bg-[#1A5C37] items-center justify-center mb-3">
-            <Text className="text-3xl">🥗</Text>
-          </View>
-          <Text className="text-2xl font-extrabold text-[#1A2E23]">NutriAI</Text>
-          <Text className="text-sm text-[#5A7264] mt-1">Akıllı Beslenme Asistanı</Text>
-          <Text className="text-xs text-[#A8BFB2] mt-0.5">v{appInfo.version} ({appInfo.build})</Text>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
+        <View style={st.logoArea}>
+          <View style={st.logoBox}><Text style={{ fontSize: 30 }}>🥗</Text></View>
+          <Text style={st.appName}>NutriAI</Text>
+          <Text style={st.appDesc}>Akıllı Beslenme Asistanı</Text>
+          <Text style={st.appVersion}>v{appInfo.version} ({appInfo.build})</Text>
         </View>
 
-        {/* Description */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-sm text-[#5A7264] leading-5">
-            NutriAI, yapay zeka destekli akıllı beslenme uygulamasıdır. Fotoğraf çekerek yemekleri analiz edebilir,
-            kişiselleştirilmiş beslenme planları oluşturabilir ve sağlık hedeflerinizi takip edebilirsiniz.
-          </Text>
+        <View style={st.infoCard}>
+          <Text style={st.infoText}>NutriAI, yapay zeka destekli akıllı beslenme uygulamasıdır. Fotoğraf çekerek yemekleri analiz edebilir, kişiselleştirilmiş beslenme planları oluşturabilir ve sağlık hedeflerinizi takip edebilirsiniz.</Text>
         </View>
 
-        {/* Team */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-2">Geliştirici</Text>
-          <Text className="text-sm text-[#5A7264]">{appInfo.developer}</Text>
-          <Text className="text-xs text-[#A8BFB2] mt-1">Powered by Google Gemini AI</Text>
+        <View style={st.infoCard}>
+          <Text style={st.cardTitle}>Geliştirici</Text>
+          <Text style={st.cardDesc}>{appInfo.developer}</Text>
+          <Text style={st.cardMeta}>Powered by Google Gemini AI</Text>
         </View>
 
-        {/* Social links */}
-        <Text className="text-xs font-bold text-[#5A7264] uppercase tracking-wide mb-2 ml-1">Bizi Takip Edin</Text>
-        <View className="bg-white rounded-2xl border border-[#E8F0EC] overflow-hidden mb-4">
+        <Text style={st.sectionLabel}>Bizi Takip Edin</Text>
+        <View style={st.sectionCard}>
           {links.map((link, i) => (
-            <TouchableOpacity
-              key={i}
-              className="flex-row items-center px-4 py-3.5 border-b border-[#E8F0EC]"
-              style={i === links.length - 1 ? { borderBottomWidth: 0 } : {}}
-              activeOpacity={0.6}
-            >
-              <View className="w-9 h-9 rounded-full bg-[#E8F5EC] items-center justify-center mr-3">
-                <Ionicons name={link.icon} size={18} color="#1A5C37" />
-              </View>
-              <Text className="flex-1 text-[15px] font-semibold text-[#1A2E23]">{link.title}</Text>
-              <Ionicons name="open-outline" size={16} color="#D4E2DA" />
+            <TouchableOpacity key={i} style={[st.menuItem, i < links.length - 1 && st.menuItemBorder]} activeOpacity={0.6}>
+              <View style={st.menuIcon}><Ionicons name={link.icon} size={18} color={colors.primary.main} /></View>
+              <Text style={st.menuTitle}>{link.title}</Text>
+              <Ionicons name="open-outline" size={16} color={colors.border} />
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Legal */}
-        <Text className="text-xs font-bold text-[#5A7264] uppercase tracking-wide mb-2 ml-1">Yasal</Text>
-        <View className="bg-white rounded-2xl border border-[#E8F0EC] overflow-hidden mb-4">
+        <Text style={st.sectionLabel}>Yasal</Text>
+        <View style={st.sectionCard}>
           {legalItems.map((item, i) => (
-            <TouchableOpacity
-              key={i}
-              className="flex-row items-center px-4 py-3.5 border-b border-[#E8F0EC]"
-              style={i === legalItems.length - 1 ? { borderBottomWidth: 0 } : {}}
-              activeOpacity={0.6}
-              onPress={() => navigation.navigate(item.screen)}
-            >
-              <Text className="flex-1 text-[15px] font-semibold text-[#1A2E23]">{item.title}</Text>
-              <Ionicons name="chevron-forward" size={16} color="#D4E2DA" />
+            <TouchableOpacity key={i} style={[st.menuItem, i < legalItems.length - 1 && st.menuItemBorder]} activeOpacity={0.6} onPress={() => navigation.navigate(item.screen)}>
+              <Text style={st.menuTitle}>{item.title}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.border} />
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Footer */}
-        <View className="items-center mb-8">
-          <Text className="text-xs text-[#A8BFB2]">© 2026 NutriAI. Tüm hakları saklıdır.</Text>
-        </View>
+        <View style={st.footer}><Text style={st.footerText}>© 2026 NutriAI. Tüm hakları saklıdır.</Text></View>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  logoArea: { alignItems: 'center', marginBottom: 24, marginTop: 16 },
+  logoBox: { width: 80, height: 80, borderRadius: 16, backgroundColor: colors.primary.main, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  appName: { fontSize: 24, fontWeight: fontWeights.extrabold, color: colors.text.primary },
+  appDesc: { fontSize: 14, color: colors.text.secondary, marginTop: 4 },
+  appVersion: { fontSize: 12, color: colors.text.disabled, marginTop: 2 },
+  infoCard: { backgroundColor: '#fff', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 },
+  infoText: { fontSize: 14, color: colors.text.secondary, lineHeight: 20 },
+  cardTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 8 },
+  cardDesc: { fontSize: 14, color: colors.text.secondary },
+  cardMeta: { fontSize: 12, color: colors.text.disabled, marginTop: 4 },
+  sectionLabel: { fontSize: 12, fontWeight: fontWeights.bold, color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, marginLeft: 4 },
+  sectionCard: { backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden', marginBottom: 16 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
+  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#E8F0EC' },
+  menuIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  menuTitle: { flex: 1, fontSize: 15, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  footer: { alignItems: 'center', marginBottom: 32 },
+  footerText: { fontSize: 12, color: colors.text.disabled },
+})

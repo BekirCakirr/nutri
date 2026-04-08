@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -38,23 +38,19 @@ export default function CalorieHistoryScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Kalori Geçmişi (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Period selector */}
-        <View className="flex-row mb-4 gap-2">
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
           {(['7 Gün', '30 Gün'] as Period[]).map((p) => (
             <TouchableOpacity
               key={p}
-              className="flex-1 rounded-xl py-2.5 items-center border"
-              style={{
-                backgroundColor: period === p ? '#1A5C37' : '#FFFFFF',
-                borderColor: period === p ? '#1A5C37' : '#E8F0EC',
-              }}
+              style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, backgroundColor: period === p ? '#1A5C37' : '#FFFFFF',
+                borderColor: period === p ? '#1A5C37' : '#E8F0EC', }}
               activeOpacity={0.7}
               onPress={() => setPeriod(p)}
             >
               <Text
-                className="text-sm font-semibold"
-                style={{ color: period === p ? '#FFFFFF' : '#5A7264' }}
+                style={{ fontSize: 14, fontWeight: '600', color: period === p ? '#FFFFFF' : '#5A7264' }}
               >
                 {p}
               </Text>
@@ -63,70 +59,68 @@ export default function CalorieHistoryScreen() {
         </View>
 
         {/* Average stats */}
-        <View className="flex-row mb-4 gap-3">
-          <View className="flex-1 bg-white rounded-2xl p-4 border border-[#E8F0EC] items-center">
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="flame-outline" size={22} color="#E8A040" />
-            <Text className="text-xl font-extrabold text-[#1A2E23] mt-1">{avgConsumed}</Text>
-            <Text className="text-xs text-[#5A7264]">Ort. alım (kcal)</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgConsumed}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. alım (kcal)</Text>
           </View>
-          <View className="flex-1 bg-white rounded-2xl p-4 border border-[#E8F0EC] items-center">
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="flash-outline" size={22} color="#C75B4A" />
-            <Text className="text-xl font-extrabold text-[#1A2E23] mt-1">{avgBurned}</Text>
-            <Text className="text-xs text-[#5A7264]">Ort. yakım (kcal)</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgBurned}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. yakım (kcal)</Text>
           </View>
         </View>
 
         {/* Bar chart */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-4">Kalori Alımı</Text>
-          <View className="flex-row items-end justify-between h-28">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Kalori Alımı</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 112 }}>
             {data.slice(0, 7).map((d, i) => {
               const pct = (d.consumed / maxCal) * 100
               const overTarget = d.consumed > dailyTarget
               return (
-                <View key={i} className="items-center flex-1 mx-0.5">
-                  <Text className="text-[9px] text-[#5A7264] mb-1">{d.consumed}</Text>
+                <View key={i} style={{ alignItems: 'center', flex: 1, marginHorizontal: 2 }}>
+                  <Text style={{ fontSize: 9, color: '#5A7264', marginBottom: 4 }}>{d.consumed}</Text>
                   <View
-                    className="w-5 rounded-t-md"
                     style={{
+                      width: 20, borderTopLeftRadius: 8, borderTopRightRadius: 8,
                       height: `${pct}%`,
                       backgroundColor: overTarget ? '#EF4444' : '#E8A040',
                     }}
                   />
-                  <Text className="text-[10px] text-[#5A7264] mt-1 font-semibold">{d.day}</Text>
+                  <Text style={{ fontSize: 10, color: '#5A7264', marginTop: 4, fontWeight: '600' }}>{d.day}</Text>
                 </View>
               )
             })}
           </View>
-          <View className="flex-row items-center mt-3">
-            <View className="h-px flex-1 bg-[#1A5C37]/30" />
-            <Text className="text-[10px] text-[#1A5C37] mx-2">Hedef: {dailyTarget} kcal</Text>
-            <View className="h-px flex-1 bg-[#1A5C37]/30" />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+            <View style={{ flex: 1, backgroundColor: '#1A5C374d' }} /* TODO: h-px *//>
+            <Text style={{ fontSize: 10, color: '#1A5C37', marginHorizontal: 8 }}>Hedef: {dailyTarget} kcal</Text>
+            <View style={{ flex: 1, backgroundColor: '#1A5C374d' }} /* TODO: h-px *//>
           </View>
         </View>
 
         {/* Daily list */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Günlük Kayıtlar</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Günlük Kayıtlar</Text>
         {data.map((d, i) => {
           const net = d.consumed - d.burned
           const overTarget = d.consumed > dailyTarget
           return (
-            <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2 border border-[#E8F0EC]">
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
               <View
-                className="w-9 h-9 rounded-full items-center justify-center mr-3"
-                style={{ backgroundColor: overTarget ? '#FEE2E2' : '#E8F5EC' }}
+                style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: overTarget ? '#FEE2E2' : '#E8F5EC' }}
               >
                 <Ionicons name="flame-outline" size={16} color={overTarget ? '#EF4444' : '#1A5C37'} />
               </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-[#1A2E23]">{d.date} ({d.day})</Text>
-                <Text className="text-xs text-[#5A7264]">
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{d.date} ({d.day})</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>
                   Alım: {d.consumed} · Yakım: {d.burned} · Net: {net}
                 </Text>
               </View>
               <Text
-                className="text-sm font-bold"
-                style={{ color: overTarget ? '#EF4444' : '#1A5C37' }}
+                style={{ fontSize: 14, fontWeight: '700', color: overTarget ? '#EF4444' : '#1A5C37' }}
               >
                 {d.consumed}
               </Text>
@@ -134,7 +128,7 @@ export default function CalorieHistoryScreen() {
           )
         })}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

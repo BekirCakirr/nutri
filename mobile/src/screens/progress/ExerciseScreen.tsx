@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -54,7 +54,7 @@ export default function ExerciseScreen() {
     return (
       <ScreenWrapper padded={false}>
         <AppHeader title="Egzersiz Takibi" onBack={() => navigation.goBack()} />
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#C75B4A" />
         </View>
       </ScreenWrapper>
@@ -67,49 +67,48 @@ export default function ExerciseScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Egzersiz Takibi" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary cards */}
-        <View className="flex-row mb-4">
-          <View className="flex-1 bg-white rounded-2xl p-4 border border-[#E8F0EC] mr-2">
-            <View className="w-10 h-10 rounded-full bg-[#FEE2E2] items-center justify-center mb-2">
+        <View style={{ flexDirection: 'row', marginBottom: 16 }}>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginRight: 8 }} /* TODO: bg-white */>
+            <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
               <Ionicons name="time-outline" size={20} color="#C75B4A" />
             </View>
-            <Text className="text-2xl font-extrabold text-[#1A2E23]">{totalMin}</Text>
-            <Text className="text-xs text-[#5A7264]">dakika</Text>
+            <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23' }}>{totalMin}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>dakika</Text>
           </View>
-          <View className="flex-1 bg-white rounded-2xl p-4 border border-[#E8F0EC] ml-2">
-            <View className="w-10 h-10 rounded-full bg-[#FEF3C7] items-center justify-center mb-2">
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginLeft: 8 }} /* TODO: bg-white */>
+            <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
               <Ionicons name="flame-outline" size={20} color="#E8A040" />
             </View>
-            <Text className="text-2xl font-extrabold text-[#1A2E23]">{totalCal}</Text>
-            <Text className="text-xs text-[#5A7264]">kcal yakıldı</Text>
+            <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23' }}>{totalCal}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>kcal yakıldı</Text>
           </View>
         </View>
 
         {/* Exercise list */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Egzersiz Geçmişi</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Egzersiz Geçmişi</Text>
         {exercises.map((ex, i) => (
-          <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-            <View className="w-10 h-10 rounded-full bg-[#FEE2E2] items-center justify-center mr-3">
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name={ex.icon} size={20} color="#C75B4A" />
             </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{ex.name}</Text>
-              <Text className="text-xs text-[#5A7264]">{ex.date} · {ex.duration} dk</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{ex.name}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>{ex.date} · {ex.duration} dk</Text>
             </View>
-            <View className="items-end">
-              <Text className="text-sm font-bold text-[#E8A040]">{ex.calories} kcal</Text>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#E8A040' }}>{ex.calories} kcal</Text>
             </View>
           </View>
         ))}
 
         {/* Add exercise */}
         <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mt-4 mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 16, marginBottom: 32, shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
           activeOpacity={0.8}
         >
-          <Text className="text-base font-semibold text-white">+ Egzersiz Ekle</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>+ Egzersiz Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>

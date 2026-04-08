@@ -1,11 +1,13 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
@@ -37,77 +39,95 @@ export default function DietitianConnectionScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Diyetisyen Bağlantısı" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Dietitian card */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <View className="flex-row items-center">
-            <View className="w-14 h-14 rounded-full bg-[#4ECDC4]/20 items-center justify-center mr-3">
-              <Text className="text-2xl">👩‍⚕️</Text>
+        <View style={st.dietitianCard}>
+          <View style={st.dietitianRow}>
+            <View style={st.dietitianAvatar}>
+              <Text style={{ fontSize: 24 }}>👩‍⚕️</Text>
             </View>
-            <View className="flex-1">
-              <Text className="text-lg font-bold text-[#1A2E23]">{mockDietitian.name}</Text>
-              <Text className="text-xs text-[#5A7264]">{mockDietitian.specialty}</Text>
-              <View className="flex-row items-center mt-1">
+            <View style={st.dietitianInfo}>
+              <Text style={st.dietitianName}>{mockDietitian.name}</Text>
+              <Text style={st.dietitianSpec}>{mockDietitian.specialty}</Text>
+              <View style={st.ratingRow}>
                 <Ionicons name="star" size={12} color="#F59E0B" />
-                <Text className="text-xs font-bold text-[#1A2E23] ml-0.5">{mockDietitian.rating}</Text>
-                <Text className="text-xs text-[#5A7264] ml-1">({mockDietitian.reviews} değerlendirme)</Text>
-                <Text className="text-xs text-[#5A7264] ml-2">· {mockDietitian.experience}</Text>
+                <Text style={st.ratingVal}>{mockDietitian.rating}</Text>
+                <Text style={st.ratingCount}>({mockDietitian.reviews} değerlendirme)</Text>
+                <Text style={st.ratingCount}> · {mockDietitian.experience}</Text>
               </View>
             </View>
           </View>
-          <View className="bg-[#E8F5EC] rounded-xl p-3 mt-4 flex-row items-center">
-            <Ionicons name="checkmark-circle" size={18} color="#1A5C37" />
-            <Text className="text-sm font-semibold text-[#1A5C37] ml-2">Bağlı</Text>
+          <View style={st.connectedBadge}>
+            <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} />
+            <Text style={st.connectedText}>Bağlı</Text>
           </View>
         </View>
 
         {/* Quick actions */}
-        <View className="flex-row flex-wrap mb-4">
+        <View style={st.actionsGrid}>
           {features.map((f, i) => (
-            <TouchableOpacity
-              key={i}
-              className="w-[48%] mx-[1%] mb-2.5 bg-white rounded-xl p-4 border border-[#E8F0EC]"
-              activeOpacity={0.7}
-            >
-              <View className="w-10 h-10 rounded-full bg-[#E8F5EC] items-center justify-center mb-2">
-                <Ionicons name={f.icon} size={20} color="#1A5C37" />
+            <TouchableOpacity key={i} style={st.actionCard} activeOpacity={0.7}>
+              <View style={st.actionIcon}>
+                <Ionicons name={f.icon} size={20} color={colors.primary.main} />
               </View>
-              <Text className="text-sm font-semibold text-[#1A2E23]">{f.title}</Text>
-              <Text className="text-xs text-[#5A7264] mt-0.5">{f.desc}</Text>
+              <Text style={st.actionTitle}>{f.title}</Text>
+              <Text style={st.actionDesc}>{f.desc}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Upcoming appointments */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Yaklaşan Randevular</Text>
+        <Text style={st.sectionTitle}>Yaklaşan Randevular</Text>
         {upcomingAppointments.map((apt, i) => (
-          <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-            <View className="w-10 h-10 rounded-full bg-[#DBEAFE] items-center justify-center mr-3">
+          <View key={i} style={st.aptCard}>
+            <View style={st.aptIcon}>
               <Ionicons name="calendar-outline" size={18} color="#4A7FB5" />
             </View>
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-[#1A2E23]">{apt.date} — {apt.time}</Text>
-              <Text className="text-xs text-[#5A7264]">{apt.type}</Text>
+            <View style={st.aptContent}>
+              <Text style={st.aptDate}>{apt.date} — {apt.time}</Text>
+              <Text style={st.aptType}>{apt.type}</Text>
             </View>
-            <View
-              className="rounded-full px-2.5 py-0.5"
-              style={{ backgroundColor: apt.status === 'Onaylandı' ? '#E8F5EC' : '#FEF3C7' }}
-            >
-              <Text
-                className="text-xs font-bold"
-                style={{ color: apt.status === 'Onaylandı' ? '#1A5C37' : '#E8A040' }}
-              >
-                {apt.status}
-              </Text>
+            <View style={[st.statusBadge, { backgroundColor: apt.status === 'Onaylandı' ? '#E8F5EC' : '#FEF3C7' }]}>
+              <Text style={[st.statusText, { color: apt.status === 'Onaylandı' ? colors.primary.main : '#E8A040' }]}>{apt.status}</Text>
             </View>
           </View>
         ))}
 
         {/* Change dietitian */}
-        <TouchableOpacity className="items-center mt-4 mb-8" activeOpacity={0.6}>
-          <Text className="text-sm text-[#5A7264]">Diyetisyen Değiştir</Text>
+        <TouchableOpacity style={st.changeDietitian} activeOpacity={0.6}>
+          <Text style={st.changeDietitianText}>Diyetisyen Değiştir</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 20, paddingTop: 16 },
+  dietitianCard: { backgroundColor: '#fff', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 },
+  dietitianRow: { flexDirection: 'row', alignItems: 'center' },
+  dietitianAvatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(78,205,196,0.2)', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  dietitianInfo: { flex: 1 },
+  dietitianName: { fontSize: 18, fontWeight: fontWeights.bold, color: colors.text.primary },
+  dietitianSpec: { fontSize: 12, color: colors.text.secondary },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  ratingVal: { fontSize: 12, fontWeight: fontWeights.bold, color: colors.text.primary, marginLeft: 2 },
+  ratingCount: { fontSize: 12, color: colors.text.secondary, marginLeft: 4 },
+  connectedBadge: { backgroundColor: colors.primary[50], borderRadius: 12, padding: 12, marginTop: 16, flexDirection: 'row', alignItems: 'center' },
+  connectedText: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.primary.main, marginLeft: 8 },
+  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
+  actionCard: { width: '48%', marginHorizontal: '1%', marginBottom: 10, backgroundColor: '#fff', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC' },
+  actionIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  actionTitle: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  actionDesc: { fontSize: 12, color: colors.text.secondary, marginTop: 2 },
+  sectionTitle: { fontSize: 16, fontWeight: fontWeights.bold, color: colors.text.primary, marginBottom: 12 },
+  aptCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' },
+  aptIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#DBEAFE', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  aptContent: { flex: 1 },
+  aptDate: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  aptType: { fontSize: 12, color: colors.text.secondary },
+  statusBadge: { borderRadius: 100, paddingHorizontal: 10, paddingVertical: 2 },
+  statusText: { fontSize: 12, fontWeight: fontWeights.bold },
+  changeDietitian: { alignItems: 'center', marginTop: 16, marginBottom: 32 },
+  changeDietitianText: { fontSize: 14, color: colors.text.secondary },
+})

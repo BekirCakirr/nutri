@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -48,71 +48,70 @@ export default function HeartRateScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Kalp Hızı (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Current heart rate */}
-        <View className="bg-white rounded-2xl p-6 border border-[#E8F0EC] mb-4 items-center">
-          <View className="w-20 h-20 rounded-full bg-[#FEE2E2] items-center justify-center mb-3">
+        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ width: 80, height: 80, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
             <Ionicons name="heart" size={36} color="#EF4444" />
           </View>
-          <Text className="text-4xl font-extrabold text-[#1A2E23]">{latest.bpm}</Text>
-          <Text className="text-sm text-[#5A7264]">bpm</Text>
-          <View className="rounded-full px-3 py-1 mt-2" style={{ backgroundColor: zone.color + '20' }}>
-            <Text className="text-xs font-bold" style={{ color: zone.color }}>{zone.label}</Text>
+          <Text style={{ fontSize: 36, fontWeight: '800', color: '#1A2E23' }}>{latest.bpm}</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264' }}>bpm</Text>
+          <View style={{ borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 4, marginTop: 8, backgroundColor: zone.color + '20' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: zone.color }}>{zone.label}</Text>
           </View>
         </View>
 
         {/* Stats row */}
-        <View className="flex-row mb-4 gap-2">
-          <View className="flex-1 bg-white rounded-xl p-3.5 border border-[#E8F0EC] items-center">
-            <Text className="text-xs text-[#5A7264]">Dinlenme</Text>
-            <Text className="text-lg font-bold text-[#4A7FB5] mt-0.5">{restingHR}</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Dinlenme</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#4A7FB5', marginTop: 2 }}>{restingHR}</Text>
           </View>
-          <View className="flex-1 bg-white rounded-xl p-3.5 border border-[#E8F0EC] items-center">
-            <Text className="text-xs text-[#5A7264]">Ortalama</Text>
-            <Text className="text-lg font-bold text-[#1A2E23] mt-0.5">{avgHR}</Text>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Ortalama</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 2 }}>{avgHR}</Text>
           </View>
-          <View className="flex-1 bg-white rounded-xl p-3.5 border border-[#E8F0EC] items-center">
-            <Text className="text-xs text-[#5A7264]">Min / Max</Text>
-            <Text className="text-lg font-bold text-[#1A2E23] mt-0.5">{minHR}/{maxHR}</Text>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Min / Max</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 2 }}>{minHR}/{maxHR}</Text>
           </View>
         </View>
 
         {/* Heart rate zones */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-3">Kalp Hızı Bölgeleri</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Kalp Hızı Bölgeleri</Text>
           {zones.map((z, i) => (
-            <View key={i} className="flex-row items-center py-2.5 border-b border-[#E8F0EC] last:border-b-0">
-              <View className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: z.color }} />
-              <Text className="flex-1 text-sm font-semibold text-[#1A2E23]">{z.label}</Text>
-              <Text className="text-sm text-[#5A7264]">{z.range}</Text>
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#E8F0EC' }} /* TODO: last:border-b-0 */>
+              <View style={{ width: 12, height: 12, borderRadius: 9999, marginRight: 12, backgroundColor: z.color }} />
+              <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{z.label}</Text>
+              <Text style={{ fontSize: 14, color: '#5A7264' }}>{z.range}</Text>
             </View>
           ))}
         </View>
 
         {/* Today's readings */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Bugünün Ölçümleri</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Bugünün Ölçümleri</Text>
         {[...mockHeartRateData].reverse().map((d, i) => {
           const z = getZone(d.bpm)
           return (
-            <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3 mb-2 border border-[#E8F0EC]">
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
               <View
-                className="w-9 h-9 rounded-full items-center justify-center mr-3"
-                style={{ backgroundColor: z.color + '20' }}
+                style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: z.color + '20' }}
               >
                 <Ionicons name="heart" size={16} color={z.color} />
               </View>
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-[#1A2E23]">{d.bpm} bpm</Text>
-                <Text className="text-xs text-[#5A7264]">{d.time}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{d.bpm} bpm</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{d.time}</Text>
               </View>
-              <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: z.color + '20' }}>
-                <Text className="text-[10px] font-bold" style={{ color: z.color }}>{z.label}</Text>
+              <View style={{ borderRadius: 9999, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: z.color + '20' }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: z.color }}>{z.label}</Text>
               </View>
             </View>
           )
         })}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

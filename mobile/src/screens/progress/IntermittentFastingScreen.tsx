@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -52,23 +52,19 @@ export default function IntermittentFastingScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Aralıklı Oruç (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Plan selector */}
-        <View className="flex-row mb-4 gap-2">
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
           {plans.map((p, i) => (
             <TouchableOpacity
               key={i}
-              className="flex-1 rounded-xl py-3 items-center border"
-              style={{
-                backgroundColor: selectedPlan === i ? '#1A5C37' : '#FFFFFF',
-                borderColor: selectedPlan === i ? '#1A5C37' : '#E8F0EC',
-              }}
+              style={{ flex: 1, borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, backgroundColor: selectedPlan === i ? '#1A5C37' : '#FFFFFF',
+                borderColor: selectedPlan === i ? '#1A5C37' : '#E8F0EC', }}
               activeOpacity={0.7}
               onPress={() => { setSelectedPlan(i); setElapsed(0); setIsFasting(false) }}
             >
               <Text
-                className="text-base font-bold"
-                style={{ color: selectedPlan === i ? '#FFFFFF' : '#1A2E23' }}
+                style={{ fontSize: 16, fontWeight: '700', color: selectedPlan === i ? '#FFFFFF' : '#1A2E23' }}
               >
                 {p.label}
               </Text>
@@ -77,65 +73,62 @@ export default function IntermittentFastingScreen() {
         </View>
 
         {/* Timer card */}
-        <View className="bg-[#1A2E23] rounded-2xl p-6 mb-4 items-center">
+        <View style={{ backgroundColor: '#1A2E23', borderRadius: 16, padding: 24, marginBottom: 16, alignItems: 'center' }}>
           {/* Circular timer (simplified) */}
-          <View className="w-44 h-44 rounded-full border-[8px] border-[#2D4A3A] items-center justify-center mb-4">
-            <Text className="text-3xl font-extrabold text-white">
+          <View style={{ width: 176, height: 176, borderRadius: 9999, borderColor: '#2D4A3A', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }} /* TODO: border-[8px] */>
+            <Text style={{ fontSize: 30, fontWeight: '800', color: '#FFFFFF' }}>
               {String(hours).padStart(2, '0')}:{String(mins).padStart(2, '0')}
             </Text>
-            <Text className="text-sm text-white/50">
+            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>
               :{String(secs).padStart(2, '0')}
             </Text>
-            <Text className="text-xs text-white/40 mt-1">
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
               / {plan.fast} saat
             </Text>
           </View>
 
           {/* Progress bar */}
-          <View className="w-full h-2 bg-[#2D4A3A] rounded-full overflow-hidden mb-4">
+          <View style={{ height: 8, backgroundColor: '#2D4A3A', borderRadius: 9999, overflow: 'hidden', marginBottom: 16 }} /* TODO: w-full */>
             <View
-              className="h-full bg-[#4ECDC4] rounded-full"
-              style={{ width: `${pct}%` }}
+              style={{ height: '100%', backgroundColor: '#4ECDC4', borderRadius: 9999, width: `${pct}%` }}
             />
           </View>
 
-          <Text className="text-sm text-white/60 mb-4">
+          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 16 }}>
             {isFasting ? `Oruç devam ediyor (%${Math.round(pct)})` : 'Başlamak için butona bas'}
           </Text>
 
           <TouchableOpacity
-            className="rounded-full px-8 py-3.5"
-            style={{ backgroundColor: isFasting ? '#EF4444' : '#4ECDC4' }}
+            style={{ borderRadius: 9999, paddingHorizontal: 32, paddingVertical: 14, backgroundColor: isFasting ? '#EF4444' : '#4ECDC4' }}
             activeOpacity={0.8}
             onPress={() => {
               if (isFasting) { setIsFasting(false); setElapsed(0) }
               else setIsFasting(true)
             }}
           >
-            <Text className="text-base font-bold text-white">
+            <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFFFFF' }}>
               {isFasting ? '⏹ Orucu Bitir' : '▶ Orucu Başlat'}
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Info card */}
-        <View className="bg-[#E8F5EC] rounded-2xl p-4 mb-4 border border-[#C8E6CF]/40">
-          <View className="flex-row items-center mb-2">
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#C8E6CF66' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <Ionicons name="information-circle-outline" size={18} color="#1A5C37" />
-            <Text className="text-sm font-bold text-[#1A5C37] ml-1">{plan.label} Planı</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A5C37', marginLeft: 4 }}>{plan.label} Planı</Text>
           </View>
-          <Text className="text-xs text-[#5A7264]">
+          <Text style={{ fontSize: 12, color: '#5A7264' }}>
             {plan.fast > 0 ? `${plan.fast} saat oruç, ${plan.eat} saat yeme penceresi.` : 'Haftada 5 gün normal ye, 2 gün düşük kalori.'}
           </Text>
         </View>
 
         {/* History */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Geçmiş</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Geçmiş</Text>
         {mockHistory.map((h, i) => (
-          <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2 border border-[#E8F0EC]">
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
             <View
-              className="w-9 h-9 rounded-full items-center justify-center mr-3"
-              style={{ backgroundColor: h.completed ? '#E8F5EC' : '#FEE2E2' }}
+              style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: h.completed ? '#E8F5EC' : '#FEE2E2' }}
             >
               <Ionicons
                 name={h.completed ? 'checkmark' : 'close'}
@@ -143,17 +136,17 @@ export default function IntermittentFastingScreen() {
                 color={h.completed ? '#1A5C37' : '#EF4444'}
               />
             </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{h.plan}</Text>
-              <Text className="text-xs text-[#5A7264]">{h.date} · {h.duration}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{h.plan}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>{h.date} · {h.duration}</Text>
             </View>
-            <Text className="text-xs font-bold" style={{ color: h.completed ? '#1A5C37' : '#EF4444' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: h.completed ? '#1A5C37' : '#EF4444' }}>
               {h.completed ? 'Tamamlandı' : 'Yarım kaldı'}
             </Text>
           </View>
         ))}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

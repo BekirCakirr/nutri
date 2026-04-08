@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -49,32 +49,28 @@ export default function NutrientBreakdownScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Besin Detayı (Demo)" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-sm text-[#5A7264]">Bugünkü Alım</Text>
-          <Text className="text-2xl font-extrabold text-[#1A2E23] mt-1">1680 kcal</Text>
-          <Text className="text-xs text-[#5A7264] mt-0.5">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 14, color: '#5A7264' }}>Bugünkü Alım</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>1680 kcal</Text>
+          <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>
             {mockNutrients.filter(n => (n.current / n.target) >= 0.8).length}/{mockNutrients.length} besin hedefte
           </Text>
         </View>
 
         {/* Category tabs */}
-        <View className="flex-row mb-4 gap-2">
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
           {categories.map((cat, i) => (
             <TouchableOpacity
               key={i}
-              className="flex-1 rounded-xl py-2.5 items-center border"
-              style={{
-                backgroundColor: activeCategory === i ? '#1A5C37' : '#FFFFFF',
-                borderColor: activeCategory === i ? '#1A5C37' : '#E8F0EC',
-              }}
+              style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, backgroundColor: activeCategory === i ? '#1A5C37' : '#FFFFFF',
+                borderColor: activeCategory === i ? '#1A5C37' : '#E8F0EC', }}
               activeOpacity={0.7}
               onPress={() => setActiveCategory(i)}
             >
               <Text
-                className="text-sm font-semibold"
-                style={{ color: activeCategory === i ? '#FFFFFF' : '#5A7264' }}
+                style={{ fontSize: 14, fontWeight: '600', color: activeCategory === i ? '#FFFFFF' : '#5A7264' }}
               >
                 {cat}
               </Text>
@@ -86,25 +82,24 @@ export default function NutrientBreakdownScreen() {
         {filtered.map((n, i) => {
           const pct = Math.min((n.current / n.target) * 100, 100)
           return (
-            <View key={i} className="bg-white rounded-xl p-4 mb-2.5 border border-[#E8F0EC]">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-base font-semibold text-[#1A2E23]">{n.name}</Text>
-                <Text className="text-sm font-bold" style={{ color: n.color }}>
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{n.name}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: n.color }}>
                   {n.current} / {n.target} {n.unit}
                 </Text>
               </View>
-              <View className="h-2.5 bg-[#E8F0EC] rounded-full overflow-hidden">
+              <View style={{ backgroundColor: '#E8F0EC', borderRadius: 9999, overflow: 'hidden' }} /* TODO: h-2.5 */>
                 <View
-                  className="h-full rounded-full"
-                  style={{ width: `${pct}%`, backgroundColor: n.color }}
+                  style={{ height: '100%', borderRadius: 9999, width: `${pct}%`, backgroundColor: n.color }}
                 />
               </View>
-              <Text className="text-xs text-[#5A7264] mt-1 text-right">%{Math.round(pct)}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 4, textAlign: 'right' }}>%{Math.round(pct)}</Text>
             </View>
           )
         })}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )

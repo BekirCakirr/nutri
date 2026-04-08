@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -46,44 +46,44 @@ export default function BadgesScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Rozetler" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View className="bg-[#1A2E23] rounded-2xl p-5 mb-4 flex-row items-center">
-          <Text className="text-3xl mr-3">🎖️</Text>
+        <View style={{ backgroundColor: '#1A2E23', borderRadius: 16, padding: 20, marginBottom: 16, flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 30, marginRight: 12 }}>🎖️</Text>
           <View>
-            <Text className="text-2xl font-extrabold text-white">{earnedBadges.length}/{mockBadges.length}</Text>
-            <Text className="text-xs text-white/50">Rozet Kazanıldı</Text>
+            <Text style={{ fontSize: 24, fontWeight: '800', color: '#FFFFFF' }}>{earnedBadges.length}/{mockBadges.length}</Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Rozet Kazanıldı</Text>
           </View>
         </View>
 
         {/* Earned */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Kazanılan</Text>
-        <View className="flex-row flex-wrap mb-4">
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Kazanılan</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 }}>
           {earnedBadges.map((b) => (
-            <View key={b.id} className="w-[48%] mx-[1%] mb-3 bg-white rounded-xl p-4 border border-[#E8F0EC] items-center">
-              <Text className="text-3xl mb-2">{b.icon}</Text>
-              <Text className="text-sm font-bold text-[#1A2E23] text-center">{b.title}</Text>
-              <Text className="text-[10px] text-[#5A7264] text-center mt-0.5">{b.desc}</Text>
-              <View className="flex-row items-center mt-2">
-                <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: rarityColor(b.rarity) + '20' }}>
-                  <Text className="text-[9px] font-bold" style={{ color: rarityColor(b.rarity) }}>{b.rarity}</Text>
+            <View key={b.id} style={{ width: '48%', marginBottom: 12, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: mx-[1%] bg-white */>
+              <Text style={{ fontSize: 30, marginBottom: 8 }}>{b.icon}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A2E23', textAlign: 'center' }}>{b.title}</Text>
+              <Text style={{ fontSize: 10, color: '#5A7264', textAlign: 'center', marginTop: 2 }}>{b.desc}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                <View style={{ borderRadius: 9999, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: rarityColor(b.rarity) + '20' }}>
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: rarityColor(b.rarity) }}>{b.rarity}</Text>
                 </View>
               </View>
-              <Text className="text-[9px] text-[#A8BFB2] mt-1">{b.date}</Text>
+              <Text style={{ fontSize: 9, color: '#A8BFB2', marginTop: 4 }}>{b.date}</Text>
             </View>
           ))}
         </View>
 
         {/* Locked */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Kilitli</Text>
-        <View className="flex-row flex-wrap mb-8">
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Kilitli</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 32 }}>
           {lockedBadges.map((b) => (
-            <View key={b.id} className="w-[48%] mx-[1%] mb-3 bg-white rounded-xl p-4 border border-[#E8F0EC] items-center opacity-50">
-              <Text className="text-3xl mb-2">{b.icon}</Text>
-              <Text className="text-sm font-bold text-[#1A2E23] text-center">{b.title}</Text>
-              <Text className="text-[10px] text-[#5A7264] text-center mt-0.5">{b.desc}</Text>
-              <View className="rounded-full px-2 py-0.5 mt-2" style={{ backgroundColor: rarityColor(b.rarity) + '20' }}>
-                <Text className="text-[9px] font-bold" style={{ color: rarityColor(b.rarity) }}>{b.rarity}</Text>
+            <View key={b.id} style={{ width: '48%', marginBottom: 12, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center', opacity: 0.5 }} /* TODO: mx-[1%] bg-white */>
+              <Text style={{ fontSize: 30, marginBottom: 8 }}>{b.icon}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A2E23', textAlign: 'center' }}>{b.title}</Text>
+              <Text style={{ fontSize: 10, color: '#5A7264', textAlign: 'center', marginTop: 2 }}>{b.desc}</Text>
+              <View style={{ borderRadius: 9999, paddingHorizontal: 8, paddingVertical: 2, marginTop: 8, backgroundColor: rarityColor(b.rarity) + '20' }}>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: rarityColor(b.rarity) }}>{b.rarity}</Text>
               </View>
             </View>
           ))}

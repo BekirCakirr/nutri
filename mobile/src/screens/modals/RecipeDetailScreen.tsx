@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -52,72 +52,72 @@ export default function RecipeDetailScreen() {
           </TouchableOpacity>
         }
       />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4 items-center">
-          <Text className="text-5xl mb-3">{mockRecipe.emoji}</Text>
-          <Text className="text-xl font-bold text-[#1A2E23]">{mockRecipe.title}</Text>
-          <View className="flex-row flex-wrap justify-center mt-2">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+          <Text style={{ marginBottom: 12 }} /* TODO: text-5xl */>{mockRecipe.emoji}</Text>
+          <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>{mockRecipe.title}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
             {mockRecipe.tags.map((t, i) => (
-              <View key={i} className="bg-[#E8F5EC] rounded-full px-2.5 py-1 mx-1 mb-1">
-                <Text className="text-[10px] font-bold text-[#1A5C37]">{t}</Text>
+              <View key={i} style={{ backgroundColor: '#E8F5EC', borderRadius: 9999, paddingHorizontal: 10, paddingVertical: 4, marginHorizontal: 4, marginBottom: 4 }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#1A5C37' }}>{t}</Text>
               </View>
             ))}
           </View>
         </View>
 
         {/* Quick stats */}
-        <View className="flex-row mb-4 gap-2">
-          <View className="flex-1 bg-white rounded-xl p-3 border border-[#E8F0EC] items-center">
+        <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
+          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="time-outline" size={16} color="#5A7264" />
-            <Text className="text-xs text-[#5A7264] mt-0.5">{mockRecipe.prepTime} hazırlık</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>{mockRecipe.prepTime} hazırlık</Text>
           </View>
-          <View className="flex-1 bg-white rounded-xl p-3 border border-[#E8F0EC] items-center">
+          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="flame-outline" size={16} color="#E8A040" />
-            <Text className="text-xs text-[#5A7264] mt-0.5">{mockRecipe.calories} kcal</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>{mockRecipe.calories} kcal</Text>
           </View>
-          <View className="flex-1 bg-white rounded-xl p-3 border border-[#E8F0EC] items-center">
+          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="people-outline" size={16} color="#5A7264" />
-            <Text className="text-xs text-[#5A7264] mt-0.5">{mockRecipe.servings} kişilik</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>{mockRecipe.servings} kişilik</Text>
           </View>
         </View>
 
         {/* Macros */}
-        <View className="bg-white rounded-2xl p-4 border border-[#E8F0EC] mb-4 flex-row justify-between">
+        <View style={{ borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, flexDirection: 'row', justifyContent: 'space-between' }} /* TODO: bg-white */>
           {([
             { label: 'Protein', val: mockRecipe.macros.protein, color: '#C75B4A' },
             { label: 'Karb', val: mockRecipe.macros.carbs, color: '#4A7FB5' },
             { label: 'Yağ', val: mockRecipe.macros.fat, color: '#D4A843' },
             { label: 'Lif', val: mockRecipe.macros.fiber, color: '#1A5C37' },
           ]).map((m, i) => (
-            <View key={i} className="items-center">
-              <Text className="text-lg font-bold" style={{ color: m.color }}>{m.val}g</Text>
-              <Text className="text-[10px] text-[#5A7264]">{m.label}</Text>
+            <View key={i} style={{ alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: m.color }}>{m.val}g</Text>
+              <Text style={{ fontSize: 10, color: '#5A7264' }}>{m.label}</Text>
             </View>
           ))}
         </View>
 
         {/* Ingredients */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-3">Malzemeler ({mockRecipe.ingredients.length})</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Malzemeler ({mockRecipe.ingredients.length})</Text>
           {mockRecipe.ingredients.map((ing, i) => (
-            <View key={i} className="flex-row items-center py-2 border-b border-[#E8F0EC]" style={i === mockRecipe.ingredients.length - 1 ? { borderBottomWidth: 0 } : {}}>
-              <View className="w-2 h-2 rounded-full bg-[#1A5C37] mr-3" />
-              <Text className="flex-1 text-sm text-[#1A2E23]">{ing.name}</Text>
-              <Text className="text-sm text-[#5A7264]">{ing.amount}</Text>
+            <View key={i} style={[{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#E8F0EC' }, i === mockRecipe.ingredients.length - 1 ? { borderBottomWidth: 0 } : {}]}>
+              <View style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: '#1A5C37', marginRight: 12 }}/>
+              <Text style={{ flex: 1, fontSize: 14, color: '#1A2E23' }}>{ing.name}</Text>
+              <Text style={{ fontSize: 14, color: '#5A7264' }}>{ing.amount}</Text>
             </View>
           ))}
         </View>
 
         {/* Steps */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-8">
-          <Text className="text-base font-bold text-[#1A2E23] mb-3">Hazırlanışı</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Hazırlanışı</Text>
           {mockRecipe.steps.map((step, i) => (
-            <View key={i} className="flex-row mb-3">
-              <View className="w-6 h-6 rounded-full bg-[#1A5C37] items-center justify-center mr-3 mt-0.5">
-                <Text className="text-xs font-bold text-white">{i + 1}</Text>
+            <View key={i} style={{ flexDirection: 'row', marginBottom: 12 }}>
+              <View style={{ width: 24, height: 24, borderRadius: 9999, backgroundColor: '#1A5C37', alignItems: 'center', justifyContent: 'center', marginRight: 12, marginTop: 2 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>{i + 1}</Text>
               </View>
-              <Text className="flex-1 text-sm text-[#5A7264] leading-5">{step}</Text>
+              <Text style={{ flex: 1, fontSize: 14, color: '#5A7264', lineHeight: 20 }}>{step}</Text>
             </View>
           ))}
         </View>

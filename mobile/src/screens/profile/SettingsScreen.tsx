@@ -1,11 +1,13 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { colors } from '../../theme/colors'
+import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
@@ -62,42 +64,35 @@ export default function SettingsScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Ayarlar" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-4 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {settingSections.map((section, si) => (
-          <View key={si} className="mb-4">
-            <Text className="text-xs font-bold text-[#5A7264] uppercase tracking-wide mb-2 ml-1">
-              {section.title}
-            </Text>
-            <View className="bg-white rounded-2xl border border-[#E8F0EC] overflow-hidden">
+          <View key={si} style={st.section}>
+            <Text style={st.sectionTitle}>{section.title}</Text>
+            <View style={st.sectionCard}>
               {section.items.map((item, ii) => (
                 <TouchableOpacity
                   key={ii}
-                  className="flex-row items-center px-4 py-3.5 border-b border-[#E8F0EC]"
-                  style={ii === section.items.length - 1 ? { borderBottomWidth: 0 } : {}}
+                  style={[st.menuItem, ii < section.items.length - 1 && st.menuItemBorder]}
                   activeOpacity={item.type === 'toggle' ? 1 : 0.6}
                   onPress={() => item.screen && navigation.navigate(item.screen)}
                   disabled={item.type === 'toggle'}
                 >
-                  <View className="w-9 h-9 rounded-full bg-[#E8F5EC] items-center justify-center mr-3">
-                    <Ionicons name={item.icon} size={18} color="#1A5C37" />
+                  <View style={st.menuIcon}>
+                    <Ionicons name={item.icon} size={18} color={colors.primary.main} />
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-[15px] font-semibold text-[#1A2E23]">{item.title}</Text>
-                    {item.subtitle && <Text className="text-xs text-[#5A7264]">{item.subtitle}</Text>}
+                  <View style={st.menuTextArea}>
+                    <Text style={st.menuTitle}>{item.title}</Text>
+                    {item.subtitle && <Text style={st.menuSub}>{item.subtitle}</Text>}
                   </View>
                   {item.type === 'toggle' ? (
-                    <Switch
-                      value={item.value}
-                      trackColor={{ false: '#D4E2DA', true: '#1A5C37' }}
-                      thumbColor="#FFFFFF"
-                    />
+                    <Switch value={item.value} trackColor={{ false: colors.border, true: colors.primary.main }} thumbColor="#FFFFFF" />
                   ) : item.info ? (
-                    <View className="flex-row items-center">
-                      <Text className="text-sm text-[#5A7264] mr-1">{item.info}</Text>
-                      <Ionicons name="chevron-forward" size={16} color="#D4E2DA" />
+                    <View style={st.infoRow}>
+                      <Text style={st.infoText}>{item.info}</Text>
+                      <Ionicons name="chevron-forward" size={16} color={colors.border} />
                     </View>
                   ) : (
-                    <Ionicons name="chevron-forward" size={16} color="#D4E2DA" />
+                    <Ionicons name="chevron-forward" size={16} color={colors.border} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -106,10 +101,27 @@ export default function SettingsScreen() {
         ))}
 
         {/* Version info */}
-        <View className="items-center mb-8">
-          <Text className="text-xs text-[#A8BFB2]">NutriAI v1.0.0</Text>
+        <View style={st.versionArea}>
+          <Text style={st.versionText}>NutriAI v1.0.0</Text>
         </View>
       </ScrollView>
     </ScreenWrapper>
   )
 }
+
+const st = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.background.default, paddingHorizontal: 16, paddingTop: 16 },
+  section: { marginBottom: 16 },
+  sectionTitle: { fontSize: 12, fontWeight: fontWeights.bold, color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, marginLeft: 4 },
+  sectionCard: { backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden' },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
+  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#E8F0EC' },
+  menuIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  menuTextArea: { flex: 1 },
+  menuTitle: { fontSize: 15, fontWeight: fontWeights.semibold, color: colors.text.primary },
+  menuSub: { fontSize: 12, color: colors.text.secondary },
+  infoRow: { flexDirection: 'row', alignItems: 'center' },
+  infoText: { fontSize: 14, color: colors.text.secondary, marginRight: 4 },
+  versionArea: { alignItems: 'center', marginBottom: 32 },
+  versionText: { fontSize: 12, color: colors.text.disabled },
+})

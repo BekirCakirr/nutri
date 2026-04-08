@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -39,7 +39,7 @@ export default function WeightScreen() {
     return (
       <ScreenWrapper padded={false}>
         <AppHeader title="Kilo Takibi" onBack={() => navigation.goBack()} />
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#1A5C37" />
         </View>
       </ScreenWrapper>
@@ -54,63 +54,62 @@ export default function WeightScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Kilo Takibi" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Current weight card */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-sm text-[#5A7264]">Mevcut Kilo</Text>
-          <View className="flex-row items-end mt-1">
-            <Text className="text-4xl font-extrabold text-[#1A2E23]">{current.value.toFixed(1)}</Text>
-            <Text className="text-lg font-semibold text-[#5A7264] ml-1 mb-1">kg</Text>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 14, color: '#5A7264' }}>Mevcut Kilo</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 4 }}>
+            <Text style={{ fontSize: 36, fontWeight: '800', color: '#1A2E23' }}>{current.value.toFixed(1)}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: '#5A7264', marginLeft: 4, marginBottom: 4 }}>kg</Text>
           </View>
-          <View className="flex-row items-center mt-2">
-            <View className="bg-[#E8F5EC] rounded-full px-2.5 py-1 flex-row items-center">
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+            <View style={{ backgroundColor: '#E8F5EC', borderRadius: 9999, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="arrow-down" size={14} color="#1A5C37" />
-              <Text className="text-xs font-bold text-[#1A5C37] ml-0.5">
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#1A5C37', marginLeft: 2 }}>
                 {diff.toFixed(1)} kg hedefe kaldı
               </Text>
             </View>
-            <Text className="text-xs text-[#5A7264] ml-2">Hedef: {target} kg</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264', marginLeft: 8 }}>Hedef: {target} kg</Text>
           </View>
         </View>
 
         {/* Simple bar chart */}
-        <View className="bg-white rounded-2xl p-5 border border-[#E8F0EC] mb-4">
-          <Text className="text-base font-bold text-[#1A2E23] mb-4">Son {weightHistory.length} Gün</Text>
-          <View className="flex-row items-end justify-between h-32">
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Son {weightHistory.length} Gün</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 128 }}>
             {weightHistory.map((d, i) => {
               const pct = maxW > minW ? ((d.value - minW) / (maxW - minW)) * 100 : 50
               return (
-                <View key={i} className="items-center flex-1 mx-0.5">
-                  <Text className="text-[10px] text-[#5A7264] mb-1">{d.value.toFixed(1)}</Text>
+                <View key={i} style={{ alignItems: 'center', flex: 1, marginHorizontal: 2 }}>
+                  <Text style={{ fontSize: 10, color: '#5A7264', marginBottom: 4 }}>{d.value.toFixed(1)}</Text>
                   <View
-                    className="w-5 rounded-t-md bg-[#1A5C37]"
-                    style={{ height: `${pct}%` }}
+                    style={{ width: 20, borderTopLeftRadius: 8, borderTopRightRadius: 8, backgroundColor: '#1A5C37', height: `${pct}%` }}
                   />
-                  <Text className="text-[10px] text-[#5A7264] mt-1">{d.date.split(' ')[0]}</Text>
+                  <Text style={{ fontSize: 10, color: '#5A7264', marginTop: 4 }}>{d.date.split(' ')[0]}</Text>
                 </View>
               )
             })}
           </View>
-          <View className="flex-row items-center mt-3">
-            <View className="h-px flex-1 bg-[#EF4444]/30" />
-            <Text className="text-[10px] text-[#EF4444] mx-2">Hedef: {target} kg</Text>
-            <View className="h-px flex-1 bg-[#EF4444]/30" />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+            <View style={{ flex: 1, backgroundColor: '#EF44444d' }} /* TODO: h-px *//>
+            <Text style={{ fontSize: 10, color: '#EF4444', marginHorizontal: 8 }}>Hedef: {target} kg</Text>
+            <View style={{ flex: 1, backgroundColor: '#EF44444d' }} /* TODO: h-px *//>
           </View>
         </View>
 
         {/* History list */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Geçmiş Kayıtlar</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Geçmiş Kayıtlar</Text>
         {[...weightHistory].reverse().map((d, i) => (
-          <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3 mb-2 border border-[#E8F0EC]">
-            <View className="w-10 h-10 rounded-full bg-[#E8F5EC] items-center justify-center mr-3">
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="scale-outline" size={18} color="#1A5C37" />
             </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{d.value.toFixed(1)} kg</Text>
-              <Text className="text-xs text-[#5A7264]">{d.date}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{d.value.toFixed(1)} kg</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>{d.date}</Text>
             </View>
             {i > 0 && weightHistory.length > 1 && (
-              <View className="flex-row items-center">
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons
                   name={weightHistory[weightHistory.length - 1 - i]?.value < weightHistory[weightHistory.length - i]?.value ? 'arrow-down' : 'arrow-up'}
                   size={14}
@@ -123,11 +122,10 @@ export default function WeightScreen() {
 
         {/* Add button */}
         <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mt-4 mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 16, marginBottom: 32, shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
           activeOpacity={0.8}
         >
-          <Text className="text-base font-semibold text-white">+ Yeni Kayıt Ekle</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>+ Yeni Kayıt Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>

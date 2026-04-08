@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -66,7 +66,7 @@ export default function SleepScreen() {
     return (
       <ScreenWrapper padded={false}>
         <AppHeader title="Uyku Takibi" onBack={() => navigation.goBack()} />
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#4A7FB5" />
         </View>
       </ScreenWrapper>
@@ -80,28 +80,27 @@ export default function SleepScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Uyku Takibi" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Current sleep card */}
-        <View className="bg-[#1A2E23] rounded-2xl p-5 mb-4">
-          <Text className="text-sm text-white/60">Son Gece</Text>
-          <View className="flex-row items-end mt-1">
-            <Text className="text-4xl font-extrabold text-white">{latest.duration.toFixed(1)}</Text>
-            <Text className="text-lg text-white/60 ml-1 mb-1">saat</Text>
+        <View style={{ backgroundColor: '#1A2E23', borderRadius: 16, padding: 20, marginBottom: 16 }}>
+          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Son Gece</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 4 }}>
+            <Text style={{ fontSize: 36, fontWeight: '800', color: '#FFFFFF' }}>{latest.duration.toFixed(1)}</Text>
+            <Text style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)', marginLeft: 4, marginBottom: 4 }}>saat</Text>
           </View>
-          <View className="flex-row items-center mt-3 gap-4">
-            <View className="flex-row items-center">
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="moon-outline" size={14} color="rgba(255,255,255,0.6)" />
-              <Text className="text-xs text-white/60 ml-1">{latest.bedTime}</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginLeft: 4 }}>{latest.bedTime}</Text>
             </View>
-            <View className="flex-row items-center">
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="sunny-outline" size={14} color="rgba(255,255,255,0.6)" />
-              <Text className="text-xs text-white/60 ml-1">{latest.wakeTime}</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginLeft: 4 }}>{latest.wakeTime}</Text>
             </View>
             <View
-              className="rounded-full px-2.5 py-1 ml-auto"
-              style={{ backgroundColor: qualityColor(latest.quality) + '30' }}
+              style={{ borderRadius: 9999, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: qualityColor(latest.quality) + '30' }} /* TODO: ml-auto */
             >
-              <Text className="text-xs font-bold" style={{ color: qualityColor(latest.quality) === '#1A5C37' ? '#4ECDC4' : qualityColor(latest.quality) }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: qualityColor(latest.quality) === '#1A5C37' ? '#4ECDC4' : qualityColor(latest.quality) }}>
                 %{latest.quality} {qualityLabel(latest.quality)}
               </Text>
             </View>
@@ -109,32 +108,32 @@ export default function SleepScreen() {
         </View>
 
         {/* Average stats */}
-        <View className="flex-row mb-4">
-          <View className="flex-1 bg-white rounded-2xl p-4 border border-[#E8F0EC] mr-2 items-center">
+        <View style={{ flexDirection: 'row', marginBottom: 16 }}>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginRight: 8, alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="time-outline" size={22} color="#4A7FB5" />
-            <Text className="text-xl font-extrabold text-[#1A2E23] mt-1">{avgDuration}</Text>
-            <Text className="text-xs text-[#5A7264]">Ort. süre (saat)</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgDuration}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. süre (saat)</Text>
           </View>
-          <View className="flex-1 bg-white rounded-2xl p-4 border border-[#E8F0EC] ml-2 items-center">
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginLeft: 8, alignItems: 'center' }} /* TODO: bg-white */>
             <Ionicons name="star-outline" size={22} color="#E8A040" />
-            <Text className="text-xl font-extrabold text-[#1A2E23] mt-1">%{avgQuality}</Text>
-            <Text className="text-xs text-[#5A7264]">Ort. kalite</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>%{avgQuality}</Text>
+            <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. kalite</Text>
           </View>
         </View>
 
         {/* Sleep history */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">Haftalık Geçmiş</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Haftalık Geçmiş</Text>
         {sleepData.map((d, i) => (
-          <View key={i} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2 border border-[#E8F0EC]">
-            <View className="w-10 h-10 rounded-full bg-[#DBEAFE] items-center justify-center mr-3">
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#DBEAFE', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="moon-outline" size={18} color="#4A7FB5" />
             </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-[#1A2E23]">{d.duration.toFixed(1)} saat</Text>
-              <Text className="text-xs text-[#5A7264]">{d.date} · {d.bedTime} → {d.wakeTime}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{d.duration.toFixed(1)} saat</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264' }}>{d.date} · {d.bedTime} → {d.wakeTime}</Text>
             </View>
-            <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: qualityColor(d.quality) + '20' }}>
-              <Text className="text-xs font-bold" style={{ color: qualityColor(d.quality) }}>
+            <View style={{ borderRadius: 9999, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: qualityColor(d.quality) + '20' }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: qualityColor(d.quality) }}>
                 %{d.quality}
               </Text>
             </View>
@@ -143,11 +142,10 @@ export default function SleepScreen() {
 
         {/* Add button */}
         <TouchableOpacity
-          className="bg-[#1A5C37] rounded-xl py-4 items-center mt-4 mb-8"
-          style={{ shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
+          style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 16, marginBottom: 32, shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
           activeOpacity={0.8}
         >
-          <Text className="text-base font-semibold text-white">+ Uyku Kaydı Ekle</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>+ Uyku Kaydı Ekle</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWrapper>

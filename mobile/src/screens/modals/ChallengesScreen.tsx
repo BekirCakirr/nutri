@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
@@ -37,68 +37,68 @@ export default function ChallengesScreen() {
   return (
     <ScreenWrapper padded={false}>
       <AppHeader title="Meydan Okumalar" onBack={() => navigation.goBack()} />
-      <ScrollView className="flex-1 bg-[#F8FAF9] px-5 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Active */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3">🔥 Aktif Meydan Okumalar</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>🔥 Aktif Meydan Okumalar</Text>
         {mockChallenges.filter(c => c.status === 'active').map((c) => (
-          <View key={c.id} className="bg-white rounded-2xl p-5 mb-3 border border-[#E8F0EC]">
-            <View className="flex-row items-center mb-2">
-              <Text className="text-2xl mr-3">{c.icon}</Text>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-[#1A2E23]">{c.title}</Text>
-                <Text className="text-xs text-[#5A7264]">{c.desc}</Text>
+          <View key={c.id} style={{ borderRadius: 16, padding: 20, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+              <Text style={{ fontSize: 24, marginRight: 12 }}>{c.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23' }}>{c.title}</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{c.desc}</Text>
               </View>
             </View>
-            <View className="flex-row items-center mb-2">
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
               <Ionicons name="calendar-outline" size={12} color="#5A7264" />
-              <Text className="text-xs text-[#5A7264] ml-1 mr-3">{c.duration}</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264', marginLeft: 4, marginRight: 12 }}>{c.duration}</Text>
               <Ionicons name="people-outline" size={12} color="#5A7264" />
-              <Text className="text-xs text-[#5A7264] ml-1">{c.participants} katılımcı</Text>
+              <Text style={{ fontSize: 12, color: '#5A7264', marginLeft: 4 }}>{c.participants} katılımcı</Text>
             </View>
             {c.progress !== undefined && (
               <>
-                <View className="h-2.5 bg-[#E8F0EC] rounded-full overflow-hidden mb-1">
-                  <View className="h-full bg-[#1A5C37] rounded-full" style={{ width: `${c.progress}%` }} />
+                <View style={{ backgroundColor: '#E8F0EC', borderRadius: 9999, overflow: 'hidden', marginBottom: 4 }} /* TODO: h-2.5 */>
+                  <View style={{ height: '100%', backgroundColor: '#1A5C37', borderRadius: 9999, width: `${c.progress}%` }} />
                 </View>
-                <Text className="text-xs text-[#5A7264]">%{c.progress} tamamlandı</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>%{c.progress} tamamlandı</Text>
               </>
             )}
-            <Text className="text-xs text-[#E8A040] mt-2">🎁 Ödül: {c.reward}</Text>
+            <Text style={{ fontSize: 12, color: '#E8A040', marginTop: 8 }}>🎁 Ödül: {c.reward}</Text>
           </View>
         ))}
 
         {/* Upcoming */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3 mt-2">📅 Yaklaşan</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12, marginTop: 8 }}>📅 Yaklaşan</Text>
         {mockChallenges.filter(c => c.status === 'upcoming').map((c) => {
           const st = statusLabel(c.status)
           return (
-            <View key={c.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-              <Text className="text-2xl mr-3">{c.icon}</Text>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-[#1A2E23]">{c.title}</Text>
-                <Text className="text-xs text-[#5A7264]">{c.duration} · {c.participants} kişi</Text>
+            <View key={c.id} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <Text style={{ fontSize: 24, marginRight: 12 }}>{c.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{c.title}</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{c.duration} · {c.participants} kişi</Text>
               </View>
-              <TouchableOpacity className="bg-[#E8F5EC] rounded-full px-3 py-1.5" activeOpacity={0.7}>
-                <Text className="text-xs font-bold text-[#1A5C37]">Katıl</Text>
+              <TouchableOpacity style={{ backgroundColor: '#E8F5EC', borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 6 }}activeOpacity={0.7}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#1A5C37' }}>Katıl</Text>
               </TouchableOpacity>
             </View>
           )
         })}
 
         {/* Completed */}
-        <Text className="text-base font-bold text-[#1A2E23] mb-3 mt-2">✅ Tamamlanan</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12, marginTop: 8 }}>✅ Tamamlanan</Text>
         {mockChallenges.filter(c => c.status === 'completed').map((c) => (
-          <View key={c.id} className="flex-row items-center bg-white rounded-xl px-4 py-3.5 mb-2.5 border border-[#E8F0EC]">
-            <Text className="text-2xl mr-3">{c.icon}</Text>
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-[#1A2E23]">{c.title}</Text>
-              <Text className="text-xs text-[#1A5C37]">{c.reward}</Text>
+          <View key={c.id} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <Text style={{ fontSize: 24, marginRight: 12 }}>{c.icon}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{c.title}</Text>
+              <Text style={{ fontSize: 12, color: '#1A5C37' }}>{c.reward}</Text>
             </View>
             <Ionicons name="checkmark-circle" size={20} color="#1A5C37" />
           </View>
         ))}
 
-        <View className="h-8" />
+        <View style={{ height: 32 }}/>
       </ScrollView>
     </ScreenWrapper>
   )
