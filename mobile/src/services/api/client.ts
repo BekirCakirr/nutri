@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { API_URL, STORAGE_KEYS } from '@/lib/constants';
 import { storage } from '@/services/storage';
-import { useAuthStore } from '@/stores/authStore';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -26,11 +25,12 @@ apiClient.interceptors.request.use(
 // Error handling interceptor
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response) {
       const { status } = error.response;
       if (status === 401) {
-        // Token expired - clear token and full auth state
+        // Lazy import to break circular dependency
+        const { useAuthStore } = await import('@/stores/authStore');
         useAuthStore.getState().logout();
       }
     }

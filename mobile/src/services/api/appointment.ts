@@ -17,18 +17,21 @@ export async function getUpcomingAppointment(): Promise<Appointment | null> {
 }
 
 export async function bookAppointment(apptData: {
-  dietitianId: string;
-  date: string;
-  time: string;
-  duration: number;
+  patientId: string;
+  appointmentDate: string;
+  startTime: string;
+  endTime: string;
   type: 'online' | 'in_person';
   notes?: string;
+  dietitianId?: string;
 }): Promise<Appointment> {
   try {
     const { data } = await apiClient.post('/appointments', {
-      scheduledAt: `${apptData.date}T${apptData.time}:00`,
-      durationMinutes: apptData.duration,
-      appointmentType: apptData.type,
+      patientId: apptData.patientId,
+      appointmentDate: apptData.appointmentDate,
+      startTime: apptData.startTime,
+      endTime: apptData.endTime,
+      type: apptData.type,
       notes: apptData.notes,
     });
     return (data.data ?? data) as Appointment;

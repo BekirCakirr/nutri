@@ -37,7 +37,7 @@ export const usePlanStore = create<PlanStore>((set, get) => ({
     const { activePlan } = get();
     if (activePlan) {
       const dayIndex = new Date(date).getDay();
-      return activePlan.days[dayIndex === 0 ? 6 : dayIndex - 1] ?? null;
+      return (activePlan.days || [])[dayIndex === 0 ? 6 : dayIndex - 1] ?? null;
     }
     return planApi.getDayPlan(date);
   },

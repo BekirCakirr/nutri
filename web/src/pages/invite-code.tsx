@@ -81,20 +81,31 @@ export default function InviteCodePage() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  const handleGenerate = () => {
-    const newCode: InviteCode = {
-      id: String(codes.length + 1),
-      code: `NUTRI-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-      createdAt: '2026-02-25',
-      usedBy: null,
-      usedAt: null,
-      status: 'active',
+  const handleGenerate = async () => {
+    try {
+      const { generateCode } = await import('@/services/invite-code.service')
+      const newCode = await generateCode()
+      setCodes(prev => [{
+        id: newCode.id,
+        code: newCode.code,
+        createdAt: newCode.createdAt?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+        usedBy: null,
+        usedAt: null,
+        status: 'active' as const,
+      }, ...prev])
+    } catch {
+      alert('Kod oluşturulamadı.')
     }
-    setCodes(prev => [newCode, ...prev])
   }
 
-  const handleDeactivate = (id: string) => {
-    setCodes(prev => prev.map(c => c.id === id ? { ...c, status: 'deactivated' as const } : c))
+  const handleDeactivate = async (id: string) => {
+    try {
+      const { deactivateCode } = await import('@/services/invite-code.service')
+      await deactivateCode(id)
+      setCodes(prev => prev.map(c => c.id === id ? { ...c, status: 'deactivated' as const } : c))
+    } catch {
+      alert('Kod devre dışı bırakılamadı.')
+    }
   }
 
   const handleShowQR = (code: string) => {

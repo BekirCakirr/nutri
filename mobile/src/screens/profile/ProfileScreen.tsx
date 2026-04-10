@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
@@ -6,6 +6,7 @@ import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { useAuthStore } from '../../stores/authStore'
+import { useGamification } from '../../hooks'
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 import { fontWeights } from '../../theme/typography'
@@ -65,10 +66,38 @@ export default function ProfileScreen() {
   const navigation = useNavigation<Nav>()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+  const { streak, xp, level, loadAll } = useGamification()
 
-  const displayName = user?.name || 'Kullanıcı'
+  useEffect(() => {
+    loadAll().catch(() => {})
+  }, [loadAll])
+
+  // Extract profile data (handles both flat and nested profile from backend)
+  const profileData = useMemo(() => {
+    const p = user?.profile
+    const firstName = p?.first_name || user?.firstName || user?.first_name || ''
+    const lastName = p?.last_name || user?.lastName || user?.last_name || ''
+    const fullName = firstName && lastName ? `${firstName} ${lastName}` : user?.name || 'Kullanıcı'
+    const currentWeight = Number(p?.current_weight_kg || user?.current_weight_kg || user?.weight) || 0
+    const targetWeight = Number(p?.target_weight_kg || user?.target_weight_kg || user?.targetWeight) || 0
+    const weightLost = currentWeight > 0 && targetWeight > 0
+      ? Math.max(0, currentWeight - targetWeight).toFixed(1)
+      : '0'
+    const userStreak = Number(p?.current_streak || user?.current_streak) || streak || 0
+    const userXP = Number(p?.xp_points || user?.xp_points) || xp || 0
+    return { fullName, currentWeight, weightLost, userStreak, userXP }
+  }, [user, streak, xp])
+
+  const displayName = profileData.fullName
   const displayEmail = user?.email || ''
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+
+  // Dynamic stats from real data
+  const stats = [
+    { value: String(profileData.userStreak), label: 'Gün Serisi' },
+    { value: String(profileData.userXP), label: 'Toplam XP' },
+    { value: profileData.weightLost, label: 'Kg Verildi', highlight: true },
+  ]
 
   return (
     <ScreenWrapper padded={false} contentStyle={{ backgroundColor: colors.background.default }}>
@@ -97,11 +126,7 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
             <View style={st.statsRow}>
-              {[
-                { value: '18', label: 'Gün Serisi' },
-                { value: '245', label: 'Öğün Kaydı' },
-                { value: '3.2', label: 'Kg Verildi', highlight: true },
-              ].map((stat, i) => (
+              {stats.map((stat, i) => (
                 <View key={i} style={st.statCard}>
                   <Text style={[st.statValue, stat.highlight && st.statHighlight]}>{stat.value}</Text>
                   <Text style={st.statLabel}>{stat.label}</Text>

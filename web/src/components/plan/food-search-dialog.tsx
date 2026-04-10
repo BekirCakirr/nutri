@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Loader2 } from "lucide-react";
+import { searchFoods } from "@/services/food.service";
 
 interface FoodItem {
   id: string;
@@ -26,23 +27,36 @@ interface FoodSearchDialogProps {
   onSelect?: (food: FoodItem, portion: string) => void;
 }
 
-const mockFoods: FoodItem[] = [
-  { id: "1", name: "Tavuk Gogsu (Izgara)", calories: 165, protein: 31, carbs: 0, fat: 3.6, portion: "100g" },
-  { id: "2", name: "Bulgur Pilavi", calories: 83, protein: 3, carbs: 18, fat: 0.2, portion: "100g" },
-  { id: "3", name: "Yumurta (Haslanmis)", calories: 155, protein: 13, carbs: 1.1, fat: 11, portion: "1 adet" },
-  { id: "4", name: "Tam Bugday Ekmek", calories: 247, protein: 13, carbs: 41, fat: 3.4, portion: "1 dilim" },
-  { id: "5", name: "Beyaz Peynir", calories: 264, protein: 18, carbs: 3, fat: 21, portion: "100g" },
-  { id: "6", name: "Yesil Salata", calories: 15, protein: 1, carbs: 2.9, fat: 0.2, portion: "1 porsiyon" },
-  { id: "7", name: "Mercimek Corbasi", calories: 116, protein: 7, carbs: 20, fat: 0.4, portion: "1 kase" },
-  { id: "8", name: "Yogurt (Sade)", calories: 63, protein: 5, carbs: 4.7, fat: 3.3, portion: "1 kase" },
-];
-
 export function FoodSearchDialog({ open, onOpenChange, onSelect }: FoodSearchDialogProps) {
   const [query, setQuery] = useState("");
+  const [foods, setFoods] = useState<FoodItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filtered = mockFoods.filter((f) =>
-    f.name.toLowerCase().includes(query.toLowerCase()),
-  );
+  useEffect(() => {
+    if (!open) {
+      setQuery("");
+      setFoods([]);
+      return;
+    }
+    // Load popular foods on open
+    setLoading(true);
+    searchFoods("").then((results) => {
+      setFoods(results.map(mapToFoodItem));
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = setTimeout(() => {
+      setLoading(true);
+      searchFoods(query).then((results) => {
+        setFoods(results.map(mapToFoodItem));
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,7 +76,12 @@ export function FoodSearchDialog({ open, onOpenChange, onSelect }: FoodSearchDia
         </div>
 
         <div className="max-h-64 overflow-y-auto space-y-1">
-          {filtered.map((food) => (
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {!loading && foods.map((food) => (
             <div
               key={food.id}
               className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors"
@@ -86,7 +105,7 @@ export function FoodSearchDialog({ open, onOpenChange, onSelect }: FoodSearchDia
               </Button>
             </div>
           ))}
-          {filtered.length === 0 && (
+          {!loading && foods.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
               Sonuc bulunamadi.
             </p>
@@ -101,4 +120,16 @@ export function FoodSearchDialog({ open, onOpenChange, onSelect }: FoodSearchDia
       </DialogContent>
     </Dialog>
   );
+}
+
+function mapToFoodItem(f: any): FoodItem {
+  return {
+    id: String(f.id),
+    name: f.name || "",
+    calories: Math.round(f.caloriesPer100g ?? f.calories ?? 0),
+    protein: Math.round((f.proteinPer100g ?? f.protein ?? 0) * 10) / 10,
+    carbs: Math.round((f.carbsPer100g ?? f.carbs ?? 0) * 10) / 10,
+    fat: Math.round((f.fatPer100g ?? f.fat ?? 0) * 10) / 10,
+    portion: f.servingDescription || f.portion || "100g",
+  };
 }

@@ -10,12 +10,13 @@ export function useAppointments() {
 
   const bookAppointment = useCallback(
     async (data: {
-      dietitianId: string;
-      date: string;
-      time: string;
-      duration: number;
+      patientId: string;
+      appointmentDate: string;
+      startTime: string;
+      endTime: string;
       type: 'online' | 'in_person';
       notes?: string;
+      dietitianId?: string;
     }) => {
       await store.bookAppointment(data);
     },

@@ -1,10 +1,11 @@
 // @ts-ignore — __DEV__ is injected by React Native runtime
 const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : true;
 
-// Android emulator: 10.0.2.2 = host machine localhost
-// iOS simulator: localhost works directly
-export const API_URL = isDev ? 'http://10.0.2.2:3001/api' : 'https://api.nutriai.app/v1';
-export const SOCKET_URL = isDev ? 'http://10.0.2.2:3001' : 'wss://api.nutriai.app';
+// Physical device: use your LAN IP (same WiFi network required)
+// Android emulator: use 10.0.2.2 instead
+const DEV_HOST = '192.168.1.4';
+export const API_URL = isDev ? `http://${DEV_HOST}:3001/api` : 'https://api.nutriai.app/v1';
+export const SOCKET_URL = isDev ? `http://${DEV_HOST}:3001` : 'wss://api.nutriai.app';
 export const APP_VERSION = '1.0.0';
 
 export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;

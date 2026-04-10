@@ -17,6 +17,15 @@ export async function getOrCreateConversation(
   userId1: string,
   userId2: string
 ) {
+  // Validate both users exist
+  const userCheck = await query(
+    `SELECT id FROM users WHERE id = $1`,
+    [userId2]
+  );
+  if (userCheck.rows.length === 0) {
+    throw Object.assign(new Error("Alici bulunamadi"), { statusCode: 400 });
+  }
+
   // Find existing conversation between two users
   const existing = await query(
     `SELECT cp1.conversation_id

@@ -27,6 +27,9 @@ import trackingRoutes from "./routes/tracking.routes";
 import adminRoutes from "./routes/admin.routes";
 import aiRoutes from "./routes/ai.routes";
 import allergenRoutes from "./routes/allergen.routes";
+import gamificationRoutes from "./routes/gamification.routes";
+import familyRoutes from "./routes/family.routes";
+import progressPhotoRoutes from "./routes/progress-photo.routes";
 
 import { sendSuccess, sendError } from "./utils";
 
@@ -118,6 +121,9 @@ app.use("/api/tracking", trackingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/ai", aiLimiter, aiRoutes);
 app.use("/api/allergens", allergenRoutes);
+app.use("/api/gamification", gamificationRoutes);
+app.use("/api/family", familyRoutes);
+app.use("/api/progress-photos", progressPhotoRoutes);
 
 // ── 404 handler ─────────────────────────────────────────────────────────────
 
@@ -163,7 +169,7 @@ if (require.main === module || !process.env.JEST_WORKER_ID) {
 ║   Env:  ${env.nodeEnv.padEnd(20)}       ║
 ║   DB:   PostgreSQL                       ║
 ║   WS:   Socket.io                        ║
-║   Routes: 16                             ║
+║   Routes: 19                             ║
 ╚══════════════════════════════════════════╝
     `);
   });

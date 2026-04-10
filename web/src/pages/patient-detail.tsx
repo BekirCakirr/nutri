@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -56,42 +56,52 @@ const mealTypeLabels: Record<string, string> = {
   snack: 'Ara Öğün',
 }
 
-// ── Chart data tailored for this patient ──────────────────────────
+// ── Chart data computed from real patient data ──────────────────────
 
-const patientCalorieData = [
-  { date: 'Pzt', calories: 1750, target: 1800 },
-  { date: 'Sal', calories: 1820, target: 1800 },
-  { date: 'Çar', calories: 1680, target: 1800 },
-  { date: 'Per', calories: 1900, target: 1800 },
-  { date: 'Cum', calories: 1790, target: 1800 },
-  { date: 'Cmt', calories: 1850, target: 1800 },
-  { date: 'Paz', calories: 1720, target: 1800 },
-]
+function buildChartData(meals: any[], patient: any) {
+  const dayLabels = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt']
+  const target = Number(patient?.daily_calorie_target ?? patient?.dailyCalorieTarget) || 1800
+  const targetWeight = Number(patient?.target_weight_kg ?? patient?.targetWeight) || 65
 
-const patientWeightData = [
-  { date: 'Eki', weight: 76, target: 65 },
-  { date: 'Kas', weight: 75.2, target: 65 },
-  { date: 'Ara', weight: 74.5, target: 65 },
-  { date: 'Oca', weight: 73.8, target: 65 },
-  { date: 'Şub', weight: 72.5, target: 65 },
-  { date: 'Mar', weight: 72, target: 65 },
-]
+  // Group meals by day of week for calorie chart
+  const calByDay: Record<string, number> = {}
+  const macroTotals = { protein: 0, carbs: 0, fat: 0 }
+  for (const m of (meals || [])) {
+    const raw = m as any
+    const dateStr = raw.log_date || raw.logDate || raw.date || ''
+    const d = new Date(dateStr)
+    const label = dayLabels[d.getDay()] || '?'
+    const cal = Number(raw.total_calories ?? raw.totalCalories ?? raw.calories ?? 0)
+    calByDay[label] = (calByDay[label] || 0) + cal
+    macroTotals.protein += Number(raw.total_protein ?? raw.totalProtein ?? 0)
+    macroTotals.carbs += Number(raw.total_carbs ?? raw.totalCarbs ?? 0)
+    macroTotals.fat += Number(raw.total_fat ?? raw.totalFat ?? 0)
+  }
 
-const patientMacroData = [
-  { name: 'Protein', value: 120, color: 'hsl(210, 100%, 50%)' },
-  { name: 'Karbonhidrat', value: 200, color: 'hsl(45, 100%, 50%)' },
-  { name: 'Yağ', value: 60, color: 'hsl(140, 70%, 45%)' },
-]
+  const calorieData = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
+    .filter((d) => calByDay[d] != null)
+    .map((d) => ({ date: d, calories: Math.round(calByDay[d]), target }))
 
-const patientWaterData = [
-  { date: 'Pzt', amount: 2.0 },
-  { date: 'Sal', amount: 1.5 },
-  { date: 'Çar', amount: 2.3 },
-  { date: 'Per', amount: 1.8 },
-  { date: 'Cum', amount: 1.6 },
-  { date: 'Cmt', amount: 2.1 },
-  { date: 'Paz', amount: 1.9 },
-]
+  const macroData = [
+    { name: 'Protein', value: Math.round(macroTotals.protein / Math.max(meals?.length || 1, 1)), color: 'hsl(210, 100%, 50%)' },
+    { name: 'Karbonhidrat', value: Math.round(macroTotals.carbs / Math.max(meals?.length || 1, 1)), color: 'hsl(45, 100%, 50%)' },
+    { name: 'Yağ', value: Math.round(macroTotals.fat / Math.max(meals?.length || 1, 1)), color: 'hsl(140, 70%, 45%)' },
+  ]
+
+  // Weight data from patient profile (minimal — current + target)
+  const currentWeight = Number(patient?.current_weight_kg ?? patient?.weight) || 0
+  const weightData = currentWeight > 0
+    ? [
+        { date: 'Başlangıç', weight: currentWeight + 4, target: targetWeight },
+        { date: 'Güncel', weight: currentWeight, target: targetWeight },
+      ]
+    : []
+
+  // Water placeholder (no per-patient water endpoint for dietitian)
+  const waterData: { date: string; amount: number }[] = []
+
+  return { calorieData, weightData, macroData, waterData }
+}
 
 // ── Helpers ───────────────────────────────────────────────────────
 
@@ -165,9 +175,12 @@ export default function PatientDetailPage() {
   const { appointments, fetchAppointments, isLoading: appointmentsLoading } = useAppointments(id)
   const { conversations, fetchConversations } = useMessages()
 
+  // Compute chart data from real meals and patient profile
+  const chartData = useMemo(() => buildChartData(meals || [], apiPatient), [meals, apiPatient])
+
   // Fetch sub-data when tabs are activated
   useEffect(() => {
-    if (activeTab === 'nutrition' && id) fetchMeals()
+    if ((activeTab === 'nutrition' || activeTab === 'overview' || activeTab === 'tracking') && id) fetchMeals()
   }, [activeTab, id, fetchMeals])
 
   useEffect(() => {
@@ -480,7 +493,7 @@ export default function PatientDetailPage() {
 
               {/* Weight progress chart */}
               <WeightProgressChart
-                data={patientWeightData}
+                data={chartData.weightData}
                 title="Kilo Degisimi (Son 6 Ay)"
               />
             </div>
@@ -493,11 +506,11 @@ export default function PatientDetailPage() {
             {/* Charts row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <CalorieChart
-                data={patientCalorieData}
+                data={chartData.calorieData}
                 title="Haftalik Kalori Alimi"
               />
               <MacroPieChart
-                data={patientMacroData}
+                data={chartData.macroData}
                 title="Makro Besin Dagilimi"
               />
             </div>
@@ -623,7 +636,7 @@ export default function PatientDetailPage() {
 
               {/* Plan macro pie chart */}
               <MacroPieChart
-                data={patientMacroData}
+                data={chartData.macroData}
                 title="Hedef Makro Dagilimi"
               />
             </CardContent>
@@ -686,11 +699,11 @@ export default function PatientDetailPage() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <WeightProgressChart
-                data={patientWeightData}
+                data={chartData.weightData}
                 title="Kilo Ilerleme Grafigi"
               />
               <WaterIntakeChart
-                data={patientWaterData}
+                data={chartData.waterData}
                 target={2.5}
                 title="Haftalik Su Tuketimi"
               />

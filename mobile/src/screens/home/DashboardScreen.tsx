@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { View, Text, StyleSheet, Image, Animated, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
@@ -16,6 +16,8 @@ import { XPBar } from '../../components/gamification/XPBar'
 import { DietitianCard } from '../../components/dietitian/DietitianCard'
 import { NotificationBadge } from '../../components/notifications/NotificationBadge'
 import { useMeals, useTracking, useDietitian, useGamification } from '../../hooks'
+import { useAuthStore } from '../../stores/authStore'
+import { DEFAULT_CALORIE_TARGET } from '../../lib/constants'
 import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -36,6 +38,7 @@ const mealTypeMap: Record<string, 'breakfast' | 'lunch' | 'dinner' | 'snack'> = 
 export default function DashboardScreen() {
   const navigation = useNavigation<Nav>()
   const heroFadeIn = useFadeIn(0)
+  const user = useAuthStore((s) => s.user)
   
   const { todayMeals, fetchTodayMeals } = useMeals()
   const { todayCalories, todayMacros, waterGlasses, addWater, waterTarget, loadToday, exerciseMinutes } = useTracking()
@@ -51,10 +54,22 @@ export default function DashboardScreen() {
 
   const mealAnimStyles = useStaggeredList(todayMeals?.length || 0, 200)
 
+  // Extract user profile data (handles both flat and nested profile from backend)
+  const userProfile = useMemo(() => {
+    const p = user?.profile
+    const displayName = p?.first_name || user?.firstName || user?.first_name || user?.name?.split(' ')[0] || 'Kullanıcı'
+    const calorieTarget = Number(p?.daily_calorie_target || user?.daily_calorie_target) || DEFAULT_CALORIE_TARGET
+    const proteinTarget = Number(p?.protein_target_g || user?.protein_target_g) || 100
+    const carbTarget = Number(p?.carb_target_g || user?.carb_target_g) || 250
+    const fatTarget = Number(p?.fat_target_g || user?.fat_target_g) || 65
+    const userWaterTarget = Number(p?.daily_water_target || user?.daily_water_target) || 8
+    return { displayName, calorieTarget, proteinTarget, carbTarget, fatTarget, waterTarget: userWaterTarget }
+  }, [user])
+
   const dailyGoals = [
-    { id: 'cal', label: 'Kalori', current: todayCalories || 0, target: 1650, unit: 'kcal', color: colors.primary.main },
-    { id: 'water', label: 'Su', current: waterGlasses || 0, target: waterTarget || 10, unit: 'brdk', color: nutritionColors.water.main },
-    { id: 'protein', label: 'Protein', current: Math.round(todayMacros?.protein || 0), target: 82, unit: 'g', color: nutritionColors.macro.protein },
+    { id: 'cal', label: 'Kalori', current: todayCalories || 0, target: userProfile.calorieTarget, unit: 'kcal', color: colors.primary.main },
+    { id: 'water', label: 'Su', current: waterGlasses || 0, target: waterTarget || userProfile.waterTarget, unit: 'brdk', color: nutritionColors.water.main },
+    { id: 'protein', label: 'Protein', current: Math.round(todayMacros?.protein || 0), target: userProfile.proteinTarget, unit: 'g', color: nutritionColors.macro.protein },
     { id: 'exercise', label: 'Egzersiz', current: exerciseMinutes || 0, target: 45, unit: 'dk', color: '#F59E0B' },
   ]
 
@@ -75,7 +90,7 @@ export default function DashboardScreen() {
           </View>
           <View>
             <Text style={styles.greeting}>Günaydın,</Text>
-            <Text style={styles.name}>Ayşe</Text>
+            <Text style={styles.name}>{userProfile.displayName}</Text>
           </View>
         </View>
         <AnimatedPressable
@@ -95,7 +110,7 @@ export default function DashboardScreen() {
         </View>
 
         <View style={styles.ringContainer}>
-          <CalorieRing consumed={todayCalories || 0} target={1650} size={180} strokeWidth={16} />
+          <CalorieRing consumed={todayCalories || 0} target={userProfile.calorieTarget} size={180} strokeWidth={16} />
         </View>
 
         <View style={styles.macroCard}>
@@ -240,6 +255,22 @@ export default function DashboardScreen() {
           <Ionicons name="arrow-forward-circle" size={24} color={colors.secondary[700]} style={{ opacity: 0.8 }} />
         </AnimatedPressable>
       </View>
+
+      {/* Messages Quick Access */}
+      <SectionHeader title="Mesajlaşma" style={styles.sectionMargin} />
+      <AnimatedPressable
+        style={styles.newReportCard}
+        onPress={() => navigation.navigate('ConversationList')}
+      >
+        <View style={[styles.newReportIconWrap, { backgroundColor: '#EDE9FE', borderColor: '#DDD6FE', borderWidth: 1 }]}>
+          <Ionicons name="chatbubbles" size={24} color="#7C3AED" />
+        </View>
+        <View style={styles.reportTextWrap}>
+          <Text style={styles.reportLabel}>Diyetisyeninize Yazın</Text>
+          <Text style={styles.reportSub}>Mesajlarınızı görüntüleyin</Text>
+        </View>
+        <Ionicons name="arrow-forward-circle" size={24} color="#7C3AED" style={{ opacity: 0.8 }} />
+      </AnimatedPressable>
 
       {/* Dietitian Card */}
       <SectionHeader title="Uzman Diyetisyeniniz" style={styles.sectionMargin} />

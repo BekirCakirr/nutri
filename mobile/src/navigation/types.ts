@@ -53,6 +53,8 @@ export type HomeStackParamList = {
   Notifications: undefined
   WeeklyReport: undefined
   MonthlyReport: undefined
+  ConversationList: undefined
+  Chat: { conversationId: string; recipientName: string }
 }
 
 // ─── Meals Stack ─────────────────────────────────────────────────────

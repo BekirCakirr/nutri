@@ -132,9 +132,18 @@ export default function ReportsPage() {
       title="Raporlar"
       description="Hasta ilerlemesi ve beslenme raporlarini olusturun."
       actions={
-        <Button size="sm">
+        <Button size="sm" onClick={async () => {
+          try {
+            const { generateReport } = await import('@/services/report.service')
+            const today = new Date()
+            const weekStart = new Date(today); weekStart.setDate(today.getDate() - 7)
+            const fmt = (d: Date) => d.toISOString().split('T')[0]
+            await generateReport({ weekStart: fmt(weekStart), weekEnd: fmt(today) })
+            alert('Rapor başarıyla oluşturuldu.')
+          } catch { alert('Rapor oluşturulamadı.') }
+        }}>
           <Download className="h-3.5 w-3.5" />
-          PDF Olarak Indir
+          Rapor Oluştur
         </Button>
       }
     >

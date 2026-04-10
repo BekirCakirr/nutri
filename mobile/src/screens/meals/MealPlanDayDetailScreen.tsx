@@ -1,12 +1,12 @@
-import React from 'react'
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { MealsStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
-import { mockMeals } from '../../mock/meals'
+import { usePlanStore } from '../../stores/planStore'
 
 type Route = RouteProp<MealsStackParamList, 'MealPlanDayDetail'>
 
@@ -22,14 +22,57 @@ export default function MealPlanDayDetailScreen() {
   const route = useRoute<Route>()
   const { date } = route.params
 
-  const dayMeals = mockMeals.filter((m) => m.date === date)
-  const totalCal = dayMeals.reduce((s, m) => s + m.totalNutrition.calories, 0)
-  const totalProtein = dayMeals.reduce((s, m) => s + m.totalNutrition.protein, 0)
-  const totalCarbs = dayMeals.reduce((s, m) => s + m.totalNutrition.carbs, 0)
-  const totalFat = dayMeals.reduce((s, m) => s + m.totalNutrition.fat, 0)
+  const activePlan = usePlanStore((s) => s.activePlan)
+  const loadActivePlan = usePlanStore((s) => s.loadActivePlan)
+  const [loading, setLoading] = useState(!activePlan)
+
+  useEffect(() => {
+    if (!activePlan) {
+      loadActivePlan().finally(() => setLoading(false))
+    } else {
+      setLoading(false)
+    }
+  }, [activePlan, loadActivePlan])
 
   const d = new Date(date)
+  // JS getDay(): 0=Sun, 1=Mon ... 6=Sat. Backend: 1=Mon, 7=Sun.
+  const mappedDayOfWeek = d.getDay() === 0 ? 7 : d.getDay()
   const formattedDate = `${d.getDate()}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`
+
+  if (loading) {
+    return (
+      <ScreenWrapper padded={false}>
+        <AppHeader title={formattedDate} onBack={() => navigation.goBack()} />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#1A5C37" />
+        </View>
+      </ScreenWrapper>
+    )
+  }
+
+  // Filter items from the real backend plan
+  const dayItems = activePlan?.items?.filter((i) => i.day_of_week === mappedDayOfWeek) || []
+
+  // Calculate totals
+  const totalCal = dayItems.reduce((s, i) => s + (Number(i.calories) || 0), 0)
+  const totalProtein = dayItems.reduce((s, i) => s + (Number(i.protein) || 0), 0)
+  const totalCarbs = dayItems.reduce((s, i) => s + (Number(i.carbs) || 0), 0)
+  const totalFat = dayItems.reduce((s, i) => s + (Number(i.fat) || 0), 0)
+
+  // Group by meal_type
+  const mealGroups: Record<string, typeof dayItems> = {}
+  dayItems.forEach((item) => {
+    if (!mealGroups[item.meal_type]) mealGroups[item.meal_type] = []
+    mealGroups[item.meal_type].push(item)
+  })
+
+  // Prepare ordered mapped meals
+  const mealOrder = ['breakfast', 'lunch', 'dinner', 'snack']
+  const sortedMealKeys = Object.keys(mealGroups).sort((a, b) => {
+    const idxA = mealOrder.indexOf(a)
+    const idxB = mealOrder.indexOf(b)
+    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99)
+  })
 
   return (
     <ScreenWrapper padded={false}>
@@ -60,16 +103,19 @@ export default function MealPlanDayDetailScreen() {
         </View>
 
         {/* Meal cards */}
-        {dayMeals.length === 0 ? (
+        {sortedMealKeys.length === 0 ? (
           <View style={{ alignItems: 'center', paddingVertical: 64 }}>
             <Ionicons name="calendar-outline" size={56} color="#D4E2DA" />
             <Text style={{ fontSize: 16, color: '#5A7264', marginTop: 16 }}>Bu gün için plan bulunmuyor</Text>
           </View>
         ) : (
-          dayMeals.map((meal) => {
-            const config = mealTypeLabels[meal.type] || { label: meal.type, icon: 'fast-food-outline', color: '#5A7264' }
+          sortedMealKeys.map((mealType) => {
+            const items = mealGroups[mealType]
+            const config = mealTypeLabels[mealType] || { label: mealType, icon: 'fast-food-outline', color: '#5A7264' }
+            const typeCals = items.reduce((sum, item) => sum + (Number(item.calories) || 0), 0)
+
             return (
-              <View key={meal.id} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View key={mealType} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <View
                     style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: config.color + '18' }}
@@ -78,14 +124,13 @@ export default function MealPlanDayDetailScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23' }}>{config.label}</Text>
-                    <Text style={{ fontSize: 12, color: '#5A7264' }}>{meal.time}</Text>
                   </View>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A5C37' }}>{Math.round(meal.totalNutrition.calories)} kcal</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A5C37' }}>{Math.round(typeCals)} kcal</Text>
                 </View>
-                {meal.items.map((item, idx) => (
+                {items.map((item, idx) => (
                   <View key={idx} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderTopWidth: 1, borderColor: '#F0F5F2' }}>
-                    <Text style={{ fontSize: 14, color: '#1A2E23', flex: 1 }}>{item.food.name}</Text>
-                    <Text style={{ fontSize: 14, color: '#5A7264' }}>{item.quantity} {item.unit}</Text>
+                    <Text style={{ fontSize: 14, color: '#1A2E23', flex: 1 }}>{item.food_name}</Text>
+                    <Text style={{ fontSize: 14, color: '#5A7264' }}>{item.amount_g}g</Text>
                   </View>
                 ))}
               </View>

@@ -1,41 +1,45 @@
 import type { ProgressPhoto } from '@/types';
-
-const delay = (ms = 600) => new Promise((r) => setTimeout(r, ms));
-
-const mockPhotos: ProgressPhoto[] = [
-  {
-    id: 'pp-1',
-    uri: 'https://picsum.photos/seed/progress1/400/600',
-    date: '2025-12-01',
-    weight: 72,
-    note: 'Ba\u015flang\u0131\u00e7',
-  },
-  {
-    id: 'pp-2',
-    uri: 'https://picsum.photos/seed/progress2/400/600',
-    date: '2026-01-01',
-    weight: 70.5,
-    note: '1. ay',
-  },
-  {
-    id: 'pp-3',
-    uri: 'https://picsum.photos/seed/progress3/400/600',
-    date: '2026-02-01',
-    weight: 69,
-    note: '2. ay',
-  },
-];
+import apiClient from './client';
 
 export async function getProgressPhotos(): Promise<ProgressPhoto[]> {
-  await delay();
-  return mockPhotos;
+  try {
+    const { data } = await apiClient.get('/progress-photos');
+    return (data.data || []).map((p: any) => ({
+      id: p.id,
+      uri: p.photo_url,
+      date: p.taken_at?.split('T')[0] || '',
+      weight: p.weight_at_time ? parseFloat(p.weight_at_time) : undefined,
+      note: p.notes,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function addProgressPhoto(photo: Omit<ProgressPhoto, 'id'>): Promise<ProgressPhoto> {
-  await delay(800);
-  return { ...photo, id: 'pp-' + Date.now() };
+  try {
+    const { data } = await apiClient.post('/progress-photos', {
+      photoUrl: photo.uri,
+      weightAtTime: photo.weight,
+      notes: photo.note,
+    });
+    const p = data.data;
+    return {
+      id: p.id,
+      uri: p.photo_url,
+      date: p.taken_at?.split('T')[0] || '',
+      weight: p.weight_at_time ? parseFloat(p.weight_at_time) : undefined,
+      note: p.notes,
+    };
+  } catch {
+    return { ...photo, id: 'pp-' + Date.now() };
+  }
 }
 
 export async function deleteProgressPhoto(id: string): Promise<void> {
-  await delay(400);
+  try {
+    await apiClient.delete(`/progress-photos/${id}`);
+  } catch {
+    // silently fail
+  }
 }

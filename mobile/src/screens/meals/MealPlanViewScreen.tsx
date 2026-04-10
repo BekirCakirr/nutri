@@ -38,9 +38,10 @@ export default function MealPlanViewScreen() {
   }
 
   // Calculate generic plan stats
-  const totalDays = activePlan.days?.length || 0
-  const avgCals = totalDays > 0 
-    ? Math.round(activePlan.days.reduce((s, d) => s + (d.totalCalories || 0), 0) / totalDays) 
+  const planDays = activePlan.days ?? []
+  const totalDays = planDays.length
+  const avgCals = totalDays > 0
+    ? Math.round(planDays.reduce((s, d) => s + (d.totalCalories || 0), 0) / totalDays)
     : 0
 
   return (

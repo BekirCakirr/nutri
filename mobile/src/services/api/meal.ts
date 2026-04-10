@@ -1,9 +1,5 @@
 import type { Meal, MealItem, MealType } from '@/types';
 import apiClient from './client';
-import { mockMeals } from '@/mock';
-
-const USE_MOCK = false;
-const delay = (ms = 600) => new Promise((r) => setTimeout(r, ms));
 
 function mapDbMealToMobile(dbMeal: any): Meal {
   const items: MealItem[] = (dbMeal.items || []).map((item: any) => ({
@@ -24,7 +20,6 @@ function mapDbMealToMobile(dbMeal: any): Meal {
     unit: 'g',
   }));
 
-  // Map backend meal_type to mobile MealType
   const mealTypeMap: Record<string, MealType> = {
     breakfast: 'breakfast',
     morning_snack: 'snack',
@@ -52,10 +47,6 @@ function mapDbMealToMobile(dbMeal: any): Meal {
 }
 
 export async function getTodayMeals(): Promise<Meal[]> {
-  if (USE_MOCK) {
-    await delay();
-    return mockMeals.filter((m) => m.date === '2026-02-25');
-  }
   try {
     const { data } = await apiClient.get('/meals/today');
     return (data.data || []).map(mapDbMealToMobile);
@@ -65,10 +56,6 @@ export async function getTodayMeals(): Promise<Meal[]> {
 }
 
 export async function getMealHistory(startDate: string, endDate: string): Promise<Meal[]> {
-  if (USE_MOCK) {
-    await delay();
-    return mockMeals.filter((m) => m.date >= startDate && m.date <= endDate);
-  }
   try {
     const { data } = await apiClient.get('/meals/history', {
       params: { startDate, endDate },
@@ -85,19 +72,6 @@ export async function addMeal(
   date: string,
   time: string,
 ): Promise<Meal> {
-  if (USE_MOCK) {
-    await delay();
-    return {
-      id: 'meal-' + Date.now(),
-      type,
-      items,
-      date,
-      time,
-      totalNutrition: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-    };
-  }
-
-  // Map mobile MealType to backend meal_type
   const mealTypeMap: Record<MealType, string> = {
     breakfast: 'breakfast',
     lunch: 'lunch',
@@ -117,16 +91,11 @@ export async function addMeal(
     });
     return mapDbMealToMobile(data.data);
   } catch {
-    throw new Error('Öğün eklenemedi');
+    throw new Error('Ogun eklenemedi');
   }
 }
 
 export async function updateMeal(id: string, mealData: Partial<Meal>): Promise<Meal> {
-  if (USE_MOCK) {
-    await delay();
-    const found = mockMeals.find((m) => m.id === id);
-    return { ...found!, ...mealData };
-  }
   try {
     const { data } = await apiClient.put(`/meals/${id}`, {
       mealType: mealData.type,
@@ -134,27 +103,19 @@ export async function updateMeal(id: string, mealData: Partial<Meal>): Promise<M
     });
     return mapDbMealToMobile(data.data);
   } catch {
-    throw new Error('Öğün güncellenemedi');
+    throw new Error('Ogun guncellenemedi');
   }
 }
 
 export async function deleteMeal(id: string): Promise<void> {
-  if (USE_MOCK) {
-    await delay(400);
-    return;
-  }
   try {
     await apiClient.delete(`/meals/${id}`);
   } catch {
-    throw new Error('Öğün silinemedi');
+    throw new Error('Ogun silinemedi');
   }
 }
 
 export async function getMealById(id: string): Promise<Meal | null> {
-  if (USE_MOCK) {
-    await delay(400);
-    return mockMeals.find((m) => m.id === id) ?? null;
-  }
   try {
     const { data } = await apiClient.get(`/meals/${id}`);
     return data.data ? mapDbMealToMobile(data.data) : null;

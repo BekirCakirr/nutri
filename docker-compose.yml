@@ -31,7 +31,7 @@ services:
       DATABASE_URL: postgresql://nutriai_user:nutriai_pass@postgres:5432/nutriai
       JWT_SECRET: ${JWT_SECRET:-nutriai-dev-secret-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-nutriai-dev-refresh-secret-change-in-production}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-AIzaSyDaa7ddosm3d-XJOzGjT0wE3i0YycIngLA}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-AIzaSyBhmrIkgkL14hgpYq5OMGc2h5apbS0gzwQ}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173,http://localhost:5174,http://localhost:8081}
     ports:
       - "3001:3001"

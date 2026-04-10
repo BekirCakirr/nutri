@@ -10,12 +10,13 @@ interface AppointmentState {
 interface AppointmentActions {
   loadAppointments: () => Promise<void>;
   bookAppointment: (data: {
-    dietitianId: string;
-    date: string;
-    time: string;
-    duration: number;
+    patientId: string;
+    appointmentDate: string;
+    startTime: string;
+    endTime: string;
     type: 'online' | 'in_person';
     notes?: string;
+    dietitianId?: string;
   }) => Promise<void>;
   cancelAppointment: (id: string) => Promise<void>;
 }

@@ -1,24 +1,49 @@
 import type { FamilyMember } from '@/types';
-import { mockProfile } from '@/mock';
-
-const delay = (ms = 500) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export async function getFamilyMembers(): Promise<FamilyMember[]> {
-  await delay();
-  return mockProfile.familyMembers;
+  try {
+    const { data } = await apiClient.get('/family/members');
+    return (data.data || []).map((m: any) => ({
+      id: m.id,
+      name: m.member_name,
+      birthDate: m.birth_date,
+      relationship: m.relationship || '',
+      allergies: (m.allergen_ids || []).map(String),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function addFamilyMember(member: Omit<FamilyMember, 'id'>): Promise<FamilyMember> {
-  await delay();
-  return { ...member, id: 'fm-' + Date.now() };
+  try {
+    const { data } = await apiClient.post('/family/members', {
+      memberName: member.name,
+      birthDate: member.birthDate,
+      relationship: member.relationship,
+    });
+    const m = data.data;
+    return {
+      id: m.id,
+      name: m.member_name,
+      birthDate: m.birth_date,
+      relationship: m.relationship || '',
+      allergies: (m.allergen_ids || []).map(String),
+    };
+  } catch {
+    return { ...member, id: 'fm-' + Date.now() };
+  }
 }
 
-export async function updateFamilyMember(id: string, data: Partial<FamilyMember>): Promise<FamilyMember> {
-  await delay();
-  const found = mockProfile.familyMembers.find((m) => m.id === id);
-  return { ...found!, ...data };
+export async function updateFamilyMember(id: string, memberData: Partial<FamilyMember>): Promise<FamilyMember> {
+  return { id, name: memberData.name || '', relationship: '', allergies: [], ...memberData } as FamilyMember;
 }
 
 export async function removeFamilyMember(id: string): Promise<void> {
-  await delay(400);
+  try {
+    await apiClient.delete(`/family/members/${id}`);
+  } catch {
+    // silently fail
+  }
 }

@@ -340,8 +340,8 @@ INSERT INTO exercise_logs (patient_id, exercise_type, duration_min, intensity, c
 
 -- ── Sleep logs for Ayse ─────────────────────────────────────────────────────
 INSERT INTO sleep_logs (patient_id, sleep_start, sleep_end, quality) VALUES
-  ('bb000000-0000-0000-0000-000000000001', CURRENT_TIMESTAMP - INTERVAL '8 hours', CURRENT_TIMESTAMP, 4),
-  ('bb000000-0000-0000-0000-000000000001', CURRENT_TIMESTAMP - INTERVAL '32 hours', CURRENT_TIMESTAMP - INTERVAL '24.5 hours', 3);
+  ('bb000000-0000-0000-0000-000000000001', CURRENT_TIMESTAMP - INTERVAL '8 hours', CURRENT_TIMESTAMP, 'excellent'),
+  ('bb000000-0000-0000-0000-000000000001', CURRENT_TIMESTAMP - INTERVAL '32 hours', CURRENT_TIMESTAMP - INTERVAL '24.5 hours', 'good');
 
 -- ── Review from Ayse for Elif ───────────────────────────────────────────────
 INSERT INTO dietitian_reviews (patient_id, dietitian_id, rating, comment, is_anonymous) VALUES
@@ -381,7 +381,7 @@ INSERT INTO recipes (
   difficulty, tags, ingredients, is_approved, created_by, is_budget_friendly, estimated_cost_tl
 ) VALUES
 (
-  'r0000000-0000-0000-0000-000000000001',
+  'ae000000-0000-0000-0000-000000000001',
   'Mercimek Çorbası',
   'Klasik Türk mutfağının vazgeçilmezi, besleyici ve doyurucu kırmızı mercimek çorbası.',
   E'1. Soğan ve havucu küçük doğrayın.\n2. Zeytinyağında soğanı kavurun.\n3. Havuç ve patatesi ekleyip 2 dk kavurun.\n4. Yıkanmış mercimeği ekleyin.\n5. Sıcak su ekleyip 25 dk pişirin.\n6. Blender ile pürüzsüz hale getirin.\n7. Tuz, karabiber ve pul biber ekleyin.\n8. Limon sıkarak servis edin.',
@@ -393,7 +393,7 @@ INSERT INTO recipes (
   true, 'd0000000-0000-0000-0000-000000000001', true, 25.00
 ),
 (
-  'r0000000-0000-0000-0000-000000000002',
+  'ae000000-0000-0000-0000-000000000002',
   'Izgara Tavuk Salata',
   'Protein ağırlıklı, diyet dostu ızgara tavuk göğsü salatası.',
   E'1. Tavuk göğsünü tuzlayıp biberleyin.\n2. Izgarada her iki yüzünü 5-6 dk pişirin.\n3. Yeşillikleri yıkayıp kurulayın.\n4. Domatesi, salatalığı doğrayın.\n5. Tavuğu dilimleyip yeşilliklerin üzerine dizin.\n6. Zeytinyağı-limon sosu ile servis edin.',
@@ -405,7 +405,7 @@ INSERT INTO recipes (
   true, 'd0000000-0000-0000-0000-000000000001', true, 45.00
 ),
 (
-  'r0000000-0000-0000-0000-000000000003',
+  'ae000000-0000-0000-0000-000000000003',
   'Yulaf Ezmesi Bowl',
   'Sabah enerjisi için meyve ve kuruyemişli yulaf ezmesi.',
   E'1. Yulafı sütle karıştırın.\n2. Orta ateşte 5 dk pişirin.\n3. Kaseye alın.\n4. Muz dilimlerini, çilekleri ve yaban mersinini üzerine dizin.\n5. Bal ve tarçın serpin.\n6. Ceviz veya badem ekleyin.',
@@ -417,7 +417,7 @@ INSERT INTO recipes (
   true, 'd0000000-0000-0000-0000-000000000001', true, 20.00
 ),
 (
-  'r0000000-0000-0000-0000-000000000004',
+  'ae000000-0000-0000-0000-000000000004',
   'Fırında Somon',
   'Omega-3 açısından zengin, kolay hazırlanan fırında somon fileto.',
   E'1. Fırını 200°C''ye ısıtın.\n2. Somon filetosunu fırın kabına koyun.\n3. Zeytinyağı, limon suyu, sarımsak ve dereotu ile marine edin.\n4. 15-18 dk fırında pişirin.\n5. Yanında buharda brokoli ile servis edin.',
@@ -429,7 +429,7 @@ INSERT INTO recipes (
   true, 'd0000000-0000-0000-0000-000000000001', false, 120.00
 ),
 (
-  'r0000000-0000-0000-0000-000000000005',
+  'ae000000-0000-0000-0000-000000000005',
   'Kinoa Salatası',
   'Hafif ve besleyici kinoa salatası, öğle yemeği için ideal.',
   E'1. Kinoayı yıkayıp 15 dk haşlayın.\n2. Soğumaya bırakın.\n3. Domates, salatalık, biber, maydanozu doğrayın.\n4. Hepsini karıştırın.\n5. Zeytinyağı, limon suyu, tuz ile sosunu hazırlayın.\n6. Sosu ekleyip servis edin.',
@@ -441,7 +441,7 @@ INSERT INTO recipes (
   true, 'd0000000-0000-0000-0000-000000000001', true, 35.00
 ),
 (
-  'r0000000-0000-0000-0000-000000000006',
+  'ae000000-0000-0000-0000-000000000006',
   'Smoothie Bowl',
   'Antioksidan zengini, renkli ve ferahlatıcı smoothie bowl.',
   E'1. Donmuş muz ve yaban mersinini blender''a koyun.\n2. Yoğurt ve bir miktar süt ekleyin.\n3. Pürüzsüz olana kadar çekin.\n4. Kaseye dökün.\n5. Üzerine granola, chia tohumu ve taze meyve ekleyin.',
@@ -475,12 +475,12 @@ INSERT INTO meal_plan_items (
 -- ── Shopping Lists ──────────────────────────────────────────────────────────
 
 INSERT INTO shopping_lists (id, patient_id, meal_plan_id, title, estimated_total_tl) VALUES
-  ('sl000000-0000-0000-0000-000000000001',
+  ('50000000-0000-0000-0000-000000000001',
    'bb000000-0000-0000-0000-000000000001',
    (SELECT id FROM meal_plans WHERE title = 'Kilo Verme Programi - Hafta 1' LIMIT 1),
    'Haftalık Alışveriş — Hafta 1',
    285.00),
-  ('sl000000-0000-0000-0000-000000000002',
+  ('50000000-0000-0000-0000-000000000002',
    'bb000000-0000-0000-0000-000000000001',
    NULL,
    'Sağlıklı Atıştırmalıklar',
@@ -488,30 +488,30 @@ INSERT INTO shopping_lists (id, patient_id, meal_plan_id, title, estimated_total
 
 INSERT INTO shopping_list_items (shopping_list_id, food_name, amount, category, is_checked, estimated_price_tl, sort_order) VALUES
   -- Haftalık Alışveriş
-  ('sl000000-0000-0000-0000-000000000001', 'Tavuk göğsü', '600g', 'Et & Balık', false, 65.00, 1),
-  ('sl000000-0000-0000-0000-000000000001', 'Somon fileto', '400g', 'Et & Balık', false, 120.00, 2),
-  ('sl000000-0000-0000-0000-000000000001', 'Yumurta (10lu)', '1 paket', 'Süt Ürünleri', true, 28.00, 3),
-  ('sl000000-0000-0000-0000-000000000001', 'Yoğurt', '500g', 'Süt Ürünleri', true, 18.00, 4),
-  ('sl000000-0000-0000-0000-000000000001', 'Beyaz peynir', '250g', 'Süt Ürünleri', false, 22.00, 5),
-  ('sl000000-0000-0000-0000-000000000001', 'Yulaf ezmesi', '500g', 'Tahıllar', true, 15.00, 6),
-  ('sl000000-0000-0000-0000-000000000001', 'Kinoa', '300g', 'Tahıllar', false, 25.00, 7),
-  ('sl000000-0000-0000-0000-000000000001', 'Bulgur', '500g', 'Tahıllar', false, 12.00, 8),
-  ('sl000000-0000-0000-0000-000000000001', 'Kırmızı mercimek', '500g', 'Baklagiller', true, 15.00, 9),
-  ('sl000000-0000-0000-0000-000000000001', 'Domates', '1 kg', 'Sebze', false, 12.00, 10),
-  ('sl000000-0000-0000-0000-000000000001', 'Salatalık', '500g', 'Sebze', false, 8.00, 11),
-  ('sl000000-0000-0000-0000-000000000001', 'Brokoli', '500g', 'Sebze', false, 15.00, 12),
-  ('sl000000-0000-0000-0000-000000000001', 'Marul', '1 adet', 'Sebze', false, 8.00, 13),
-  ('sl000000-0000-0000-0000-000000000001', 'Muz', '1 kg', 'Meyve', false, 18.00, 14),
-  ('sl000000-0000-0000-0000-000000000001', 'Elma', '1 kg', 'Meyve', false, 12.00, 15),
-  ('sl000000-0000-0000-0000-000000000001', 'Limon', '3 adet', 'Meyve', false, 6.00, 16),
-  ('sl000000-0000-0000-0000-000000000001', 'Zeytinyağı', '500ml', 'Yağlar', true, 35.00, 17),
-  ('sl000000-0000-0000-0000-000000000001', 'Badem', '200g', 'Kuruyemiş', false, 28.00, 18),
+  ('50000000-0000-0000-0000-000000000001', 'Tavuk göğsü', '600g', 'Et & Balık', false, 65.00, 1),
+  ('50000000-0000-0000-0000-000000000001', 'Somon fileto', '400g', 'Et & Balık', false, 120.00, 2),
+  ('50000000-0000-0000-0000-000000000001', 'Yumurta (10lu)', '1 paket', 'Süt Ürünleri', true, 28.00, 3),
+  ('50000000-0000-0000-0000-000000000001', 'Yoğurt', '500g', 'Süt Ürünleri', true, 18.00, 4),
+  ('50000000-0000-0000-0000-000000000001', 'Beyaz peynir', '250g', 'Süt Ürünleri', false, 22.00, 5),
+  ('50000000-0000-0000-0000-000000000001', 'Yulaf ezmesi', '500g', 'Tahıllar', true, 15.00, 6),
+  ('50000000-0000-0000-0000-000000000001', 'Kinoa', '300g', 'Tahıllar', false, 25.00, 7),
+  ('50000000-0000-0000-0000-000000000001', 'Bulgur', '500g', 'Tahıllar', false, 12.00, 8),
+  ('50000000-0000-0000-0000-000000000001', 'Kırmızı mercimek', '500g', 'Baklagiller', true, 15.00, 9),
+  ('50000000-0000-0000-0000-000000000001', 'Domates', '1 kg', 'Sebze', false, 12.00, 10),
+  ('50000000-0000-0000-0000-000000000001', 'Salatalık', '500g', 'Sebze', false, 8.00, 11),
+  ('50000000-0000-0000-0000-000000000001', 'Brokoli', '500g', 'Sebze', false, 15.00, 12),
+  ('50000000-0000-0000-0000-000000000001', 'Marul', '1 adet', 'Sebze', false, 8.00, 13),
+  ('50000000-0000-0000-0000-000000000001', 'Muz', '1 kg', 'Meyve', false, 18.00, 14),
+  ('50000000-0000-0000-0000-000000000001', 'Elma', '1 kg', 'Meyve', false, 12.00, 15),
+  ('50000000-0000-0000-0000-000000000001', 'Limon', '3 adet', 'Meyve', false, 6.00, 16),
+  ('50000000-0000-0000-0000-000000000001', 'Zeytinyağı', '500ml', 'Yağlar', true, 35.00, 17),
+  ('50000000-0000-0000-0000-000000000001', 'Badem', '200g', 'Kuruyemiş', false, 28.00, 18),
   -- Atıştırmalıklar listesi
-  ('sl000000-0000-0000-0000-000000000002', 'Badem', '200g', 'Kuruyemiş', false, 28.00, 1),
-  ('sl000000-0000-0000-0000-000000000002', 'Ceviz', '200g', 'Kuruyemiş', false, 25.00, 2),
-  ('sl000000-0000-0000-0000-000000000002', 'Kuru kayısı', '250g', 'Kuru meyve', false, 18.00, 3),
-  ('sl000000-0000-0000-0000-000000000002', 'Chia tohumu', '100g', 'Tohumlar', false, 12.00, 4),
-  ('sl000000-0000-0000-0000-000000000002', 'Çilek', '500g', 'Meyve', false, 12.00, 5);
+  ('50000000-0000-0000-0000-000000000002', 'Badem', '200g', 'Kuruyemiş', false, 28.00, 1),
+  ('50000000-0000-0000-0000-000000000002', 'Ceviz', '200g', 'Kuruyemiş', false, 25.00, 2),
+  ('50000000-0000-0000-0000-000000000002', 'Kuru kayısı', '250g', 'Kuru meyve', false, 18.00, 3),
+  ('50000000-0000-0000-0000-000000000002', 'Chia tohumu', '100g', 'Tohumlar', false, 12.00, 4),
+  ('50000000-0000-0000-0000-000000000002', 'Çilek', '500g', 'Meyve', false, 12.00, 5);
 
 -- ── Additional Conversations ────────────────────────────────────────────────
 
@@ -601,10 +601,10 @@ INSERT INTO exercise_logs (patient_id, exercise_type, duration_min, intensity, c
 -- ── Additional Sleep Logs ───────────────────────────────────────────────────
 
 INSERT INTO sleep_logs (patient_id, sleep_start, sleep_end, quality, logged_at) VALUES
-  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '56 hours', NOW() - INTERVAL '48.5 hours', 4, NOW() - INTERVAL '2 days'),
-  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '80 hours', NOW() - INTERVAL '73 hours', 3, NOW() - INTERVAL '3 days'),
-  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '104 hours', NOW() - INTERVAL '96 hours', 5, NOW() - INTERVAL '4 days'),
-  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '128 hours', NOW() - INTERVAL '120.5 hours', 4, NOW() - INTERVAL '5 days');
+  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '56 hours', NOW() - INTERVAL '48.5 hours', 'excellent', NOW() - INTERVAL '2 days'),
+  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '80 hours', NOW() - INTERVAL '73 hours', 'good', NOW() - INTERVAL '3 days'),
+  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '104 hours', NOW() - INTERVAL '96 hours', 'excellent', NOW() - INTERVAL '4 days'),
+  ('bb000000-0000-0000-0000-000000000001', NOW() - INTERVAL '128 hours', NOW() - INTERVAL '120.5 hours', 'good', NOW() - INTERVAL '5 days');
 
 -- ── Additional Water Logs ───────────────────────────────────────────────────
 

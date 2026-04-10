@@ -16,6 +16,41 @@ export interface User {
   activityLevel?: ActivityLevel;
   goal?: Goal;
   createdAt: string;
+  // Backend profile fields (snake_case from DB)
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+  first_name?: string;
+  last_name?: string;
+  daily_calorie_target?: number;
+  protein_target_g?: number;
+  carb_target_g?: number;
+  fat_target_g?: number;
+  daily_water_target?: number;
+  current_weight_kg?: number;
+  target_weight_kg?: number;
+  current_streak?: number;
+  longest_streak?: number;
+  xp_points?: number;
+  level?: number;
+  height_cm?: number;
+  profile?: {
+    first_name?: string;
+    last_name?: string;
+    daily_calorie_target?: number;
+    protein_target_g?: number;
+    carb_target_g?: number;
+    fat_target_g?: number;
+    daily_water_target?: number;
+    current_weight_kg?: number;
+    target_weight_kg?: number;
+    current_streak?: number;
+    longest_streak?: number;
+    xp_points?: number;
+    level?: number;
+    height_cm?: number;
+    [key: string]: unknown;
+  };
 }
 
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -194,7 +229,19 @@ export interface WeeklyPlan {
   name: string;
   startDate: string;
   endDate: string;
-  days: DayPlan[];
+  days?: DayPlan[];
+  items?: {
+    id?: string;
+    day_of_week: number;
+    meal_type: MealType;
+    food_name: string;
+    amount_g: string;
+    calories: string;
+    protein: string;
+    carbs: string;
+    fat: string;
+    notes?: string;
+  }[];
   createdBy?: string;
 }
 
@@ -227,6 +274,7 @@ export interface Message {
   type: 'text' | 'image' | 'file' | 'system';
   timestamp: string;
   read: boolean;
+  [key: string]: unknown;
 }
 
 export interface Conversation {
@@ -235,6 +283,7 @@ export interface Conversation {
   lastMessage?: Message;
   unreadCount: number;
   updatedAt: string;
+  [key: string]: unknown;
 }
 
 // ========================
@@ -249,6 +298,7 @@ export interface AppNotification {
   read: boolean;
   data?: Record<string, unknown>;
   createdAt: string;
+  [key: string]: unknown;
 }
 
 export type NotificationType =

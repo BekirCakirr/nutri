@@ -1,7 +1,5 @@
 import type { Badge, Challenge } from '@/types';
-import { mockBadges, mockChallenges, mockGamificationData } from '@/mock';
-
-const delay = (ms = 500) => new Promise((r) => setTimeout(r, ms));
+import apiClient from './client';
 
 export interface GamificationStatus {
   level: number;
@@ -12,32 +10,36 @@ export interface GamificationStatus {
 }
 
 export async function getGamificationStatus(): Promise<GamificationStatus> {
-  await delay();
-  return mockGamificationData;
+  try {
+    const { data } = await apiClient.get('/gamification/status');
+    return data.data;
+  } catch {
+    return { level: 1, xp: 0, xpToNextLevel: 100, streak: 0, totalBadges: 0 };
+  }
 }
 
 export async function getBadges(): Promise<Badge[]> {
-  await delay();
-  return mockBadges;
+  try {
+    const { data } = await apiClient.get('/gamification/badges');
+    return data.data || [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getChallenges(): Promise<Challenge[]> {
-  await delay();
-  return mockChallenges;
+  try {
+    const { data } = await apiClient.get('/gamification/challenges');
+    return data.data || [];
+  } catch {
+    return [];
+  }
 }
 
 export async function addXP(amount: number): Promise<{ xp: number; level: number; levelUp: boolean }> {
-  await delay(300);
-  const newXP = mockGamificationData.xp + amount;
-  const levelUp = newXP >= mockGamificationData.xpToNextLevel;
-  return {
-    xp: levelUp ? newXP - mockGamificationData.xpToNextLevel : newXP,
-    level: levelUp ? mockGamificationData.level + 1 : mockGamificationData.level,
-    levelUp,
-  };
+  return { xp: amount, level: 1, levelUp: false };
 }
 
 export async function updateStreak(): Promise<number> {
-  await delay(300);
-  return mockGamificationData.streak + 1;
+  return 0;
 }

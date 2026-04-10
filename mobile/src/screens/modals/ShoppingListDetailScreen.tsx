@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import type { RouteProp } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { getShoppingListById, toggleShoppingItem } from '../../services/api/shopping'
 
 type ShoppingItem = {
   id: string
@@ -13,36 +15,67 @@ type ShoppingItem = {
   checked: boolean
 }
 
-const mockItems: ShoppingItem[] = [
-  // Sebze & Meyve
-  { id: '1', name: 'Brokoli', amount: '1 demet', category: 'Sebze & Meyve', checked: false },
-  { id: '2', name: 'Ispanak', amount: '500g', category: 'Sebze & Meyve', checked: true },
-  { id: '3', name: 'Muz', amount: '6 adet', category: 'Sebze & Meyve', checked: false },
-  { id: '4', name: 'Avokado', amount: '2 adet', category: 'Sebze & Meyve', checked: false },
-  { id: '5', name: 'Kiraz domates', amount: '250g', category: 'Sebze & Meyve', checked: true },
-  // Protein
-  { id: '6', name: 'Tavuk göğsü', amount: '500g', category: 'Protein', checked: false },
-  { id: '7', name: 'Yumurta', amount: '10 adet', category: 'Protein', checked: false },
-  { id: '8', name: 'Yunan yoğurdu', amount: '500g', category: 'Protein', checked: true },
-  // Tahıl & Baklagil
-  { id: '9', name: 'Quinoa', amount: '500g', category: 'Tahıl & Baklagil', checked: false },
-  { id: '10', name: 'Yulaf ezmesi', amount: '1 paket', category: 'Tahıl & Baklagil', checked: false },
-  { id: '11', name: 'Kırmızı mercimek', amount: '500g', category: 'Tahıl & Baklagil', checked: true },
-  // Diğer
-  { id: '12', name: 'Zeytinyağı', amount: '500ml', category: 'Diğer', checked: true },
-  { id: '13', name: 'Bal', amount: '250g', category: 'Diğer', checked: false },
-]
+type Route = RouteProp<any, any>
 
 export default function ShoppingListDetailScreen() {
   const navigation = useNavigation()
-  const [items, setItems] = useState(mockItems)
+  const route = useRoute<Route>()
+  const listId = route.params?.id || route.params?.listId
+  
+  const [items, setItems] = useState<ShoppingItem[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const toggleItem = (id: string) => {
-    setItems(prev => prev.map(item => item.id === id ? { ...item, checked: !item.checked } : item))
+  useEffect(() => {
+    if (listId) {
+      getShoppingListById(listId).then(list => {
+        if (list) {
+          const rawList = list as Record<string, any>
+          const loadedItems = (list.items || rawList.items || []).map((i: any) => ({
+            id: i.id || String(Math.random()),
+            name: i.food_name || i.foodName || i.name || '',
+            amount: i.amount || '',
+            category: i.category || 'Diğer',
+            checked: !!i.is_checked || !!i.isChecked || !!i.checked,
+          }))
+          setItems(loadedItems)
+        }
+        setLoading(false)
+      }).catch(() => setLoading(false))
+    } else {
+      setLoading(false)
+    }
+  }, [listId])
+
+  const toggleItem = async (id: string) => {
+    const item = items.find(i => i.id === id)
+    if (!item) return
+    
+    // Optimistic UI update
+    setItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i))
+    
+    try {
+      if (listId && id) {
+        await toggleShoppingItem(listId, id)
+      }
+    } catch {
+      // Revert on failure
+      setItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i))
+    }
   }
 
-  const checkedCount = items.filter(i => i.checked).length
   const categories = [...new Set(items.map(i => i.category))]
+  const checkedCount = items.filter(i => i.checked).length
+
+  if (loading) {
+    return (
+      <ScreenWrapper padded={false}>
+        <AppHeader title="Alışveriş Listesi" onBack={() => navigation.goBack()} />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#1A5C37" />
+        </View>
+      </ScreenWrapper>
+    )
+  }
 
   return (
     <ScreenWrapper padded={false}>
@@ -54,11 +87,11 @@ export default function ShoppingListDetailScreen() {
             <Ionicons name="cart-outline" size={20} color="#1A5C37" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23' }}>Haftalık Plan</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23' }}>Detaylı Liste</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>{checkedCount}/{items.length} alındı</Text>
           </View>
           <View style={{ height: 8, width: 80, backgroundColor: '#E8F0EC', borderRadius: 9999, overflow: 'hidden' }}>
-            <View style={{ height: '100%', backgroundColor: '#1A5C37', borderRadius: 9999, width: `${(checkedCount / items.length) * 100}%` }} />
+            <View style={{ height: '100%', backgroundColor: '#1A5C37', borderRadius: 9999, width: items.length > 0 ? `${(checkedCount / items.length) * 100}%` : '0%' }} />
           </View>
         </View>
 
@@ -98,6 +131,12 @@ export default function ShoppingListDetailScreen() {
             </View>
           )
         })}
+
+        {items.length === 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <Text style={{ color: '#5A7264' }}>Bu listede ürün bulunmuyor.</Text>
+          </View>
+        )}
 
         {/* Add item */}
         <TouchableOpacity

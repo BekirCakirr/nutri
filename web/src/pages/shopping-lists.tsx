@@ -101,7 +101,16 @@ export default function ShoppingListsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>İptal</Button>
-              <Button onClick={() => setDialogOpen(false)}>Oluştur</Button>
+              <Button onClick={async () => {
+                const titleInput = document.querySelector<HTMLInputElement>('input[placeholder="Haftalık Alışveriş"]')
+                const title = titleInput?.value || 'Yeni Liste'
+                try {
+                  const { createList } = await import('@/services/shopping.service')
+                  await createList({ name: title } as any)
+                  setDialogOpen(false)
+                  fetchShoppingLists()
+                } catch { setDialogOpen(false) }
+              }}>Oluştur</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
