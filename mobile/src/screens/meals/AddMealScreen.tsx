@@ -98,7 +98,8 @@ export default function AddMealScreen() {
       await addMeal(mealType, items, date, time)
       navigation.goBack()
     } catch {
-      // silently fail for now
+      const { Alert } = require('react-native')
+      Alert.alert('Hata', 'Öğün kaydedilemedi. Lütfen tekrar deneyin.')
     } finally {
       setSaving(false)
     }

@@ -39,11 +39,11 @@ export default function VitaminsScreen() {
   const adequate = mockVitamins.filter(v => (v.current / v.target) >= 0.8).length
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Vitamin & Mineral (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 14, color: '#5A7264' }}>Günlük Alım Durumu</Text>
           <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>
             {adequate}/{mockVitamins.length} yeterli
@@ -57,7 +57,7 @@ export default function VitaminsScreen() {
           const isLow = pct < 60
           const isOk = pct >= 80
           return (
-            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                 <View
                   style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: v.color + '20' }}

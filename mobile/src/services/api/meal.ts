@@ -84,7 +84,8 @@ export async function addMeal(
       mealType: mealTypeMap[type] || type,
       logDate: date,
       items: items.map((item) => ({
-        foodId: parseInt(item.food.id, 10),
+        foodId: /^\d+$/.test(item.food.id) ? parseInt(item.food.id, 10) : undefined,
+        foodName: item.food.name,
         amount: item.quantity,
       })),
       entryMethod: 'manual',

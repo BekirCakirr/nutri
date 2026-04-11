@@ -40,7 +40,7 @@ export default function AllergyManagementScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Alerji Yönetimi"
         onBack={() => navigation.goBack()}
@@ -48,11 +48,11 @@ export default function AllergyManagementScreen() {
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 16, paddingTop: 16 }}>
         
         {/* Banner */}
-        <View style={{ borderRadius: 12, padding: 16, borderWidth: 1, marginBottom: 24, flexDirection: 'row', alignItems: 'flex-start' }} /* TODO: bg-amber-50 border-amber-200 */>
+        <View style={{ borderRadius: 12, padding: 16, borderWidth: 1, marginBottom: 24, flexDirection: 'row', alignItems: 'flex-start' , backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }}>
           <Ionicons name="information-circle-outline" size={24} color="#D97706" style={{ marginTop: 2 }}/>
           <View style={{ flex: 1, marginLeft: 12 }}>
-             <Text style={{ fontWeight: '600', marginBottom: 4 }} /* TODO: text-amber-800 */>Alerjilerinizi Kaydedin</Text>
-             <Text style={{ fontSize: 12 }} /* TODO: text-amber-700/80 */>
+             <Text style={{ fontWeight: '600', marginBottom: 4 , color: '#92400E' }}>Alerjilerinizi Kaydedin</Text>
+             <Text style={{ fontSize: 12 , color: 'rgba(180,83,9,0.8)' }}>
                Kaydettiğiniz alerjenler "Alerjen Tarama" kamerasında ve otomatik öğün önerilerinde filtrelenerek sağlığınız korunur.
              </Text>
           </View>
@@ -60,7 +60,7 @@ export default function AllergyManagementScreen() {
 
         {/* Existing Allergies */}
         <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 16 }}>Mevcut Alerjileriniz</Text>
-        <View style={{ borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden', marginBottom: 24 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden', marginBottom: 24 , backgroundColor: '#FFFFFF' }}>
           {allergies.length > 0 ? allergies.map((item, index) => (
             <View 
               key={item.id} 
@@ -86,7 +86,7 @@ export default function AllergyManagementScreen() {
               </TouchableOpacity>
             </View>
           )) : (
-            <View style={{ padding: 24, alignItems: 'center' }} /* TODO: flex-col */>
+            <View style={{ padding: 24, alignItems: 'center' , flexDirection: 'column' }}>
               <Ionicons name="shield-checkmark-outline" size={32} color="#4ECDC4" />
               <Text style={{ color: '#5A7264', fontSize: 14, marginTop: 12, textAlign: 'center' }}>Şu an kayıtlı bir alerjiniz bulunmuyor.</Text>
             </View>
@@ -96,7 +96,7 @@ export default function AllergyManagementScreen() {
         {/* Add New */}
         <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 16 }}>Yeni Ekle</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-          <View style={{ flex: 1, borderWidth: 1, borderColor: '#E8F0EC', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderWidth: 1, borderColor: '#E8F0EC', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 , backgroundColor: '#FFFFFF' }}>
             <TextInput
               value={newAllergy}
               onChangeText={setNewAllergy}

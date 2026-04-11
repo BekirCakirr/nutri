@@ -41,7 +41,7 @@ export default function MealPlanDayDetailScreen() {
 
   if (loading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title={formattedDate} onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#1A5C37" />
@@ -75,7 +75,7 @@ export default function MealPlanDayDetailScreen() {
   })
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title={formattedDate} onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary Card */}
@@ -84,18 +84,18 @@ export default function MealPlanDayDetailScreen() {
           <Text style={{ fontSize: 36, fontWeight: '800', color: '#1A5C37' }}>{Math.round(totalCal)}</Text>
           <Text style={{ fontSize: 14, color: '#5A7264', marginTop: -2, marginBottom: 16 }}>kcal</Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' }} /* TODO: bg-white/70 */>
-              <View style={{ borderRadius: 9999, backgroundColor: '#EF4444', marginBottom: 4 }} /* TODO: w-2.5 h-2.5 *//>
+            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ borderRadius: 9999, backgroundColor: '#EF4444', marginBottom: 4 , width: 10, height: 10 }}/>
               <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalProtein)}g</Text>
               <Text style={{ fontSize: 12, color: '#5A7264' }}>Protein</Text>
             </View>
-            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' }} /* TODO: bg-white/70 */>
-              <View style={{ borderRadius: 9999, backgroundColor: '#3B82F6', marginBottom: 4 }} /* TODO: w-2.5 h-2.5 *//>
+            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ borderRadius: 9999, backgroundColor: '#3B82F6', marginBottom: 4 , width: 10, height: 10 }}/>
               <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalCarbs)}g</Text>
               <Text style={{ fontSize: 12, color: '#5A7264' }}>Karbonhidrat</Text>
             </View>
-            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' }} /* TODO: bg-white/70 */>
-              <View style={{ borderRadius: 9999, backgroundColor: '#F59E0B', marginBottom: 4 }} /* TODO: w-2.5 h-2.5 *//>
+            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ borderRadius: 9999, backgroundColor: '#F59E0B', marginBottom: 4 , width: 10, height: 10 }}/>
               <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalFat)}g</Text>
               <Text style={{ fontSize: 12, color: '#5A7264' }}>Yağ</Text>
             </View>
@@ -115,7 +115,7 @@ export default function MealPlanDayDetailScreen() {
             const typeCals = items.reduce((sum, item) => sum + (Number(item.calories) || 0), 0)
 
             return (
-              <View key={mealType} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View key={mealType} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <View
                     style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: config.color + '18' }}

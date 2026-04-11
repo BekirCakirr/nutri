@@ -40,7 +40,7 @@ export default function NotificationSettingsScreen() {
   )
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Bildirim Ayarları"
         onBack={() => navigation.goBack()}
@@ -69,7 +69,7 @@ export default function NotificationSettingsScreen() {
         <View style={{ opacity: pushEnabled ? 1 : 0.5 }} pointerEvents={pushEnabled ? 'auto' : 'none'}>
           {/* Daily Reminders */}
           <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 15, textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 }} /* TODO: tracking-wider */>Günlük Hatırlatıcılar</Text>
-          <View style={{ borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 24 }} /* TODO: bg-white */>
+          <View style={{ borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 24 , backgroundColor: '#FFFFFF' }}>
             <SettingToggle 
                title="Su Hatırlatıcıları" subtitle="Hedeflerine ulaşman için aralıklarla uyarır" 
                value={waterReminder} onValueChange={setWaterReminder} icon="water-outline" color="#4A7FB5" 
@@ -86,7 +86,7 @@ export default function NotificationSettingsScreen() {
 
           {/* Social & Expert */}
           <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 15, textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 }} /* TODO: tracking-wider */>Sosyal & Uzman</Text>
-          <View style={{ borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 24 }} /* TODO: bg-white */>
+          <View style={{ borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 24 , backgroundColor: '#FFFFFF' }}>
             <SettingToggle 
                title="Diyetisyen Mesajları" subtitle="Bağlı olduğun uzmandan gelen mesajlar" 
                value={dietitianMessages} onValueChange={setDietitianMessages} icon="chatbubbles-outline" color="#1A5C37" 
@@ -99,7 +99,7 @@ export default function NotificationSettingsScreen() {
 
           {/* System & Marketing */}
           <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 15, textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 }} /* TODO: tracking-wider */>Sistem</Text>
-          <View style={{ borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32 }} /* TODO: bg-white */>
+          <View style={{ borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32 , backgroundColor: '#FFFFFF' }}>
             <SettingToggle 
                title="Haftalık Raporlar" subtitle="Hafta sonu gelişimi özetleyen özet" 
                value={weeklyReport} onValueChange={setWeeklyReport} icon="stats-chart-outline" color="#5A7264" 

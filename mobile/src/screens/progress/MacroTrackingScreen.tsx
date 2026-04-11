@@ -41,18 +41,18 @@ export default function MacroTrackingScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Makro Takibi (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Total calories from macros */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 14, color: '#5A7264' }}>Makrolardan Kalori</Text>
           <Text style={{ fontSize: 30, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{totalCal} kcal</Text>
           <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>Hedef: {targetCal} kcal</Text>
         </View>
 
         {/* Macro donut (simplified with bars) */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Bugün</Text>
 
           {/* Distribution bar */}
@@ -87,7 +87,7 @@ export default function MacroTrackingScreen() {
         {macros.map((m, i) => {
           const pct = Math.min((m.current / m.target) * 100, 100)
           return (
-            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ width: 12, height: 12, borderRadius: 9999, marginRight: 8, backgroundColor: m.color }} />
@@ -111,7 +111,7 @@ export default function MacroTrackingScreen() {
         })}
 
         {/* Weekly table */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32, marginTop: 8 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32, marginTop: 8 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Haftalık Özet</Text>
           {/* Header */}
           <View style={{ flexDirection: 'row', paddingBottom: 8, marginBottom: 8, borderBottomWidth: 1, borderColor: '#E8F0EC' }}>

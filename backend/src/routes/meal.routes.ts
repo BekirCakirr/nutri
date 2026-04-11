@@ -22,7 +22,8 @@ const createMealSchema = z.object({
   items: z
     .array(
       z.object({
-        foodId: z.number().int().positive(),
+        foodId: z.number().int().positive().optional(),
+        foodName: z.string().optional(),
         amount: z.number().positive(),
       })
     )

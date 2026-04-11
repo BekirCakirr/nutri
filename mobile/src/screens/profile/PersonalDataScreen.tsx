@@ -40,7 +40,7 @@ export default function PersonalDataScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Kişisel Veriler" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {personalData.map((section, si) => (

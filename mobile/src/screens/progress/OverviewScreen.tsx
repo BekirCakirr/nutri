@@ -49,7 +49,7 @@ export default function OverviewScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <View style={st.headerArea}>
           <Text style={st.headerTitle}>İlerleme</Text>

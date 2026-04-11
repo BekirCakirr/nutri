@@ -10,7 +10,7 @@ export default function TextInputScreen() {
   const [text, setText] = useState('')
 
   return (
-    <ScreenWrapper keyboardAvoiding padded={false}>
+    <ScreenWrapper scrollable={false} keyboardAvoiding padded={false}>
       <AppHeader title="Yazı ile Giriş" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 24 }}showsVerticalScrollIndicator={false}>
         <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 24, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#C8E6CF66' }}>
@@ -21,7 +21,7 @@ export default function TextInputScreen() {
         </View>
 
         <TextInput
-          style={{ borderRadius: 16, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 16, fontSize: 16, color: '#1A2E23', marginBottom: 24 }} /* TODO: bg-white min-h-[120px] */placeholder="Örn: 1 kase mercimek çorbası, 2 dilim ekmek, 1 bardak ayran..."
+          style={{ borderRadius: 16, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 16, fontSize: 16, color: '#1A2E23', marginBottom: 24 , backgroundColor: '#FFFFFF', minHeight: 120 }}placeholder="Örn: 1 kase mercimek çorbası, 2 dilim ekmek, 1 bardak ayran..."
           placeholderTextColor="#9CA8A1"
           value={text}
           onChangeText={setText}

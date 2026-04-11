@@ -43,7 +43,7 @@ export default function GoalsScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Hedeflerim" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Info */}

@@ -100,7 +100,7 @@ export default function ProfileScreen() {
   ]
 
   return (
-    <ScreenWrapper padded={false} contentStyle={{ backgroundColor: colors.background.default }}>
+    <ScreenWrapper scrollable={false} padded={false} contentStyle={{ backgroundColor: colors.background.default }}>
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Header Card */}
         <View style={st.headerPad}>

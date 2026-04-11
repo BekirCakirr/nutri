@@ -50,7 +50,7 @@ export default function IntermittentFastingScreen() {
   const pct = targetSec > 0 ? Math.min((elapsed / targetSec) * 100, 100) : 0
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Aralıklı Oruç (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Plan selector */}
@@ -126,7 +126,7 @@ export default function IntermittentFastingScreen() {
         {/* History */}
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Geçmiş</Text>
         {mockHistory.map((h, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
             <View
               style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: h.completed ? '#E8F5EC' : '#FEE2E2' }}
             >

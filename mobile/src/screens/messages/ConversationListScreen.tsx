@@ -158,7 +158,7 @@ export default function ConversationListScreen() {
 
   if (loading) {
     return (
-      <ScreenWrapper padded={false} scrollable={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Mesajlar" onBack={() => navigation.goBack()} />
         <View style={st.center}>
           <ActivityIndicator size="large" color={colors.primary.main} />
@@ -169,7 +169,7 @@ export default function ConversationListScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Mesajlar"
         onBack={() => navigation.goBack()}

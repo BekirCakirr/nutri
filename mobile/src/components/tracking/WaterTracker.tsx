@@ -42,7 +42,7 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
 
       {/* Glass grid */}
       <View style={styles.glassRow}>
-        {Array.from({ length: targetGlasses }).map((_, index) => (
+        {Array.from({ length: Math.min(targetGlasses, 20) }).map((_, index) => (
           <View
             key={index}
             style={[
@@ -57,6 +57,9 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
             />
           </View>
         ))}
+        {targetGlasses > 20 && (
+          <Text style={{fontSize: 10, alignSelf:'center', color: waterBlue.dark}}>+{targetGlasses - 20}</Text>
+        )}
       </View>
 
       {/* Progress bar */}

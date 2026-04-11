@@ -43,11 +43,11 @@ export default function BloodValuesScreen() {
   const normalCount = mockBloodValues.filter(v => v.value >= v.min && v.value <= v.max).length
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Kan Değerleri (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ width: 48, height: 48, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="water" size={22} color="#1A5C37" />
@@ -67,7 +67,7 @@ export default function BloodValuesScreen() {
           const status = getStatus(v.value, v.min, v.max)
           const pct = Math.min(((v.value - v.min) / (v.max - v.min)) * 100, 100)
           return (
-            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23', flex: 1 }}>{v.name}</Text>
                 <View style={{ borderRadius: 9999, paddingHorizontal: 10, paddingVertical: 2, backgroundColor: status.bg }}>

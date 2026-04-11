@@ -100,7 +100,7 @@ export default function BookAppointmentScreen() {
 
   if (loading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Randevu Al" onBack={() => navigation.goBack()} />
         <View style={st.center}><ActivityIndicator size="large" color={colors.primary.main} /></View>
       </ScreenWrapper>
@@ -108,7 +108,7 @@ export default function BookAppointmentScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Randevu Al" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Dietitian info */}

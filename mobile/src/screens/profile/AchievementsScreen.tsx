@@ -33,7 +33,7 @@ export default function AchievementsScreen() {
   const earned = mockAchievements.filter(a => a.earned).length
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Başarılar" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Summary */}

@@ -12,6 +12,8 @@ import type { StackNavigationProp } from '@react-navigation/stack'
 import type { MealsStackParamList } from '../../navigation/types'
 import type { Meal, MealType } from '../../types'
 import { useMealStore } from '../../stores/mealStore'
+import { useAuthStore } from '../../stores/authStore'
+import { DEFAULT_CALORIE_TARGET } from '../../lib/constants'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { CalorieRing } from '../../components/nutrition/CalorieRing'
 import { MacroBar } from '../../components/nutrition/MacroBar'
@@ -34,7 +36,6 @@ const turkishMonths = [
   'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
 ]
 
-const CALORIE_TARGET = 2000
 const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack']
 
 function formatDate(date: Date): string {
@@ -52,6 +53,8 @@ function formatDate(date: Date): string {
 export default function MealLogScreen() {
   const navigation = useNavigation<Nav>()
   const { todayMeals, loadTodayMeals } = useMealStore()
+  const user = useAuthStore((s) => s.user)
+  const CALORIE_TARGET = Number((user as any)?.profile?.daily_calorie_target || (user as any)?.daily_calorie_target) || DEFAULT_CALORIE_TARGET
   const [selectedDate, setSelectedDate] = useState(new Date())
 
   useFocusEffect(

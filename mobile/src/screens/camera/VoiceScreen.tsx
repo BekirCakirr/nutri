@@ -13,7 +13,7 @@ export default function VoiceScreen() {
     <ScreenWrapper padded={false}>
       <AppHeader title="Sesli Giriş" onBack={() => navigation.goBack()} />
       <View style={{ flex: 1, backgroundColor: '#F8FAF9', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 40, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#C8E6CF66' }} /* TODO: self-stretch */>
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 40, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#C8E6CF66' , alignSelf: 'stretch' }}>
           <Ionicons name="mic-outline" size={20} color="#1A5C37" />
           <Text style={{ fontSize: 14, color: '#1A5C37', marginLeft: 12, flex: 1 }}>
             Ne yediğinizi söyleyin, AI sizin için analiz etsin.

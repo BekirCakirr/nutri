@@ -68,7 +68,7 @@ export default function ShoppingListDetailScreen() {
 
   if (loading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Alışveriş Listesi" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#1A5C37" />
@@ -78,11 +78,11 @@ export default function ShoppingListDetailScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Alışveriş Listesi" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View style={{ borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
             <Ionicons name="cart-outline" size={20} color="#1A5C37" />
           </View>
@@ -103,7 +103,7 @@ export default function ShoppingListDetailScreen() {
               <Text style={{ fontSize: 12, fontWeight: '700', color: '#5A7264', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, marginLeft: 4 }}>
                 {cat} ({catItems.length})
               </Text>
-              <View style={{ borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden' }} /* TODO: bg-white */>
+              <View style={{ borderRadius: 16, borderWidth: 1, borderColor: '#E8F0EC', overflow: 'hidden' , backgroundColor: '#FFFFFF' }}>
                 {catItems.map((item, ii) => (
                   <TouchableOpacity
                     key={item.id}
@@ -113,7 +113,7 @@ export default function ShoppingListDetailScreen() {
                   >
                     <View
                       style={{ width: 20, height: 20, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: item.checked ? '#1A5C37' : '#FFFFFF',
-                        borderColor: item.checked ? '#1A5C37' : '#D4E2DA', }} /* TODO: rounded */
+                        borderColor: item.checked ? '#1A5C37' : '#D4E2DA', borderRadius: 6 }}
                     >
                       {item.checked && <Ionicons name="checkmark" size={12} color="#FFFFFF" />}
                     </View>

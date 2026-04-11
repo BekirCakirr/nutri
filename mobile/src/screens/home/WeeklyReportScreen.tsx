@@ -1,81 +1,101 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
 import { ProgressChart } from '../../components/tracking/ProgressChart'
 import { DailyChecklist } from '../../components/tracking/DailyChecklist'
-import { mockWaterHistory, mockExerciseHistory } from '../../mock/tracking'
-import { mockMeals } from '../../mock/meals'
+import { useMeals, useTracking, useProgress } from '../../hooks'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
-// Build 7-day calorie data
-const days = ['Pzt', 'Sal', 'Car', 'Per', 'Cum', 'Cmt', 'Paz']
-const weeklyCalories = [1580, 1620, 1450, 1700, 1650, 1550, totalForToday()]
-
-function totalForToday() {
-  return mockMeals
-    .filter((m) => m.date === '2026-02-25')
-    .reduce((s, m) => s + m.totalNutrition.calories, 0)
-}
-
-// Averages
-const avgCalories = Math.round(weeklyCalories.reduce((a, b) => a + b, 0) / 7)
-const avgWater = Math.round(
-  mockWaterHistory.reduce((a, b) => a + b.value, 0) / mockWaterHistory.length
-)
-const avgExercise = Math.round(
-  mockExerciseHistory.reduce((a, b) => a + b.minutes, 0) / mockExerciseHistory.length
-)
-
-const checklistItems = [
-  { id: '1', label: 'Gunluk kalori hedefini tuttur', completed: avgCalories <= 1700 },
-  { id: '2', label: 'En az 2L su ic', completed: avgWater >= 2000 },
-  { id: '3', label: 'En az 30dk egzersiz yap', completed: avgExercise >= 30 },
-  { id: '4', label: '3 ana ogun kaydet', completed: true },
-  { id: '5', label: 'Sebze tuketimini artir', completed: false },
-]
+const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
 
 export default function WeeklyReportScreen() {
   const navigation = useNavigation()
+  const { todayMeals, fetchTodayMeals } = useMeals()
+  const { todayCalories, waterGlasses, exerciseMinutes, loadToday } = useTracking()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([fetchTodayMeals(), loadToday()])
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Build weekly data from today's real data + estimates
+  const todayCal = todayCalories || 0
+  const weeklyCalories = days.map((_, i) => {
+    if (i === new Date().getDay() - 1 || (new Date().getDay() === 0 && i === 6)) return todayCal
+    return 0 // No historical data for other days without API
+  })
+
+  const hasData = todayCal > 0
+  const avgCalories = hasData ? todayCal : 0
+  const avgWater = (waterGlasses || 0) * 200 // glasses to ml
+  const avgExercise = exerciseMinutes || 0
+
+  const checklistItems = [
+    { id: '1', label: 'Günlük kalori hedefini tuttur', completed: todayCal > 1000 },
+    { id: '2', label: 'En az 8 bardak su iç', completed: (waterGlasses || 0) >= 8 },
+    { id: '3', label: 'En az 30dk egzersiz yap', completed: avgExercise >= 30 },
+    { id: '4', label: '3 ana öğün kaydet', completed: (todayMeals?.length || 0) >= 3 },
+    { id: '5', label: 'Sebze tüketimini artır', completed: false },
+  ]
+
+  if (loading) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Haftalık Rapor" onBack={() => navigation.goBack()} />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary.main} />
+        </View>
+      </ScreenWrapper>
+    )
+  }
 
   return (
     <ScreenWrapper>
-      <AppHeader title="Haftalik Rapor" onBack={() => navigation.goBack()} />
+      <AppHeader title="Haftalık Rapor" onBack={() => navigation.goBack()} />
 
       {/* Calorie trend */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>7 Gunluk Kalori Trendi</Text>
-        <ProgressChart
-          title=""
-          data={weeklyCalories.map((val, i) => ({ label: days[i], value: val }))}
-          color={colors.primary.main}
-        />
-        <View style={styles.avgRow}>
-          <Text style={styles.avgLabel}>Ortalama:</Text>
-          <Text style={styles.avgValue}>{avgCalories} kcal/gun</Text>
-        </View>
+        <Text style={styles.cardTitle}>Bugünkü Kalori Durumu</Text>
+        {hasData ? (
+          <>
+            <ProgressChart
+              title=""
+              data={weeklyCalories.filter(v => v > 0).map((val, i) => ({ label: days[i], value: val }))}
+              color={colors.primary.main}
+            />
+            <View style={styles.avgRow}>
+              <Text style={styles.avgLabel}>Bugün:</Text>
+              <Text style={styles.avgValue}>{todayCal} kcal</Text>
+            </View>
+          </>
+        ) : (
+          <Text style={styles.noDataText}>Henüz öğün kaydı yok. Öğün ekleyerek başlayın.</Text>
+        )}
       </View>
 
-      {/* Macro averages */}
+      {/* Stats */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Haftalik Ortalamalar</Text>
+        <Text style={styles.cardTitle}>Günlük Özet</Text>
         <View style={styles.statRow}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{avgCalories}</Text>
-            <Text style={styles.statUnit}>kcal/gun</Text>
+            <Text style={styles.statUnit}>kcal</Text>
             <Text style={styles.statLabel}>Kalori</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{avgWater}</Text>
-            <Text style={styles.statUnit}>ml/gun</Text>
+            <Text style={styles.statUnit}>ml</Text>
             <Text style={styles.statLabel}>Su</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{avgExercise}</Text>
-            <Text style={styles.statUnit}>dk/gun</Text>
+            <Text style={styles.statUnit}>dk</Text>
             <Text style={styles.statLabel}>Egzersiz</Text>
           </View>
         </View>
@@ -83,11 +103,8 @@ export default function WeeklyReportScreen() {
 
       {/* Checklist */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Haftalik Kontrol Listesi</Text>
-        <DailyChecklist
-          items={checklistItems}
-          onToggle={() => {}}
-        />
+        <Text style={styles.cardTitle}>Günlük Kontrol Listesi</Text>
+        <DailyChecklist items={checklistItems} onToggle={() => {}} />
       </View>
     </ScreenWrapper>
   )
@@ -153,5 +170,11 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.medium,
     color: colors.text.secondary,
     marginTop: spacing.xs,
+  },
+  noDataText: {
+    fontSize: fontSizes.md,
+    color: colors.text.disabled,
+    textAlign: 'center',
+    paddingVertical: spacing.lg,
   },
 })

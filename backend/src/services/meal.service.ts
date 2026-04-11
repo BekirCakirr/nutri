@@ -5,7 +5,7 @@ import { query, getClient } from "../config";
 interface CreateMealInput {
   mealType: string;
   logDate: string;
-  items: { foodId: number; amount: number }[];
+  items: { foodId?: number; foodName?: string; amount: number }[];
   notes?: string;
   entryMethod?: string;
 }
@@ -141,21 +141,32 @@ export async function createMeal(userId: string, input: CreateMealInput) {
     // Insert meal items
     const items = [];
     for (const item of input.items) {
-      const foodResult = await client.query(
-        `SELECT id, name, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g,
-                iron_mg, calcium_mg, vitamin_b12_mcg, vitamin_d_mcg, vitamin_c_mg
-         FROM foods WHERE id = $1`,
-        [item.foodId]
-      );
+      let food: any = null;
 
-      if (foodResult.rows.length === 0) {
-        throw Object.assign(
-          new Error(`Besin bulunamadi: ID ${item.foodId}`),
-          { statusCode: 404 }
+      if (item.foodId) {
+        const foodResult = await client.query(
+          `SELECT id, name, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g,
+                  iron_mg, calcium_mg, vitamin_b12_mcg, vitamin_d_mcg, vitamin_c_mg
+           FROM foods WHERE id = $1`,
+          [item.foodId]
         );
+        if (foodResult.rows.length === 0) {
+          throw Object.assign(
+            new Error(`Besin bulunamadi: ID ${item.foodId}`),
+            { statusCode: 404 }
+          );
+        }
+        food = foodResult.rows[0];
+      } else {
+        // AI-detected food without DB entry — use foodName with zero nutrition
+        food = {
+          id: null,
+          name: item.foodName || 'Bilinmeyen Besin',
+          calories_per_100g: 0, protein_per_100g: 0, carbs_per_100g: 0, fat_per_100g: 0,
+          iron_mg: null, calcium_mg: null, vitamin_b12_mcg: null, vitamin_d_mcg: null, vitamin_c_mg: null,
+        };
       }
 
-      const food = foodResult.rows[0];
       const amount = item.amount;
       const factor = amount / 100;
 

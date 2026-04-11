@@ -26,7 +26,7 @@ export default function TermsOfServiceScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Kullanım Şartları" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <Text style={st.date}>Son güncelleme: 1 Mart 2026</Text>

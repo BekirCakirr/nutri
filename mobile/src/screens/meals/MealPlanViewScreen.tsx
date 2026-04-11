@@ -25,7 +25,7 @@ export default function MealPlanViewScreen() {
 
   if (!activePlan) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Beslenme Planı" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <Ionicons name="document-text-outline" size={60} color={colors.text.disabled} />
@@ -45,21 +45,21 @@ export default function MealPlanViewScreen() {
     : 0
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Beslenme Planı" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Plan overview info */}
         <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: '#C8E6CF66' }}>
           <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginBottom: 4 }}>Haftalık Plan</Text>
-          <Text style={{ fontSize: 14, color: '#5A7264' }} /* TODO: leading-relaxed */>
+          <Text style={{ fontSize: 14, color: '#5A7264' , lineHeight: 20 }}>
             Diyetisyeniniz tarafından sizin için oluşturulan beslenme planı.
           </Text>
           <View style={{ flexDirection: 'row', marginTop: 16, gap: 16 }}>
-            <View style={{ flex: 1, borderRadius: 12, padding: 12, alignItems: 'center' }} /* TODO: bg-white/70 */>
+            <View style={{ flex: 1, borderRadius: 12, padding: 12, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
               <Text style={{ fontSize: 24, fontWeight: '700', color: '#1A5C37' }}>{avgCals}</Text>
               <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. Günlük kcal</Text>
             </View>
-            <View style={{ flex: 1, borderRadius: 12, padding: 12, alignItems: 'center' }} /* TODO: bg-white/70 */>
+            <View style={{ flex: 1, borderRadius: 12, padding: 12, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
               <Text style={{ fontSize: 24, fontWeight: '700', color: '#1A5C37' }}>{totalDays}</Text>
               <Text style={{ fontSize: 12, color: '#5A7264' }}>Günlük Plan</Text>
             </View>
@@ -88,7 +88,7 @@ export default function MealPlanViewScreen() {
               {dayPlan.meals?.map((meal, mIndex) => (
                 <View
                   key={mIndex}
-                  style={{ borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' }} /* TODO: bg-white */>
+                  style={{ borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC', flexDirection: 'row', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>
                       {mealTypeLabels[meal.type] || meal.type}

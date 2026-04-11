@@ -25,7 +25,7 @@ export default function FamilyModeScreen() {
   const [sharedMeals, setSharedMeals] = useState(true)
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Aile Modu" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Toggle */}

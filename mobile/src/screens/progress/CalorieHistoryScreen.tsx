@@ -36,7 +36,7 @@ export default function CalorieHistoryScreen() {
   const maxCal = Math.max(...data.map(d => d.consumed))
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Kalori Geçmişi (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Period selector */}
@@ -60,12 +60,12 @@ export default function CalorieHistoryScreen() {
 
         {/* Average stats */}
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="flame-outline" size={22} color="#E8A040" />
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgConsumed}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. alım (kcal)</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="flash-outline" size={22} color="#C75B4A" />
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgBurned}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. yakım (kcal)</Text>
@@ -73,7 +73,7 @@ export default function CalorieHistoryScreen() {
         </View>
 
         {/* Bar chart */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Kalori Alımı</Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 112 }}>
             {data.slice(0, 7).map((d, i) => {
@@ -107,7 +107,7 @@ export default function CalorieHistoryScreen() {
           const net = d.consumed - d.burned
           const overTarget = d.consumed > dailyTarget
           return (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View
                 style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: overTarget ? '#FEE2E2' : '#E8F5EC' }}
               >

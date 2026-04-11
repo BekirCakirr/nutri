@@ -29,7 +29,7 @@ export default function ThemeScreen() {
   const [selectedAccent, setSelectedAccent] = useState('#1A5C37')
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Tema Ayarları" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <Text style={st.sectionTitle}>Tema Modu</Text>

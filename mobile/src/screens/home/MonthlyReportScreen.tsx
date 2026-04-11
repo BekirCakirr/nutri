@@ -1,57 +1,73 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
 import { ProgressChart } from '../../components/tracking/ProgressChart'
-import { BadgeIcon } from '../../components/gamification/BadgeIcon'
-import { mockWeightHistory } from '../../mock/tracking'
-import { mockBadges } from '../../mock/gamification'
+import { useProgress, useGamification } from '../../hooks'
+import { useAuthStore } from '../../stores/authStore'
 import { colors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
-// Monthly weight data
-const weightData = mockWeightHistory.map((w) => ({
-  label: new Date(w.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
-  value: w.value,
-}))
-
-// Monthly calorie averages (mock)
-const monthlyCalories = [
-  { label: 'Hf 1', value: 1580 },
-  { label: 'Hf 2', value: 1620 },
-  { label: 'Hf 3', value: 1550 },
-  { label: 'Hf 4', value: 1640 },
-]
-
-const earnedBadges = mockBadges.filter((b) => b.unlockedAt)
-
 export default function MonthlyReportScreen() {
   const navigation = useNavigation()
+  const user = useAuthStore((s) => s.user)
+  const { weightHistory, loadWeightHistory } = useProgress()
+  const { badges, streak, loadAll } = useGamification()
+  const [loading, setLoading] = useState(true)
 
-  const startWeight = mockWeightHistory[0]?.value || 0
-  const currentWeight = mockWeightHistory[mockWeightHistory.length - 1]?.value || 0
-  const weightChange = currentWeight - startWeight
+  useEffect(() => {
+    Promise.all([loadWeightHistory(), loadAll()])
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const raw = user as any
+  const currentWeight = Number(raw?.profile?.current_weight_kg || raw?.current_weight_kg) || 0
+  const targetWeight = Number(raw?.profile?.target_weight_kg || raw?.target_weight_kg) || 0
+
+  // Build weight chart from real data
+  const weightData = (weightHistory || []).slice(-10).map((w: any) => ({
+    label: new Date(w.date || w.measured_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
+    value: Number(w.weight || w.weight_kg) || 0,
+  }))
+
+  const startWeight = weightData.length > 0 ? weightData[0].value : currentWeight
+  const latestWeight = weightData.length > 0 ? weightData[weightData.length - 1].value : currentWeight
+  const weightChange = latestWeight - startWeight
+
+  const earnedBadges = (badges || []).filter((b: any) => b.earned || b.earned_at)
+
+  if (loading) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Aylık Rapor" onBack={() => navigation.goBack()} />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary.main} />
+        </View>
+      </ScreenWrapper>
+    )
+  }
 
   return (
     <ScreenWrapper>
-      <AppHeader title="Aylik Rapor" onBack={() => navigation.goBack()} />
+      <AppHeader title="Aylık Rapor" onBack={() => navigation.goBack()} />
 
       {/* Summary stats */}
       <View style={styles.summaryRow}>
         <View style={styles.summaryItem}>
-          <Text style={styles.summaryValue}>{currentWeight}</Text>
+          <Text style={styles.summaryValue}>{latestWeight || currentWeight}</Text>
           <Text style={styles.summaryUnit}>kg</Text>
           <Text style={styles.summaryLabel}>Mevcut Kilo</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={[styles.summaryValue, { color: weightChange < 0 ? colors.success : colors.error }]}>
+          <Text style={[styles.summaryValue, { color: weightChange <= 0 ? colors.success : colors.error }]}>
             {weightChange > 0 ? '+' : ''}{weightChange.toFixed(1)}
           </Text>
           <Text style={styles.summaryUnit}>kg</Text>
-          <Text style={styles.summaryLabel}>Degisim</Text>
+          <Text style={styles.summaryLabel}>Değişim</Text>
         </View>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryValue}>{earnedBadges.length}</Text>
@@ -63,63 +79,51 @@ export default function MonthlyReportScreen() {
       {/* Weight trend */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Kilo Trendi</Text>
-        <ProgressChart
-          title=""
-          data={weightData}
-          color={colors.primary.main}
-        />
-      </View>
-
-      {/* Calorie trend */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Haftalik Kalori Ortalamasi</Text>
-        <ProgressChart
-          title=""
-          data={monthlyCalories}
-          color={colors.secondary.main}
-        />
+        {weightData.length > 0 ? (
+          <ProgressChart title="" data={weightData} color={colors.primary.main} />
+        ) : (
+          <Text style={styles.noDataText}>Henüz kilo kaydı yok.</Text>
+        )}
       </View>
 
       {/* Earned badges */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Kazanilan Rozetler</Text>
-        <View style={styles.badgeRow}>
-          {earnedBadges.map((badge) => (
-            <View key={badge.id} style={styles.badgeItem}>
-              <BadgeIcon
-                icon={<Ionicons name={badge.icon === 'star' ? 'star' : badge.icon === 'flame' ? 'flame' : badge.icon === 'water' ? 'water' : 'trophy'} size={22} color={colors.primary.main} />}
-                name={badge.name}
-                rarity="common"
-                size={48}
-              />
-              <Text style={styles.badgeName}>{badge.name}</Text>
-            </View>
-          ))}
-        </View>
-        {earnedBadges.length === 0 && (
-          <Text style={styles.noBadgeText}>Henuz rozet kazanilmadi.</Text>
+        <Text style={styles.cardTitle}>Kazanılan Rozetler ({earnedBadges.length})</Text>
+        {earnedBadges.length > 0 ? (
+          <View style={styles.badgeRow}>
+            {earnedBadges.map((badge: any) => (
+              <View key={badge.id} style={styles.badgeItem}>
+                <View style={styles.badgeIcon}>
+                  <Ionicons name="trophy" size={20} color={colors.primary.main} />
+                </View>
+                <Text style={styles.badgeName}>{badge.name}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.noDataText}>Henüz rozet kazanılmadı.</Text>
         )}
       </View>
 
       {/* Monthly highlights */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Bu Ayin Ozeti</Text>
+        <Text style={styles.cardTitle}>Bu Ayın Özeti</Text>
         <View style={styles.highlightItem}>
-          <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} style={{ marginTop: 2 }} />
+          <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} />
           <Text style={styles.highlightText}>
-            {Math.abs(weightChange).toFixed(1)} kg {weightChange < 0 ? 'verdiniz' : 'aldiniz'}
+            {Math.abs(weightChange).toFixed(1)} kg {weightChange <= 0 ? 'verdiniz' : 'aldınız'}
           </Text>
         </View>
         <View style={styles.highlightItem}>
-          <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} style={{ marginTop: 2 }} />
+          <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} />
           <Text style={styles.highlightText}>
-            Ortalama 1600 kcal/gun tuketim
+            {streak || 0} günlük aktif seri
           </Text>
         </View>
         <View style={styles.highlightItem}>
-          <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} style={{ marginTop: 2 }} />
+          <Ionicons name="checkmark-circle" size={18} color={colors.primary.main} />
           <Text style={styles.highlightText}>
-            7 gunluk en uzun seri
+            Hedef kilo: {targetWeight} kg ({currentWeight > targetWeight ? `${(currentWeight - targetWeight).toFixed(1)} kg kaldı` : 'Hedefe ulaşıldı!'})
           </Text>
         </View>
       </View>
@@ -181,13 +185,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 72,
   },
+  badgeIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E8F5EC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   badgeName: {
     fontSize: fontSizes.xs,
     color: colors.text.secondary,
     textAlign: 'center',
     marginTop: spacing.xs,
   },
-  noBadgeText: {
+  noDataText: {
     fontSize: fontSizes.md,
     color: colors.text.disabled,
     textAlign: 'center',

@@ -32,11 +32,11 @@ export default function MoodScreen() {
   const [selected, setSelected] = useState<number | null>(1) // default: İyi
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Ruh Hali (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Today's mood picker */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 4 }}>Bugün nasıl hissediyorsun?</Text>
           <Text style={{ fontSize: 14, color: '#5A7264', marginBottom: 16 }}>Ruh halini seç</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -71,7 +71,7 @@ export default function MoodScreen() {
         </View>
 
         {/* Weekly overview */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Bu Hafta</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {mockHistory.slice(0, 7).map((d, i) => (
@@ -86,7 +86,7 @@ export default function MoodScreen() {
         {/* History list */}
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Geçmiş</Text>
         {mockHistory.map((d, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
             <Text style={{ fontSize: 24, marginRight: 12 }}>{d.emoji}</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{d.label}</Text>

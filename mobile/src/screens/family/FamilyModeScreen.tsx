@@ -25,7 +25,7 @@ export default function FamilyModeScreen() {
   const navigation = useNavigation()
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Aile Modu"
         subtitle="3 Üye Aktif"
@@ -37,11 +37,11 @@ export default function FamilyModeScreen() {
         <View style={{ backgroundColor: '#1A5C37', borderRadius: 12, padding: 20, marginBottom: 24, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#1A5C37' }}>
           <View style={{ flex: 1, paddingRight: 16 }}>
              <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 18, marginBottom: 4 }}>Beraber Daha Güçlüyüz!</Text>
-             <Text style={{ color: '#E8F5EC', fontSize: 12 }} /* TODO: leading-relaxed */>
+             <Text style={{ color: '#E8F5EC', fontSize: 12 , lineHeight: 20 }}>
                Aile üyelerinizi ekleyin, birbirinizin gelişimini takip edin ve grup hedeflerine ulaşarak ortak rozetler kazanın.
              </Text>
           </View>
-          <View style={{ width: 56, height: 56, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: bg-white/20 */>
+          <View style={{ width: 56, height: 56, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' , backgroundColor: 'rgba(255,255,255,0.2)' }}>
              <Ionicons name="people" size={32} color="#FFF" />
           </View>
         </View>
@@ -55,13 +55,13 @@ export default function FamilyModeScreen() {
            </TouchableOpacity>
         </View>
 
-        <View style={{ marginBottom: 32 }} /* TODO: space-y-3 */>
+        <View style={{ marginBottom: 32 , gap: 12 }}>
           {mockFamily.map((member) => (
              <View key={member.id} style={{ borderWidth: 1, borderColor: '#E8F0EC', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
                <View style={{ position: 'relative' }}>
                  <Image source={{ uri: member.avatar }} style={{ width: 48, height: 48, borderRadius: 9999, borderWidth: 1, borderColor: '#E8F0EC' }} />
                  {member.status === 'active' && (
-                   <View style={{ position: 'absolute', bottom: 0, right: 0, borderRadius: 9999, borderWidth: 2 }} /* TODO: w-3.5 h-3.5 bg-emerald-500 border-white *//>
+                   <View style={{ position: 'absolute', bottom: 0, right: 0, borderRadius: 9999, borderWidth: 2 , width: 14, height: 14, backgroundColor: '#10B981', borderColor: '#FFFFFF' }}/>
                  )}
                </View>
 
@@ -79,7 +79,7 @@ export default function FamilyModeScreen() {
                      <Text style={{ fontSize: 12, color: '#5A7264', fontWeight: '500', marginLeft: 4 }}>{member.points} Puan</Text>
                    </View>
                  ) : (
-                   <Text style={{ fontSize: 12, marginTop: 4 }} /* TODO: text-amber-600 italic */>Davet bekleniyor...</Text>
+                   <Text style={{ fontSize: 12, marginTop: 4 , color: '#D97706', fontStyle: 'italic' }}>Davet bekleniyor...</Text>
                  )}
                </View>
 
@@ -98,7 +98,7 @@ export default function FamilyModeScreen() {
 
         {/* Group Goals */}
         <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 16 }}>Ortak Hedefler</Text>
-        <View style={{ borderWidth: 1, borderColor: '#E8F0EC', borderRadius: 16, padding: 20, marginBottom: 32 }} /* TODO: bg-white */>
+        <View style={{ borderWidth: 1, borderColor: '#E8F0EC', borderRadius: 16, padding: 20, marginBottom: 32 , backgroundColor: '#FFFFFF' }}>
            <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
              <View style={{ flex: 1, paddingRight: 16 }}>
                 <Text style={{ fontWeight: '700', color: '#1A2E23', marginBottom: 4 }}>Ailecek 100K Adım</Text>
@@ -108,7 +108,7 @@ export default function FamilyModeScreen() {
            </View>
 
            <View style={{ height: 8, backgroundColor: '#F8FAF9', borderRadius: 9999, overflow: 'hidden', marginVertical: 8 }}>
-              <View style={{ width: '65%', backgroundColor: '#4A7FB5', borderRadius: 9999 }} /* TODO: h-full *//>
+              <View style={{ width: '65%', backgroundColor: '#4A7FB5', borderRadius: 9999 , height: '100%' }}/>
            </View>
            
            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>

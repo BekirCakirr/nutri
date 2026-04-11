@@ -37,7 +37,7 @@ export default function WeightScreen() {
 
   if (isLoading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Kilo Takibi" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#1A5C37" />
@@ -52,11 +52,11 @@ export default function WeightScreen() {
   const maxW = Math.max(...weightHistory.map(d => d.value)) + 1
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Kilo Takibi" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Current weight card */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 14, color: '#5A7264' }}>Mevcut Kilo</Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 4 }}>
             <Text style={{ fontSize: 36, fontWeight: '800', color: '#1A2E23' }}>{current.value.toFixed(1)}</Text>
@@ -74,7 +74,7 @@ export default function WeightScreen() {
         </View>
 
         {/* Simple bar chart */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Son {weightHistory.length} Gün</Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 128 }}>
             {weightHistory.map((d, i) => {
@@ -100,7 +100,7 @@ export default function WeightScreen() {
         {/* History list */}
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Geçmiş Kayıtlar</Text>
         {[...weightHistory].reverse().map((d, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
             <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="scale-outline" size={18} color="#1A5C37" />
             </View>

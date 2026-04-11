@@ -64,7 +64,7 @@ export default function SleepScreen() {
 
   if (isLoading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Uyku Takibi" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#4A7FB5" />
@@ -78,7 +78,7 @@ export default function SleepScreen() {
   const avgQuality = Math.round(sleepData.reduce((s, d) => s + d.quality, 0) / (sleepData.length || 1))
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Uyku Takibi" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Current sleep card */}
@@ -109,12 +109,12 @@ export default function SleepScreen() {
 
         {/* Average stats */}
         <View style={{ flexDirection: 'row', marginBottom: 16 }}>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginRight: 8, alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginRight: 8, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="time-outline" size={22} color="#4A7FB5" />
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgDuration}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. süre (saat)</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginLeft: 8, alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginLeft: 8, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="star-outline" size={22} color="#E8A040" />
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>%{avgQuality}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Ort. kalite</Text>
@@ -124,7 +124,7 @@ export default function SleepScreen() {
         {/* Sleep history */}
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Haftalık Geçmiş</Text>
         {sleepData.map((d, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
             <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#DBEAFE', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="moon-outline" size={18} color="#4A7FB5" />
             </View>

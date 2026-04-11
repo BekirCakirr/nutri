@@ -34,7 +34,7 @@ export default function CameraCaptureScreen() {
         {/* Camera viewfinder area */}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
           {/* Simulated camera viewport */}
-          <View style={{ width: 288, height: 288, borderWidth: 2, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }} /* TODO: border-white/30 */>
+          <View style={{ width: 288, height: 288, borderWidth: 2, borderRadius: 24, alignItems: 'center', justifyContent: 'center' , borderColor: 'rgba(255,255,255,0.3)' }}>
             <Ionicons name="scan-outline" size={80} color="rgba(255,255,255,0.4)" />
             <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginTop: 16, textAlign: 'center', paddingHorizontal: 32 }}>
               {mode === 'photo'
@@ -47,11 +47,11 @@ export default function CameraCaptureScreen() {
           <View style={{ position: 'absolute', top: 48, left: 0, right: 0, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24 }}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: bg-black/40 */>
+              style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' , backgroundColor: 'rgba(0,0,0,0.4)' }}>
               <Ionicons name="close" size={24} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: bg-black/40 */>
+              style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' , backgroundColor: 'rgba(0,0,0,0.4)' }}>
               <Ionicons name="flash-outline" size={22} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
@@ -77,20 +77,20 @@ export default function CameraCaptureScreen() {
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 40 }}>
             <TouchableOpacity
               onPress={handleGallery}
-              style={{ width: 56, height: 56, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: bg-white/10 */disabled={isProcessing}
+              style={{ width: 56, height: 56, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' , backgroundColor: 'rgba(255,255,255,0.1)' }}disabled={isProcessing}
             >
               <Ionicons name="images-outline" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleCapture}
-              style={{ width: 80, height: 80, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: border-4 border-white */activeOpacity={0.7}
+              style={{ width: 80, height: 80, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' , borderWidth: 4, borderColor: '#FFFFFF' }}activeOpacity={0.7}
               disabled={isProcessing}
             >
               {isProcessing ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <View style={{ width: 64, height: 64, borderRadius: 9999 }} /* TODO: bg-white *//>
+                <View style={{ width: 64, height: 64, borderRadius: 9999 , backgroundColor: '#FFFFFF' }}/>
               )}
             </TouchableOpacity>
             

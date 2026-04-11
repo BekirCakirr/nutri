@@ -29,7 +29,7 @@ export default function AdjustPortionsScreen() {
   const totalCal = items.reduce((s, i) => s + i.calories, 0)
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Porsiyon Ayarla" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 16, marginBottom: 24, alignItems: 'center', borderWidth: 1, borderColor: '#C8E6CF66' }}>
@@ -41,7 +41,7 @@ export default function AdjustPortionsScreen() {
         {items.map((item) => {
           const step = item.unit === 'g' ? 25 : 0.5
           return (
-            <View key={item.id} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={item.id} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23', flex: 1 }}>{item.name}</Text>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A5C37' }}>{item.calories} kcal</Text>
@@ -52,7 +52,7 @@ export default function AdjustPortionsScreen() {
                   style={{ width: 44, height: 44, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name="remove" size={22} color="#EF4444" />
                 </TouchableOpacity>
-                <View style={{ backgroundColor: '#F0F5F2', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 8, alignItems: 'center' }} /* TODO: min-w-[100px] */>
+                <View style={{ backgroundColor: '#F0F5F2', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 8, alignItems: 'center' , minWidth: 100 }}>
                   <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>
                     {item.portion}{item.unit}
                   </Text>

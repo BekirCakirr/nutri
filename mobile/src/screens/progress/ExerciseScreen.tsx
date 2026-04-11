@@ -52,7 +52,7 @@ export default function ExerciseScreen() {
 
   if (isLoading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Egzersiz Takibi" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#C75B4A" />
@@ -65,19 +65,19 @@ export default function ExerciseScreen() {
   const totalCal = exercises.reduce((s, e) => s + e.calories, 0)
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Egzersiz Takibi" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary cards */}
         <View style={{ flexDirection: 'row', marginBottom: 16 }}>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginRight: 8 }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginRight: 8 , backgroundColor: '#FFFFFF' }}>
             <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
               <Ionicons name="time-outline" size={20} color="#C75B4A" />
             </View>
             <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23' }}>{totalMin}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>dakika</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginLeft: 8 }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginLeft: 8 , backgroundColor: '#FFFFFF' }}>
             <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
               <Ionicons name="flame-outline" size={20} color="#E8A040" />
             </View>
@@ -89,7 +89,7 @@ export default function ExerciseScreen() {
         {/* Exercise list */}
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Egzersiz Geçmişi</Text>
         {exercises.map((ex, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
             <View style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name={ex.icon} size={20} color="#C75B4A" />
             </View>

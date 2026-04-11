@@ -27,7 +27,7 @@ export default function AIChatScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="NutriAI Asistan"
         subtitle="Yapay Zeka Beslenme Danışmanı"
@@ -92,7 +92,7 @@ export default function AIChatScreen() {
 
           {isLoading && (
             <View style={{ marginBottom: 12, alignItems: 'flex-start' }}>
-              <View style={{ borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#E8F0EC', borderBottomLeftRadius: 4 }} /* TODO: bg-white */>
+              <View style={{ borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#E8F0EC', borderBottomLeftRadius: 4 , backgroundColor: '#FFFFFF' }}>
                 <Text style={{ fontSize: 14, color: '#A8BFB2' }}>Yazıyor...</Text>
               </View>
             </View>
@@ -104,7 +104,7 @@ export default function AIChatScreen() {
               {quickSuggestions.map((s, i) => (
                 <TouchableOpacity
                   key={i}
-                  style={{ borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */activeOpacity={0.7}
+                  style={{ borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}activeOpacity={0.7}
                   onPress={() => { setInput(s); }}
                 >
                   <Text style={{ fontSize: 12, color: '#1A5C37', fontWeight: '600' }}>{s}</Text>
@@ -116,7 +116,7 @@ export default function AIChatScreen() {
         </ScrollView>
 
         {/* Input area */}
-        <View style={{ borderTopWidth: 1, borderColor: '#E8F0EC', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderTopWidth: 1, borderColor: '#E8F0EC', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <TextInput
             style={{ flex: 1, backgroundColor: '#F8FAF9', borderRadius: 9999, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: '#1A2E23', borderWidth: 1, borderColor: '#E8F0EC' }}value={input}
             onChangeText={setInput}

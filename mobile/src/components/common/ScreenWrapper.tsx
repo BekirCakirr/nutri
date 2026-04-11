@@ -12,6 +12,10 @@ import {
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 
+// Tab bar is position: absolute, height 70 + bottom 16-24 = ~100px overlay
+// All screens need bottom padding so content doesn't hide behind it
+const TAB_BAR_SAFE_BOTTOM = 110
+
 interface ScreenWrapperProps {
   children: React.ReactNode
   scrollable?: boolean
@@ -37,15 +41,17 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
         <ScrollView
           contentContainerStyle={[
             padded && styles.padded,
+            { paddingBottom: TAB_BAR_SAFE_BOTTOM },
             contentStyle,
           ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          bounces={true}
         >
           {children}
         </ScrollView>
       ) : (
-        <View style={[styles.flex, padded && styles.padded, contentStyle]}>
+        <View style={[styles.flex, padded && styles.padded, { paddingBottom: TAB_BAR_SAFE_BOTTOM }, contentStyle]}>
           {children}
         </View>
       )}

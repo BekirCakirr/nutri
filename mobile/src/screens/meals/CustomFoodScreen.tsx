@@ -24,7 +24,7 @@ export default function CustomFoodScreen() {
   }
 
   return (
-    <ScreenWrapper keyboardAvoiding padded={false}>
+    <ScreenWrapper scrollable={false} keyboardAvoiding padded={false}>
       <AppHeader title="Özel Besin Ekle" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Info Card */}
@@ -38,7 +38,7 @@ export default function CustomFoodScreen() {
         {/* Name & Brand */}
         <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23', marginBottom: 8 }}>Besin Adı *</Text>
         <TextInput
-          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 16 }} /* TODO: bg-white */placeholder="Örn: Ev yapımı granola"
+          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 16 , backgroundColor: '#FFFFFF' }}placeholder="Örn: Ev yapımı granola"
           placeholderTextColor="#9CA8A1"
           value={name}
           onChangeText={setName}
@@ -46,7 +46,7 @@ export default function CustomFoodScreen() {
 
         <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23', marginBottom: 8 }}>Marka (İsteğe bağlı)</Text>
         <TextInput
-          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 16 }} /* TODO: bg-white */placeholder="Örn: Homemade"
+          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 16 , backgroundColor: '#FFFFFF' }}placeholder="Örn: Homemade"
           placeholderTextColor="#9CA8A1"
           value={brand}
           onChangeText={setBrand}
@@ -54,7 +54,7 @@ export default function CustomFoodScreen() {
 
         <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23', marginBottom: 8 }}>Porsiyon</Text>
         <TextInput
-          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 24 }} /* TODO: bg-white */placeholder="Örn: 100g / 1 kase"
+          style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#1A2E23', marginBottom: 24 , backgroundColor: '#FFFFFF' }}placeholder="Örn: 100g / 1 kase"
           placeholderTextColor="#9CA8A1"
           value={serving}
           onChangeText={setServing}
@@ -66,7 +66,7 @@ export default function CustomFoodScreen() {
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Kalori (kcal) *</Text>
             <TextInput
-              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' , backgroundColor: '#FFFFFF' }}placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={calories}
@@ -76,7 +76,7 @@ export default function CustomFoodScreen() {
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Protein (g)</Text>
             <TextInput
-              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' , backgroundColor: '#FFFFFF' }}placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={protein}
@@ -88,7 +88,7 @@ export default function CustomFoodScreen() {
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Karbonhidrat (g)</Text>
             <TextInput
-              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' , backgroundColor: '#FFFFFF' }}placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={carbs}
@@ -98,7 +98,7 @@ export default function CustomFoodScreen() {
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Yağ (g)</Text>
             <TextInput
-              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' }} /* TODO: bg-white */placeholder="0"
+              style={{ borderRadius: 12, borderWidth: 1, borderColor: '#D4E2DA', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1A2E23', textAlign: 'center' , backgroundColor: '#FFFFFF' }}placeholder="0"
               placeholderTextColor="#9CA8A1"
               keyboardType="decimal-pad"
               value={fat}

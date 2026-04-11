@@ -3,7 +3,7 @@ const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : true;
 
 // Physical device: use your LAN IP (same WiFi network required)
 // Android emulator: use 10.0.2.2 instead
-const DEV_HOST = '192.168.1.4';
+const DEV_HOST = '192.168.1.3';
 export const API_URL = isDev ? `http://${DEV_HOST}:3001/api` : 'https://api.nutriai.app/v1';
 export const SOCKET_URL = isDev ? `http://${DEV_HOST}:3001` : 'wss://api.nutriai.app';
 export const APP_VERSION = '1.0.0';

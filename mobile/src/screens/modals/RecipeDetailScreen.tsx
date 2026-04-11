@@ -34,7 +34,7 @@ export default function RecipeDetailScreen() {
 
   if (loading || !recipe) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Tarif Detayı" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           {loading ? <ActivityIndicator size="large" color="#1A5C37" /> : <Text>Tarif bulunamadı.</Text>}
@@ -64,7 +64,7 @@ export default function RecipeDetailScreen() {
   const ingredients: any[] = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Tarif Detayı"
         onBack={() => navigation.goBack()}
@@ -76,7 +76,7 @@ export default function RecipeDetailScreen() {
       />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <Text style={{ marginBottom: 12, fontSize: 40 }}>{recipe.image ? '🍲' : '🥗'}</Text>
           <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>{title}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
@@ -90,22 +90,22 @@ export default function RecipeDetailScreen() {
 
         {/* Quick stats */}
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
-          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="time-outline" size={16} color="#5A7264" />
             <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>{prepTime} dk</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="flame-outline" size={16} color="#E8A040" />
             <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>{calories} kcal</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="people-outline" size={16} color="#5A7264" />
             <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>{servings} kişilik</Text>
           </View>
         </View>
 
         {/* Macros */}
-        <View style={{ borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, flexDirection: 'row', justifyContent: 'space-between' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, flexDirection: 'row', justifyContent: 'space-between' , backgroundColor: '#FFFFFF' }}>
           {([
             { label: 'Protein', val: macros.protein, color: '#C75B4A' },
             { label: 'Karb', val: macros.carbs, color: '#4A7FB5' },
@@ -120,7 +120,7 @@ export default function RecipeDetailScreen() {
         </View>
 
         {/* Ingredients */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Malzemeler ({ingredients.length})</Text>
           {ingredients.map((ing: any, i) => (
             <View key={i} style={[{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#E8F0EC' }, i === ingredients.length - 1 ? { borderBottomWidth: 0 } : {}]}>
@@ -132,7 +132,7 @@ export default function RecipeDetailScreen() {
         </View>
 
         {/* Steps */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 32 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Hazırlanışı</Text>
           {steps.map((step, i) => (
             <View key={i} style={{ flexDirection: 'row', marginBottom: 12 }}>

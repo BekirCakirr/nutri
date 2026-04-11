@@ -40,7 +40,7 @@ export default function VideoCallScreen() {
         {/* Call info */}
         <View style={{ position: 'absolute', top: 64, left: 20 }}>
           <TouchableOpacity
-            style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' }} /* TODO: bg-white/10 */onPress={() => navigation.goBack()}
+            style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center' , backgroundColor: 'rgba(255,255,255,0.1)' }}onPress={() => navigation.goBack()}
           >
             <Ionicons name="chevron-down" size={24} color="#FFFFFF" />
           </TouchableOpacity>

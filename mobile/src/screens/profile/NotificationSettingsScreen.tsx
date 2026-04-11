@@ -29,7 +29,7 @@ export default function NotificationSettingsScreen() {
   const toggle = (key: string) => setSettings(prev => ({ ...prev, [key]: !prev[key] }))
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Bildirim Ayarları" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <View style={st.masterCard}>

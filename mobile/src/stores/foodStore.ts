@@ -37,13 +37,14 @@ export const useFoodStore = create<FoodStore>((set, get) => ({
   },
 
   searchFood: async (query) => {
-    if (!query.trim()) {
-      set({ searchResults: [], isSearching: false });
-      return;
-    }
     set({ isSearching: true });
-    const searchResults = await foodApi.searchFoods(query);
-    set({ searchResults, isSearching: false });
+    try {
+      // allow empty string to fetch all/default foods
+      const searchResults = await foodApi.searchFoods(query || '');
+      set({ searchResults, isSearching: false });
+    } catch {
+      set({ isSearching: false, searchResults: [] });
+    }
   },
 
   clearSearch: () => set({ searchResults: [], isSearching: false }),

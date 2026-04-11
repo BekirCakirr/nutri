@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OnboardingStackParamList } from '../../navigation/types'
@@ -7,6 +7,7 @@ import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { PairCodeInput } from '../../components/dietitian/PairCodeInput'
 import { Button } from '../../components/ui/Button'
+import apiClient from '../../services/api/client'
 import { colors } from '../../theme/colors'
 import { fontWeights } from '../../theme/typography'
 
@@ -16,12 +17,21 @@ export default function DietitianCodeScreen() {
   const navigation = useNavigation<Nav>()
   const [mode, setMode] = useState<'code' | 'qr'>('code')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | undefined>()
 
-  const handleCodeSubmit = async (_code: string) => {
+  const handleCodeSubmit = async (code: string) => {
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    setLoading(false)
-    navigation.navigate('CalculationResult')
+    setError(undefined)
+    try {
+      await apiClient.post('/dietitians/pair', null, { params: { inviteCode: code } })
+      Alert.alert('Başarılı', 'Diyetisyeniniz ile eşleştirildiniz!', [
+        { text: 'Devam', onPress: () => navigation.navigate('CalculationResult') },
+      ])
+    } catch {
+      setError('Geçersiz kod. Lütfen diyetisyeninizden aldığınız kodu kontrol edin.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -37,7 +47,7 @@ export default function DietitianCodeScreen() {
         </View>
 
         {mode === 'code' ? (
-          <PairCodeInput onSubmit={handleCodeSubmit} loading={loading} style={{ padding: 0 }} />
+          <PairCodeInput onSubmit={handleCodeSubmit} loading={loading} error={error} style={{ padding: 0 }} />
         ) : (
           <View style={s.qrArea}>
             <View style={s.qrBox}>

@@ -11,7 +11,7 @@ export default function BarcodeScreen() {
     <ScreenWrapper padded={false}>
       <AppHeader title="Barkod Tara" onBack={() => navigation.goBack()} />
       <View style={{ flex: 1, backgroundColor: '#0A0A0A', alignItems: 'center', justifyContent: 'center' }}>
-        <View style={{ width: 256, height: 192, borderWidth: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }} /* TODO: border-white/30 */>
+        <View style={{ width: 256, height: 192, borderWidth: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' , borderColor: 'rgba(255,255,255,0.3)' }}>
           <Ionicons name="barcode-outline" size={64} color="rgba(255,255,255,0.4)" />
           <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginTop: 12 }}>Barkodu çerçeveye alın</Text>
         </View>

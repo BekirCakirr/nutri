@@ -1,43 +1,66 @@
-import React from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
+import { useDietitian, useAppointments } from '../../hooks'
 import { colors } from '../../theme/colors'
 import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<ProfileStackParamList>
 
-const mockDietitian = {
-  name: 'Dr. Elif Özkan',
-  specialty: 'Sporcu Beslenmesi & Kilo Yönetimi',
-  rating: 4.9,
-  reviews: 128,
-  experience: '12 yıl',
-  nextAppointment: '20 Mar 2026, 14:00',
-  connected: true,
-}
-
-const upcomingAppointments = [
-  { date: '20 Mar', time: '14:00', type: 'Video Görüşme', status: 'Onaylandı' },
-  { date: '3 Nis', time: '10:30', type: 'Kontrol', status: 'Bekliyor' },
-]
-
-const features = [
-  { title: 'Mesaj Gönder', icon: 'chatbubble-outline' as const, desc: 'Diyetisyeninize yazın' },
-  { title: 'Randevu Al', icon: 'calendar-outline' as const, desc: 'Online randevu oluşturun' },
-  { title: 'Plan İste', icon: 'document-text-outline' as const, desc: 'Kişisel beslenme planı' },
-  { title: 'Rapor Paylaş', icon: 'share-outline' as const, desc: 'Verilerinizi paylaşın' },
-]
-
 export default function DietitianConnectionScreen() {
   const navigation = useNavigation<Nav>()
+  const { pairedDietitian, loadPairedDietitian } = useDietitian()
+  const { appointments, loadAppointments } = useAppointments()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([loadPairedDietitian(), loadAppointments()])
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const raw = pairedDietitian as any
+  const dietitianName = raw?.name || `${raw?.first_name || ''} ${raw?.last_name || ''}`.trim() || 'Diyetisyen'
+  const specialty = (raw?.specializations || []).join(', ') || raw?.title || ''
+  const rating = Number(raw?.rating_avg || raw?.rating) || 0
+  const ratingCount = Number(raw?.rating_count || raw?.reviewCount) || 0
+  const experience = raw?.experience_years ? `${raw.experience_years} yıl` : ''
+
+  const upcomingAppts = (appointments || []).filter((a: any) => a.status === 'scheduled').slice(0, 3)
+
+  if (loading) {
+    return (
+      <ScreenWrapper scrollable={false} padded={false}>
+        <AppHeader title="Diyetisyen Bağlantısı" onBack={() => navigation.goBack()} />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary.main} />
+        </View>
+      </ScreenWrapper>
+    )
+  }
+
+  if (!pairedDietitian) {
+    return (
+      <ScreenWrapper scrollable={false} padded={false}>
+        <AppHeader title="Diyetisyen Bağlantısı" onBack={() => navigation.goBack()} />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+          <Ionicons name="people-outline" size={64} color="#D4E2DA" />
+          <Text style={{ fontSize: 18, fontWeight: fontWeights.bold, color: colors.text.primary, marginTop: 16 }}>Diyetisyen Bağlı Değil</Text>
+          <Text style={{ fontSize: 14, color: colors.text.secondary, textAlign: 'center', marginTop: 8 }}>
+            Diyetisyeninizin size verdiği davet kodunu kullanarak eşleşebilirsiniz.
+          </Text>
+        </View>
+      </ScreenWrapper>
+    )
+  }
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Diyetisyen Bağlantısı" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Dietitian card */}
@@ -47,13 +70,17 @@ export default function DietitianConnectionScreen() {
               <Text style={{ fontSize: 24 }}>👩‍⚕️</Text>
             </View>
             <View style={st.dietitianInfo}>
-              <Text style={st.dietitianName}>{mockDietitian.name}</Text>
-              <Text style={st.dietitianSpec}>{mockDietitian.specialty}</Text>
+              <Text style={st.dietitianName}>{dietitianName}</Text>
+              {specialty ? <Text style={st.dietitianSpec}>{specialty}</Text> : null}
               <View style={st.ratingRow}>
-                <Ionicons name="star" size={12} color="#F59E0B" />
-                <Text style={st.ratingVal}>{mockDietitian.rating}</Text>
-                <Text style={st.ratingCount}>({mockDietitian.reviews} değerlendirme)</Text>
-                <Text style={st.ratingCount}> · {mockDietitian.experience}</Text>
+                {rating > 0 && (
+                  <>
+                    <Ionicons name="star" size={12} color="#F59E0B" />
+                    <Text style={st.ratingVal}>{rating}</Text>
+                    <Text style={st.ratingCount}>({ratingCount})</Text>
+                  </>
+                )}
+                {experience ? <Text style={st.ratingCount}> · {experience}</Text> : null}
               </View>
             </View>
           </View>
@@ -65,8 +92,11 @@ export default function DietitianConnectionScreen() {
 
         {/* Quick actions */}
         <View style={st.actionsGrid}>
-          {features.map((f, i) => (
-            <TouchableOpacity key={i} style={st.actionCard} activeOpacity={0.7}>
+          {[
+            { title: 'Mesaj Gönder', icon: 'chatbubble-outline' as const, desc: 'Diyetisyeninize yazın', onPress: () => { navigation.getParent()?.navigate('HomeTab', { screen: 'ConversationList' }) } },
+            { title: 'Randevu Al', icon: 'calendar-outline' as const, desc: 'Online randevu', onPress: () => { navigation.getParent()?.getParent()?.navigate('BookAppointment', {}) } },
+          ].map((f, i) => (
+            <TouchableOpacity key={i} style={st.actionCard} activeOpacity={0.7} onPress={f.onPress}>
               <View style={st.actionIcon}>
                 <Ionicons name={f.icon} size={20} color={colors.primary.main} />
               </View>
@@ -77,26 +107,24 @@ export default function DietitianConnectionScreen() {
         </View>
 
         {/* Upcoming appointments */}
-        <Text style={st.sectionTitle}>Yaklaşan Randevular</Text>
-        {upcomingAppointments.map((apt, i) => (
-          <View key={i} style={st.aptCard}>
-            <View style={st.aptIcon}>
-              <Ionicons name="calendar-outline" size={18} color="#4A7FB5" />
-            </View>
-            <View style={st.aptContent}>
-              <Text style={st.aptDate}>{apt.date} — {apt.time}</Text>
-              <Text style={st.aptType}>{apt.type}</Text>
-            </View>
-            <View style={[st.statusBadge, { backgroundColor: apt.status === 'Onaylandı' ? '#E8F5EC' : '#FEF3C7' }]}>
-              <Text style={[st.statusText, { color: apt.status === 'Onaylandı' ? colors.primary.main : '#E8A040' }]}>{apt.status}</Text>
-            </View>
-          </View>
-        ))}
+        {upcomingAppts.length > 0 && (
+          <>
+            <Text style={st.sectionTitle}>Yaklaşan Randevular</Text>
+            {upcomingAppts.map((apt: any, i: number) => (
+              <View key={i} style={st.aptCard}>
+                <View style={st.aptIcon}>
+                  <Ionicons name="calendar-outline" size={18} color="#4A7FB5" />
+                </View>
+                <View style={st.aptContent}>
+                  <Text style={st.aptDate}>{new Date(apt.appointment_date || apt.appointmentDate).toLocaleDateString('tr-TR')} — {apt.start_time || apt.startTime}</Text>
+                  <Text style={st.aptType}>{apt.type === 'online' ? 'Video Görüşme' : 'Yüz Yüze'}</Text>
+                </View>
+              </View>
+            ))}
+          </>
+        )}
 
-        {/* Change dietitian */}
-        <TouchableOpacity style={st.changeDietitian} activeOpacity={0.6}>
-          <Text style={st.changeDietitianText}>Diyetisyen Değiştir</Text>
-        </TouchableOpacity>
+        <View style={{ height: 32 }} />
       </ScrollView>
     </ScreenWrapper>
   )
@@ -126,8 +154,4 @@ const st = StyleSheet.create({
   aptContent: { flex: 1 },
   aptDate: { fontSize: 14, fontWeight: fontWeights.semibold, color: colors.text.primary },
   aptType: { fontSize: 12, color: colors.text.secondary },
-  statusBadge: { borderRadius: 100, paddingHorizontal: 10, paddingVertical: 2 },
-  statusText: { fontSize: 12, fontWeight: fontWeights.bold },
-  changeDietitian: { alignItems: 'center', marginTop: 16, marginBottom: 32 },
-  changeDietitianText: { fontSize: 14, color: colors.text.secondary },
 })

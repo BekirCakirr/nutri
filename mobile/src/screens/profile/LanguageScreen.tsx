@@ -27,7 +27,7 @@ export default function LanguageScreen() {
   const [selected, setSelected] = useState('tr')
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Dil Seçimi" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <Text style={st.hint}>Uygulama dilini seçin. Değişiklik hemen uygulanır.</Text>

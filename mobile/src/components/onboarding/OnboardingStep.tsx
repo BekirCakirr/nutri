@@ -24,7 +24,7 @@ export const OnboardingStep: React.FC<OnboardingStepProps> = ({
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
       <Text style={{ fontSize: 30, fontWeight: '700', color: '#1A2E23', marginTop: 24, marginBottom: 8 }}>{title}</Text>
       {description && (
-        <Text style={{ fontSize: 16, color: '#5A7264', marginBottom: 24 }} /* TODO: leading-relaxed */>{description}</Text>
+        <Text style={{ fontSize: 16, color: '#5A7264', marginBottom: 24 , lineHeight: 20 }}>{description}</Text>
       )}
       <View style={{ flex: 1 }}>{children}</View>
     </View>

@@ -45,11 +45,11 @@ export default function StressScreen() {
   const current = stressLevels.find(s => s.level === selectedLevel) || stressLevels[3]
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Stres Seviyesi (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Current stress */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 36, marginBottom: 8 }}>{current.emoji}</Text>
           <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23' }}>{current.label}</Text>
           <Text style={{ fontSize: 14, color: '#5A7264', marginTop: 2 }}>Seviye {current.level}/8</Text>
@@ -82,11 +82,11 @@ export default function StressScreen() {
 
         {/* Average */}
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Ortalama</Text>
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>{avgLevel}/8</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Bu hafta en düşük</Text>
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A5C37', marginTop: 4 }}>
               {Math.min(...mockHistory.map(h => h.level))}
@@ -116,7 +116,7 @@ export default function StressScreen() {
         {mockHistory.map((d, i) => {
           const s = stressLevels.find(l => l.level === d.level) || stressLevels[3]
           return (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <Text style={{ fontSize: 20, marginRight: 12 }}>{s.emoji}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A2E23' }}>{s.label} ({d.level}/8)</Text>

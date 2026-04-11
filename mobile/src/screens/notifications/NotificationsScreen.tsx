@@ -100,7 +100,7 @@ export default function NotificationsScreen() {
 
   if (loading) {
     return (
-      <ScreenWrapper padded={false} scrollable={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Bildirimler" onBack={() => navigation.goBack()} />
         <View style={st.center}>
           <ActivityIndicator size="large" color={colors.primary.main} />
@@ -110,7 +110,7 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Bildirimler"
         onBack={() => navigation.goBack()}

@@ -30,7 +30,7 @@ export default function RemindersScreen() {
   const activeCount = reminders.filter(r => r.enabled).length
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Hatırlatıcılar" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <View style={st.summaryCard}>

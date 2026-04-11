@@ -47,11 +47,11 @@ export default function NutrientBreakdownScreen() {
   const filtered = mockNutrients.filter(n => n.category === categories[activeCategory])
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Besin Detayı (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 14, color: '#5A7264' }}>Bugünkü Alım</Text>
           <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23', marginTop: 4 }}>1680 kcal</Text>
           <Text style={{ fontSize: 12, color: '#5A7264', marginTop: 2 }}>
@@ -82,7 +82,7 @@ export default function NutrientBreakdownScreen() {
         {filtered.map((n, i) => {
           const pct = Math.min((n.current / n.target) * 100, 100)
           return (
-            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{n.name}</Text>
                 <Text style={{ fontSize: 14, fontWeight: '700', color: n.color }}>

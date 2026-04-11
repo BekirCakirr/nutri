@@ -11,7 +11,7 @@ export default function OCRScreen() {
     <ScreenWrapper padded={false}>
       <AppHeader title="Etiket Oku (OCR)" onBack={() => navigation.goBack()} />
       <View style={{ flex: 1, backgroundColor: '#0A0A0A', alignItems: 'center', justifyContent: 'center' }}>
-        <View style={{ width: 288, height: 176, borderWidth: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }} /* TODO: border-white/30 */>
+        <View style={{ width: 288, height: 176, borderWidth: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' , borderColor: 'rgba(255,255,255,0.3)' }}>
           <Ionicons name="document-text-outline" size={56} color="rgba(255,255,255,0.4)" />
           <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginTop: 12 }}>Besin etiketi çerçeveye alın</Text>
         </View>

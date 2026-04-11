@@ -34,11 +34,11 @@ export default function CustomGoalsScreen() {
   const completed = mockGoals.filter(g => g.current >= g.total).length
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Özel Hedefler (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Summary */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ width: 48, height: 48, borderRadius: 9999, backgroundColor: '#E8F5EC', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
               <Ionicons name="flag-outline" size={22} color="#1A5C37" />
@@ -55,7 +55,7 @@ export default function CustomGoalsScreen() {
           const pct = Math.min((goal.current / goal.total) * 100, 100)
           const isComplete = pct >= 100
           return (
-            <View key={goal.id} style={{ borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={goal.id} style={{ borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                 <View
                   style={{ width: 40, height: 40, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: goal.color + '20' }}

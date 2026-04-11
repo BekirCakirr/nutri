@@ -35,11 +35,11 @@ export default function AllergenScannerScreen() {
   const [scanning, setScanning] = useState(false)
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Alerjen Tarayıcı" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Scan area */}
-        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <View style={{ width: 96, height: 96, borderRadius: 16, backgroundColor: '#F8FAF9', borderWidth: 2, borderColor: '#D4E2DA', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }} /* TODO: border-dashed */>
             <Ionicons name="scan-outline" size={40} color="#5A7264" />
           </View>
@@ -64,7 +64,7 @@ export default function AllergenScannerScreen() {
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {userAllergens.map((a, i) => (
-              <View key={i} style={{ borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 4, marginRight: 8, marginBottom: 4 }} /* TODO: bg-white */>
+              <View key={i} style={{ borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 4, marginRight: 8, marginBottom: 4 , backgroundColor: '#FFFFFF' }}>
                 <Text style={{ fontSize: 12, fontWeight: '600', color: '#EF4444' }}>{a}</Text>
               </View>
             ))}
@@ -111,7 +111,7 @@ export default function AllergenScannerScreen() {
         {recentScans.map((scan, i) => {
           const si = statusInfo(scan.status)
           return (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View
                 style={{ width: 36, height: 36, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: si.bg }}
               >

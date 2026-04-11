@@ -23,7 +23,7 @@ export default function SubscriptionScreen() {
   const [currentPlan] = useState('premium')
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Abonelik" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <View style={st.currentBadge}>

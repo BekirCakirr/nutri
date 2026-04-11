@@ -31,11 +31,11 @@ export default function StepsScreen() {
   const calories = Math.round(today.steps * 0.04) // ~0.04 kcal per step
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Adım Sayıcı (Demo)" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Main progress */}
-        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           {/* Circular progress (simplified) */}
           <View style={{ width: 160, height: 160, borderRadius: 9999, borderColor: '#F3E8FF', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }} /* TODO: border-[8px] */>
             <Ionicons name="footsteps-outline" size={28} color="#8B6BAA" />
@@ -56,17 +56,17 @@ export default function StepsScreen() {
 
         {/* Stats row */}
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 8 }}>
-          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="navigate-outline" size={18} color="#8B6BAA" />
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 4 }}>{distance} km</Text>
             <Text style={{ fontSize: 10, color: '#5A7264' }}>Mesafe</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="flame-outline" size={18} color="#E8A040" />
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 4 }}>{calories}</Text>
             <Text style={{ fontSize: 10, color: '#5A7264' }}>kcal</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Ionicons name="stats-chart-outline" size={18} color="#1A5C37" />
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginTop: 4 }}>{avgSteps.toLocaleString('tr-TR')}</Text>
             <Text style={{ fontSize: 10, color: '#5A7264' }}>Ort.</Text>
@@ -74,7 +74,7 @@ export default function StepsScreen() {
         </View>
 
         {/* Weekly chart */}
-        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 16 }}>Haftalık</Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 112 }}>
             {mockStepsData.map((d, i) => {

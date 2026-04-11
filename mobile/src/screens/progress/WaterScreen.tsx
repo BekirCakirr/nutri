@@ -53,7 +53,7 @@ export default function WaterScreen() {
 
   if (isLoading) {
     return (
-      <ScreenWrapper padded={false}>
+      <ScreenWrapper scrollable={false} padded={false}>
         <AppHeader title="Su Takibi" onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="#4A90B8" />
@@ -63,11 +63,11 @@ export default function WaterScreen() {
   }
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Su Takibi" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Main progress card */}
-        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' }} /* TODO: bg-white */>
+        <View style={{ borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
           <View style={{ width: 160, height: 160, borderRadius: 9999, borderColor: '#E4F0F7', alignItems: 'center', justifyContent: 'center', marginBottom: 16, position: 'relative' }} /* TODO: border-[8px] */>
             <View
               style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 9999, borderColor: '#4A90B8', borderTopColor: pct >= 25 ? '#4A90B8' : '#E4F0F7',
@@ -115,12 +115,12 @@ export default function WaterScreen() {
         {/* Today's log */}
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Bugünün Kayıtları</Text>
         {logs.length === 0 ? (
-          <View style={{ borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center', marginBottom: 16 }} /* TODO: bg-white */>
+          <View style={{ borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
             <Text style={{ fontSize: 14, color: '#5A7264' }}>Henüz kayıt yok. Yukarıdan su ekleyin!</Text>
           </View>
         ) : (
           logs.map((entry, i) => (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: '#E4F0F7', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
                 <Ionicons name="water-outline" size={16} color="#4A90B8" />
               </View>

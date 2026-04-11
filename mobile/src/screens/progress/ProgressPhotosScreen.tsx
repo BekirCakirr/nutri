@@ -31,7 +31,7 @@ export default function ProgressPhotosScreen() {
   })
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="İlerleme Fotoğrafları (Demo)"
         onBack={() => navigation.goBack()}
@@ -44,11 +44,11 @@ export default function ProgressPhotosScreen() {
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Stats */}
         <View style={{ flexDirection: 'row', marginBottom: 16, gap: 12 }}>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23' }}>{mockPhotos.length}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Toplam Fotoğraf</Text>
           </View>
-          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' }} /* TODO: bg-white */>
+          <View style={{ flex: 1, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E8F0EC', alignItems: 'center' , backgroundColor: '#FFFFFF' }}>
             <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A2E23' }}>{Object.keys(grouped).length}</Text>
             <Text style={{ fontSize: 12, color: '#5A7264' }}>Kayıt Günü</Text>
           </View>
@@ -77,7 +77,7 @@ export default function ProgressPhotosScreen() {
 
         {/* Compare button */}
         <TouchableOpacity
-          style={{ borderWidth: 2, borderColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 12 }} /* TODO: bg-white */activeOpacity={0.8}
+          style={{ borderWidth: 2, borderColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 12 , backgroundColor: '#FFFFFF' }}activeOpacity={0.8}
         >
           <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A5C37' }}>📸 Fotoğrafları Karşılaştır</Text>
         </TouchableOpacity>

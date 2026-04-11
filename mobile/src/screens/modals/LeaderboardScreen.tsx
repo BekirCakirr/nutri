@@ -49,7 +49,7 @@ export default function LeaderboardScreen() {
   const myEntry = mockLeaderboard.find(e => e.isMe)!
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Sıralama" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9' }}showsVerticalScrollIndicator={false}>
         {/* Period selector */}

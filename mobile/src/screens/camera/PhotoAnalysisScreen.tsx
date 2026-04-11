@@ -40,7 +40,7 @@ export default function PhotoAnalysisScreen() {
   const totalCal = result?.foods.reduce((s, f) => s + f.calories, 0) ?? 0
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="AI Analizi" onBack={() => navigation.goBack()} />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
         {/* Photo preview placeholder */}
@@ -74,7 +74,7 @@ export default function PhotoAnalysisScreen() {
             {/* Detected foods */}
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23', marginBottom: 12 }}>Tespit Edilen Besinler</Text>
             {result.foods.map((food, idx) => (
-              <View key={idx} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+              <View key={idx} style={{ borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{food.name}</Text>
@@ -99,7 +99,7 @@ export default function PhotoAnalysisScreen() {
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>Porsiyonları Düzenle</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={{ borderWidth: 2, borderColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center' }} /* TODO: bg-white */onPress={() => {
+                style={{ borderWidth: 2, borderColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}onPress={() => {
                   const mappedFoods = result.foods.map((f, i) => ({
                     food: {
                       id: `ai-${Date.now()}-${i}`,

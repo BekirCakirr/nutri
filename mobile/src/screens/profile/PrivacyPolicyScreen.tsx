@@ -25,7 +25,7 @@ export default function PrivacyPolicyScreen() {
   const navigation = useNavigation<Nav>()
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Gizlilik Politikası" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         <Text style={st.date}>Son güncelleme: 1 Mart 2026</Text>

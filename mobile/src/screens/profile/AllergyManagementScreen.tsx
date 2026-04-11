@@ -40,7 +40,7 @@ export default function AllergyManagementScreen() {
   const [allergies] = useState(mockAllergies)
 
   return (
-    <ScreenWrapper padded={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Alerji Yönetimi" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Info card */}

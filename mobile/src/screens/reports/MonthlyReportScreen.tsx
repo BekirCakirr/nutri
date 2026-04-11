@@ -9,7 +9,7 @@ export default function MonthlyReportScreen() {
   const navigation = useNavigation()
 
   return (
-    <ScreenWrapper padded={false} scrollable={false}>
+    <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Aylık Rapor"
         subtitle="Mart 2026"
@@ -24,7 +24,7 @@ export default function MonthlyReportScreen() {
         <View style={{ borderRadius: 16, padding: 20, borderWidth: 1, marginBottom: 24, flexDirection: 'row', alignItems: 'center' }} /* TODO: bg-white border-emerald-200 shadow-sm */>
            <View style={{ flex: 1 }}>
              <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 4 }}>Mükemmel İlerleme!</Text>
-             <Text style={{ color: '#5A7264', fontSize: 12 }} /* TODO: leading-relaxed */>Mart ayında hedef kilona %80 daha yaklaştın. Düzenli beslenmen harika sonuçlar veriyor.</Text>
+             <Text style={{ color: '#5A7264', fontSize: 12 , lineHeight: 20 }}>Mart ayında hedef kilona %80 daha yaklaştın. Düzenli beslenmen harika sonuçlar veriyor.</Text>
            </View>
            <View style={{ width: 64, height: 64, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginLeft: 16 }} /* TODO: bg-emerald-100 */>
               <Ionicons name="trending-up" size={32} color="#10B981" />
@@ -34,7 +34,7 @@ export default function MonthlyReportScreen() {
         {/* Key Metrics */}
         <Text style={{ color: '#1A2E23', fontWeight: '700', fontSize: 18, marginBottom: 16 }}>Aylık Özet</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 32 }}>
-           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
               <View style={{ width: 32, height: 32, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-blue-100 */>
                  <Ionicons name="scale" size={16} color="#3B82F6" />
               </View>
@@ -45,7 +45,7 @@ export default function MonthlyReportScreen() {
               </View>
            </View>
 
-           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 }} /* TODO: bg-white */>
+           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC', marginBottom: 16 , backgroundColor: '#FFFFFF' }}>
               <View style={{ width: 32, height: 32, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-orange-100 */>
                  <Ionicons name="flame" size={16} color="#F97316" />
               </View>
@@ -56,7 +56,7 @@ export default function MonthlyReportScreen() {
               </View>
            </View>
 
-           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ width: 32, height: 32, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-green-100 */>
                  <Ionicons name="calendar-clear" size={16} color="#10B981" />
               </View>
@@ -67,7 +67,7 @@ export default function MonthlyReportScreen() {
               </View>
            </View>
 
-           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC' }} /* TODO: bg-white */>
+           <View style={{ width: '48%', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
               <View style={{ width: 32, height: 32, borderRadius: 9999, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }} /* TODO: bg-purple-100 */>
                  <Ionicons name="moon" size={16} color="#8B5CF6" />
               </View>
