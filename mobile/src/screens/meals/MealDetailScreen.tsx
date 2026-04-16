@@ -50,6 +50,7 @@ export default function MealDetailScreen() {
   const { mealId } = route.params
 
   const { todayMeals, mealHistory, removeMeal } = useMealStore()
+  const fadeIn = useFadeIn(0)
 
   const meal: Meal | undefined =
     todayMeals.find((m) => m.id === mealId) ??
@@ -65,8 +66,6 @@ export default function MealDetailScreen() {
       </ScreenWrapper>
     )
   }
-
-  const fadeIn = useFadeIn(0)
   const typeColor = mealTypeColors[meal.type]
   const typeLabel = mealTypeLabels[meal.type]
   const typeIcon = mealTypeIcons[meal.type]

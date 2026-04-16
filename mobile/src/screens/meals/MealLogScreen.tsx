@@ -137,6 +137,23 @@ export default function MealLogScreen() {
         </View>
       </View>
 
+      {/* Diet Plan Quick Access */}
+      <AnimatedPressable
+        style={styles.planCard}
+        onPress={() => navigation.navigate('MealPlanView')}
+      >
+        <View style={styles.planCardLeft}>
+          <View style={styles.planIcon}>
+            <Ionicons name="calendar" size={22} color="#FFF" />
+          </View>
+          <View>
+            <Text style={styles.planTitle}>Diyet Planım</Text>
+            <Text style={styles.planSub}>Haftalık beslenme planını görüntüle</Text>
+          </View>
+        </View>
+        <Ionicons name="chevron-forward" size={22} color={colors.primary.main} />
+      </AnimatedPressable>
+
       {/* Meals Section */}
       <SectionHeader title="Öğünler" style={styles.sectionMargin} />
 
@@ -369,5 +386,44 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 8,
+  },
+  planCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.background.paper,
+    borderRadius: 20,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.primary[100],
+  },
+  planCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  planIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: colors.primary.main,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planTitle: {
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.semibold,
+    color: colors.text.primary,
+  },
+  planSub: {
+    fontSize: fontSizes.xs,
+    color: colors.text.secondary,
+    marginTop: 2,
   },
 })

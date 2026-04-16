@@ -41,6 +41,17 @@ interface InviteCode {
   status: 'active' | 'used' | 'expired' | 'deactivated'
 }
 
+const mockInviteCodes: InviteCode[] = [
+  { id: 'mock-ic1', code: 'NUTRI-AY2026', createdAt: '2026-04-10', usedBy: null, usedAt: null, status: 'active' },
+  { id: 'mock-ic2', code: 'NUTRI-BK4815', createdAt: '2026-04-05', usedBy: 'Ayşe Yılmaz', usedAt: '2026-04-07', status: 'used' },
+  { id: 'mock-ic3', code: 'NUTRI-FM7721', createdAt: '2026-03-28', usedBy: null, usedAt: null, status: 'active' },
+  { id: 'mock-ic4', code: 'NUTRI-ZC3390', createdAt: '2026-03-15', usedBy: 'Mehmet Kaya', usedAt: '2026-03-18', status: 'used' },
+  { id: 'mock-ic5', code: 'NUTRI-AO9102', createdAt: '2026-02-20', usedBy: null, usedAt: null, status: 'expired' },
+  { id: 'mock-ic6', code: 'NUTRI-SD5567', createdAt: '2026-03-01', usedBy: null, usedAt: null, status: 'deactivated' },
+  { id: 'mock-ic7', code: 'NUTRI-EL8834', createdAt: '2026-04-12', usedBy: null, usedAt: null, status: 'active' },
+  { id: 'mock-ic8', code: 'NUTRI-HK6243', createdAt: '2026-03-10', usedBy: 'Fatma Demir', usedAt: '2026-03-12', status: 'used' },
+]
+
 const statusMap: Record<
   InviteCode['status'],
   { label: string; variant: 'success' | 'info' | 'warning' | 'destructive' }
@@ -63,17 +74,21 @@ export default function InviteCodePage() {
   }, [])
 
   useEffect(() => {
-    if (hookCodes) {
-      setCodes(hookCodes.map((c: any) => ({
-        id: c.id,
-        code: c.code ?? '',
-        createdAt: c.createdAt?.split('T')[0] ?? '',
-        usedBy: c.usedBy ?? null,
-        usedAt: c.usedAt ?? null,
-        status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
-      })))
+    if (!isLoading && hookCodes) {
+      if (hookCodes.length > 0) {
+        setCodes(hookCodes.map((c: any) => ({
+          id: c.id,
+          code: c.code ?? '',
+          createdAt: c.createdAt?.split('T')[0] ?? '',
+          usedBy: c.usedBy ?? null,
+          usedAt: c.usedAt ?? null,
+          status: c.isActive ? 'active' : c.usedBy ? 'used' : 'deactivated',
+        })))
+      } else {
+        setCodes(mockInviteCodes)
+      }
     }
-  }, [hookCodes])
+  }, [hookCodes, isLoading])
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code)

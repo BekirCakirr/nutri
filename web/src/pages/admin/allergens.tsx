@@ -79,8 +79,19 @@ export default function AdminAllergensPage() {
     setIsLoading(true)
     try {
       const { data } = await api.get('/allergens')
-      const result = data as { data?: { allergens: Allergen[] }; allergens?: Allergen[] }
-      setAllergens(result.data?.allergens ?? result.allergens ?? [])
+      // Interceptor unwraps envelope: data = { allergens: [...] } (keys already camelCased)
+      const d = data as any
+      const list: Allergen[] = (d.allergens ?? d.data?.allergens ?? (Array.isArray(d) ? d : []))
+        .map((a: any) => ({
+          id: a.id,
+          name: a.name,
+          name_en: a.nameEn ?? a.name_en ?? '',
+          category: a.category,
+          icon: a.icon,
+          description: a.description,
+          affected_patients: a.affectedPatients ?? a.affected_patients ?? 0,
+        }))
+      setAllergens(list)
     } catch {
       toast.error('Alerjenler yüklenemedi')
     } finally {
@@ -271,7 +282,7 @@ export default function AdminAllergensPage() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <span className="text-sm text-muted-foreground">{allergen.name_en || '—'}</span>
+                    <span className="text-sm text-muted-foreground">{allergen.name_en || (allergen as any).nameEn || '—'}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant={cat.variant}>

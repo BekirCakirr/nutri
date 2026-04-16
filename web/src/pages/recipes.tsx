@@ -12,6 +12,23 @@ import { EmptyState } from '@/components/shared/empty-state'
 
 
 
+const mockRecipes: RecipeCardData[] = [
+  { id: 'mock-1', title: 'Mercimek Çorbası', category: 'Çorba', calories: 180, prepTime: 30, image: '', difficulty: 'Kolay', protein: 12, carbs: 28, fat: 3, servings: 4 },
+  { id: 'mock-2', title: 'Izgara Tavuk Salata', category: 'Salata', calories: 320, prepTime: 20, image: '', difficulty: 'Kolay', protein: 35, carbs: 12, fat: 14, servings: 2 },
+  { id: 'mock-3', title: 'Karnıyarık', category: 'Ana Yemek', calories: 410, prepTime: 60, image: '', difficulty: 'Orta', protein: 22, carbs: 30, fat: 24, servings: 4 },
+  { id: 'mock-4', title: 'Ezogelin Çorbası', category: 'Çorba', calories: 165, prepTime: 35, image: '', difficulty: 'Kolay', protein: 8, carbs: 26, fat: 4, servings: 6 },
+  { id: 'mock-5', title: 'Fırında Somon', category: 'Ana Yemek', calories: 380, prepTime: 40, image: '', difficulty: 'Orta', protein: 38, carbs: 5, fat: 22, servings: 2 },
+  { id: 'mock-6', title: 'Çoban Salata', category: 'Salata', calories: 95, prepTime: 10, image: '', difficulty: 'Kolay', protein: 3, carbs: 10, fat: 5, servings: 4 },
+  { id: 'mock-7', title: 'Humus', category: 'Atıştırmalık', calories: 210, prepTime: 15, image: '', difficulty: 'Kolay', protein: 9, carbs: 22, fat: 10, servings: 4 },
+  { id: 'mock-8', title: 'Sütlaç', category: 'Tatlı', calories: 240, prepTime: 45, image: '', difficulty: 'Orta', protein: 7, carbs: 42, fat: 5, servings: 6 },
+  { id: 'mock-9', title: 'İçli Köfte', category: 'Ana Yemek', calories: 350, prepTime: 90, image: '', difficulty: 'Zor', protein: 18, carbs: 35, fat: 16, servings: 6 },
+  { id: 'mock-10', title: 'Kereviz Yemeği', category: 'Ana Yemek', calories: 190, prepTime: 50, image: '', difficulty: 'Orta', protein: 6, carbs: 22, fat: 8, servings: 4 },
+  { id: 'mock-11', title: 'Cevizli Kabak Tatlısı', category: 'Tatlı', calories: 280, prepTime: 60, image: '', difficulty: 'Kolay', protein: 4, carbs: 48, fat: 9, servings: 8 },
+  { id: 'mock-12', title: 'Yoğurtlu Semizotu', category: 'Salata', calories: 120, prepTime: 15, image: '', difficulty: 'Kolay', protein: 5, carbs: 8, fat: 7, servings: 4 },
+  { id: 'mock-13', title: 'Kuru Fasulye', category: 'Ana Yemek', calories: 310, prepTime: 80, image: '', difficulty: 'Orta', protein: 18, carbs: 42, fat: 8, servings: 6 },
+  { id: 'mock-14', title: 'Havuç Çorbası', category: 'Çorba', calories: 140, prepTime: 25, image: '', difficulty: 'Kolay', protein: 4, carbs: 20, fat: 5, servings: 4 },
+]
+
 const categories = ['Tümü', 'Ana Yemek', 'Çorba', 'Salata', 'Atıştırmalık', 'Tatlı']
 
 const difficultyColor: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -39,22 +56,24 @@ export default function RecipesPage() {
   }, [])
 
   // Map hook recipes to local type
-  const recipeList: RecipeCardData[] = allRecipes.map((r) => {
+  const apiRecipeList: RecipeCardData[] = allRecipes.map((r) => {
     const raw = r as unknown as Record<string, unknown>;
     return {
-      id: r.id, 
-      title: r.name ?? (raw.title as string) ?? '', 
+      id: r.id,
+      title: r.name ?? (raw.title as string) ?? '',
       category: r.category ?? '',
-      calories: r.calories ?? 0, 
+      calories: r.calories ?? 0,
       prepTime: r.preparationTime ?? (raw.prepTime as number) ?? 0,
-      image: r.imageUrl ?? (raw.image as string) ?? '', 
+      image: r.imageUrl ?? (raw.image as string) ?? '',
       difficulty: r.difficulty ?? 'medium',
-      protein: r.protein ?? 0, 
-      carbs: r.carbohydrates ?? (raw.carbs as number) ?? 0, 
+      protein: r.protein ?? 0,
+      carbs: r.carbohydrates ?? (raw.carbs as number) ?? 0,
       fat: r.fat ?? 0,
       servings: r.servings ?? 1,
     };
   })
+
+  const recipeList = apiRecipeList.length > 0 ? apiRecipeList : mockRecipes
 
   const filtered = useMemo(
     () =>

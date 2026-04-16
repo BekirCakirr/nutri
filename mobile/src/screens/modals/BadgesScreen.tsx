@@ -12,6 +12,19 @@ const iconMap: Record<string, string> = {
   users: '👥', star: '⭐', default: '🏅',
 }
 
+const mockBadges = [
+  { id: 'm1', name: 'İlk Adım', description: 'İlk öğününü kaydet', icon: 'flame', xp_reward: 25, earned: true, earned_at: '2026-04-01' },
+  { id: 'm2', name: 'Su Ustası', description: '7 gün su hedefini tuttur', icon: 'droplets', xp_reward: 50, earned: true, earned_at: '2026-04-05' },
+  { id: 'm3', name: 'Fotoğrafçı', description: '10 yemek fotoğrafı çek', icon: 'camera', xp_reward: 75, earned: true, earned_at: '2026-04-10' },
+  { id: 'm4', name: 'Kalori Avcısı', description: '7 gün kalori hedefinde kal', icon: 'target', xp_reward: 100, earned: true, earned_at: '2026-04-12' },
+  { id: 'm5', name: 'Protein Şampiyonu', description: '7 gün protein hedefini tuttur', icon: 'beef', xp_reward: 75, earned: false },
+  { id: 'm6', name: 'Denge Ustası', description: '7 gün makro dengesini koru', icon: 'scale', xp_reward: 100, earned: false },
+  { id: 'm7', name: 'Sosyal Kelebek', description: 'Aile moduna 3 kişi ekle', icon: 'users', xp_reward: 50, earned: false },
+  { id: 'm8', name: 'Okyanus', description: '30 gün su hedefini tuttur', icon: 'waves', xp_reward: 150, earned: false },
+  { id: 'm9', name: 'Şampiyon', description: '30 gün streak yap', icon: 'trophy', xp_reward: 200, earned: false },
+  { id: 'm10', name: 'Efsane', description: 'Tüm rozetleri topla', icon: 'crown', xp_reward: 500, earned: false },
+]
+
 export default function BadgesScreen() {
   const navigation = useNavigation()
   const { badges, loadBadges } = useGamification()
@@ -21,7 +34,8 @@ export default function BadgesScreen() {
     loadBadges().catch(() => {}).finally(() => setLoading(false))
   }, [])
 
-  const allBadges = badges || []
+  const backendBadges = badges || []
+  const allBadges = backendBadges.length > 0 ? backendBadges : mockBadges
   const earned = allBadges.filter((b: any) => b.earned || b.earned_at)
   const locked = allBadges.filter((b: any) => !b.earned && !b.earned_at)
 

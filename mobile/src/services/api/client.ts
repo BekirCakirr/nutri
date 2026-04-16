@@ -28,10 +28,14 @@ apiClient.interceptors.response.use(
   async (error) => {
     if (error.response) {
       const { status } = error.response;
-      if (status === 401) {
-        // Lazy import to break circular dependency
+      const url = error.config?.url || '';
+      // Only logout on 401 for non-auth endpoints (avoid cascade logout during login/refresh)
+      if (status === 401 && !url.includes('/auth/login') && !url.includes('/auth/refresh')) {
         const { useAuthStore } = await import('@/stores/authStore');
-        useAuthStore.getState().logout();
+        const state = useAuthStore.getState();
+        if (state.isAuthenticated) {
+          state.logout();
+        }
       }
     }
     return Promise.reject(error);

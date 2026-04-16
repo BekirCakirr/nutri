@@ -7,6 +7,7 @@ import type { MealsStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
 import { usePlanStore } from '../../stores/planStore'
+import { colors } from '../../theme/colors'
 
 type Route = RouteProp<MealsStackParamList, 'MealPlanDayDetail'>
 
@@ -16,6 +17,27 @@ const mealTypeLabels: Record<string, { label: string; icon: string; color: strin
   dinner: { label: 'Akşam Yemeği', icon: 'moon-outline', color: '#6366F1' },
   snack: { label: 'Ara Öğün', icon: 'cafe-outline', color: '#EC4899' },
 }
+
+const turkishDays = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi']
+const turkishMonths = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']
+
+// Mock data for a day — used when backend has no plan
+const mockDayItems = [
+  { meal_type: 'breakfast' as const, food_name: 'Haşlanmış yumurta (2 adet)', amount_g: '120', calories: '156', protein: '12', carbs: '1', fat: '10' },
+  { meal_type: 'breakfast' as const, food_name: 'Tam buğday ekmek', amount_g: '60', calories: '140', protein: '5', carbs: '24', fat: '2' },
+  { meal_type: 'breakfast' as const, food_name: 'Beyaz peynir', amount_g: '40', calories: '100', protein: '7', carbs: '1', fat: '8' },
+  { meal_type: 'breakfast' as const, food_name: 'Domates, salatalık, zeytin', amount_g: '100', calories: '45', protein: '1', carbs: '6', fat: '2' },
+  { meal_type: 'lunch' as const, food_name: 'Mercimek çorbası', amount_g: '250', calories: '180', protein: '12', carbs: '28', fat: '3' },
+  { meal_type: 'lunch' as const, food_name: 'Izgara tavuk göğsü', amount_g: '150', calories: '230', protein: '35', carbs: '0', fat: '8' },
+  { meal_type: 'lunch' as const, food_name: 'Bulgur pilavı', amount_g: '120', calories: '150', protein: '4', carbs: '30', fat: '2' },
+  { meal_type: 'lunch' as const, food_name: 'Mevsim salatası', amount_g: '150', calories: '60', protein: '2', carbs: '8', fat: '2' },
+  { meal_type: 'dinner' as const, food_name: 'Fırında somon fileto', amount_g: '180', calories: '350', protein: '38', carbs: '0', fat: '20' },
+  { meal_type: 'dinner' as const, food_name: 'Buharda brokoli', amount_g: '150', calories: '50', protein: '4', carbs: '8', fat: '0' },
+  { meal_type: 'dinner' as const, food_name: 'Kinoa', amount_g: '100', calories: '120', protein: '4', carbs: '20', fat: '2' },
+  { meal_type: 'snack' as const, food_name: 'Yoğurt', amount_g: '200', calories: '120', protein: '8', carbs: '10', fat: '5' },
+  { meal_type: 'snack' as const, food_name: 'Ceviz (10 adet)', amount_g: '30', calories: '200', protein: '5', carbs: '4', fat: '18' },
+  { meal_type: 'snack' as const, food_name: 'Bal (1 tatlı kaşığı)', amount_g: '10', calories: '30', protein: '0', carbs: '8', fat: '0' },
+]
 
 export default function MealPlanDayDetailScreen() {
   const navigation = useNavigation()
@@ -35,14 +57,13 @@ export default function MealPlanDayDetailScreen() {
   }, [activePlan, loadActivePlan])
 
   const d = new Date(date)
-  // JS getDay(): 0=Sun, 1=Mon ... 6=Sat. Backend: 1=Mon, 7=Sun.
   const mappedDayOfWeek = d.getDay() === 0 ? 7 : d.getDay()
-  const formattedDate = `${d.getDate()}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`
+  const dayLabel = `${turkishDays[d.getDay()]}, ${d.getDate()} ${turkishMonths[d.getMonth()]}`
 
   if (loading) {
     return (
       <ScreenWrapper scrollable={false} padded={false}>
-        <AppHeader title={formattedDate} onBack={() => navigation.goBack()} />
+        <AppHeader title={dayLabel} onBack={() => navigation.goBack()} />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#1A5C37" />
         </View>
@@ -50,8 +71,9 @@ export default function MealPlanDayDetailScreen() {
     )
   }
 
-  // Filter items from the real backend plan
-  const dayItems = activePlan?.items?.filter((i) => i.day_of_week === mappedDayOfWeek) || []
+  // Use backend data or mock
+  const backendItems = activePlan?.items?.filter((i) => i.day_of_week === mappedDayOfWeek) || []
+  const dayItems = backendItems.length > 0 ? backendItems : mockDayItems
 
   // Calculate totals
   const totalCal = dayItems.reduce((s, i) => s + (Number(i.calories) || 0), 0)
@@ -66,7 +88,6 @@ export default function MealPlanDayDetailScreen() {
     mealGroups[item.meal_type].push(item)
   })
 
-  // Prepare ordered mapped meals
   const mealOrder = ['breakfast', 'lunch', 'dinner', 'snack']
   const sortedMealKeys = Object.keys(mealGroups).sort((a, b) => {
     const idxA = mealOrder.indexOf(a)
@@ -76,28 +97,34 @@ export default function MealPlanDayDetailScreen() {
 
   return (
     <ScreenWrapper scrollable={false} padded={false}>
-      <AppHeader title={formattedDate} onBack={() => navigation.goBack()} />
-      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
+      <AppHeader title={dayLabel} onBack={() => navigation.goBack()} />
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }} showsVerticalScrollIndicator={false}>
         {/* Summary Card */}
-        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 16, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: '#C8E6CF66' }}>
+        <View style={{ backgroundColor: '#E8F5EC', borderRadius: 20, padding: 24, marginBottom: 24, borderWidth: 1, borderColor: '#C8E6CF66' }}>
           <Text style={{ fontSize: 14, fontWeight: '500', color: '#5A7264', marginBottom: 4 }}>Günlük Toplam</Text>
-          <Text style={{ fontSize: 36, fontWeight: '800', color: '#1A5C37' }}>{Math.round(totalCal)}</Text>
-          <Text style={{ fontSize: 14, color: '#5A7264', marginTop: -2, marginBottom: 16 }}>kcal</Text>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
-              <View style={{ borderRadius: 9999, backgroundColor: '#EF4444', marginBottom: 4 , width: 10, height: 10 }}/>
-              <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalProtein)}g</Text>
-              <Text style={{ fontSize: 12, color: '#5A7264' }}>Protein</Text>
+          <Text style={{ fontSize: 40, fontWeight: '800', color: '#1A5C37' }}>{Math.round(totalCal)}</Text>
+          <Text style={{ fontSize: 14, color: '#5A7264', marginTop: -2, marginBottom: 20 }}>kcal</Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={{ flex: 1, borderRadius: 14, padding: 12, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ borderRadius: 10, backgroundColor: '#EF444420', padding: 6, marginBottom: 6 }}>
+                <Ionicons name="fitness" size={16} color="#EF4444" />
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalProtein)}g</Text>
+              <Text style={{ fontSize: 11, color: '#5A7264' }}>Protein</Text>
             </View>
-            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
-              <View style={{ borderRadius: 9999, backgroundColor: '#3B82F6', marginBottom: 4 , width: 10, height: 10 }}/>
-              <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalCarbs)}g</Text>
-              <Text style={{ fontSize: 12, color: '#5A7264' }}>Karbonhidrat</Text>
+            <View style={{ flex: 1, borderRadius: 14, padding: 12, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ borderRadius: 10, backgroundColor: '#3B82F620', padding: 6, marginBottom: 6 }}>
+                <Ionicons name="leaf" size={16} color="#3B82F6" />
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalCarbs)}g</Text>
+              <Text style={{ fontSize: 11, color: '#5A7264' }}>Karbonhidrat</Text>
             </View>
-            <View style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center' , backgroundColor: 'rgba(255,255,255,0.7)' }}>
-              <View style={{ borderRadius: 9999, backgroundColor: '#F59E0B', marginBottom: 4 , width: 10, height: 10 }}/>
-              <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalFat)}g</Text>
-              <Text style={{ fontSize: 12, color: '#5A7264' }}>Yağ</Text>
+            <View style={{ flex: 1, borderRadius: 14, padding: 12, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ borderRadius: 10, backgroundColor: '#F59E0B20', padding: 6, marginBottom: 6 }}>
+                <Ionicons name="water" size={16} color="#F59E0B" />
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A2E23' }}>{Math.round(totalFat)}g</Text>
+              <Text style={{ fontSize: 11, color: '#5A7264' }}>Yağ</Text>
             </View>
           </View>
         </View>
@@ -113,24 +140,27 @@ export default function MealPlanDayDetailScreen() {
             const items = mealGroups[mealType]
             const config = mealTypeLabels[mealType] || { label: mealType, icon: 'fast-food-outline', color: '#5A7264' }
             const typeCals = items.reduce((sum, item) => sum + (Number(item.calories) || 0), 0)
+            const typeProtein = items.reduce((sum, item) => sum + (Number(item.protein) || 0), 0)
 
             return (
-              <View key={mealType} style={{ borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E8F0EC' , backgroundColor: '#FFFFFF' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <View
-                    style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: config.color + '18' }}
-                  >
-                    <Ionicons name={config.icon as keyof typeof Ionicons.glyphMap} size={18} color={config.color} />
+              <View key={mealType} style={{ borderRadius: 20, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#E8F0EC', backgroundColor: '#FFFFFF' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
+                  <View style={{ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: config.color + '15' }}>
+                    <Ionicons name={config.icon as keyof typeof Ionicons.glyphMap} size={20} color={config.color} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A2E23' }}>{config.label}</Text>
+                    <Text style={{ fontSize: 17, fontWeight: '700', color: '#1A2E23' }}>{config.label}</Text>
+                    <Text style={{ fontSize: 12, color: '#5A7264' }}>{typeProtein}g protein</Text>
                   </View>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A5C37' }}>{Math.round(typeCals)} kcal</Text>
+                  <Text style={{ fontSize: 17, fontWeight: '700', color: colors.primary.main }}>{Math.round(typeCals)} kcal</Text>
                 </View>
                 {items.map((item, idx) => (
-                  <View key={idx} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderTopWidth: 1, borderColor: '#F0F5F2' }}>
+                  <View key={idx} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderTopWidth: 1, borderColor: '#F0F5F2' }}>
                     <Text style={{ fontSize: 14, color: '#1A2E23', flex: 1 }}>{item.food_name}</Text>
-                    <Text style={{ fontSize: 14, color: '#5A7264' }}>{item.amount_g}g</Text>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A2E23' }}>{item.calories} kcal</Text>
+                      <Text style={{ fontSize: 11, color: '#5A7264' }}>{item.amount_g}g</Text>
+                    </View>
                   </View>
                 ))}
               </View>
@@ -138,7 +168,7 @@ export default function MealPlanDayDetailScreen() {
           })
         )}
 
-        <View style={{ height: 32 }}/>
+        <View style={{ height: 32 }} />
       </ScrollView>
     </ScreenWrapper>
   )

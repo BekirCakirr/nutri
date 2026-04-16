@@ -178,6 +178,133 @@ const statusConfig = {
   cancelled: { label: 'İptal', variant: 'destructive' as const },
 }
 
+/* ─── Mock / fallback data ─────────────────────── */
+
+function getMockAppointments(): AppointmentItem[] {
+  const today = new Date()
+  const fmt = (d: Date) => d.toISOString().slice(0, 10)
+  const offset = (days: number) => {
+    const d = new Date(today)
+    d.setDate(today.getDate() + days)
+    return fmt(d)
+  }
+
+  return [
+    {
+      id: 'mock-1',
+      patientName: 'Ayşe Yılmaz',
+      date: offset(1),
+      time: '09:00',
+      endTime: '09:45',
+      type: 'kontrol',
+      mode: 'video',
+      status: 'upcoming',
+      notes: 'Aylık beslenme kontrol görüşmesi. Glüten hassasiyeti takibi yapılacak.',
+    },
+    {
+      id: 'mock-2',
+      patientName: 'Mehmet Kaya',
+      date: offset(1),
+      time: '11:00',
+      endTime: '11:30',
+      type: 'takip',
+      mode: 'in_person',
+      status: 'upcoming',
+      notes: 'Diyabet diyet programı takip randevusu. HbA1c sonuçları değerlendirilecek.',
+    },
+    {
+      id: 'mock-3',
+      patientName: 'Fatma Demir',
+      date: offset(2),
+      time: '10:00',
+      endTime: '10:45',
+      type: 'ilk görüşme',
+      mode: 'in_person',
+      status: 'upcoming',
+      notes: 'İlk diyetisyen görüşmesi. Kilo yönetimi programı hakkında bilgilendirme.',
+    },
+    {
+      id: 'mock-4',
+      patientName: 'Zeynep Çelik',
+      date: offset(3),
+      time: '14:00',
+      endTime: '14:30',
+      type: 'kontrol',
+      mode: 'phone',
+      status: 'upcoming',
+      notes: 'Gebelik dönemi beslenme planı telefon takibi.',
+    },
+    {
+      id: 'mock-5',
+      patientName: 'Ayşe Yılmaz',
+      date: offset(5),
+      time: '13:00',
+      endTime: '13:45',
+      type: 'takip',
+      mode: 'video',
+      status: 'upcoming',
+      notes: 'Haftalık beslenme günlüğü değerlendirmesi.',
+    },
+    {
+      id: 'mock-6',
+      patientName: 'Mehmet Kaya',
+      date: offset(-3),
+      time: '10:00',
+      endTime: '10:45',
+      type: 'kontrol',
+      mode: 'in_person',
+      status: 'completed',
+      notes: 'Kan tahlili sonuçları incelendi. Demir takviyesi düzenlendi.',
+    },
+    {
+      id: 'mock-7',
+      patientName: 'Fatma Demir',
+      date: offset(-7),
+      time: '15:00',
+      endTime: '15:30',
+      type: 'takip',
+      mode: 'video',
+      status: 'completed',
+      notes: 'Online beslenme danışmanlığı tamamlandı. Porsiyon kontrolü konuşuldu.',
+    },
+    {
+      id: 'mock-8',
+      patientName: 'Zeynep Çelik',
+      date: offset(-5),
+      time: '09:00',
+      endTime: '09:30',
+      type: 'kontrol',
+      mode: 'phone',
+      status: 'cancelled',
+      notes: 'Hasta tarafından iptal edildi. Yeni randevu planlanacak.',
+    },
+    {
+      id: 'mock-9',
+      patientName: 'Mehmet Kaya',
+      date: offset(-14),
+      time: '11:00',
+      endTime: '11:45',
+      type: 'ilk görüşme',
+      mode: 'in_person',
+      status: 'completed',
+      notes: 'İlk değerlendirme yapıldı. Beslenme alışkanlıkları analizi tamamlandı.',
+    },
+    {
+      id: 'mock-10',
+      patientName: 'Ayşe Yılmaz',
+      date: offset(-10),
+      time: '16:00',
+      endTime: '16:30',
+      type: 'acil',
+      mode: 'video',
+      status: 'completed',
+      notes: 'Alerjik reaksiyon sonrası acil beslenme planı düzenlemesi yapıldı.',
+    },
+  ]
+}
+
+const mockAppointments = getMockAppointments()
+
 /* ─── Utility: initials ─────────────────────────── */
 
 function getInitials(name: string): string {
@@ -230,9 +357,9 @@ export default function AppointmentsPage() {
     if (appointmentsError) toast.error(appointmentsError)
   }, [appointmentsError])
 
-  // Map API appointments to local type
-  const allAppointments: AppointmentItem[] = useMemo(() =>
-    rawAppointments.map((a: any) => ({
+  // Map API appointments to local type, fall back to mock data when API returns empty
+  const allAppointments: AppointmentItem[] = useMemo(() => {
+    const mapped = rawAppointments.map((a: any) => ({
       id: a.id,
       patientName: a.patientName ?? 'Hasta',
       date: a.date ?? '',
@@ -243,7 +370,8 @@ export default function AppointmentsPage() {
       status: mapStatus(a.status),
       notes: a.notes,
     }))
-  , [rawAppointments])
+    return mapped.length > 0 ? mapped : mockAppointments
+  }, [rawAppointments])
 
   const upcomingAppointments = useMemo(
     () => allAppointments.filter((a) => a.status === 'upcoming'),

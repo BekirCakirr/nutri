@@ -18,6 +18,54 @@ import { cn } from '@/lib/utils'
 interface ShoppingItem { id: string; name: string; amount: string; category: string; checked: boolean }
 interface ShoppingList { id: string; name: string; patientName: string; createdAt: string; updatedAt: string; status: 'active' | 'completed'; items: ShoppingItem[] }
 
+const mockShoppingLists: ShoppingList[] = [
+  {
+    id: 'mock-sl1', name: 'Ayşe Yılmaz - Haftalık Liste', patientName: 'Ayşe Yılmaz',
+    createdAt: '2026-04-14', updatedAt: '2026-04-15', status: 'active',
+    items: [
+      { id: 'si1', name: 'Brokoli', amount: '500g', category: 'Sebze', checked: false },
+      { id: 'si2', name: 'Ispanak', amount: '300g', category: 'Sebze', checked: true },
+      { id: 'si3', name: 'Havuç', amount: '1 kg', category: 'Sebze', checked: false },
+      { id: 'si4', name: 'Elma', amount: '1 kg', category: 'Meyve', checked: false },
+      { id: 'si5', name: 'Muz', amount: '6 adet', category: 'Meyve', checked: true },
+      { id: 'si6', name: 'Tavuk göğsü', amount: '1 kg', category: 'Et', checked: false },
+      { id: 'si7', name: 'Yoğurt', amount: '1 kg', category: 'Süt Ürünleri', checked: false },
+      { id: 'si8', name: 'Lor peyniri', amount: '250g', category: 'Süt Ürünleri', checked: true },
+      { id: 'si9', name: 'Zeytinyağı', amount: '500ml', category: 'Diğer', checked: false },
+    ],
+  },
+  {
+    id: 'mock-sl2', name: 'Mehmet Kaya - Diyabet Listesi', patientName: 'Mehmet Kaya',
+    createdAt: '2026-04-12', updatedAt: '2026-04-14', status: 'active',
+    items: [
+      { id: 'si10', name: 'Kabak', amount: '500g', category: 'Sebze', checked: false },
+      { id: 'si11', name: 'Domates', amount: '1 kg', category: 'Sebze', checked: false },
+      { id: 'si12', name: 'Biber', amount: '500g', category: 'Sebze', checked: true },
+      { id: 'si13', name: 'Çilek', amount: '500g', category: 'Meyve', checked: false },
+      { id: 'si14', name: 'Dana kıyma (yağsız)', amount: '500g', category: 'Et', checked: false },
+      { id: 'si15', name: 'Somon fileto', amount: '400g', category: 'Et', checked: false },
+      { id: 'si16', name: 'Süt (yarım yağlı)', amount: '1 L', category: 'Süt Ürünleri', checked: true },
+      { id: 'si17', name: 'Tam buğday ekmeği', amount: '1 adet', category: 'Diğer', checked: false },
+      { id: 'si18', name: 'Badem', amount: '200g', category: 'Diğer', checked: false },
+    ],
+  },
+  {
+    id: 'mock-sl3', name: 'Fatma Demir - Vejetaryen Liste', patientName: 'Fatma Demir',
+    createdAt: '2026-04-08', updatedAt: '2026-04-10', status: 'completed',
+    items: [
+      { id: 'si19', name: 'Patlıcan', amount: '3 adet', category: 'Sebze', checked: true },
+      { id: 'si20', name: 'Mercimek (kırmızı)', amount: '500g', category: 'Sebze', checked: true },
+      { id: 'si21', name: 'Nohut', amount: '500g', category: 'Sebze', checked: true },
+      { id: 'si22', name: 'Portakal', amount: '2 kg', category: 'Meyve', checked: true },
+      { id: 'si23', name: 'Avokado', amount: '3 adet', category: 'Meyve', checked: true },
+      { id: 'si24', name: 'Beyaz peynir', amount: '400g', category: 'Süt Ürünleri', checked: true },
+      { id: 'si25', name: 'Kefir', amount: '500ml', category: 'Süt Ürünleri', checked: true },
+      { id: 'si26', name: 'Bulgur', amount: '500g', category: 'Diğer', checked: true },
+      { id: 'si27', name: 'Kinoa', amount: '300g', category: 'Diğer', checked: true },
+    ],
+  },
+]
+
 const categoryOrder = ['Sebze', 'Meyve', 'Et', 'Süt Ürünleri', 'Diğer']
 
 export default function ShoppingListsPage() {
@@ -29,22 +77,26 @@ export default function ShoppingListsPage() {
   }, [])
 
   useEffect(() => {
-    if (hookLists) {
-      setLists(hookLists.map((rawList) => {
-        const l = rawList as unknown as ShoppingList & { itemCount?: number; completedCount?: number; sharedWith?: string; };
-        return {
-          id: l.id, name: l.name ?? '', status: l.status ?? 'active',
-          itemCount: l.items?.length ?? l.itemCount ?? 0,
-          completedCount: l.items?.filter((i) => i.checked).length ?? l.completedCount ?? 0,
-          sharedWith: l.sharedWith ?? null,
-          updatedAt: l.updatedAt ?? '',
-          patientName: l.patientName ?? '',
-          createdAt: l.createdAt ?? '',
-          items: l.items ?? [],
-        } as ShoppingList;
-      }))
+    if (!isLoading && hookLists) {
+      if (hookLists.length > 0) {
+        setLists(hookLists.map((rawList) => {
+          const l = rawList as unknown as ShoppingList & { itemCount?: number; completedCount?: number; sharedWith?: string; };
+          return {
+            id: l.id, name: l.name ?? '', status: l.status ?? 'active',
+            itemCount: l.items?.length ?? l.itemCount ?? 0,
+            completedCount: l.items?.filter((i) => i.checked).length ?? l.completedCount ?? 0,
+            sharedWith: l.sharedWith ?? null,
+            updatedAt: l.updatedAt ?? '',
+            patientName: l.patientName ?? '',
+            createdAt: l.createdAt ?? '',
+            items: l.items ?? [],
+          } as ShoppingList;
+        }))
+      } else {
+        setLists(mockShoppingLists)
+      }
     }
-  }, [hookLists])
+  }, [hookLists, isLoading])
   
   const [selectedList, setSelectedList] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)

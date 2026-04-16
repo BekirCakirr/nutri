@@ -7,6 +7,15 @@ import { AppHeader } from '../../components/common/AppHeader'
 import { useGamification } from '../../hooks'
 import { colors } from '../../theme/colors'
 
+const mockChallenges = [
+  { id: 'm1', title: '7 Gün Su Hedefi', description: '7 gün boyunca günlük su hedefini tuttur', challenge_type: 'water_goal', target_value: 7, current_progress: 5, xp_reward: 75, is_completed: false },
+  { id: 'm2', title: 'Protein Şampiyonu', description: '5 gün üst üste protein hedefine ulaş', challenge_type: 'protein_goal', target_value: 5, current_progress: 3, xp_reward: 100, is_completed: false },
+  { id: 'm3', title: 'Kalori Takipçisi', description: '10 gün boyunca tüm öğünlerini kaydet', challenge_type: 'meal_log', target_value: 10, current_progress: 10, xp_reward: 120, is_completed: true },
+  { id: 'm4', title: 'Fotoğraf Ustası', description: '5 farklı yemeğin fotoğrafını çek ve analiz et', challenge_type: 'photo_scan', target_value: 5, current_progress: 2, xp_reward: 80, is_completed: false },
+  { id: 'm5', title: 'Erken Kuş', description: '7 gün üst üste kahvaltı kaydı gir', challenge_type: 'breakfast_log', target_value: 7, current_progress: 7, xp_reward: 90, is_completed: true },
+  { id: 'm6', title: 'Dengeli Beslenme', description: '3 gün boyunca makro hedeflerinin hepsini tuttur', challenge_type: 'macro_balance', target_value: 3, current_progress: 1, xp_reward: 150, is_completed: false },
+]
+
 export default function ChallengesScreen() {
   const navigation = useNavigation()
   const { activeChallenges: challenges, loadChallenges } = useGamification()
@@ -16,7 +25,8 @@ export default function ChallengesScreen() {
     loadChallenges().catch(() => {}).finally(() => setLoading(false))
   }, [])
 
-  const allChallenges = challenges || []
+  const backendChallenges = challenges || []
+  const allChallenges = backendChallenges.length > 0 ? backendChallenges : mockChallenges
 
   if (loading) {
     return (

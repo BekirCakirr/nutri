@@ -12,9 +12,9 @@ import {
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 
-// Tab bar is position: absolute, height 70 + bottom 16-24 = ~100px overlay
-// All screens need bottom padding so content doesn't hide behind it
-const TAB_BAR_SAFE_BOTTOM = 110
+// Tab bar is position: absolute on native, height 70 + bottom 16-24 = ~100px overlay
+// All screens need bottom padding so content doesn't hide behind it (not needed on web where tab bar is relative)
+const TAB_BAR_SAFE_BOTTOM = Platform.OS === 'web' ? 16 : 110
 
 interface ScreenWrapperProps {
   children: React.ReactNode
@@ -39,14 +39,15 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
     <>
       {scrollable ? (
         <ScrollView
+          style={styles.flex}
           contentContainerStyle={[
             padded && styles.padded,
             { paddingBottom: TAB_BAR_SAFE_BOTTOM },
             contentStyle,
           ]}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={Platform.OS === 'web'}
           keyboardShouldPersistTaps="handled"
-          bounces={true}
+          bounces={Platform.OS !== 'web'}
         >
           {children}
         </ScrollView>
@@ -78,6 +79,7 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...(Platform.OS === 'web' ? { height: '100%' as any, overflow: 'hidden' as any } : {}),
   },
   flex: {
     flex: 1,

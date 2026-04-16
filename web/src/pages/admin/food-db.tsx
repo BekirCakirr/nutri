@@ -286,7 +286,14 @@ export default function AdminFoodDBPage() {
                   <EmptyState icon={Apple} title="Besin bulunamadı" description="Arama kriterlerinize uygun besin yok." />
                 </TableCell>
               </TableRow>
-            ) : filtered.map((food) => (
+            ) : filtered.map((food) => {
+              const f = food as any
+              // After snake→camel transform: calories_per_100g → caloriesPer_100g (not caloriesPer100g)
+              const cal = Number(f.caloriesPer_100g ?? f.caloriesPer100g ?? f.calories_per_100g) || null
+              const pro = Number(f.proteinPer_100g ?? f.proteinPer100g ?? f.protein_per_100g) || null
+              const carb = Number(f.carbsPer_100g ?? f.carbsPer100g ?? f.carbs_per_100g) || null
+              const fat = Number(f.fatPer_100g ?? f.fatPer100g ?? f.fat_per_100g) || null
+              return (
               <TableRow key={food.id}>
                 <TableCell>
                   <span className="text-sm font-medium">{food.name}</span>
@@ -294,10 +301,10 @@ export default function AdminFoodDBPage() {
                 <TableCell>
                   <Badge variant="outline">{food.category || '—'}</Badge>
                 </TableCell>
-                <TableCell className="text-center tabular-nums text-sm">{food.caloriesPer100g ?? food.calories_per_100g ?? '—'}</TableCell>
-                <TableCell className="text-center tabular-nums text-sm">{food.proteinPer100g ?? food.protein_per_100g ?? '—'}g</TableCell>
-                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.carbsPer100g ?? food.carbs_per_100g ?? '—'}g</TableCell>
-                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{food.fatPer100g ?? food.fat_per_100g ?? '—'}g</TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{cal ?? '—'}</TableCell>
+                <TableCell className="text-center tabular-nums text-sm">{pro ? `${pro}g` : '—'}</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{carb ? `${carb}g` : '—'}</TableCell>
+                <TableCell className="text-center tabular-nums text-sm hidden md:table-cell">{fat ? `${fat}g` : '—'}</TableCell>
                 <TableCell className="text-center">
                   {food.isVerified || food.is_verified ? (
                     <Badge variant="success" className="gap-1">
@@ -327,7 +334,8 @@ export default function AdminFoodDBPage() {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              )
+            })}
           </TableBody>
         </Table>
       </Card>

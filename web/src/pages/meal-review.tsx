@@ -136,6 +136,65 @@ function getMacroPercent(protein: number, carbs: number, fat: number): { p: numb
   }
 }
 
+const mockMealReviews: MealReview[] = [
+  {
+    id: 'mock-mr1', patientName: 'Ayşe Yılmaz', patientId: 'p1', date: '2026-04-16',
+    mealType: 'Kahvaltı', items: ['Yulaf ezmesi (1 porsiyon)', 'Muz (1 adet)', 'Badem (10 adet)', 'Yeşil çay'],
+    totalCalories: 380, protein: 14, carbs: 52, fat: 12,
+    imageUrl: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=400&h=300&fit=crop',
+    status: 'pending', aiScore: 88, aiSummary: 'Dengeli bir kahvaltı. Protein oranı yeterli, lif içeriği iyi. Porsiyon kontrolü başarılı.',
+  },
+  {
+    id: 'mock-mr2', patientName: 'Mehmet Kaya', patientId: 'p2', date: '2026-04-16',
+    mealType: 'Öğle', items: ['Mercimek çorbası (1 kase)', 'Tam buğday ekmeği (1 dilim)', 'Ayran (1 bardak)'],
+    totalCalories: 420, protein: 22, carbs: 58, fat: 10,
+    imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop',
+    status: 'pending', aiScore: 76, aiSummary: 'İyi bir öğle yemeği seçimi. Biraz daha sebze eklenebilir. Protein kaynağı çeşitlendirilebilir.',
+  },
+  {
+    id: 'mock-mr3', patientName: 'Fatma Demir', patientId: 'p3', date: '2026-04-16',
+    mealType: 'Akşam', items: ['Fırında tavuk göğsü (150g)', 'Buharda brokoli (200g)', 'Bulgur pilavı (1 porsiyon)', 'Salata'],
+    totalCalories: 510, protein: 42, carbs: 48, fat: 14,
+    imageUrl: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop',
+    status: 'pending', aiScore: 92, aiSummary: 'Mükemmel bir akşam yemeği. Protein, karbonhidrat ve yağ dengesi ideal. Sebze çeşitliliği başarılı.',
+  },
+  {
+    id: 'mock-mr4', patientName: 'Zeynep Çelik', patientId: 'p4', date: '2026-04-15',
+    mealType: 'Ara Öğün', items: ['Ceviz (30g)', 'Kuru kayısı (5 adet)', 'Kefir (200ml)'],
+    totalCalories: 280, protein: 10, carbs: 28, fat: 16,
+    imageUrl: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=400&h=300&fit=crop',
+    status: 'pending', aiScore: 70, aiSummary: 'Atıştırmalık olarak uygun. Kuru meyve miktarı biraz fazla, şeker açısından dikkat edilmeli.',
+  },
+  {
+    id: 'mock-mr5', patientName: 'Ali Öztürk', patientId: 'p5', date: '2026-04-15',
+    mealType: 'Kahvaltı', items: ['Yumurta (2 adet, haşlanmış)', 'Domates-salatalık', 'Beyaz peynir (40g)', 'Tam buğday ekmeği (2 dilim)', 'Zeytin (8 adet)'],
+    totalCalories: 450, protein: 24, carbs: 35, fat: 22,
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&h=300&fit=crop',
+    status: 'approved', aiScore: 85, aiSummary: 'Klasik Türk kahvaltısı, dengeli besin değerleri. Protein ve sağlıklı yağ oranı iyi.',
+  },
+  {
+    id: 'mock-mr6', patientName: 'Selin Aydın', patientId: 'p6', date: '2026-04-15',
+    mealType: 'Öğle', items: ['Hamburger (1 adet)', 'Patates kızartması (büyük)', 'Kola (330ml)'],
+    totalCalories: 950, protein: 28, carbs: 98, fat: 48,
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
+    status: 'rejected', aiScore: 32, aiSummary: 'Kalori değeri çok yüksek. İşlenmiş gıda ve şekerli içecek diyete uygun değil. Sağlıklı alternatifler önerildi.',
+  },
+  {
+    id: 'mock-mr7', patientName: 'Ayşe Yılmaz', patientId: 'p1', date: '2026-04-15',
+    mealType: 'Akşam', items: ['Izgara köfte (3 adet)', 'Yoğurt (1 kase)', 'Mevsim salata', 'Esmer pirinç pilavı (1 porsiyon)'],
+    totalCalories: 580, protein: 38, carbs: 42, fat: 24,
+    imageUrl: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400&h=300&fit=crop',
+    status: 'pending', aiScore: 78, aiSummary: 'Protein açısından yeterli. Karbonhidrat miktarı normal. Sebze çeşitliliği artırılabilir.',
+  },
+  {
+    id: 'mock-mr8', patientName: 'Mehmet Kaya', patientId: 'p2', date: '2026-04-14',
+    mealType: 'Ara Öğün', items: ['Elma (1 adet)', 'Fıstık ezmesi (1 yemek kaşığı)'],
+    totalCalories: 195, protein: 5, carbs: 22, fat: 10,
+    imageUrl: 'https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=400&h=300&fit=crop',
+    status: 'pending', aiScore: 82, aiSummary: 'Sağlıklı bir ara öğün. Meyve ve sağlıklı yağ kombinasyonu tokluk hissi sağlar.',
+  },
+]
+
 /* ─── Meal Card Sub-component ──────────────────── */
 
 function MealCard({
@@ -192,14 +251,25 @@ function MealCard({
         </span>
       </div>
 
-      {/* Food photo placeholder */}
+      {/* Food photo */}
       <div className="mx-4 mb-3">
-        <div className="h-28 rounded-lg bg-surface-2 border-2 border-dashed border-border flex items-center justify-center transition-colors duration-[var(--duration-fast)]">
-          <div className="text-center text-muted-foreground">
-            <ImageIcon className="h-5 w-5 mx-auto mb-1 opacity-50" />
-            <p className="text-[10px]">Öğün fotoğrafı</p>
+        {review.imageUrl ? (
+          <div className="h-36 rounded-lg overflow-hidden">
+            <img
+              src={review.imageUrl}
+              alt={`${review.patientName} - ${review.mealType}`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
-        </div>
+        ) : (
+          <div className="h-28 rounded-lg bg-surface-2 border-2 border-dashed border-border flex items-center justify-center transition-colors duration-[var(--duration-fast)]">
+            <div className="text-center text-muted-foreground">
+              <ImageIcon className="h-5 w-5 mx-auto mb-1 opacity-50" />
+              <p className="text-[10px]">Öğün fotoğrafı</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Macro summary row */}
@@ -542,7 +612,7 @@ export default function MealReviewPage() {
         aiScore: m.aiScore ?? 75,
         aiSummary: m.aiSummary ?? '',
       }))
-      setReviews(mapped)
+      setReviews(mapped.length > 0 ? mapped : mockMealReviews)
     }
   }, [hookMeals])
 

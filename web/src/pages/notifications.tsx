@@ -51,6 +51,22 @@ interface NotificationItem {
   read: boolean
 }
 
+const mockNotifications: NotificationItem[] = [
+  { id: 'mock-n1', type: 'meal', title: 'Öğün Kaydı', message: 'Ayşe Yılmaz kahvaltı öğününü kaydetti. İncelemenizi bekliyor.', time: '5 dk önce', read: false },
+  { id: 'mock-n2', type: 'appointment', title: 'Randevu Hatırlatması', message: 'Mehmet Kaya ile yarın saat 10:00\'da randevunuz var.', time: '15 dk önce', read: false },
+  { id: 'mock-n3', type: 'message', title: 'Yeni Mesaj', message: 'Fatma Demir: "Akşam yemeği için alternatif tarif var mı?"', time: '30 dk önce', read: false },
+  { id: 'mock-n4', type: 'alert', title: 'Kalori Uyarısı', message: 'Zeynep Çelik günlük kalori hedefini %120 aştı.', time: '1 saat önce', read: false },
+  { id: 'mock-n5', type: 'system', title: 'Sistem Güncellemesi', message: 'Yeni tarif modülü eklendi. Tarifler bölümünü keşfedin.', time: '2 saat önce', read: true },
+  { id: 'mock-n6', type: 'meal', title: 'Öğün Kaydı', message: 'Ali Öztürk öğle yemeği öğününü kaydetti. AI skoru: 82/100.', time: '3 saat önce', read: true },
+  { id: 'mock-n7', type: 'appointment', title: 'Randevu İptali', message: 'Selin Aydın 18 Nisan tarihli randevusunu iptal etti.', time: '4 saat önce', read: false },
+  { id: 'mock-n8', type: 'message', title: 'Yeni Mesaj', message: 'Ali Öztürk: "Protein tozu önerir misiniz?"', time: '5 saat önce', read: true },
+  { id: 'mock-n9', type: 'alert', title: 'Su Tüketimi Düşük', message: 'Mehmet Kaya bugün sadece 2 bardak su içti. Hatırlatma gönderin.', time: '6 saat önce', read: false },
+  { id: 'mock-n10', type: 'meal', title: 'Öğün Değerlendirmesi', message: 'Fatma Demir akşam yemeği fotoğrafı yükledi. AI analizi tamamlandı.', time: '8 saat önce', read: true },
+  { id: 'mock-n11', type: 'system', title: 'Haftalık Rapor', message: 'Bu hafta 12 öğün incelendi, 3 yeni hasta eklendi. Haftalık raporunuz hazır.', time: '1 gün önce', read: true },
+  { id: 'mock-n12', type: 'appointment', title: 'Yeni Randevu', message: 'Elif Arslan 20 Nisan saat 14:00 için randevu oluşturdu.', time: '1 gün önce', read: true },
+  { id: 'mock-n13', type: 'alert', title: 'Öğün Atlama', message: 'Zeynep Çelik 2 gündür öğle yemeği kaydetmedi.', time: '2 gün önce', read: true },
+]
+
 function mapNotificationType(type: string): string {
   const map: Record<string, string> = {
     meal_review: 'meal', plan_update: 'system', achievement: 'system',
@@ -83,9 +99,12 @@ export default function NotificationsPage() {
         time: timeAgo(n.createdAt ?? ''),
         read: n.isRead ?? n.read ?? false,
       }))
-      setNotifications(mapped)
+      setNotifications(mapped.length > 0 ? mapped : mockNotifications)
       setIsLoading(false)
-    }).catch(() => setIsLoading(false))
+    }).catch(() => {
+      setNotifications(mockNotifications)
+      setIsLoading(false)
+    })
   }, [])
 
   const markAllRead = () => {

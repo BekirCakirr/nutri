@@ -38,7 +38,200 @@ interface RecentActivity {
   time: string
 }
 
-// Activities and attention patients are derived from real data below
+// ---------------------------------------------------------------------------
+// Mock / fallback data – used when API returns empty results
+// ---------------------------------------------------------------------------
+
+const MOCK_PATIENTS = [
+  {
+    id: 'mock-p1',
+    firstName: 'Ayşe',
+    lastName: 'Yılmaz',
+    email: 'ayse.yilmaz@email.com',
+    status: 'active' as const,
+    adherenceScore: 92,
+    lastVisit: '2026-04-14',
+    nextAppointment: '2026-04-18',
+  },
+  {
+    id: 'mock-p2',
+    firstName: 'Mehmet',
+    lastName: 'Kaya',
+    email: 'mehmet.kaya@email.com',
+    status: 'active' as const,
+    adherenceScore: 45,
+    lastVisit: '2026-04-10',
+    nextAppointment: '2026-04-17',
+  },
+  {
+    id: 'mock-p3',
+    firstName: 'Fatma',
+    lastName: 'Demir',
+    email: 'fatma.demir@email.com',
+    status: 'active' as const,
+    adherenceScore: 25,
+    lastVisit: '2026-04-08',
+    nextAppointment: null,
+  },
+  {
+    id: 'mock-p4',
+    firstName: 'Zeynep',
+    lastName: 'Çelik',
+    email: 'zeynep.celik@email.com',
+    status: 'active' as const,
+    adherenceScore: 78,
+    lastVisit: '2026-04-12',
+    nextAppointment: '2026-04-20',
+  },
+  {
+    id: 'mock-p5',
+    firstName: 'Ali',
+    lastName: 'Öztürk',
+    email: 'ali.ozturk@email.com',
+    status: 'inactive' as const,
+    adherenceScore: 55,
+    lastVisit: '2026-03-28',
+    nextAppointment: null,
+  },
+  {
+    id: 'mock-p6',
+    firstName: 'Elif',
+    lastName: 'Arslan',
+    email: 'elif.arslan@email.com',
+    status: 'pending' as const,
+    adherenceScore: 100,
+    lastVisit: '2026-04-15',
+    nextAppointment: '2026-04-22',
+  },
+]
+
+const MOCK_APPOINTMENTS = [
+  {
+    id: 'mock-a1',
+    patientId: 'mock-p1',
+    patientName: 'Ayşe Yılmaz',
+    title: 'Kontrol Randevusu',
+    type: 'follow_up' as const,
+    status: 'scheduled' as const,
+    date: '2026-04-16',
+    startTime: '09:30',
+    endTime: '10:00',
+    duration: 30,
+    notes: '',
+    location: 'Klinik',
+    meetingUrl: null,
+    nutritionistId: '',
+    createdAt: '2026-04-10',
+  },
+  {
+    id: 'mock-a2',
+    patientId: 'mock-p2',
+    patientName: 'Mehmet Kaya',
+    title: 'Diyet Plan Değerlendirme',
+    type: 'follow_up' as const,
+    status: 'scheduled' as const,
+    date: '2026-04-16',
+    startTime: '11:00',
+    endTime: '11:30',
+    duration: 30,
+    notes: 'Kilo takip',
+    location: 'Online',
+    meetingUrl: 'https://meet.example.com/abc',
+    nutritionistId: '',
+    createdAt: '2026-04-11',
+  },
+  {
+    id: 'mock-a3',
+    patientId: 'mock-p4',
+    patientName: 'Zeynep Çelik',
+    title: 'İlk Görüşme',
+    type: 'initial' as const,
+    status: 'scheduled' as const,
+    date: '2026-04-16',
+    startTime: '14:00',
+    endTime: '15:00',
+    duration: 60,
+    notes: 'Yeni hasta kaydı',
+    location: 'Klinik',
+    meetingUrl: null,
+    nutritionistId: '',
+    createdAt: '2026-04-12',
+  },
+  {
+    id: 'mock-a4',
+    patientId: 'mock-p3',
+    patientName: 'Fatma Demir',
+    title: 'Beslenme Değerlendirme',
+    type: 'assessment' as const,
+    status: 'completed' as const,
+    date: '2026-04-14',
+    startTime: '10:00',
+    endTime: '10:45',
+    duration: 45,
+    notes: 'Detaylı beslenme analizi',
+    location: 'Klinik',
+    meetingUrl: null,
+    nutritionistId: '',
+    createdAt: '2026-04-08',
+  },
+  {
+    id: 'mock-a5',
+    patientId: 'mock-p1',
+    patientName: 'Ayşe Yılmaz',
+    title: 'Kontrol',
+    type: 'follow_up' as const,
+    status: 'completed' as const,
+    date: '2026-04-12',
+    startTime: '09:00',
+    endTime: '09:30',
+    duration: 30,
+    notes: '',
+    location: 'Online',
+    meetingUrl: null,
+    nutritionistId: '',
+    createdAt: '2026-04-06',
+  },
+]
+
+const MOCK_RECENT_ACTIVITIES: RecentActivity[] = [
+  {
+    id: 'mock-act1',
+    type: 'meal',
+    patient: 'Ayşe Yılmaz',
+    description: 'Öğün fotoğrafı yüklendi — Kahvaltı (420 kcal)',
+    time: '08:45',
+  },
+  {
+    id: 'mock-act2',
+    type: 'appointment',
+    patient: 'Mehmet Kaya',
+    description: 'Kontrol randevusu onaylandı',
+    time: '09:12',
+  },
+  {
+    id: 'mock-act3',
+    type: 'alert',
+    patient: 'Fatma Demir',
+    description: '3 gündür öğün kaydı girilmedi',
+    time: '10:30',
+  },
+  {
+    id: 'mock-act4',
+    type: 'message',
+    patient: 'Zeynep Çelik',
+    description: 'Yeni mesaj: "Diyet listesi hakkında sorum var"',
+    time: '11:05',
+  },
+  {
+    id: 'mock-act5',
+    type: 'meal',
+    patient: 'Mehmet Kaya',
+    description: 'Öğle yemeği kaydedildi — 650 kcal',
+    time: '13:20',
+  },
+]
+
+// ---------------------------------------------------------------------------
 
 const activityIcons = {
   meal: Utensils,
@@ -89,18 +282,25 @@ export default function DashboardPage() {
     if (appointmentsError) toast.error(appointmentsError)
   }, [appointmentsError])
 
-  // Derive dashboard data from real data
+  // Use real data when available, otherwise fall back to mocks
+  const effectivePatients = allPatients.length > 0 ? allPatients : MOCK_PATIENTS as any[]
+  const effectiveAppointments = appointments.length > 0 ? appointments : MOCK_APPOINTMENTS as any[]
+  const effectiveUpcoming = upcoming.length > 0
+    ? upcoming
+    : MOCK_APPOINTMENTS.filter((a) => a.status === 'scheduled') as any[]
+
+  // Derive dashboard data from real data (with mock fallback)
   const upcomingAppointments = useMemo(() =>
-    upcoming.slice(0, 3).map((a: any) => ({
+    effectiveUpcoming.slice(0, 3).map((a: any) => ({
       id: a.id,
       patient: a.patientName ?? 'Hasta',
       time: a.startTime ?? '—',
       type: a.type === 'follow_up' ? 'Kontrol' : a.type === 'initial' ? 'İlk Görüşme' : 'Görüşme',
     }))
-  , [upcoming])
+  , [effectiveUpcoming])
 
   const attentionPatients = useMemo(() =>
-    allPatients
+    effectivePatients
       .filter((p: any) => (p.adherenceScore ?? 100) < 60)
       .slice(0, 3)
       .map((p: any) => ({
@@ -109,17 +309,21 @@ export default function DashboardPage() {
         reason: (p.adherenceScore ?? 0) < 30 ? 'Düşük plan uyumu' : 'Orta düzey plan uyumu',
         severity: ((p.adherenceScore ?? 0) < 30 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
       }))
-  , [allPatients])
+  , [effectivePatients])
 
   const recentActivities: RecentActivity[] = useMemo(() => {
-    // Derive from appointments as a simple activity feed
-    return appointments.slice(0, 5).map((a: any, i: number) => ({
-      id: a.id ?? String(i),
-      type: 'appointment' as const,
-      patient: a.patientName ?? 'Hasta',
-      description: a.status === 'completed' ? 'Randevu tamamlandı' : 'Randevu planlandı',
-      time: a.date ?? '',
-    }))
+    // If we have real appointment data, derive activity feed from it
+    if (appointments.length > 0) {
+      return appointments.slice(0, 5).map((a: any, i: number) => ({
+        id: a.id ?? String(i),
+        type: 'appointment' as const,
+        patient: a.patientName ?? 'Hasta',
+        description: a.status === 'completed' ? 'Randevu tamamlandı' : 'Randevu planlandı',
+        time: a.date ?? '',
+      }))
+    }
+    // Otherwise use mock activities with richer content
+    return MOCK_RECENT_ACTIVITIES
   }, [appointments])
 
   if (isLoading) {
@@ -174,11 +378,11 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in-stagger">
         <StatCard
           title="Toplam Hasta"
-          value={allPatients.length}
+          value={effectivePatients.length}
           icon={Users}
           color="blue"
           featured
-          sparkline={<TrendSparkline data={[allPatients.length]} height={28} width={100} />}
+          sparkline={<TrendSparkline data={[effectivePatients.length]} height={28} width={100} />}
         />
         <StatCard
           title="Bugünkü Randevu"
@@ -188,7 +392,7 @@ export default function DashboardPage() {
         />
         <StatCard
           title="Toplam Randevu"
-          value={appointments.length}
+          value={effectiveAppointments.length}
           icon={UtensilsCrossed}
           color="yellow"
         />

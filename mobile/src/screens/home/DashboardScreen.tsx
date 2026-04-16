@@ -164,6 +164,26 @@ export default function DashboardScreen() {
         </View>
       </View>
 
+      {/* Badges & Challenges Quick Access */}
+      <View style={styles.gamificationActions}>
+        <AnimatedPressable
+          style={styles.gamificationBtn}
+          onPress={() => (navigation as any).navigate('Badges')}
+        >
+          <Text style={styles.gamificationBtnIcon}>🏅</Text>
+          <Text style={styles.gamificationBtnLabel}>Rozetler</Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.text.disabled} />
+        </AnimatedPressable>
+        <AnimatedPressable
+          style={styles.gamificationBtn}
+          onPress={() => (navigation as any).navigate('Challenges')}
+        >
+          <Text style={styles.gamificationBtnIcon}>🎯</Text>
+          <Text style={styles.gamificationBtnLabel}>Görevler</Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.text.disabled} />
+        </AnimatedPressable>
+      </View>
+
       {/* Daily Goals Scroll */}
       <SectionHeader title="Hedeflerim" style={styles.sectionMargin} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.goalsScroll}>
@@ -255,6 +275,22 @@ export default function DashboardScreen() {
           <Ionicons name="arrow-forward-circle" size={24} color={colors.secondary[700]} style={{ opacity: 0.8 }} />
         </AnimatedPressable>
       </View>
+
+      {/* AI Chat Quick Access */}
+      <SectionHeader title="AI Asistan" style={styles.sectionMargin} />
+      <AnimatedPressable
+        style={styles.newReportCard}
+        onPress={() => (navigation as any).navigate('AIChat')}
+      >
+        <View style={[styles.newReportIconWrap, { backgroundColor: '#ECFDF5', borderColor: '#D1FAE5', borderWidth: 1 }]}>
+          <Ionicons name="chatbubble-ellipses" size={24} color="#059669" />
+        </View>
+        <View style={styles.reportTextWrap}>
+          <Text style={styles.reportLabel}>NutriAI ile Konuş</Text>
+          <Text style={styles.reportSub}>Beslenme hakkında AI'a sor</Text>
+        </View>
+        <Ionicons name="arrow-forward-circle" size={24} color="#059669" style={{ opacity: 0.8 }} />
+      </AnimatedPressable>
 
       {/* Messages Quick Access */}
       <SectionHeader title="Mesajlaşma" style={styles.sectionMargin} />
@@ -459,6 +495,37 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 2,
+  },
+  gamificationActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.xxl,
+  },
+  gamificationBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background.paper,
+    borderRadius: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  gamificationBtnIcon: {
+    fontSize: 20,
+    marginRight: 10,
+  },
+  gamificationBtnLabel: {
+    flex: 1,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semibold,
+    color: colors.text.primary,
   },
   sectionMargin: {
     marginBottom: spacing.md,

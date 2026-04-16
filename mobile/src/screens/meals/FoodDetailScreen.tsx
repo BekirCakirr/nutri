@@ -53,6 +53,7 @@ export default function FoodDetailScreen() {
   const [food, setFood] = useState<Food | null>(null)
   const [loading, setLoading] = useState(false)
   const [servings, setServings] = useState(1)
+  const fadeIn = useFadeIn(0)
 
   useEffect(() => {
     const found =
@@ -121,7 +122,6 @@ export default function FoodDetailScreen() {
 
   const iconName = categoryIcons[food.category] || 'ellipse-outline'
   const iconColor = categoryColors[food.category] || '#7A8F84'
-  const fadeIn = useFadeIn(0)
 
   return (
     <ScreenWrapper scrollable>

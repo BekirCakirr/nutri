@@ -151,7 +151,138 @@ export default function PlanCreatorPage() {
   const [selectedPatient, setSelectedPatient] = useState(patientId || '')
   const [selectedDay, setSelectedDay] = useState<string>('Pazartesi')
   const [planTitle, setPlanTitle] = useState('Kilo Verme Programı - Hafta 1')
-  const [items, setItems] = useState<Record<string, PlanItem[]>>({})
+  const [items, setItems] = useState<Record<string, PlanItem[]>>({
+    // --- Pazartesi ---
+    'Pazartesi-Kahvaltı': [
+      { id: 'pzt-k1', name: 'Menemen (domates, biber, yumurta)', portion: '200g', calories: 280, protein: 16, carbs: 10, fat: 18 },
+      { id: 'pzt-k2', name: 'Tam buğday ekmeği', portion: '60g', calories: 140, protein: 5, carbs: 24, fat: 2 },
+      { id: 'pzt-k3', name: 'Beyaz peynir', portion: '40g', calories: 100, protein: 7, carbs: 1, fat: 8 },
+    ],
+    'Pazartesi-Öğle': [
+      { id: 'pzt-o1', name: 'Izgara tavuk göğsü', portion: '150g', calories: 230, protein: 35, carbs: 0, fat: 8 },
+      { id: 'pzt-o2', name: 'Bulgur pilavı', portion: '150g', calories: 195, protein: 6, carbs: 38, fat: 3 },
+      { id: 'pzt-o3', name: 'Mevsim salatası', portion: '150g', calories: 60, protein: 2, carbs: 8, fat: 2 },
+    ],
+    'Pazartesi-Akşam': [
+      { id: 'pzt-a1', name: 'Mercimek çorbası', portion: '250g', calories: 180, protein: 12, carbs: 28, fat: 3 },
+      { id: 'pzt-a2', name: 'Fırında somon', portion: '150g', calories: 310, protein: 34, carbs: 0, fat: 18 },
+      { id: 'pzt-a3', name: 'Buharda brokoli', portion: '120g', calories: 40, protein: 3, carbs: 6, fat: 0 },
+    ],
+    'Pazartesi-Ara Öğün': [
+      { id: 'pzt-ar1', name: 'Yoğurt', portion: '200g', calories: 120, protein: 8, carbs: 10, fat: 5 },
+      { id: 'pzt-ar2', name: 'Ceviz (10 adet)', portion: '30g', calories: 200, protein: 5, carbs: 4, fat: 18 },
+    ],
+    // --- Salı ---
+    'Salı-Kahvaltı': [
+      { id: 'sal-k1', name: 'Yulaf ezmesi', portion: '60g', calories: 230, protein: 8, carbs: 40, fat: 5 },
+      { id: 'sal-k2', name: 'Muz', portion: '120g', calories: 105, protein: 1, carbs: 27, fat: 0 },
+      { id: 'sal-k3', name: 'Badem (15 adet)', portion: '20g', calories: 115, protein: 4, carbs: 4, fat: 10 },
+    ],
+    'Salı-Öğle': [
+      { id: 'sal-o1', name: 'Nohutlu tavuk sote', portion: '250g', calories: 340, protein: 30, carbs: 25, fat: 12 },
+      { id: 'sal-o2', name: 'Pirinç pilavı', portion: '130g', calories: 170, protein: 3, carbs: 37, fat: 1 },
+    ],
+    'Salı-Akşam': [
+      { id: 'sal-a1', name: 'Karnıyarık', portion: '300g', calories: 380, protein: 22, carbs: 28, fat: 20 },
+      { id: 'sal-a2', name: 'Cacık', portion: '150g', calories: 70, protein: 4, carbs: 6, fat: 3 },
+    ],
+    'Salı-Ara Öğün': [
+      { id: 'sal-ar1', name: 'Elma', portion: '150g', calories: 78, protein: 0, carbs: 21, fat: 0 },
+      { id: 'sal-ar2', name: 'Fıstık ezmesi', portion: '15g', calories: 90, protein: 4, carbs: 3, fat: 8 },
+    ],
+    // --- Çarşamba ---
+    'Çarşamba-Kahvaltı': [
+      { id: 'car-k1', name: 'Peynirli omlet (2 yumurta)', portion: '180g', calories: 280, protein: 18, carbs: 2, fat: 22 },
+      { id: 'car-k2', name: 'Domates, salatalık, zeytin', portion: '120g', calories: 65, protein: 2, carbs: 6, fat: 4 },
+      { id: 'car-k3', name: 'Çavdar ekmeği', portion: '50g', calories: 120, protein: 4, carbs: 22, fat: 1 },
+    ],
+    'Çarşamba-Öğle': [
+      { id: 'car-o1', name: 'Izgara köfte', portion: '160g', calories: 320, protein: 28, carbs: 4, fat: 20 },
+      { id: 'car-o2', name: 'Bulgur pilavı', portion: '130g', calories: 170, protein: 5, carbs: 33, fat: 2 },
+      { id: 'car-o3', name: 'Ayran', portion: '200ml', calories: 60, protein: 4, carbs: 6, fat: 2 },
+    ],
+    'Çarşamba-Akşam': [
+      { id: 'car-a1', name: 'Sebzeli makarna', portion: '250g', calories: 340, protein: 12, carbs: 52, fat: 8 },
+      { id: 'car-a2', name: 'Ton balıklı salata', portion: '180g', calories: 200, protein: 22, carbs: 6, fat: 10 },
+    ],
+    'Çarşamba-Ara Öğün': [
+      { id: 'car-ar1', name: 'Havuç çubukları', portion: '100g', calories: 35, protein: 1, carbs: 8, fat: 0 },
+      { id: 'car-ar2', name: 'Hummus', portion: '50g', calories: 130, protein: 6, carbs: 10, fat: 8 },
+    ],
+    // --- Perşembe ---
+    'Perşembe-Kahvaltı': [
+      { id: 'per-k1', name: 'Avokadolu tost', portion: '150g', calories: 290, protein: 8, carbs: 24, fat: 18 },
+      { id: 'per-k2', name: 'Haşlanmış yumurta', portion: '50g', calories: 78, protein: 6, carbs: 1, fat: 5 },
+      { id: 'per-k3', name: 'Yeşil çay', portion: '200ml', calories: 2, protein: 0, carbs: 0, fat: 0 },
+    ],
+    'Perşembe-Öğle': [
+      { id: 'per-o1', name: 'Etli yaprak sarması', portion: '250g', calories: 340, protein: 20, carbs: 22, fat: 18 },
+      { id: 'per-o2', name: 'Yoğurt', portion: '150g', calories: 90, protein: 6, carbs: 8, fat: 3 },
+    ],
+    'Perşembe-Akşam': [
+      { id: 'per-a1', name: 'Fırında levrek', portion: '180g', calories: 260, protein: 36, carbs: 0, fat: 12 },
+      { id: 'per-a2', name: 'Ispanaklı börek', portion: '120g', calories: 280, protein: 10, carbs: 28, fat: 14 },
+    ],
+    'Perşembe-Ara Öğün': [
+      { id: 'per-ar1', name: 'Kivi (2 adet)', portion: '150g', calories: 90, protein: 2, carbs: 22, fat: 0 },
+    ],
+    // --- Cuma ---
+    'Cuma-Kahvaltı': [
+      { id: 'cum-k1', name: 'Lor peynirli krep', portion: '200g', calories: 260, protein: 16, carbs: 30, fat: 8 },
+      { id: 'cum-k2', name: 'Bal', portion: '15g', calories: 45, protein: 0, carbs: 12, fat: 0 },
+      { id: 'cum-k3', name: 'Taze meyve tabağı', portion: '150g', calories: 75, protein: 1, carbs: 18, fat: 0 },
+    ],
+    'Cuma-Öğle': [
+      { id: 'cum-o1', name: 'Tavuk wrap', portion: '250g', calories: 380, protein: 28, carbs: 32, fat: 14 },
+      { id: 'cum-o2', name: 'Mevsim salatası', portion: '120g', calories: 50, protein: 2, carbs: 6, fat: 2 },
+    ],
+    'Cuma-Akşam': [
+      { id: 'cum-a1', name: 'Etli kuru fasulye', portion: '300g', calories: 420, protein: 26, carbs: 42, fat: 14 },
+      { id: 'cum-a2', name: 'Pirinç pilavı', portion: '100g', calories: 130, protein: 3, carbs: 28, fat: 1 },
+      { id: 'cum-a3', name: 'Turşu', portion: '50g', calories: 10, protein: 0, carbs: 2, fat: 0 },
+    ],
+    'Cuma-Ara Öğün': [
+      { id: 'cum-ar1', name: 'Karışık kuruyemiş', portion: '30g', calories: 175, protein: 5, carbs: 6, fat: 15 },
+      { id: 'cum-ar2', name: 'Kuru kayısı (5 adet)', portion: '40g', calories: 95, protein: 1, carbs: 22, fat: 0 },
+    ],
+    // --- Cumartesi ---
+    'Cumartesi-Kahvaltı': [
+      { id: 'cmt-k1', name: 'Serpme kahvaltı tabağı', portion: '100g', calories: 180, protein: 10, carbs: 8, fat: 12 },
+      { id: 'cmt-k2', name: 'Kaşar peyniri', portion: '40g', calories: 150, protein: 10, carbs: 1, fat: 12 },
+      { id: 'cmt-k3', name: 'Siyah zeytin (8 adet)', portion: '30g', calories: 85, protein: 1, carbs: 1, fat: 8 },
+      { id: 'cmt-k4', name: 'Tam buğday ekmeği', portion: '60g', calories: 140, protein: 5, carbs: 24, fat: 2 },
+    ],
+    'Cumartesi-Öğle': [
+      { id: 'cmt-o1', name: 'Lahmacun (2 adet)', portion: '200g', calories: 420, protein: 18, carbs: 48, fat: 16 },
+      { id: 'cmt-o2', name: 'Yeşillik ve limon', portion: '80g', calories: 15, protein: 1, carbs: 3, fat: 0 },
+      { id: 'cmt-o3', name: 'Ayran', portion: '200ml', calories: 60, protein: 4, carbs: 6, fat: 2 },
+    ],
+    'Cumartesi-Akşam': [
+      { id: 'cmt-a1', name: 'Sebzeli güveç', portion: '300g', calories: 250, protein: 8, carbs: 30, fat: 10 },
+      { id: 'cmt-a2', name: 'Yoğurtlu semizotu', portion: '150g', calories: 90, protein: 4, carbs: 8, fat: 4 },
+    ],
+    'Cumartesi-Ara Öğün': [
+      { id: 'cmt-ar1', name: 'Meyveli yoğurt', portion: '200g', calories: 150, protein: 6, carbs: 22, fat: 4 },
+    ],
+    // --- Pazar ---
+    'Pazar-Kahvaltı': [
+      { id: 'paz-k1', name: 'Simit', portion: '120g', calories: 340, protein: 10, carbs: 56, fat: 8 },
+      { id: 'paz-k2', name: 'Süzme peynir', portion: '50g', calories: 45, protein: 8, carbs: 2, fat: 0 },
+      { id: 'paz-k3', name: 'Çay (şekersiz)', portion: '200ml', calories: 2, protein: 0, carbs: 0, fat: 0 },
+    ],
+    'Pazar-Öğle': [
+      { id: 'paz-o1', name: 'Kuzu tandır', portion: '180g', calories: 380, protein: 32, carbs: 0, fat: 26 },
+      { id: 'paz-o2', name: 'Bulgur pilavı', portion: '150g', calories: 195, protein: 6, carbs: 38, fat: 3 },
+      { id: 'paz-o3', name: 'Çoban salatası', portion: '150g', calories: 70, protein: 2, carbs: 8, fat: 3 },
+    ],
+    'Pazar-Akşam': [
+      { id: 'paz-a1', name: 'Mercimek köftesi', portion: '150g', calories: 200, protein: 12, carbs: 28, fat: 4 },
+      { id: 'paz-a2', name: 'Marul salatası', portion: '120g', calories: 20, protein: 2, carbs: 3, fat: 0 },
+    ],
+    'Pazar-Ara Öğün': [
+      { id: 'paz-ar1', name: 'Portakal (2 adet)', portion: '300g', calories: 120, protein: 2, carbs: 30, fat: 0 },
+    ],
+  })
 
   // Search Modal State
   const [addFoodModal, setAddFoodModal] = useState<{ day: string; meal: string } | null>(null)

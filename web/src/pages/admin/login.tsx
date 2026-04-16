@@ -30,6 +30,11 @@ export default function AdminLoginPage() {
     return null
   }
 
+  // If logged in as non-admin, clear session so admin can log in
+  if (isAuthenticated && user?.role !== 'admin') {
+    useAuthStore.getState().logout()
+  }
+
   const {
     register,
     handleSubmit,
@@ -38,7 +43,7 @@ export default function AdminLoginPage() {
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
       email: 'admin@nutriai.com',
-      password: '123456',
+      password: 'admin123',
     },
   })
 
