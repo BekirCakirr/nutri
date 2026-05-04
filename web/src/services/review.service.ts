@@ -14,10 +14,18 @@ interface ApiReviewResponse {
 }
 
 export async function getReviews(dietitianId?: string): Promise<Review[]> {
-  const url = dietitianId ? `/reviews/dietitian/${dietitianId}` : "/reviews/dietitian/me";
-  const { data } = await api.get(url);
-  const result = data as ApiReviewResponse;
-  return result.reviews ?? (Array.isArray(data) ? (data as Review[]) : []);
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  // Backend expects a real UUID; "me" is not supported, so skip the call entirely
+  if (!dietitianId || !UUID_RE.test(dietitianId)) {
+    return [];
+  }
+  try {
+    const { data } = await api.get(`/reviews/dietitian/${dietitianId}`);
+    const result = data as ApiReviewResponse;
+    return result.reviews ?? (Array.isArray(data) ? (data as Review[]) : []);
+  } catch {
+    return [];
+  }
 }
 
 export async function getReviewStats(dietitianId?: string): Promise<ReviewStats> {

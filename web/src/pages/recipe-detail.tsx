@@ -23,10 +23,11 @@ export default function RecipeDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     const load = async () => {
       setIsLoading(true)
       try {
-        if (id) {
+        if (id && UUID_RE.test(id)) {
           const rawData = await getRecipe(id)
           const data = rawData as unknown as Partial<RecipeDetailState> & { 
             name?: string; caloriesPerServing?: number; proteinPerServing?: number;
@@ -79,8 +80,22 @@ export default function RecipeDetailPage() {
           <h1 className="text-2xl font-bold tracking-tight">{recipe.title}</h1>
         </div>
         <div className="flex gap-2 shrink-0">
-          <Button variant="outline" size="icon-sm"><Printer className="h-4 w-4" /></Button>
-          <Button size="sm"><Plus className="h-3.5 w-3.5" />Plana Ekle</Button>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            title="Tarifi yazdır"
+            onClick={() => window.print()}
+          >
+            <Printer className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            title="Yakında kullanılabilir olacak"
+            disabled
+            className="opacity-60 cursor-not-allowed"
+          >
+            <Plus className="h-3.5 w-3.5" />Plana Ekle
+          </Button>
         </div>
       </div>
 

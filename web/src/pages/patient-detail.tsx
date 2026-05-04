@@ -178,14 +178,21 @@ export default function PatientDetailPage() {
   // Compute chart data from real meals and patient profile
   const chartData = useMemo(() => buildChartData(meals || [], apiPatient), [meals, apiPatient])
 
+  const isValidId = !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
+  // Geçersiz id (örn. "new") gelirse hasta listesine yönlendir — backend 500'ü engelle
+  useEffect(() => {
+    if (id && !isValidId) navigate('/patients', { replace: true })
+  }, [id, isValidId, navigate])
+
   // Fetch sub-data when tabs are activated
   useEffect(() => {
-    if ((activeTab === 'nutrition' || activeTab === 'overview' || activeTab === 'tracking') && id) fetchMeals()
-  }, [activeTab, id, fetchMeals])
+    if ((activeTab === 'nutrition' || activeTab === 'overview' || activeTab === 'tracking') && isValidId) fetchMeals()
+  }, [activeTab, isValidId, fetchMeals])
 
   useEffect(() => {
-    if (activeTab === 'appointments' && id) fetchAppointments()
-  }, [activeTab, id, fetchAppointments])
+    if (activeTab === 'appointments' && isValidId) fetchAppointments()
+  }, [activeTab, isValidId, fetchAppointments])
 
   useEffect(() => {
     if (activeTab === 'messages') fetchConversations()
@@ -791,7 +798,7 @@ export default function PatientDetailPage() {
         {/* ─── Mesajlar ─────────────────────────────────────── */}
         {activeTab === 'messages' && (() => {
           // Find the conversation for this patient
-          const patientConversation = conversations.find((c: any) => c.participantIds?.includes(id) || c.participantId === id || c.id === id)
+          const patientConversation = conversations.find((c: any) => (Array.isArray(c?.participantIds) && c.participantIds.includes(id)) || c?.participantId === id || c?.id === id)
           return (
           <Card>
             <CardHeader>

@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
 import type { AIMessage } from '../../types'
+import { sendAIMessage } from '../../services/api/ai'
 
 const quickSuggestions = [
   'Bugün ne yemeliyim?',
@@ -13,55 +14,9 @@ const quickSuggestions = [
   'Kalori hesapla',
 ]
 
-const mockConversation: AIMessage[] = [
-  {
-    id: 'mock-1',
-    role: 'user',
-    content: 'Bugün kahvaltıda ne yemeliyim? Protein ağırlıklı olsun.',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: 'mock-2',
-    role: 'assistant',
-    content: 'Günaydın! Protein ağırlıklı bir kahvaltı için şu menüyü öneriyorum:\n\n• 2 yumurta (haşlanmış veya omlet) — 12g protein\n• 1 dilim tam buğday ekmeği — 4g protein\n• 2 yemek kaşığı süzme peynir — 6g protein\n• 5-6 adet ceviz — 3g protein\n• 1 bardak süt — 8g protein\n\nToplam: ~33g protein, ~420 kcal\n\nBu kahvaltı günlük protein hedefinizin yaklaşık %33\'ünü karşılar.',
-    timestamp: new Date(Date.now() - 3500000).toISOString(),
-  },
-  {
-    id: 'mock-3',
-    role: 'user',
-    content: 'Öğle yemeğinde de devam edeyim, düşük kalorili ama tok tutan bir şey önerir misin?',
-    timestamp: new Date(Date.now() - 1800000).toISOString(),
-  },
-  {
-    id: 'mock-4',
-    role: 'assistant',
-    content: 'Tabii! Düşük kalorili ve tok tutan bir öğle yemeği:\n\n🥗 Izgara Tavuk Salatası\n• 150g ızgara tavuk göğsü — 31g protein\n• Bol yeşillik (roka, marul, ıspanak)\n• 1/2 avokado — sağlıklı yağ\n• Cherry domates + salatalık\n• Zeytinyağı-limon sos (1 yemek kaşığı)\n\nToplam: ~380 kcal, 35g protein, 12g lif\n\nLif içeriği yüksek olduğu için 3-4 saat tok tutar. Yanına bir bardak ayran eklerseniz protein değeri daha da artar.',
-    timestamp: new Date(Date.now() - 1700000).toISOString(),
-  },
-  {
-    id: 'mock-5',
-    role: 'user',
-    content: 'Harika! Su içme hedefim ne olmalı?',
-    timestamp: new Date(Date.now() - 600000).toISOString(),
-  },
-  {
-    id: 'mock-6',
-    role: 'assistant',
-    content: 'Profilinize göre günlük su hedefiniz 2.5 litre (yaklaşık 12-13 bardak). Birkaç ipucu:\n\n💧 Sabah kalkar kalkmaz 1 bardak su için\n💧 Her öğünden 30 dk önce 1 bardak\n💧 Egzersiz öncesi ve sonrası ekstra 1-2 bardak\n💧 Telefonunuza hatırlatıcı kurabilirsiniz\n\nBugün şu ana kadar 3 bardak içmişsiniz — hedefin %25\'i. Gün bitmeden kalan 9 bardağı tamamlamaya çalışın!',
-    timestamp: new Date(Date.now() - 500000).toISOString(),
-  },
-]
-
-const mockResponses: Record<string, string> = {
-  'Bugün ne yemeliyim?': 'Bugünkü kalori hedefiniz 2000 kcal. Şu ana kadar 420 kcal tükettiniz. Öğle yemeği için ızgara balık, bulgur pilavı ve mevsim salatası öneriyorum. Bu öğün yaklaşık 550 kcal ve 38g protein sağlar.',
-  'Protein açığımı kapat': 'Bugün 33g protein aldınız, hedefiniz 100g. Kalan 67g protein için:\n\n• 200g tavuk göğsü (46g protein)\n• 1 kase yoğurt (10g protein)\n• 30g badem (6g protein)\n• 1 bardak süt (8g protein)\n\nBu kombinasyonla hedefinizi rahatlıkla tutturabilirsiniz!',
-  'Sağlıklı atıştırmalık öner': 'İşte düşük kalorili atıştırmalık önerileri:\n\n🍎 1 elma + 1 yemek kaşığı fıstık ezmesi (~200 kcal)\n🥕 Havuç çubukları + hummus (~150 kcal)\n🥜 Bir avuç karışık kuruyemiş (~170 kcal)\n🍌 Muz + tarçın (~105 kcal)\n🥚 Haşlanmış yumurta (~70 kcal)\n\nBunlar hem tok tutar hem de besin değeri yüksektir.',
-  'Kalori hesapla': 'Kalori hesaplaması için yemeğinizin fotoğrafını çekebilir veya ismini yazabilirsiniz. Hızlı örnekler:\n\n• 1 porsiyon karnıyarık: ~350 kcal\n• 1 tabak mercimek çorbası: ~180 kcal\n• 1 porsiyon makarna: ~400 kcal\n• 1 dilim pizza: ~280 kcal\n\nDetaylı hesaplama için kamera sekmesinden fotoğraf çekebilirsiniz!',
-}
-
 export default function AIChatScreen() {
   const navigation = useNavigation()
-  const [messages, setMessages] = useState<AIMessage[]>(mockConversation)
+  const [messages, setMessages] = useState<AIMessage[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<ScrollView>(null)
@@ -70,7 +25,7 @@ export default function AIChatScreen() {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 100)
   }, [])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || isLoading) return
     const text = input.trim()
 
@@ -84,20 +39,20 @@ export default function AIChatScreen() {
     setInput('')
     setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responseText = mockResponses[text] ||
-        `Sorunuzu analiz ettim. "${text}" hakkında şunu söyleyebilirim:\n\nBeslenme planınıza göre günlük hedefinize ulaşmak için dengeli öğünler tüketmeniz önemli. Detaylı analiz için lütfen yemeğinizin fotoğrafını çekin veya belirli bir besin sorun.\n\nSize nasıl yardımcı olabilirim?`
-
-      const aiMessage: AIMessage = {
-        id: 'ai-' + Date.now(),
+    try {
+      const aiMessage = await sendAIMessage(text)
+      setMessages(prev => [...prev, aiMessage])
+    } catch {
+      const errorMessage: AIMessage = {
+        id: 'err-' + Date.now(),
         role: 'assistant',
-        content: responseText,
+        content: 'AI servisine ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',
         timestamp: new Date().toISOString(),
       }
-      setMessages(prev => [...prev, aiMessage])
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1200)
+    }
   }
 
   const handleSuggestion = (text: string) => {

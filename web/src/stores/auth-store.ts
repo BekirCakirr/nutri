@@ -164,8 +164,20 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
-        isAuthenticated: state.isAuthenticated,
       }),
+      // After rehydration, derive isAuthenticated from token presence
+      // (avoids stale "isAuthenticated: true" with no/invalid token)
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          const hasValidToken =
+            !!state.token && !!localStorage.getItem("accessToken");
+          state.isAuthenticated = hasValidToken;
+          if (!hasValidToken) {
+            state.user = null;
+            state.token = null;
+          }
+        }
+      },
     },
   ),
 );

@@ -25,7 +25,7 @@ interface MealAnalysisResult {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 const SYSTEM_PROMPT =
   "Sen NutriAI, Turkce konusan bir beslenme ve diyet asistanisin. Hastaya beslenme, diyet, saglikli yasam konularinda yardimci ol. Tibbi teshis koyma, sadece genel beslenme onerileri sun.";
@@ -50,26 +50,55 @@ async function getPatientProfile(userId: string): Promise<any> {
   return result.rows[0];
 }
 
+async function getDietitianProfile(userId: string): Promise<any> {
+  const result = await query(
+    "SELECT * FROM dietitian_profiles WHERE user_id = $1",
+    [userId]
+  );
+  return result.rows[0] ?? null;
+}
+
+async function getUserRole(userId: string): Promise<string | null> {
+  const result = await query("SELECT role FROM users WHERE id = $1", [userId]);
+  return result.rows[0]?.role ?? null;
+}
+
 // ── Service Functions ────────────────────────────────────────────────────────
 
 export async function chat(
   userId: string,
   message: string
 ): Promise<ChatResult> {
-  const profile = await getPatientProfile(userId);
-  const patientId = profile.id;
-  
-  const dynamicPrompt = `${SYSTEM_PROMPT}. Karsindaki hastanin bilgileri: Cinsiyet: ${profile.gender || 'Belirtilmedi'}, Kilo: ${profile.weight || '?'}kg, Hedef Kilo: ${profile.target_weight || '?'}kg. Alerjiler: ${Array.isArray(profile.allergies) ? profile.allergies.join(", ") : 'Yok'}. Diyet Tercihi: ${Array.isArray(profile.dietary_preferences) ? profile.dietary_preferences.join(", ") : 'Yok'}. Bu fiziksel ozelliklere bagli kalarak karsindaki hastaya icten, kisisellestirilmis ve motive edici yanitlar ver.`;
+  const role = await getUserRole(userId);
+  const isDietitian = role === "dietitian";
+  let patientId: string | null = null;
+  let dynamicPrompt: string;
 
-  // Get recent chat history (last 10 messages)
-  const historyResult = await query(
-    `SELECT role, content
-     FROM ai_chat_history
-     WHERE patient_id = $1
-     ORDER BY created_at DESC
-     LIMIT 10`,
-    [patientId]
-  );
+  if (isDietitian) {
+    const dietitian = await getDietitianProfile(userId);
+    if (!dietitian) {
+      throw Object.assign(new Error("Diyetisyen profili bulunamadi"), {
+        statusCode: 404,
+      });
+    }
+    dynamicPrompt = `Sen NutriAI, profesyonel bir diyetisyen asistanisin. Karsindaki kullanici bir DIYETISYEN (Dr. ${dietitian.first_name || ""} ${dietitian.last_name || ""}). Diyetisyene; hasta yonetimi, diyet plani olusturma, besin analizi, hasta raporu ozetleme ve klinik beslenme onerileri konularinda yardim et. Profesyonel, oz ve uygulanabilir yanitlar ver.`;
+  } else {
+    const profile = await getPatientProfile(userId);
+    patientId = profile.id;
+    dynamicPrompt = `${SYSTEM_PROMPT}. Karsindaki hastanin bilgileri: Cinsiyet: ${profile.gender || 'Belirtilmedi'}, Kilo: ${profile.weight || '?'}kg, Hedef Kilo: ${profile.target_weight || '?'}kg. Alerjiler: ${Array.isArray(profile.allergies) ? profile.allergies.join(", ") : 'Yok'}. Diyet Tercihi: ${Array.isArray(profile.dietary_preferences) ? profile.dietary_preferences.join(", ") : 'Yok'}. Bu fiziksel ozelliklere bagli kalarak karsindaki hastaya icten, kisisellestirilmis ve motive edici yanitlar ver.`;
+  }
+
+  // Get recent chat history (last 10 messages) — only for patients (table is keyed by patient_id)
+  const historyResult = patientId
+    ? await query(
+        `SELECT role, content
+         FROM ai_chat_history
+         WHERE patient_id = $1
+         ORDER BY created_at DESC
+         LIMIT 10`,
+        [patientId]
+      )
+    : { rows: [] as Array<{ role: string; content: string }> };
 
   const recentHistory = historyResult.rows.reverse();
 
@@ -115,24 +144,28 @@ export async function chat(
     }
   }
 
-  // Save user message
-  await query(
-    `INSERT INTO ai_chat_history (patient_id, role, content)
-     VALUES ($1, 'user', $2)`,
-    [patientId, message]
-  );
+  let messageId = "stateless-" + Date.now();
+  if (patientId) {
+    // Save user message
+    await query(
+      `INSERT INTO ai_chat_history (patient_id, role, content)
+       VALUES ($1, 'user', $2)`,
+      [patientId, message]
+    );
 
-  // Save assistant response
-  const assistantResult = await query(
-    `INSERT INTO ai_chat_history (patient_id, role, content)
-     VALUES ($1, 'assistant', $2)
-     RETURNING id`,
-    [patientId, reply]
-  );
+    // Save assistant response
+    const assistantResult = await query(
+      `INSERT INTO ai_chat_history (patient_id, role, content)
+       VALUES ($1, 'assistant', $2)
+       RETURNING id`,
+      [patientId, reply]
+    );
+    messageId = assistantResult.rows[0].id;
+  }
 
   return {
     reply,
-    messageId: assistantResult.rows[0].id,
+    messageId,
   };
 }
 

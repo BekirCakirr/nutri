@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useShoppingLists } from '@/hooks/use-shopping-lists'
-import { Plus, ShoppingCart, Share2 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth-store'
+import { Plus, ShoppingCart, Share2, Info } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -69,12 +70,16 @@ const mockShoppingLists: ShoppingList[] = [
 const categoryOrder = ['Sebze', 'Meyve', 'Et', 'Süt Ürünleri', 'Diğer']
 
 export default function ShoppingListsPage() {
+  const user = useAuthStore((s) => s.user)
+  const isPatient = user?.role === 'patient'
+
   const { shoppingLists: hookLists, fetchShoppingLists, isLoading } = useShoppingLists()
   const [lists, setLists] = useState<ShoppingList[]>([])
 
   useEffect(() => {
-    fetchShoppingLists()
-  }, [])
+    // Backend /shopping-lists GET sadece patient rolüne açık (403 önle)
+    if (isPatient) fetchShoppingLists()
+  }, [isPatient])
 
   useEffect(() => {
     if (!isLoading && hookLists) {
@@ -123,6 +128,27 @@ export default function ShoppingListsPage() {
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   if (isLoading) return <ListPageSkeleton />
+
+  // Diyetisyen/admin için bilgi sayfası — bu modül hasta uygulamasında kullanılır
+  if (!isPatient) {
+    return (
+      <PageContainer
+        title="Alışveriş Listeleri"
+        description="Hasta diyet planlarına göre alışveriş listeleri"
+      >
+        <Card className="py-0 gap-0">
+          <CardContent className="py-16 text-center">
+            <Info className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+            <p className="font-medium">Bu modül hasta uygulamasında kullanılır</p>
+            <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+              Alışveriş listeleri hastaların kendi mobil uygulamalarından oluşturup yönettiği bir özelliktir.
+              Diyetisyen panelinde önizleme yapılamaz.
+            </p>
+          </CardContent>
+        </Card>
+      </PageContainer>
+    )
+  }
 
   return (
     <PageContainer

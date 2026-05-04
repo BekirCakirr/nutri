@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { toast } from 'sonner'
 import { usePatients } from '@/hooks/use-patients'
+import { createPlan } from '@/services/plan.service'
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
 import {
   Save,
@@ -289,6 +291,87 @@ export default function PlanCreatorPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<FoodItem[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [planDuration, setPlanDuration] = useState<'7' | '14' | '28'>('7')
+
+  // Day name → dayOfWeek (Pazartesi=1 ... Pazar=7) mapping
+  const dayOfWeekMap: Record<string, number> = {
+    'Pazartesi': 1, 'Salı': 2, 'Çarşamba': 3, 'Perşembe': 4,
+    'Cuma': 5, 'Cumartesi': 6, 'Pazar': 7,
+  }
+  const mealTypeMap: Record<string, string> = {
+    'Kahvaltı': 'breakfast', 'Öğle': 'lunch', 'Akşam': 'dinner', 'Ara Öğün': 'snack',
+  }
+
+  function buildPlanPayload(status: 'draft' | 'active') {
+    const planItems: Array<Record<string, unknown>> = []
+    days.forEach((day) => {
+      mealSlots.forEach((meal) => {
+        const slot = items[`${day}-${meal}`] || []
+        slot.forEach((item, idx) => {
+          // Parse portion like "200g" → 200
+          const amountMatch = String(item.portion).match(/(\d+(?:\.\d+)?)/)
+          const amountG = amountMatch ? Number(amountMatch[1]) : 100
+          planItems.push({
+            dayOfWeek: dayOfWeekMap[day] ?? 1,
+            mealType: mealTypeMap[meal] ?? 'breakfast',
+            foodName: item.name,
+            amountG,
+            calories: item.calories,
+            protein: item.protein,
+            carbs: item.carbs,
+            fat: item.fat,
+            sortOrder: idx,
+          })
+        })
+      })
+    })
+
+    const today = new Date()
+    const start = today.toISOString().slice(0, 10)
+    const end = new Date(today.getTime() + Number(planDuration) * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10)
+
+    return {
+      patientId: selectedPatient,
+      title: planTitle.trim() || 'Yeni Plan',
+      startDate: start,
+      endDate: end,
+      dailyCalorieTarget: dailyTargets.calories,
+      dailyProteinTarget: dailyTargets.protein,
+      dailyCarbTarget: dailyTargets.carbs,
+      dailyFatTarget: dailyTargets.fat,
+      items: planItems,
+      status,
+    }
+  }
+
+  async function handleSavePlan(status: 'draft' | 'active') {
+    if (!selectedPatient) {
+      toast.error('Lütfen önce bir hasta seçin.')
+      return
+    }
+    if (!planTitle.trim()) {
+      toast.error('Plan başlığı boş olamaz.')
+      return
+    }
+    const payload = buildPlanPayload(status)
+    if ((payload.items as unknown[]).length === 0) {
+      toast.error('En az bir öğün eklemelisiniz.')
+      return
+    }
+    setIsSaving(true)
+    try {
+      await createPlan(payload as never)
+      toast.success(status === 'active' ? 'Plan yayınlandı ve hastaya atandı.' : 'Taslak kaydedildi.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Plan kaydedilemedi.'
+      toast.error(msg)
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
 
   useEffect(() => {
@@ -309,8 +392,6 @@ export default function PlanCreatorPage() {
     }, 500)
     return () => clearTimeout(timer)
   }, [searchQuery])
-
-  if (isPageLoading) return <PlanCreatorSkeleton />
 
   /* ---------- helpers ---------- */
 
@@ -345,6 +426,9 @@ export default function PlanCreatorPage() {
     return { calories, protein, carbs, fat, filledDays }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items])
+
+  // Early return AFTER all hooks — keeps hook call order stable across renders
+  if (isPageLoading) return <PlanCreatorSkeleton />
 
   /* ---------- drag & drop ---------- */
 
@@ -434,13 +518,22 @@ export default function PlanCreatorPage() {
       description="7 günlük beslenme planı hazırlayıp hastanıza atama yapın."
       actions={
         <>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleSavePlan('draft')}
+            disabled={isSaving}
+          >
             <Save className="h-3.5 w-3.5" />
-            Taslak Kaydet
+            {isSaving ? 'Kaydediliyor...' : 'Taslak Kaydet'}
           </Button>
-          <Button size="sm">
+          <Button
+            size="sm"
+            onClick={() => handleSavePlan('active')}
+            disabled={isSaving}
+          >
             <Send className="h-3.5 w-3.5" />
-            Yayınla
+            {isSaving ? 'Yayınlanıyor...' : 'Yayınla'}
           </Button>
         </>
       }
@@ -474,8 +567,8 @@ export default function PlanCreatorPage() {
                   <SelectValue placeholder="Hasta seçin..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {allPatients.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{`${p.firstName} ${p.lastName}`}</SelectItem>
+                  {(allPatients ?? []).map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{`${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || 'Hasta'}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -487,7 +580,7 @@ export default function PlanCreatorPage() {
                 <Calendar className="h-3 w-3" />
                 Süre
               </label>
-              <Select defaultValue="7">
+              <Select value={planDuration} onValueChange={(v) => setPlanDuration(v as '7' | '14' | '28')}>
                 <SelectTrigger className="h-9">
                   <SelectValue />
                 </SelectTrigger>
@@ -501,7 +594,11 @@ export default function PlanCreatorPage() {
 
             {/* AI suggestion button */}
             <div className="md:col-span-3 flex gap-2">
-              <Button className="flex-1 h-9 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md">
+              <Button
+                disabled
+                title="Yakında kullanılabilir olacak"
+                className="flex-1 h-9 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md opacity-60 cursor-not-allowed"
+              >
                 <Sparkles className="h-3.5 w-3.5" />
                 AI ile Plan Oluştur
               </Button>
@@ -929,9 +1026,11 @@ export default function PlanCreatorPage() {
 
               {/* AI suggestion shortcut */}
               <Button
+                disabled
+                title="Yakında kullanılabilir olacak"
                 variant="outline"
                 size="sm"
-                className="w-full text-xs gap-1.5 border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800 dark:border-violet-800/40 dark:text-violet-400 dark:hover:bg-violet-950/30"
+                className="w-full text-xs gap-1.5 border-violet-200 text-violet-700 dark:border-violet-800/40 dark:text-violet-400 opacity-60 cursor-not-allowed"
               >
                 <Sparkles className="h-3 w-3" />
                 Bu gün için AI önerisi al

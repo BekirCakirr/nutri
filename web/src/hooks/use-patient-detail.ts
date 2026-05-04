@@ -35,7 +35,8 @@ export function usePatientDetail(patientId: string | undefined) {
   );
 
   useEffect(() => {
-    if (patientId) {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (patientId && UUID_RE.test(patientId)) {
       fetchPatient(patientId);
     } else {
       selectPatient(null);

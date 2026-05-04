@@ -136,7 +136,7 @@ export default function PatientListPage() {
     if (search) {
       const q = search.toLowerCase()
       result = result.filter(
-        (p) => `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) || p.email.toLowerCase().includes(q)
+        (p) => `${p.firstName ?? ''} ${p.lastName ?? ''}`.toLowerCase().includes(q) || (p.email?.toLowerCase().includes(q) ?? false)
       )
     }
     if (statusFilter !== 'all') {

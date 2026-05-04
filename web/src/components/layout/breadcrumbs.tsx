@@ -1,6 +1,6 @@
 import { useLocation, Link } from 'react-router-dom'
 import { ChevronRight, Home } from 'lucide-react'
-import { usePatients } from '@/hooks/use-patients'
+import { usePatientStore } from '@/stores/patient-store'
 
 const routeLabels: Record<string, string> = {
   '': 'Dashboard',
@@ -31,7 +31,10 @@ const routeLabels: Record<string, string> = {
 export function Breadcrumbs() {
   const location = useLocation()
   const segments = location.pathname.split('/').filter(Boolean)
-  const { allPatients } = usePatients()
+  // Read directly from store — DO NOT call usePatients() here.
+  // usePatients triggers a fetch on mount; using it inside Breadcrumbs would
+  // cause a fetch on every layout render → cascade loop.
+  const allPatients = usePatientStore((s) => s.patients)
 
   if (segments.length === 0) {
     return (

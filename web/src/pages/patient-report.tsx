@@ -119,8 +119,18 @@ export default function PatientReportPage() {
     )
   }
 
-  // Parse report_content from backend
-  const content = typeof latestReport?.report_content === 'string' ? JSON.parse(latestReport.report_content) : (latestReport?.report_content || {})
+  // Parse report_content from backend (safe)
+  let content: any = {}
+  try {
+    const raw = latestReport?.report_content
+    if (typeof raw === 'string') {
+      content = raw.trim() ? JSON.parse(raw) : {}
+    } else if (raw && typeof raw === 'object') {
+      content = raw
+    }
+  } catch {
+    content = {}
+  }
   const startDate = new Date((latestReport?.week_start || latestReport?.created_at) as string || Date.now())
   const endDate = new Date(latestReport?.week_end as string || Date.now())
   const periodStr = `${format(startDate, 'd MMM', { locale: tr })} - ${format(endDate, 'd MMMM yyyy', { locale: tr })}`
@@ -135,8 +145,10 @@ export default function PatientReportPage() {
   const weightProgress = totalWeightToLose > 0 ? (weightLost / totalWeightToLose) * 100 : 0
 
   // Stats
-  const dailyCalories = content?.nutrition?.dailyCalories || []
-  const avgCals = Math.round(dailyCalories.reduce((s: number, c: any) => s + c.calories, 0) / (dailyCalories.length || 1) || 0)
+  const dailyCalories: any[] = Array.isArray(content?.nutrition?.dailyCalories) ? content.nutrition.dailyCalories : []
+  const avgCals = dailyCalories.length > 0
+    ? Math.round(dailyCalories.reduce((s: number, c: any) => s + (c?.calories ?? 0), 0) / dailyCalories.length)
+    : 0
   const completedMeals = dailyCalories.length || 0
   const totalMealSlots = 7
   const adherenceScore = patientData?.adherence_score ?? patientData?.adherenceScore ?? content?.water?.goalAdherencePercent ?? Math.round((completedMeals / totalMealSlots) * 100)

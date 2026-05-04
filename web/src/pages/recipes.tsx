@@ -12,22 +12,25 @@ import { EmptyState } from '@/components/shared/empty-state'
 
 
 
+// UUID formatında mock ID'ler — backend 500 yerine 404 verir, ayrıca UUID guard'a uyar
 const mockRecipes: RecipeCardData[] = [
-  { id: 'mock-1', title: 'Mercimek Çorbası', category: 'Çorba', calories: 180, prepTime: 30, image: '', difficulty: 'Kolay', protein: 12, carbs: 28, fat: 3, servings: 4 },
-  { id: 'mock-2', title: 'Izgara Tavuk Salata', category: 'Salata', calories: 320, prepTime: 20, image: '', difficulty: 'Kolay', protein: 35, carbs: 12, fat: 14, servings: 2 },
-  { id: 'mock-3', title: 'Karnıyarık', category: 'Ana Yemek', calories: 410, prepTime: 60, image: '', difficulty: 'Orta', protein: 22, carbs: 30, fat: 24, servings: 4 },
-  { id: 'mock-4', title: 'Ezogelin Çorbası', category: 'Çorba', calories: 165, prepTime: 35, image: '', difficulty: 'Kolay', protein: 8, carbs: 26, fat: 4, servings: 6 },
-  { id: 'mock-5', title: 'Fırında Somon', category: 'Ana Yemek', calories: 380, prepTime: 40, image: '', difficulty: 'Orta', protein: 38, carbs: 5, fat: 22, servings: 2 },
-  { id: 'mock-6', title: 'Çoban Salata', category: 'Salata', calories: 95, prepTime: 10, image: '', difficulty: 'Kolay', protein: 3, carbs: 10, fat: 5, servings: 4 },
-  { id: 'mock-7', title: 'Humus', category: 'Atıştırmalık', calories: 210, prepTime: 15, image: '', difficulty: 'Kolay', protein: 9, carbs: 22, fat: 10, servings: 4 },
-  { id: 'mock-8', title: 'Sütlaç', category: 'Tatlı', calories: 240, prepTime: 45, image: '', difficulty: 'Orta', protein: 7, carbs: 42, fat: 5, servings: 6 },
-  { id: 'mock-9', title: 'İçli Köfte', category: 'Ana Yemek', calories: 350, prepTime: 90, image: '', difficulty: 'Zor', protein: 18, carbs: 35, fat: 16, servings: 6 },
-  { id: 'mock-10', title: 'Kereviz Yemeği', category: 'Ana Yemek', calories: 190, prepTime: 50, image: '', difficulty: 'Orta', protein: 6, carbs: 22, fat: 8, servings: 4 },
-  { id: 'mock-11', title: 'Cevizli Kabak Tatlısı', category: 'Tatlı', calories: 280, prepTime: 60, image: '', difficulty: 'Kolay', protein: 4, carbs: 48, fat: 9, servings: 8 },
-  { id: 'mock-12', title: 'Yoğurtlu Semizotu', category: 'Salata', calories: 120, prepTime: 15, image: '', difficulty: 'Kolay', protein: 5, carbs: 8, fat: 7, servings: 4 },
-  { id: 'mock-13', title: 'Kuru Fasulye', category: 'Ana Yemek', calories: 310, prepTime: 80, image: '', difficulty: 'Orta', protein: 18, carbs: 42, fat: 8, servings: 6 },
-  { id: 'mock-14', title: 'Havuç Çorbası', category: 'Çorba', calories: 140, prepTime: 25, image: '', difficulty: 'Kolay', protein: 4, carbs: 20, fat: 5, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000001', title: 'Mercimek Çorbası', category: 'Çorba', calories: 180, prepTime: 30, image: '', difficulty: 'Kolay', protein: 12, carbs: 28, fat: 3, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000002', title: 'Izgara Tavuk Salata', category: 'Salata', calories: 320, prepTime: 20, image: '', difficulty: 'Kolay', protein: 35, carbs: 12, fat: 14, servings: 2 },
+  { id: '00000000-0000-0000-0000-000000000003', title: 'Karnıyarık', category: 'Ana Yemek', calories: 410, prepTime: 60, image: '', difficulty: 'Orta', protein: 22, carbs: 30, fat: 24, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000004', title: 'Ezogelin Çorbası', category: 'Çorba', calories: 165, prepTime: 35, image: '', difficulty: 'Kolay', protein: 8, carbs: 26, fat: 4, servings: 6 },
+  { id: '00000000-0000-0000-0000-000000000005', title: 'Fırında Somon', category: 'Ana Yemek', calories: 380, prepTime: 40, image: '', difficulty: 'Orta', protein: 38, carbs: 5, fat: 22, servings: 2 },
+  { id: '00000000-0000-0000-0000-000000000006', title: 'Çoban Salata', category: 'Salata', calories: 95, prepTime: 10, image: '', difficulty: 'Kolay', protein: 3, carbs: 10, fat: 5, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000007', title: 'Humus', category: 'Atıştırmalık', calories: 210, prepTime: 15, image: '', difficulty: 'Kolay', protein: 9, carbs: 22, fat: 10, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000008', title: 'Sütlaç', category: 'Tatlı', calories: 240, prepTime: 45, image: '', difficulty: 'Orta', protein: 7, carbs: 42, fat: 5, servings: 6 },
+  { id: '00000000-0000-0000-0000-000000000009', title: 'İçli Köfte', category: 'Ana Yemek', calories: 350, prepTime: 90, image: '', difficulty: 'Zor', protein: 18, carbs: 35, fat: 16, servings: 6 },
+  { id: '00000000-0000-0000-0000-000000000010', title: 'Kereviz Yemeği', category: 'Ana Yemek', calories: 190, prepTime: 50, image: '', difficulty: 'Orta', protein: 6, carbs: 22, fat: 8, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000011', title: 'Cevizli Kabak Tatlısı', category: 'Tatlı', calories: 280, prepTime: 60, image: '', difficulty: 'Kolay', protein: 4, carbs: 48, fat: 9, servings: 8 },
+  { id: '00000000-0000-0000-0000-000000000012', title: 'Yoğurtlu Semizotu', category: 'Salata', calories: 120, prepTime: 15, image: '', difficulty: 'Kolay', protein: 5, carbs: 8, fat: 7, servings: 4 },
+  { id: '00000000-0000-0000-0000-000000000013', title: 'Kuru Fasulye', category: 'Ana Yemek', calories: 310, prepTime: 80, image: '', difficulty: 'Orta', protein: 18, carbs: 42, fat: 8, servings: 6 },
+  { id: '00000000-0000-0000-0000-000000000014', title: 'Havuç Çorbası', category: 'Çorba', calories: 140, prepTime: 25, image: '', difficulty: 'Kolay', protein: 4, carbs: 20, fat: 5, servings: 4 },
 ]
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const categories = ['Tümü', 'Ana Yemek', 'Çorba', 'Salata', 'Atıştırmalık', 'Tatlı']
 
@@ -92,7 +95,7 @@ export default function RecipesPage() {
       title="Tarifler"
       description="Sağlıklı tarif koleksiyonunuzu keşfedin"
       actions={
-        <Button size="sm">
+        <Button size="sm" disabled title="Yakında kullanılabilir olacak" className="opacity-60 cursor-not-allowed">
           <Sparkles className="h-3.5 w-3.5" />
           AI ile Tarif Oluştur
         </Button>
@@ -123,7 +126,10 @@ export default function RecipesPage() {
           <Card
             key={recipe.id}
             className="cursor-pointer hover:shadow-md transition-all py-0 gap-0 overflow-hidden"
-            onClick={() => navigate(`/recipes/${recipe.id}`)}
+            onClick={() => {
+              // UUID guard: non-UUID id'lerle backend'e gidip 500 alma
+              if (UUID_RE.test(recipe.id)) navigate(`/recipes/${recipe.id}`)
+            }}
           >
             <div className="h-36 bg-secondary/50 flex items-center justify-center">
               <ImageIcon className="h-8 w-8 text-muted-foreground/30" />

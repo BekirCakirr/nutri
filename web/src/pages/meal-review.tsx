@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
-import { useMeals } from '@/hooks/use-meals'
+import { approveMeal, rejectMeal } from '@/services/meal.service'
 import {
   Search,
   Check,
@@ -579,30 +579,27 @@ function KanbanColumn({
 /* ─── Main Page Component ──────────────────────── */
 
 export default function MealReviewPage() {
-  const { meals: hookMeals, fetchMeals, error: mealsError, isLoading } = useMeals()
+  // NOTE: backend /meals/history endpoint requires patientId for dietitians
+  // (current API design returns 400 when called without one).
+  // This page shows aggregated reviews across all patients, so we fall back
+  // to mock data here. Real per-patient meals are visible via patient detail.
+  const hookMeals: any[] = []
+  const isLoading = false
   const [reviews, setReviews] = useState<MealReview[]>([])
   const [search, setSearch] = useState('')
   const [mealTypeFilter, setMealTypeFilter] = useState('all')
   const [notes, setNotes] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    fetchMeals()
-  }, [])
-
-  useEffect(() => {
-    if (mealsError) toast.error(mealsError)
-  }, [mealsError])
-
   // Map API meals to review format when available
   useEffect(() => {
-    if (hookMeals) {
+    if (Array.isArray(hookMeals) && hookMeals.length > 0) {
       const mapped: MealReview[] = hookMeals.map((m: any) => ({
         id: m.id,
         patientName: m.patientName ?? 'Hasta',
         patientId: m.patientId ?? '',
         date: m.date ?? m.logDate ?? '',
         mealType: m.type === 'breakfast' ? 'Kahvaltı' : m.type === 'lunch' ? 'Öğle' : m.type === 'dinner' ? 'Akşam' : 'Ara Öğün',
-        items: m.items?.map((i: any) => `${i.name ?? i.foodName ?? ''} (${i.portion ?? ''})`) ?? [],
+        items: Array.isArray(m.items) ? m.items.map((i: any) => `${i.name ?? i.foodName ?? ''} (${i.portion ?? ''})`) : [],
         totalCalories: m.calories ?? m.totalCalories ?? 0,
         protein: m.protein ?? 0,
         carbs: m.carbohydrates ?? m.carbs ?? 0,
@@ -612,16 +609,47 @@ export default function MealReviewPage() {
         aiScore: m.aiScore ?? 75,
         aiSummary: m.aiSummary ?? '',
       }))
-      setReviews(mapped.length > 0 ? mapped : mockMealReviews)
+      setReviews(mapped)
+    } else {
+      setReviews(mockMealReviews)
     }
   }, [hookMeals])
 
-  const handleApprove = (id: string) => {
+  const handleApprove = async (id: string) => {
+    const note = notes[id] || ''
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'approved' as const } : r)))
+    // Skip backend persist for mock (non-UUID) ids
+    if (id.startsWith('mock-')) {
+      toast.success('Öğün onaylandı (demo veri)')
+      return
+    }
+    try {
+      await approveMeal(id, note)
+      toast.success('Öğün onaylandı')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Öğün onaylanamadı.'
+      toast.error(msg)
+    }
   }
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
+    const note = notes[id] || ''
+    if (!note.trim()) {
+      toast.error('Reddederken bir not yazın (hastaya gönderilecek).')
+      return
+    }
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'rejected' as const } : r)))
+    if (id.startsWith('mock-')) {
+      toast.success('Öğün reddedildi (demo veri)')
+      return
+    }
+    try {
+      await rejectMeal(id, note)
+      toast.success('Öğün reddedildi')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Öğün reddedilemedi.'
+      toast.error(msg)
+    }
   }
 
   const handleNotesChange = (id: string, value: string) => {

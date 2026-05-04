@@ -18,18 +18,25 @@ export default function PhotoAnalysisScreen() {
   const route = useRoute<Route>()
   const [analyzing, setAnalyzing] = useState(true)
   const [result, setResult] = useState<Awaited<ReturnType<typeof analyzeImage>> | null>(null)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchAnalysis() {
       if (!route.params.base64) {
+        setErrorMsg('Fotoğraf bulunamadı. Lütfen tekrar deneyin.')
         setAnalyzing(false)
         return
       }
       try {
         const res = await analyzeImage(route.params.base64)
-        setResult(res)
+        if (!res.foods || res.foods.length === 0) {
+          setErrorMsg('AI yemeği tanıyamadı. Daha net bir fotoğraf çekip tekrar deneyin.')
+        } else {
+          setResult(res)
+        }
       } catch (error) {
         console.warn('AI analysis failed', error)
+        setErrorMsg('AI servisine ulaşılamadı. İnternet bağlantınızı kontrol edin.')
       } finally {
         setAnalyzing(false)
       }
@@ -54,6 +61,17 @@ export default function PhotoAnalysisScreen() {
             <ActivityIndicator size="large" color="#1A5C37" />
             <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23', marginTop: 16 }}>Analiz ediliyor...</Text>
             <Text style={{ fontSize: 14, color: '#5A7264', marginTop: 4 }}>Gemini AI yemeğinizi tanımlıyor</Text>
+          </View>
+        ) : errorMsg ? (
+          <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 16 }}>
+            <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23', marginTop: 16, textAlign: 'center' }}>{errorMsg}</Text>
+            <TouchableOpacity
+              style={{ marginTop: 24, backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32 }}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFFFFF' }}>Tekrar Dene</Text>
+            </TouchableOpacity>
           </View>
         ) : result ? (
           <>

@@ -207,7 +207,7 @@ export default function ReportsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tum Hastalar</SelectItem>
-                  {patientSummary.map((p) => (
+                  {(patientSummary ?? []).map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                   ))}
                 </SelectContent>

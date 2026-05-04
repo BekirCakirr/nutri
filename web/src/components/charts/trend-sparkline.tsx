@@ -1,4 +1,4 @@
-import { LineChart, Line, ResponsiveContainer } from 'recharts'
+import { LineChart, Line } from 'recharts'
 import { cn } from '@/lib/utils'
 
 interface TrendSparklineProps {
@@ -38,17 +38,15 @@ export function TrendSparkline({
 
   return (
     <div className={cn('inline-block', className)} style={{ width, height }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData}>
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke={colorMap[computedTrend]}
-            strokeWidth={1.5}
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <LineChart width={width} height={height} data={chartData}>
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke={colorMap[computedTrend]}
+          strokeWidth={1.5}
+          dot={false}
+        />
+      </LineChart>
     </div>
   )
 }

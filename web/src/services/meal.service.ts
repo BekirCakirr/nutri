@@ -37,9 +37,14 @@ export interface MealStats {
 export async function getMeals(
   filters?: MealFilters,
 ): Promise<PaginatedResponse<Meal>> {
-  const params: Record<string, string> = {};
-  if (filters?.startDate) params.startDate = filters.startDate;
-  if (filters?.endDate) params.endDate = filters.endDate;
+  // Backend /meals/history requires startDate & endDate (Zod validated).
+  // Default to a wide range when caller doesn't specify, so dietitian list views
+  // work without a patient context.
+  const params: Record<string, string> = {
+    startDate: filters?.startDate ?? "2020-01-01",
+    endDate: filters?.endDate ?? "2099-12-31",
+  };
+  if (filters?.patientId) params.patientId = filters.patientId;
 
   const { data } = await api.get("/meals/history", { params });
   const items = Array.isArray(data) ? data : [];

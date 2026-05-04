@@ -123,10 +123,14 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch {
-        // Refresh failed – clear tokens and redirect to login
+        // Refresh failed — clear all auth state, then redirect once
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        window.location.href = "/login";
+        localStorage.removeItem("nutriai-auth");
+        // Avoid reload loop if already on /login
+        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+          window.location.replace("/login");
+        }
         return Promise.reject(error);
       }
     }

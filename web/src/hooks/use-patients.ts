@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import { usePatientStore } from "@/stores/patient-store";
 import type { PatientFilters } from "@/stores/patient-store";
 import { getPatients } from "@/services/patient.service";
@@ -69,12 +69,13 @@ export function usePatients() {
     return result;
   }, [patients, filters]);
 
-  // Initial fetch
+  // Initial fetch — only once per hook instance
+  const didFetchRef = useRef(false);
   useEffect(() => {
-    if (patients.length === 0) {
-      fetchPatients();
-    }
-  }, [patients.length, fetchPatients]);
+    if (didFetchRef.current) return;
+    didFetchRef.current = true;
+    fetchPatients();
+  }, [fetchPatients]);
 
   const setSearch = useCallback(
     (search: string) => updateFilters({ search }),

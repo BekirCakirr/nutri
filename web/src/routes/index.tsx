@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { RootLayout } from '@/layouts/root-layout'
 import { AuthLayout } from '@/layouts/auth-layout'
 import { DashboardLayout } from '@/layouts/dashboard-layout'
@@ -89,6 +89,9 @@ export const router = createBrowserRouter([
             children: [
               { path: '/', element: <L C={DashboardPage} /> },
               { path: '/patients', element: <L C={PatientListPage} /> },
+              // /patients/new sayfası henüz yok — hasta listesine geri yönlendir
+              // (diyetisyen davet kodu ile hasta ekler: /invite-code)
+              { path: '/patients/new', element: <Navigate to="/invite-code" replace /> },
               { path: '/patients/:id', element: <L C={PatientDetailPage} /> },
               { path: '/meal-review', element: <L C={MealReviewPage} /> },
               { path: '/plans/create', element: <L C={PlanCreatorPage} /> },

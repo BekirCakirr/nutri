@@ -299,7 +299,9 @@ export default function MessagesPage() {
       ...prev,
       [selectedConversation]: [...(prev[selectedConversation] || []), msg],
     }))
-    if (selectedConversation && apiConversations.length > 0) {
+    // Only send to API when conversationId is a real UUID (mock IDs like "conv-1" fail Zod validation → 422)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (selectedConversation && uuidRegex.test(selectedConversation)) {
       hookSend(selectedConversation, newMessage.trim())
     }
     setNewMessage('')
