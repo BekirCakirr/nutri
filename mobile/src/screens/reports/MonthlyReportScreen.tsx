@@ -12,7 +12,7 @@ export default function MonthlyReportScreen() {
     <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Aylık Rapor"
-        subtitle="Mart 2026"
+        subtitle="Mart 2026 (Demo)"
         onBack={() => navigation.goBack()}
         rightIcon="download-outline"
         onRightPress={() => {}}

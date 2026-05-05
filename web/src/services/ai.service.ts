@@ -18,17 +18,36 @@ export interface MealAnalysis {
   rawAnalysis: string;
 }
 
+export interface GeneratedPlanItem {
+  dayOfWeek: number;
+  mealType: string;
+  foodName: string;
+  amountG: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  sortOrder: number;
+}
+
 export interface GeneratedPlan {
+  items: GeneratedPlanItem[];
+  dailyCalorieTarget: number;
+  dailyProteinTarget: number;
+  dailyCarbTarget: number;
+  dailyFatTarget: number;
   title: string;
-  days: Array<{
-    dayOfWeek: number;
-    meals: Array<{
-      mealType: string;
-      foodName: string;
-      amountG: number;
-      calories: number;
-    }>;
-  }>;
+  rawAnalysis: string;
+}
+
+export interface GeneratePlanParams {
+  patientId?: string;
+  dailyCalorieTarget?: number;
+  goal?: "weight_loss" | "weight_gain" | "maintenance" | "muscle_gain";
+  dietaryPreferences?: string[];
+  allergies?: string[];
+  durationDays?: number;
+  notes?: string;
 }
 
 interface ApiAiChatResponse {
@@ -59,7 +78,7 @@ export async function analyzeMeal(mealData: { imageUrl: string }): Promise<MealA
   return data as MealAnalysis;
 }
 
-export async function generatePlan(_params: Record<string, unknown>): Promise<GeneratedPlan> {
-  // AI plan generation not yet implemented
-  return { title: "", days: [] };
+export async function generatePlan(params: GeneratePlanParams): Promise<GeneratedPlan> {
+  const { data } = await api.post("/ai/generate-plan", params);
+  return data as GeneratedPlan;
 }

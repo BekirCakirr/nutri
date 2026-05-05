@@ -73,17 +73,41 @@ export default function CameraCaptureScreen() {
       await handleWebCapture()
     } else {
       const result = await takePhoto()
-      if (result?.uri) {
+      if (result?.uri && result?.base64) {
         navigation.navigate('PhotoAnalysis', { photoUri: result.uri, base64: result.base64 })
+      } else if (result?.uri) {
+        // base64 missing — still navigate so user sees error feedback
+        navigation.navigate('PhotoAnalysis', { photoUri: result.uri, base64: undefined as any })
       }
     }
   }
 
   const handleGallery = async () => {
     const result = await pickImage()
-    if (result?.uri) {
-      navigation.navigate('PhotoAnalysis', { photoUri: result.uri, base64: result.base64 })
+    if (!result?.uri) return
+
+    let base64 = result.base64
+    // Web: ImagePicker may not return base64. Derive from data URL or fetch the URI.
+    if (!base64 && Platform.OS === 'web') {
+      try {
+        if (result.uri.startsWith('data:')) {
+          base64 = result.uri.split(',')[1]
+        } else {
+          const resp = await fetch(result.uri)
+          const blob = await resp.blob()
+          const dataUrl: string = await new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onloadend = () => resolve(reader.result as string)
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+          })
+          base64 = dataUrl.split(',')[1]
+        }
+      } catch (e) {
+        // fall through with undefined base64; PhotoAnalysisScreen will show error
+      }
     }
+    navigation.navigate('PhotoAnalysis', { photoUri: result.uri, base64 })
   }
 
   return (

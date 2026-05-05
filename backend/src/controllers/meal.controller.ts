@@ -40,21 +40,22 @@ export async function getMealHistory(
     }
 
     // Role tabanli erisim kontrolu
-    let targetPatientId = "";
-    if (req.user!.role === "dietitian") {
-      if (!patientId) {
-        sendError({ res, message: "Diyetisyen icin patientId parametresi zorunludur", statusCode: 400 });
-        return;
-      }
-      targetPatientId = patientId as string;
-    }
-
-    const meals = await mealService.getMealHistory(
-      req.user!.userId,
-      startDate as string,
-      endDate as string,
-      targetPatientId
-    );
+    // - Hasta: kendi öğünleri
+    // - Diyetisyen + patientId: o hastanın öğünleri
+    // - Diyetisyen + patientId yok: tüm bağlı hastalarının öğünleri (Öğün İnceleme sayfası için)
+    const meals =
+      req.user!.role === "dietitian" && !patientId
+        ? await mealService.getDietitianAllMeals(
+            req.user!.userId,
+            startDate as string,
+            endDate as string
+          )
+        : await mealService.getMealHistory(
+            req.user!.userId,
+            startDate as string,
+            endDate as string,
+            (patientId as string) || ""
+          );
     sendSuccess({
       res,
       data: meals,

@@ -5,20 +5,22 @@ import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
 
+type IoniconName = keyof typeof Ionicons.glyphMap
+
 interface AppHeaderProps {
-  title: string
+  title?: string
   subtitle?: string
   onBack?: () => void
   leftAction?: React.ReactNode
   rightAction?: React.ReactNode
-  rightIcon?: string
+  rightIcon?: IoniconName
   onRightPress?: () => void
   transparent?: boolean
   style?: ViewStyle
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  title,
+  title = '',
   subtitle,
   onBack,
   leftAction,

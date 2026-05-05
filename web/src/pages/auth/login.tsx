@@ -29,10 +29,6 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: 'elif.kaya@nutriai.com',
-      password: 'elif1234',
-    },
   })
 
   const onSubmit = async (data: LoginForm) => {

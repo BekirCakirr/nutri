@@ -15,7 +15,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   Select,
   SelectContent,
@@ -241,6 +242,7 @@ export default function AdminDietitians() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
+                        <AvatarImage src={`https://i.pravatar.cc/80?u=${encodeURIComponent(dietitian.email)}`} alt={dietitian.name} />
                         <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(dietitian.name))}>
                           {dietitian.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
@@ -276,9 +278,18 @@ export default function AdminDietitians() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span tabIndex={0}>
+                              <Button variant="ghost" size="icon" disabled className="h-8 w-8 pointer-events-none">
+                                <Eye className="h-3.5 w-3.5" />
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Yakında</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {dietitian.verificationStatus === 'pending' && (
                         <Button
                           variant="ghost"

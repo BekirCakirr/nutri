@@ -12,7 +12,7 @@ export default function WeeklyReportScreen() {
     <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Haftalık Rapor"
-        subtitle="17-23 Mart 2026"
+        subtitle="17-23 Mart 2026 (Demo)"
         onBack={() => navigation.goBack()}
         rightIcon="share-social-outline"
         onRightPress={() => {}}

@@ -81,7 +81,7 @@ export default function PatientReportPage() {
     week_start: string; created_at: string; week_end: string;
   }>
 
-  const patient = useMemo(() => patients.find((p) => p.id === id), [patients, id])
+  const patient = useMemo(() => (Array.isArray(patients) ? patients.find((p) => p.id === id) : undefined), [patients, id])
   const latestReport = useMemo(() => reports?.[0] as unknown as ReportDataField, [reports])
 
   if (reportsLoading || patientsLoading) return <DetailPageSkeleton />
@@ -200,11 +200,11 @@ export default function PatientReportPage() {
             <Printer className="h-3.5 w-3.5" />
             Yazdir
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" disabled title="Yakinda">
             <Share2 className="h-3.5 w-3.5" />
             Paylas
           </Button>
-          <Button size="sm">
+          <Button size="sm" disabled title="Yakinda">
             <Download className="h-3.5 w-3.5" />
             PDF Indir
           </Button>

@@ -46,6 +46,19 @@ import type { FoodItem } from '@/types/food'
 import { useDebounce } from '@/hooks/use-debounce'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+function slugify(s: string): string {
+  const base = (s || 'food').toLowerCase().normalize('NFD')
+  // strip combining marks (U+0300..U+036F)
+  let out = ''
+  for (let i = 0; i < base.length; i++) {
+    const code = base.charCodeAt(i)
+    if (code >= 0x0300 && code <= 0x036f) continue
+    out += base[i]
+  }
+  return out.replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'food'
+}
 
 type FoodRow = FoodItem & {
   caloriesPer100g?: number;
@@ -86,9 +99,10 @@ export default function AdminFoodDBPage() {
     setIsLoading(true)
     try {
       const result = await searchFoods(debouncedSearch || '')
-      setFoods(result as FoodRow[])
+      setFoods(Array.isArray(result) ? (result as FoodRow[]) : [])
     } catch {
       toast.error('Besin veritabanı yüklenemedi')
+      setFoods([])
     } finally {
       setIsLoading(false)
     }
@@ -260,6 +274,7 @@ export default function AdminFoodDBPage() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-[64px]"></TableHead>
               <TableHead>Besin Adı</TableHead>
               <TableHead>Kategori</TableHead>
               <TableHead className="text-center">Kalori</TableHead>
@@ -273,7 +288,7 @@ export default function AdminFoodDBPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={9}>
                   <div className="flex items-center justify-center py-8 gap-2">
                     <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Besinler yükleniyor...</span>
@@ -282,7 +297,7 @@ export default function AdminFoodDBPage() {
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={9}>
                   <EmptyState icon={Apple} title="Besin bulunamadı" description="Arama kriterlerinize uygun besin yok." />
                 </TableCell>
               </TableRow>
@@ -295,6 +310,14 @@ export default function AdminFoodDBPage() {
               const fat = Number(f.fatPer_100g ?? f.fatPer100g ?? f.fat_per_100g) || null
               return (
               <TableRow key={food.id}>
+                <TableCell>
+                  <img
+                    src={(food as any).imageUrl || (food as any).image_url || `https://picsum.photos/seed/food-${slugify(food.name)}/56/40`}
+                    alt={food.name}
+                    className="h-10 w-14 rounded-md object-cover bg-muted"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/food-${slugify(food.name)}/56/40` }}
+                  />
+                </TableCell>
                 <TableCell>
                   <span className="text-sm font-medium">{food.name}</span>
                 </TableCell>
@@ -320,9 +343,18 @@ export default function AdminFoodDBPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span tabIndex={0}>
+                            <Button variant="ghost" size="icon" disabled className="h-8 w-8 pointer-events-none">
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>Yakında</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <Button
                       variant="ghost"
                       size="icon"

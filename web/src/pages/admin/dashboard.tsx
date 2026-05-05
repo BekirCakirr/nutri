@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Users,
   UserCheck,
@@ -18,8 +19,9 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { PageContainer } from '@/components/shared/page-container'
 import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { StatCard } from '@/components/shared/stat-card'
@@ -250,20 +252,26 @@ export default function AdminDashboardPage() {
               <CardDescription>Yeni kullanıcı kayıtları</CardDescription>
             </div>
             <CardAction>
-              <Button variant="ghost" size="xs" className="text-muted-foreground">
-                Tümünü Gör
-                <ArrowRight className="h-3 w-3" />
+              <Button asChild variant="ghost" size="xs" className="text-muted-foreground">
+                <Link to="/admin/users">
+                  Tümünü Gör
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
               </Button>
             </CardAction>
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
+              {registrations.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-6">Henüz yeni kayıt yok.</p>
+              )}
               {registrations.map((reg) => (
                 <div
                   key={reg.id}
                   className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-secondary/50"
                 >
                   <Avatar className="h-9 w-9">
+                    <AvatarImage src={`https://i.pravatar.cc/80?u=${encodeURIComponent(reg.email)}`} alt={reg.name} />
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                       {reg.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
@@ -292,25 +300,34 @@ export default function AdminDashboardPage() {
           <CardDescription>Sık kullanılan yönetim işlemleri</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { icon: UserPlus, label: 'Kullanıcı Ekle', color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30' },
-              { icon: ShieldCheck, label: 'Diyetisyen Onayla', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30' },
-              { icon: FileText, label: 'Rapor Oluştur', color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/30' },
-              { icon: Settings, label: 'Sistem Ayarları', color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30' },
-            ].map((action) => (
-              <Button
-                key={action.label}
-                variant="outline"
-                className="h-auto py-4 flex flex-col gap-2.5 transition-all hover:shadow-sm"
-              >
-                <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', action.color)}>
-                  <action.icon className="h-5 w-5" />
-                </div>
-                <span className="text-sm font-medium">{action.label}</span>
-              </Button>
-            ))}
-          </div>
+          <TooltipProvider>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { icon: UserPlus, label: 'Kullanıcı Ekle', color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30' },
+                { icon: ShieldCheck, label: 'Diyetisyen Onayla', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30' },
+                { icon: FileText, label: 'Rapor Oluştur', color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/30' },
+                { icon: Settings, label: 'Sistem Ayarları', color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30' },
+              ].map((action) => (
+                <Tooltip key={action.label}>
+                  <TooltipTrigger asChild>
+                    <span tabIndex={0} className="cursor-not-allowed">
+                      <Button
+                        variant="outline"
+                        disabled
+                        className="h-auto w-full py-4 flex flex-col gap-2.5 transition-all hover:shadow-sm pointer-events-none"
+                      >
+                        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', action.color)}>
+                          <action.icon className="h-5 w-5" />
+                        </div>
+                        <span className="text-sm font-medium">{action.label}</span>
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Yakında</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          </TooltipProvider>
         </CardContent>
       </Card>
     </PageContainer>

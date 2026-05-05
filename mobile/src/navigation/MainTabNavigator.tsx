@@ -2,10 +2,10 @@ import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
 import { StyleSheet, View, Platform } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { MainTabParamList } from './types'
 import { colors } from '../theme/colors'
 import { fontSizes, fontWeights } from '../theme/typography'
-import { borderRadius } from '../theme/spacing'
 
 import HomeStack from './HomeStack'
 import MealsStack from './MealsStack'
@@ -16,13 +16,21 @@ import ProfileStack from './ProfileStack'
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
 export default function MainTabNavigator() {
+  const insets = useSafeAreaInsets()
+  // Reserve the device's bottom safe-area as padding inside the tab bar so
+  // the floating bar lifts above the home indicator on modern iPhones / Androids.
+  const dynamicTabBar = {
+    ...styles.tabBar,
+    paddingBottom: Platform.OS === 'web' ? 10 : Math.max(insets.bottom, 10),
+    height: Platform.OS === 'web' ? 70 : 70 + Math.max(insets.bottom - 10, 0),
+  }
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary[700],
         tabBarInactiveTintColor: colors.text.disabled,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: dynamicTabBar,
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
         tabBarHideOnKeyboard: true,

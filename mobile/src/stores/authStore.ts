@@ -35,16 +35,37 @@ export const useAuthStore = create<AuthStore>(
       set({ isLoading: true });
       try {
         const res = await authApi.login({ email, password });
+        if (!res?.token) {
+          throw new Error('No token returned');
+        }
         await storage.set(STORAGE_KEYS.AUTH_TOKEN, res.token);
+        // Fetch full profile (login response only has id/email/role/firstName)
+        // so DashboardScreen can read first_name, daily_calorie_target, etc.
+        let fullUser: User | null = res.user ?? null;
+        try {
+          const me = await authApi.getMe();
+          if (me) fullUser = me as User;
+        } catch {
+          // Keep the lightweight user from login response if /auth/me fails
+        }
+        // Existing users skip onboarding (they already have a profile)
+        await storage.set(STORAGE_KEYS.ONBOARDED, true);
         set({
-          user: res.user,
+          user: fullUser,
           token: res.token,
           isAuthenticated: true,
+          isOnboarded: true,
           isLoading: false,
         });
-      } catch {
+      } catch (err: unknown) {
         set({ isLoading: false });
-        throw new Error('Giri\u015f ba\u015far\u0131s\u0131z');
+        const e = err as { response?: { data?: { message?: string; error?: string } }; message?: string };
+        const backendMsg =
+          e?.response?.data?.message ||
+          e?.response?.data?.error ||
+          e?.message ||
+          'Giris basarisiz';
+        throw new Error(backendMsg);
       }
     },
 
@@ -52,26 +73,45 @@ export const useAuthStore = create<AuthStore>(
       set({ isLoading: true });
       try {
         const res = await authApi.register({ name, email, password });
+        if (!res?.token) {
+          throw new Error('No token returned');
+        }
         await storage.set(STORAGE_KEYS.AUTH_TOKEN, res.token);
+        // New users go through onboarding flow
         set({
-          user: res.user,
+          user: res.user ?? null,
           token: res.token,
           isAuthenticated: true,
+          isOnboarded: false,
           isLoading: false,
         });
-      } catch {
+      } catch (err: unknown) {
         set({ isLoading: false });
-        throw new Error('Kay\u0131t ba\u015far\u0131s\u0131z');
+        // Surface the real backend message so the UI can show useful context
+        // (e.g. "Bu e-posta zaten kayitli", "Sifre cok kisa", validation errors).
+        const e = err as { response?: { data?: { message?: string; error?: string } }; message?: string };
+        const backendMsg =
+          e?.response?.data?.message ||
+          e?.response?.data?.error ||
+          e?.message ||
+          'Kayit basarisiz';
+        throw new Error(backendMsg);
       }
     },
 
     logout: async () => {
-      await storage.remove(STORAGE_KEYS.AUTH_TOKEN);
-      await storage.remove(STORAGE_KEYS.USER);
+      try {
+        await storage.remove(STORAGE_KEYS.AUTH_TOKEN);
+        await storage.remove(STORAGE_KEYS.USER);
+      } catch {
+        // ignore storage errors during logout
+      }
       set({
         user: null,
         token: null,
         isAuthenticated: false,
+        isOnboarded: false,
+        isLoading: false,
       });
     },
 
@@ -86,12 +126,26 @@ export const useAuthStore = create<AuthStore>(
         const token = await storage.get<string>(STORAGE_KEYS.AUTH_TOKEN);
         if (token) {
           const user = await authApi.getMe();
-          set({ user, token, isAuthenticated: true, isLoading: false });
+          // Token still valid — keep authenticated and assume onboarded (existing user)
+          set({
+            user: user ?? null,
+            token,
+            isAuthenticated: true,
+            isOnboarded: true,
+            isLoading: false,
+          });
         } else {
-          set({ isLoading: false });
+          set({ isLoading: false, isAuthenticated: false });
         }
       } catch {
-        set({ isAuthenticated: false, token: null, user: null, isLoading: false });
+        // Token invalid or network failure — log the user out cleanly
+        set({
+          isAuthenticated: false,
+          isOnboarded: false,
+          token: null,
+          user: null,
+          isLoading: false,
+        });
       }
     },
   })),

@@ -32,11 +32,11 @@ export function useReviews() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReviews = useCallback(async () => {
+  const fetchReviews = useCallback(async (dietitianId?: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getReviews();
+      const data = await getReviews(dietitianId);
       setReviews(data as unknown as Review[]);
     } catch {
       setError("Failed to fetch reviews");

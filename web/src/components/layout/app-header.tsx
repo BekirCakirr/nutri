@@ -1,18 +1,21 @@
 import { useNavigate } from 'react-router-dom'
-import { Bell, Moon, Sun, Search } from 'lucide-react'
+import { Bell, Moon, Sun, Search, LogOut, User as UserIcon, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { useUiStore } from '@/stores/ui-store'
 import { useNotificationStore } from '@/stores/notification-store'
+import { useAuthStore } from '@/stores/auth-store'
 import { Breadcrumbs } from './breadcrumbs'
 
 export function AppHeader() {
@@ -20,10 +23,26 @@ export function AppHeader() {
   const { theme, setTheme } = useUiStore()
   const unreadCount = useNotificationStore((s) => s.unreadCount)
   const notifications = useNotificationStore((s) => s.notifications)
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
 
   const recentUnread = notifications
     .filter((n) => !n.read)
     .slice(0, 3)
+
+  const userName = user ? `${user.firstName} ${user.lastName}` : 'Kullanici'
+  const userInitials = user
+    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
+    : 'U'
+  // Pravatar fallback uses email-keyed identicon for stable demo avatars
+  const avatarSrc =
+    user?.avatar ||
+    (user?.email ? `https://i.pravatar.cc/150?u=${encodeURIComponent(user.email)}` : undefined)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <header className="flex h-14 items-center gap-3 border-b border-border/60 bg-background/80 backdrop-blur-sm px-4 sticky top-0 z-10">
@@ -110,6 +129,54 @@ export function AppHeader() {
             onClick={() => navigate('/notifications')}
           >
             Tümünü Gör
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* User dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="flex items-center gap-2 rounded-full p-0.5 hover:bg-muted/60 transition-colors duration-[var(--duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Kullanıcı menüsü"
+          >
+            <Avatar className="h-8 w-8 ring-2 ring-primary/10">
+              {avatarSrc && <AvatarImage src={avatarSrc} alt={userName} />}
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel className="flex flex-col gap-0.5">
+            <span className="text-sm font-medium leading-tight truncate">{userName}</span>
+            <span className="text-[11px] text-muted-foreground truncate font-normal">
+              {user?.email || ''}
+            </span>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => navigate('/settings')}
+          >
+            <UserIcon className="h-4 w-4" />
+            Profilim
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="h-4 w-4" />
+            Ayarlar
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="cursor-pointer text-destructive focus:text-destructive"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Çıkış Yap
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

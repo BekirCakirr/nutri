@@ -36,6 +36,18 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { StatCard } from '@/components/shared/stat-card'
 import { getRecipes, updateRecipe } from '@/services/recipe.service'
 import { toast } from 'sonner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+function recipeSlug(s: string): string {
+  const base = (s || 'recipe').toLowerCase().normalize('NFD')
+  let out = ''
+  for (let i = 0; i < base.length; i++) {
+    const c = base.charCodeAt(i)
+    if (c >= 0x0300 && c <= 0x036f) continue
+    out += base[i]
+  }
+  return out.replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'recipe'
+}
 
 interface RecipeRow {
   id: string
@@ -76,9 +88,11 @@ export default function AdminRecipesPage() {
     setIsLoading(true)
     try {
       const response = await getRecipes()
-      setRecipes(response.items as unknown as RecipeRow[])
+      const items = Array.isArray(response?.items) ? response.items : []
+      setRecipes(items as unknown as RecipeRow[])
     } catch {
       toast.error('Tarifler yüklenemedi')
+      setRecipes([])
     } finally {
       setIsLoading(false)
     }
@@ -230,11 +244,19 @@ export default function AdminRecipesPage() {
               return (
                 <TableRow key={recipe.id}>
                   <TableCell>
-                    <div>
-                      <span className="text-sm font-medium">{recipe.name}</span>
-                      {recipe.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{recipe.description}</p>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={(recipe as any).imageUrl || (recipe as any).image_url || `https://picsum.photos/seed/recipe-${recipeSlug(recipe.name)}/64/48`}
+                        alt={recipe.name}
+                        className="h-12 w-16 rounded-md object-cover bg-muted shrink-0"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/recipe-${recipeSlug(recipe.name)}/64/48` }}
+                      />
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium block truncate">{recipe.name}</span>
+                        {recipe.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{recipe.description}</p>
+                        )}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -257,9 +279,18 @@ export default function AdminRecipesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span tabIndex={0}>
+                              <Button variant="ghost" size="icon" disabled className="h-8 w-8 pointer-events-none">
+                                <Eye className="h-3.5 w-3.5" />
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Yakında</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {status === 'pending' && (
                         <>
                           <Button

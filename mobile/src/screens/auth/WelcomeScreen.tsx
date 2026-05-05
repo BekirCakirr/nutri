@@ -37,6 +37,11 @@ export default function WelcomeScreen() {
 
         {/* Middle content */}
         <View style={styles.middleContent}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800' }}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
           <Text style={styles.heroTitle}>
             Sağlıklı yaşam{'\n'}yolculuğunuz başlıyor
           </Text>
@@ -128,6 +133,13 @@ const styles = StyleSheet.create({
   middleContent: {
     paddingHorizontal: 8,
     marginTop: 16,
+  },
+  heroImage: {
+    width: '100%',
+    height: 160,
+    borderRadius: 20,
+    marginBottom: 20,
+    backgroundColor: colors.primary[50],
   },
   heroTitle: {
     fontSize: 30,

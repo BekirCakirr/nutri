@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Clock, Flame, Users, Plus, ImageIcon, Printer } from 'lucide-react'
+import { ArrowLeft, Clock, Flame, Users, Plus, Printer } from 'lucide-react'
 import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { getRecipe } from '@/services/recipe.service'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +15,52 @@ type RecipeDetailState = {
   fiber: number; sodium: number;
   ingredients: { name: string; amount: string }[];
   steps: string[];
+  imageUrl?: string;
+}
+
+const DIFFICULTY_LABEL: Record<string, string> = {
+  easy: 'Kolay',
+  medium: 'Orta',
+  hard: 'Zor',
+}
+
+// Yemek goselleri — recipes.tsx ile esitlemek icin sabit eslesme
+const RECIPE_IMAGE_BY_NAME: Record<string, string> = {
+  'Izgara Tavuk Salatası': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200&q=75&auto=format&fit=crop',
+  'Yulaflı Muzlu Smoothie': 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?w=1200&q=75&auto=format&fit=crop',
+  'Mercimek Çorbası': 'https://images.unsplash.com/photo-1547592180-85f173990554?w=1200&q=75&auto=format&fit=crop',
+  'Fırında Somon ve Sebze': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=1200&q=75&auto=format&fit=crop',
+  'Sebzeli Bulgur Pilavı': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=1200&q=75&auto=format&fit=crop',
+  'Yumurtalı Sebzeli Omlet': 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200&q=75&auto=format&fit=crop',
+  'Yoğurtlu Sebze Çorbası': 'https://images.unsplash.com/photo-1604152135912-04a022e23696?w=1200&q=75&auto=format&fit=crop',
+  'Avokadolu Tavuklu Sandviç': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=1200&q=75&auto=format&fit=crop',
+}
+
+function heroImageFor(title: string, providedUrl?: string | null): string {
+  if (providedUrl && providedUrl.startsWith('http')) return providedUrl
+  if (title && RECIPE_IMAGE_BY_NAME[title]) return RECIPE_IMAGE_BY_NAME[title]
+  const seed = encodeURIComponent(title || 'recipe')
+  return `https://picsum.photos/seed/nutri-${seed}/1200/600`
+}
+
+function toNum(v: unknown, fallback = 0): number {
+  if (typeof v === 'number') return v
+  if (typeof v === 'string') {
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : fallback
+  }
+  return fallback
+}
+
+function instructionsToSteps(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.map((s) => String(s).trim()).filter(Boolean)
+  if (typeof raw === 'string') {
+    return raw
+      .split(/\n+/)
+      .map((s) => s.replace(/^\s*\d+\.\s*/, '').trim())
+      .filter(Boolean)
+  }
+  return []
 }
 
 export default function RecipeDetailPage() {
@@ -29,29 +75,42 @@ export default function RecipeDetailPage() {
       try {
         if (id && UUID_RE.test(id)) {
           const rawData = await getRecipe(id)
-          const data = rawData as unknown as Partial<RecipeDetailState> & { 
-            name?: string; caloriesPerServing?: number; proteinPerServing?: number;
-            carbsPerServing?: number; fatPerServing?: number; prepTimeMin?: number;
-            cookTimeMin?: number;
-          };
+          const data = rawData as unknown as Record<string, unknown>;
           if (data) {
+            const tags = Array.isArray(data.tags) ? (data.tags as string[]) : []
+            const tagSet = new Set(tags.map((t) => t.toLowerCase()))
+            const inferredCategory =
+              tagSet.has('çorba') || tagSet.has('corba') ? 'Çorba'
+              : tagSet.has('salata') ? 'Salata'
+              : tagSet.has('kahvaltı') || tagSet.has('kahvalti') ? 'Kahvaltı'
+              : tagSet.has('tatlı') || tagSet.has('tatli') ? 'Tatlı'
+              : tagSet.has('smoothie') || tagSet.has('içecek') || tagSet.has('icecek') ? 'İçecek'
+              : tagSet.has('atıştırmalık') || tagSet.has('atistirmalik') || tagSet.has('snack') || tagSet.has('sandviç') || tagSet.has('sandvic') ? 'Atıştırmalık'
+              : 'Ana Yemek'
+
+            const title = String(data.name ?? data.title ?? 'İsimsiz Tarif')
+            const rawDifficulty = String(data.difficulty ?? '')
+
             setRecipe({
-              id: data.id ?? '',
-              title: data.name ?? 'İsimsiz Tarif',
-              description: data.description ?? '',
-              category: data.category ?? '',
-              calories: data.caloriesPerServing ?? data.calories ?? 0,
-              protein: data.proteinPerServing ?? data.protein ?? 0,
-              carbs: data.carbsPerServing ?? data.carbs ?? 0,
-              fat: data.fatPerServing ?? data.fat ?? 0,
-              prepTime: data.prepTimeMin ?? 0,
-              cookTime: data.cookTimeMin ?? 0,
-              servings: data.servings ?? 1,
-              difficulty: data.difficulty ?? '',
-              fiber: data.fiber ?? 0,
-              sodium: data.sodium ?? 0,
-              ingredients: data.ingredients ?? [],
-              steps: data.steps ?? [],
+              id: String(data.id ?? ''),
+              title,
+              description: String(data.description ?? ''),
+              category: String(data.category ?? inferredCategory),
+              calories: toNum(data.caloriesPerServing ?? data.calories),
+              protein: toNum(data.proteinPerServing ?? data.protein),
+              carbs: toNum(data.carbsPerServing ?? data.carbs),
+              fat: toNum(data.fatPerServing ?? data.fat),
+              prepTime: toNum(data.prepTimeMin ?? data.prepTime),
+              cookTime: toNum(data.cookTimeMin ?? data.cookTime),
+              servings: toNum(data.servings, 1),
+              difficulty: DIFFICULTY_LABEL[rawDifficulty] ?? rawDifficulty,
+              fiber: toNum(data.fiber),
+              sodium: toNum(data.sodium),
+              ingredients: Array.isArray(data.ingredients)
+                ? (data.ingredients as { name: string; amount: string }[])
+                : [],
+              steps: instructionsToSteps(data.instructions ?? data.steps),
+              imageUrl: typeof data.imageUrl === 'string' ? data.imageUrl : '',
             })
           }
         }
@@ -75,7 +134,19 @@ export default function RecipeDetailPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
             <Badge variant="outline">{recipe.category}</Badge>
-            <Badge variant="success">{recipe.difficulty}</Badge>
+            <Badge
+              variant={
+                recipe.difficulty === 'Kolay'
+                  ? 'success'
+                  : recipe.difficulty === 'Orta'
+                  ? 'warning'
+                  : recipe.difficulty === 'Zor'
+                  ? 'destructive'
+                  : 'secondary'
+              }
+            >
+              {recipe.difficulty || '—'}
+            </Badge>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{recipe.title}</h1>
         </div>
@@ -99,9 +170,18 @@ export default function RecipeDetailPage() {
         </div>
       </div>
 
-      {/* Image placeholder */}
-      <div className="h-56 bg-secondary/50 rounded-xl flex items-center justify-center">
-        <ImageIcon className="h-10 w-10 text-muted-foreground/20" />
+      {/* Hero image */}
+      <div className="h-56 sm:h-72 bg-secondary/50 rounded-xl overflow-hidden">
+        <img
+          src={heroImageFor(recipe.title, recipe.imageUrl)}
+          alt={recipe.title}
+          loading="lazy"
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            const seed = encodeURIComponent(recipe.title || 'recipe')
+            ;(e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/nutri-${seed}/1200/600`
+          }}
+        />
       </div>
 
       {/* Description */}

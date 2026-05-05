@@ -83,8 +83,9 @@ export default function ShoppingListsPage() {
 
   useEffect(() => {
     if (!isLoading && hookLists) {
-      if (hookLists.length > 0) {
-        setLists(hookLists.map((rawList) => {
+      const safeLists = Array.isArray(hookLists) ? hookLists : []
+      if (safeLists.length > 0) {
+        setLists(safeLists.map((rawList) => {
           const l = rawList as unknown as ShoppingList & { itemCount?: number; completedCount?: number; sharedWith?: string; };
           return {
             id: l.id, name: l.name ?? '', status: l.status ?? 'active',
@@ -115,16 +116,17 @@ export default function ShoppingListsPage() {
     }))
   }
 
+  const safeCurrentItems = Array.isArray(currentList?.items) ? currentList.items : []
   const groupedItems = currentList
     ? categoryOrder.reduce<Record<string, ShoppingItem[]>>((acc, cat) => {
-        const items = currentList.items.filter((i) => i.category === cat)
+        const items = safeCurrentItems.filter((i) => i.category === cat)
         if (items.length > 0) acc[cat] = items
         return acc
       }, {})
     : {}
 
-  const completedCount = currentList?.items.filter((i) => i.checked).length || 0
-  const totalCount = currentList?.items.length || 0
+  const completedCount = safeCurrentItems.filter((i) => i.checked).length || 0
+  const totalCount = safeCurrentItems.length || 0
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   if (isLoading) return <ListPageSkeleton />
@@ -198,8 +200,10 @@ export default function ShoppingListsPage() {
         {/* Lists sidebar */}
         <div className="space-y-3 animate-in-stagger">
           {lists.map((list) => {
-            const checked = list.items.filter((i) => i.checked).length
-            const total = list.items.length
+            const safeItems = Array.isArray(list.items) ? list.items : []
+            const checked = safeItems.filter((i) => i.checked).length
+            const total = safeItems.length
+            const pct = total > 0 ? (checked / total) * 100 : 0
             return (
               <button
                 key={list.id}
@@ -218,7 +222,7 @@ export default function ShoppingListsPage() {
                 </div>
                 <p className="text-xs text-muted-foreground">{list.createdAt}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Progress value={(checked / total) * 100} className="h-1 flex-1" />
+                  <Progress value={pct} className="h-1 flex-1" />
                   <span className="text-xs text-muted-foreground tabular-nums">{checked}/{total}</span>
                 </div>
               </button>

@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  SafeAreaView,
   ScrollView,
   View,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 
@@ -60,7 +60,10 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
   )
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor }, style]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor }, style]}
+      edges={['top', 'left', 'right']}
+    >
       <StatusBar barStyle="dark-content" backgroundColor={backgroundColor} />
       {keyboardAvoiding ? (
         <KeyboardAvoidingView

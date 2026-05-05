@@ -120,6 +120,8 @@ export default function FoodSearchScreen() {
         calories={item.nutrition.calories}
         servingSize={`${item.servingSize} ${item.servingUnit}`}
         onPress={() => handleFoodPress(item)}
+        showThumbnail
+        imageSeed={item.id}
       />
     ),
     [handleFoodPress],

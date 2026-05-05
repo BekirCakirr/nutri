@@ -31,6 +31,7 @@ import { PageContainer } from '@/components/shared/page-container'
 import { DashboardSkeleton } from '@/components/shared/page-skeletons'
 import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const monthlyStats = [
   { month: 'Eylül', users: 856, meals: 12400, appointments: 340, revenue: 45200 },
@@ -52,10 +53,19 @@ export default function AdminReportsPage() {
       title="Sistem Raporları"
       description="Platform analitikleri ve istatistikleri."
       actions={
-        <Button size="sm">
-          <Download className="h-3.5 w-3.5" />
-          Rapor İndir
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0}>
+                <Button size="sm" disabled className="pointer-events-none">
+                  <Download className="h-3.5 w-3.5" />
+                  Rapor İndir
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Yakında</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       }
     >
       {/* Stat Cards */}
@@ -201,10 +211,19 @@ export default function AdminReportsPage() {
               <Input type="date" defaultValue="2026-02-25" />
             </div>
             <div className="flex items-end">
-              <Button className="w-full">
-                <Activity className="h-4 w-4" />
-                Rapor Oluştur
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span tabIndex={0} className="w-full">
+                      <Button className="w-full pointer-events-none" disabled>
+                        <Activity className="h-4 w-4" />
+                        Rapor Oluştur
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Yakında</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </CardContent>

@@ -13,3 +13,4 @@ export { useFoodStore } from './foodStore';
 export { useRecipeStore } from './recipeStore';
 export { useShoppingStore } from './shoppingStore';
 export { useProgressStore } from './progressStore';
+export { useOnboardingStore } from './onboardingStore';

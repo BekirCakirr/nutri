@@ -20,25 +20,35 @@ export const usePlanStore = create<PlanStore>((set, get) => ({
   weeklyPlan: [],
 
   loadActivePlan: async () => {
-    const plan = await planApi.getActivePlan();
-    set({
-      activePlan: plan,
-      weeklyPlan: plan?.days ?? [],
-    });
+    try {
+      const plan = await planApi.getActivePlan();
+      set({
+        activePlan: plan,
+        weeklyPlan: Array.isArray(plan?.days) ? (plan?.days ?? []) : [],
+      });
+    } catch {
+      set({ activePlan: null, weeklyPlan: [] });
+    }
   },
 
   setPlan: (plan) =>
     set({
       activePlan: plan,
-      weeklyPlan: plan.days,
+      weeklyPlan: Array.isArray(plan?.days) ? (plan.days ?? []) : [],
     }),
 
   getDayPlan: async (date) => {
     const { activePlan } = get();
     if (activePlan) {
+      const days = Array.isArray(activePlan.days) ? activePlan.days : [];
+      if (days.length === 0) return null;
       const dayIndex = new Date(date).getDay();
-      return (activePlan.days || [])[dayIndex === 0 ? 6 : dayIndex - 1] ?? null;
+      return days[dayIndex === 0 ? 6 : dayIndex - 1] ?? null;
     }
-    return planApi.getDayPlan(date);
+    try {
+      return await planApi.getDayPlan(date);
+    } catch {
+      return null;
+    }
   },
 }));

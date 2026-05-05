@@ -1,42 +1,48 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OnboardingStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
-import { PairCodeInput } from '../../components/dietitian/PairCodeInput'
+import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
-import apiClient from '../../services/api/client'
+import { useOnboardingStore } from '../../stores/onboardingStore'
 import { colors } from '../../theme/colors'
 import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<OnboardingStackParamList, 'DietitianCode'>
 
+/**
+ * Step 6 — optional invite code from a dietitian.
+ *
+ * Backend invite codes are formatted like "DYT-AYSE-X7K9" (variable length,
+ * alphanumeric + hyphens), so we accept any non-empty string. The actual
+ * pairing API call happens at the end of onboarding (CalculationResultScreen)
+ * so the user only sees one consolidated network operation.
+ */
 export default function DietitianCodeScreen() {
   const navigation = useNavigation<Nav>()
-  const [mode, setMode] = useState<'code' | 'qr'>('code')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | undefined>()
+  const storedCode = useOnboardingStore((s) => s.inviteCode)
+  const setInviteCode = useOnboardingStore((s) => s.setInviteCode)
 
-  const handleCodeSubmit = async (code: string) => {
-    setLoading(true)
-    setError(undefined)
-    try {
-      await apiClient.post('/dietitians/pair', null, { params: { inviteCode: code } })
-      Alert.alert('Başarılı', 'Diyetisyeniniz ile eşleştirildiniz!', [
-        { text: 'Devam', onPress: () => navigation.navigate('CalculationResult') },
-      ])
-    } catch {
-      setError('Geçersiz kod. Lütfen diyetisyeninizden aldığınız kodu kontrol edin.')
-    } finally {
-      setLoading(false)
-    }
+  const [mode, setMode] = useState<'code' | 'qr'>('code')
+  const [code, setCode] = useState(storedCode || '')
+
+  const handleSubmit = () => {
+    const trimmed = code.trim().toUpperCase()
+    setInviteCode(trimmed)
+    navigation.navigate('CalculationResult')
+  }
+
+  const handleSkip = () => {
+    setInviteCode('')
+    navigation.navigate('CalculationResult')
   }
 
   return (
     <ScreenWrapper keyboardAvoiding padded={false}>
-      <OnboardingStep title="Diyetisyen Eşleştirme" description="Diyetisyeninizin size verdiği kodu girin veya QR kodu okutun." currentStep={6} totalSteps={7}>
+      <OnboardingStep title="Diyetisyen Eşleştirme" description="Diyetisyeninizin size verdiği kodu girin veya boş bırakıp ilerleyin." currentStep={6} totalSteps={7}>
         <View style={s.modeRow}>
           <TouchableOpacity onPress={() => setMode('code')} style={[s.modeCard, mode === 'code' && s.modeCardActive]} activeOpacity={0.7}>
             <Text style={[s.modeLabel, mode === 'code' && s.modeLabelActive]}>📝 Kod Gir</Text>
@@ -47,7 +53,25 @@ export default function DietitianCodeScreen() {
         </View>
 
         {mode === 'code' ? (
-          <PairCodeInput onSubmit={handleCodeSubmit} loading={loading} error={error} style={{ padding: 0 }} />
+          <View style={{ gap: 12 }}>
+            <Input
+              label="Davet Kodu"
+              placeholder="DYT-AYSE-X7K9"
+              value={code}
+              onChangeText={(t) => setCode(t.toUpperCase())}
+              autoCapitalize="characters"
+              autoCorrect={false}
+            />
+            <Text style={s.hint}>Diyetisyeninizden aldigniz kodu olduğu gibi girin (büyük/küçük harf farketmez).</Text>
+            <Button
+              title="Diyetisyeni Eşle"
+              onPress={handleSubmit}
+              disabled={code.trim().length < 4}
+              fullWidth
+              size="lg"
+              style={s.btn}
+            />
+          </View>
         ) : (
           <View style={s.qrArea}>
             <View style={s.qrBox}>
@@ -58,7 +82,7 @@ export default function DietitianCodeScreen() {
         )}
 
         <View style={s.spacer} />
-        <Button title="Şimdilik Atla" onPress={() => navigation.navigate('CalculationResult')} variant="ghost" fullWidth size="lg" />
+        <Button title="Şimdilik Atla" onPress={handleSkip} variant="ghost" fullWidth size="lg" />
       </OnboardingStep>
     </ScreenWrapper>
   )
@@ -74,5 +98,7 @@ const s = StyleSheet.create({
   qrBox: { width: 224, height: 224, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.border, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
   qrEmoji: { fontSize: 48, marginBottom: 12 },
   qrText: { fontSize: 14, color: colors.text.secondary, textAlign: 'center', paddingHorizontal: 24 },
+  hint: { fontSize: 12, color: colors.text.secondary, lineHeight: 18 },
   spacer: { flex: 1, minHeight: 16 },
+  btn: { shadowColor: colors.primary.main, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
 })

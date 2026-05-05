@@ -103,8 +103,9 @@ const alertBadgeMap: Record<string, { label: string; variant: 'success' | 'warni
 export default function LiveTrackingPage() {
   const [alertFilter, setAlertFilter] = useState('all')
   const { trackingData: apiTrackingData, isLoading, lastUpdated } = useLiveTracking(30_000)
-  const trackingData = apiTrackingData.length > 0 ? apiTrackingData : mockTrackingData
-  const isConnected = lastUpdated !== null || apiTrackingData.length === 0
+  const safeApiData = Array.isArray(apiTrackingData) ? apiTrackingData : []
+  const trackingData = safeApiData.length > 0 ? safeApiData : mockTrackingData
+  const isConnected = lastUpdated !== null || safeApiData.length === 0
 
   // Enrich tracking entries with derived alert levels
   const enrichedPatients = useMemo(() =>
@@ -217,8 +218,12 @@ export default function LiveTrackingPage() {
       {/* Patient Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in-stagger">
         {filtered.map((patient) => {
-          const caloriePercent = Math.min(Math.round((patient.todayCalories / patient.calorieTarget) * 100), 100)
-          const waterPercent = Math.min(Math.round((patient.waterIntakeMl / patient.waterTargetMl) * 100), 100)
+          const caloriePercent = patient.calorieTarget > 0
+            ? Math.min(Math.round((patient.todayCalories / patient.calorieTarget) * 100), 100)
+            : 0
+          const waterPercent = patient.waterTargetMl > 0
+            ? Math.min(Math.round((patient.waterIntakeMl / patient.waterTargetMl) * 100), 100)
+            : 0
           const alertBadge = alertBadgeMap[patient.alertLevel]
           const isOverCalorie = patient.todayCalories > patient.calorieTarget
 
@@ -317,7 +322,19 @@ export default function LiveTrackingPage() {
       </div>
 
       {filtered.length === 0 && (
-        <EmptyState icon={Activity} title="Aktif hasta yok" description="Aktif hastaların gerçek zamanlı verileri burada görünecek." />
+        <div className="flex flex-col items-center justify-center py-12 animate-fade-up">
+          <img
+            src="https://picsum.photos/seed/tracking/600/400"
+            alt="Canlı takip görseli"
+            className="rounded-2xl shadow-md mb-6 max-w-md w-full opacity-90"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
+          <EmptyState
+            icon={Activity}
+            title="Aktif hasta yok"
+            description="Aktif hastaların gerçek zamanlı verileri burada görünecek."
+          />
+        </div>
       )}
     </PageContainer>
   )

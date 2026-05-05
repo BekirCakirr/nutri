@@ -41,9 +41,18 @@ export default function RegisterScreen() {
     setError('')
     try {
       await register(name, email, password)
-      navigation.navigate('EmailVerification')
-    } catch {
-      setError('Kayıt başarısız. Lütfen tekrar deneyin.')
+      // After successful registration the auth store flips isAuthenticated=true
+      // with isOnboarded=false, which causes RootNavigator to swap us into the
+      // OnboardingStack automatically. The EmailVerification screen is mock-only
+      // and is no longer part of the happy path — we skip straight to onboarding.
+    } catch (err: any) {
+      const msg = err?.message || err?.response?.data?.message || 'Kayit basarisiz.'
+      // Show real backend error verbatim — easier to debug during the demo.
+      if (/zaten|already|exists/i.test(msg)) {
+        setError('Bu e-posta zaten kayitli. Lutfen giris yapin.')
+      } else {
+        setError(msg)
+      }
     }
   }
 

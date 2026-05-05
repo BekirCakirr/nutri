@@ -3,7 +3,7 @@ const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : true;
 
 // Physical device: use your LAN IP (same WiFi network required)
 // Android emulator: use 10.0.2.2 instead
-const DEV_HOST = '10.255.255.153';
+const DEV_HOST = '192.168.1.2';
 import { Platform } from 'react-native';
 const devHost = Platform.OS === 'web' ? 'localhost' : DEV_HOST;
 export const API_URL = isDev ? `http://${devHost}:3001/api` : 'https://api.nutriai.app/v1';

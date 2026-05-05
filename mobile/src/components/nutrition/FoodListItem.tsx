@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ViewStyle, Image } from 'react-native'
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -12,6 +12,8 @@ interface FoodListItemProps {
   onPress?: () => void
   rightAction?: React.ReactNode
   style?: ViewStyle
+  imageSeed?: string | number
+  showThumbnail?: boolean
 }
 
 export const FoodListItem: React.FC<FoodListItemProps> = ({
@@ -22,6 +24,8 @@ export const FoodListItem: React.FC<FoodListItemProps> = ({
   onPress,
   rightAction,
   style,
+  imageSeed,
+  showThumbnail = false,
 }) => {
   return (
     <TouchableOpacity
@@ -29,6 +33,12 @@ export const FoodListItem: React.FC<FoodListItemProps> = ({
       activeOpacity={onPress ? 0.7 : 1}
       style={[styles.container, style]}
     >
+      {showThumbnail && (
+        <Image
+          source={{ uri: `https://picsum.photos/seed/food-${imageSeed ?? name}/120/120` }}
+          style={styles.thumb}
+        />
+      )}
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={1}>
           {name}
@@ -54,6 +64,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
+  },
+  thumb: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    marginRight: spacing.sm + 2,
+    backgroundColor: colors.border,
   },
   content: {
     flex: 1,

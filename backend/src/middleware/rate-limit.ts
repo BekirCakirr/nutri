@@ -1,10 +1,10 @@
 import rateLimit from "express-rate-limit";
 import { sendError } from "../utils";
 
-/** General API rate limiter — 500 requests per minute per IP (generous for dev). */
+/** General API rate limiter — 5000 requests per minute per IP (very generous for dev/demo). */
 export const apiLimiter = rateLimit({
   windowMs: 60_000,
-  max: 500,
+  max: 5000,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {
@@ -17,10 +17,10 @@ export const apiLimiter = rateLimit({
   },
 });
 
-/** Strict limiter for auth endpoints — 10 attempts per 15 minutes. */
+/** Auth limiter — 1000 attempts per 15 minutes (relaxed for dev/demo). */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60_000,
-  max: 10,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {
@@ -33,10 +33,10 @@ export const authLimiter = rateLimit({
   },
 });
 
-/** AI endpoint limiter — 30 requests per hour per user. */
+/** AI endpoint limiter — 500 requests per hour per user (relaxed for dev/demo). */
 export const aiLimiter = rateLimit({
   windowMs: 60 * 60_000,
-  max: 30,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {

@@ -71,28 +71,46 @@ export async function addMeal(
   items: MealItem[],
   date: string,
   time: string,
+  entryMethod: 'manual' | 'photo_ai' | 'barcode' | 'voice' | 'ocr' | 'text_ai' = 'manual',
 ): Promise<Meal> {
   const mealTypeMap: Record<MealType, string> = {
     breakfast: 'breakfast',
     lunch: 'lunch',
     dinner: 'dinner',
-    snack: 'morning_snack',
+    snack: 'snack',
   };
 
   try {
     const { data } = await apiClient.post('/meals', {
       mealType: mealTypeMap[type] || type,
       logDate: date,
-      items: items.map((item) => ({
-        foodId: /^\d+$/.test(item.food.id) ? parseInt(item.food.id, 10) : undefined,
-        foodName: item.food.name,
-        amount: item.quantity,
-      })),
-      entryMethod: 'manual',
+      items: items.map((item) => {
+        const isDbFood = /^\d+$/.test(item.food.id);
+        const servingSize = item.food.servingSize || 1;
+        const mult = (item.quantity || 0) / servingSize;
+        // For AI/non-DB foods, send pre-computed nutrition.
+        // For DB foods, also send computed totals so backend stores accurate values regardless of factor logic.
+        const calories = Math.max(0, Math.round((item.food.nutrition?.calories || 0) * mult));
+        const protein = Math.max(0, Math.round(((item.food.nutrition?.protein || 0) * mult) * 10) / 10);
+        const carbs = Math.max(0, Math.round(((item.food.nutrition?.carbs || 0) * mult) * 10) / 10);
+        const fat = Math.max(0, Math.round(((item.food.nutrition?.fat || 0) * mult) * 10) / 10);
+        return {
+          foodId: isDbFood ? parseInt(item.food.id, 10) : undefined,
+          foodName: item.food.name,
+          // amount must be > 0 (backend zod validation)
+          amount: Math.max(1, item.quantity || 1),
+          calories,
+          protein,
+          carbs,
+          fat,
+        };
+      }),
+      entryMethod,
     });
     return mapDbMealToMobile(data.data);
-  } catch {
-    throw new Error('Ogun eklenemedi');
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || err?.message || 'Ogun eklenemedi';
+    throw new Error(msg);
   }
 }
 

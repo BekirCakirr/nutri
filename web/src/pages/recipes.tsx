@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useRecipes } from '@/hooks/use-recipes'
 import { useNavigate } from 'react-router-dom'
-import { Search, Sparkles, Clock, Flame, ChefHat, ImageIcon } from 'lucide-react'
+import { Search, Sparkles, Clock, Flame, ChefHat } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,32 +12,57 @@ import { EmptyState } from '@/components/shared/empty-state'
 
 
 
-// UUID formatında mock ID'ler — backend 500 yerine 404 verir, ayrıca UUID guard'a uyar
+// UUID format mock — eslesir backend seed ID'leri ile (11111111-1111-1111-1111-00000000000N)
+// Boylece backend ayakta degilken bile detay sayfasina gidip "404 yerine olasi 500" almazsin.
 const mockRecipes: RecipeCardData[] = [
-  { id: '00000000-0000-0000-0000-000000000001', title: 'Mercimek Çorbası', category: 'Çorba', calories: 180, prepTime: 30, image: '', difficulty: 'Kolay', protein: 12, carbs: 28, fat: 3, servings: 4 },
-  { id: '00000000-0000-0000-0000-000000000002', title: 'Izgara Tavuk Salata', category: 'Salata', calories: 320, prepTime: 20, image: '', difficulty: 'Kolay', protein: 35, carbs: 12, fat: 14, servings: 2 },
-  { id: '00000000-0000-0000-0000-000000000003', title: 'Karnıyarık', category: 'Ana Yemek', calories: 410, prepTime: 60, image: '', difficulty: 'Orta', protein: 22, carbs: 30, fat: 24, servings: 4 },
-  { id: '00000000-0000-0000-0000-000000000004', title: 'Ezogelin Çorbası', category: 'Çorba', calories: 165, prepTime: 35, image: '', difficulty: 'Kolay', protein: 8, carbs: 26, fat: 4, servings: 6 },
-  { id: '00000000-0000-0000-0000-000000000005', title: 'Fırında Somon', category: 'Ana Yemek', calories: 380, prepTime: 40, image: '', difficulty: 'Orta', protein: 38, carbs: 5, fat: 22, servings: 2 },
-  { id: '00000000-0000-0000-0000-000000000006', title: 'Çoban Salata', category: 'Salata', calories: 95, prepTime: 10, image: '', difficulty: 'Kolay', protein: 3, carbs: 10, fat: 5, servings: 4 },
-  { id: '00000000-0000-0000-0000-000000000007', title: 'Humus', category: 'Atıştırmalık', calories: 210, prepTime: 15, image: '', difficulty: 'Kolay', protein: 9, carbs: 22, fat: 10, servings: 4 },
-  { id: '00000000-0000-0000-0000-000000000008', title: 'Sütlaç', category: 'Tatlı', calories: 240, prepTime: 45, image: '', difficulty: 'Orta', protein: 7, carbs: 42, fat: 5, servings: 6 },
-  { id: '00000000-0000-0000-0000-000000000009', title: 'İçli Köfte', category: 'Ana Yemek', calories: 350, prepTime: 90, image: '', difficulty: 'Zor', protein: 18, carbs: 35, fat: 16, servings: 6 },
-  { id: '00000000-0000-0000-0000-000000000010', title: 'Kereviz Yemeği', category: 'Ana Yemek', calories: 190, prepTime: 50, image: '', difficulty: 'Orta', protein: 6, carbs: 22, fat: 8, servings: 4 },
-  { id: '00000000-0000-0000-0000-000000000011', title: 'Cevizli Kabak Tatlısı', category: 'Tatlı', calories: 280, prepTime: 60, image: '', difficulty: 'Kolay', protein: 4, carbs: 48, fat: 9, servings: 8 },
-  { id: '00000000-0000-0000-0000-000000000012', title: 'Yoğurtlu Semizotu', category: 'Salata', calories: 120, prepTime: 15, image: '', difficulty: 'Kolay', protein: 5, carbs: 8, fat: 7, servings: 4 },
-  { id: '00000000-0000-0000-0000-000000000013', title: 'Kuru Fasulye', category: 'Ana Yemek', calories: 310, prepTime: 80, image: '', difficulty: 'Orta', protein: 18, carbs: 42, fat: 8, servings: 6 },
-  { id: '00000000-0000-0000-0000-000000000014', title: 'Havuç Çorbası', category: 'Çorba', calories: 140, prepTime: 25, image: '', difficulty: 'Kolay', protein: 4, carbs: 20, fat: 5, servings: 4 },
+  { id: '11111111-1111-1111-1111-000000000001', title: 'Izgara Tavuk Salatası', category: 'Salata', calories: 385, prepTime: 18, image: '', difficulty: 'Kolay', protein: 35, carbs: 12, fat: 18, servings: 2 },
+  { id: '11111111-1111-1111-1111-000000000002', title: 'Yulaflı Muzlu Smoothie', category: 'İçecek', calories: 340, prepTime: 5, image: '', difficulty: 'Kolay', protein: 14, carbs: 52, fat: 8, servings: 1 },
+  { id: '11111111-1111-1111-1111-000000000003', title: 'Mercimek Çorbası', category: 'Çorba', calories: 185, prepTime: 35, image: '', difficulty: 'Kolay', protein: 12, carbs: 28, fat: 4, servings: 4 },
+  { id: '11111111-1111-1111-1111-000000000004', title: 'Fırında Somon ve Sebze', category: 'Ana Yemek', calories: 420, prepTime: 35, image: '', difficulty: 'Orta', protein: 38, carbs: 14, fat: 24, servings: 2 },
+  { id: '11111111-1111-1111-1111-000000000005', title: 'Sebzeli Bulgur Pilavı', category: 'Ana Yemek', calories: 290, prepTime: 35, image: '', difficulty: 'Kolay', protein: 9, carbs: 52, fat: 5, servings: 4 },
+  { id: '11111111-1111-1111-1111-000000000006', title: 'Yumurtalı Sebzeli Omlet', category: 'Kahvaltı', calories: 320, prepTime: 13, image: '', difficulty: 'Kolay', protein: 22, carbs: 6, fat: 22, servings: 1 },
+  { id: '11111111-1111-1111-1111-000000000007', title: 'Yoğurtlu Sebze Çorbası', category: 'Çorba', calories: 165, prepTime: 40, image: '', difficulty: 'Orta', protein: 8, carbs: 18, fat: 7, servings: 4 },
+  { id: '11111111-1111-1111-1111-000000000008', title: 'Avokadolu Tavuklu Sandviç', category: 'Atıştırmalık', calories: 445, prepTime: 18, image: '', difficulty: 'Kolay', protein: 32, carbs: 38, fat: 18, servings: 2 },
 ]
+
+// ── Yemek goselleri (Unsplash) — her tarif icin sabit, anlamli foto ───────
+const recipeImageByName: Record<string, string> = {
+  // Salata / sandvic / ana
+  'Izgara Tavuk Salatası': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=70&auto=format&fit=crop',
+  'Yulaflı Muzlu Smoothie': 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?w=600&q=70&auto=format&fit=crop',
+  'Mercimek Çorbası': 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=70&auto=format&fit=crop',
+  'Fırında Somon ve Sebze': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=70&auto=format&fit=crop',
+  'Sebzeli Bulgur Pilavı': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&q=70&auto=format&fit=crop',
+  'Yumurtalı Sebzeli Omlet': 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=70&auto=format&fit=crop',
+  'Yoğurtlu Sebze Çorbası': 'https://images.unsplash.com/photo-1604152135912-04a022e23696?w=600&q=70&auto=format&fit=crop',
+  'Avokadolu Tavuklu Sandviç': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=70&auto=format&fit=crop',
+}
+
+function imageForRecipe(title: string, fallbackUrl?: string): string {
+  if (fallbackUrl && fallbackUrl.startsWith('http')) return fallbackUrl
+  if (recipeImageByName[title]) return recipeImageByName[title]
+  // Deterministic seed -> stable picsum image per title
+  const seed = encodeURIComponent(title || 'recipe')
+  return `https://picsum.photos/seed/nutri-${seed}/600/400`
+}
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-const categories = ['Tümü', 'Ana Yemek', 'Çorba', 'Salata', 'Atıştırmalık', 'Tatlı']
+const categories = ['Tümü', 'Ana Yemek', 'Çorba', 'Salata', 'Kahvaltı', 'İçecek', 'Atıştırmalık', 'Tatlı']
 
 const difficultyColor: Record<string, 'success' | 'warning' | 'destructive'> = {
   Kolay: 'success',
   Orta: 'warning',
   Zor: 'destructive',
+  easy: 'success',
+  medium: 'warning',
+  hard: 'destructive',
+}
+
+const difficultyLabel: Record<string, string> = {
+  easy: 'Kolay',
+  medium: 'Orta',
+  hard: 'Zor',
 }
 
 type RecipeCardData = {
@@ -59,7 +84,7 @@ export default function RecipesPage() {
   }, [])
 
   // Map hook recipes to local type
-  const apiRecipeList: RecipeCardData[] = allRecipes.map((r) => {
+  const apiRecipeList: RecipeCardData[] = (Array.isArray(allRecipes) ? allRecipes : []).map((r) => {
     const raw = r as unknown as Record<string, unknown>;
     return {
       id: r.id,
@@ -131,13 +156,25 @@ export default function RecipesPage() {
               if (UUID_RE.test(recipe.id)) navigate(`/recipes/${recipe.id}`)
             }}
           >
-            <div className="h-36 bg-secondary/50 flex items-center justify-center">
-              <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
+            <div className="h-36 bg-secondary/50 overflow-hidden">
+              <img
+                src={imageForRecipe(recipe.title, recipe.image)}
+                alt={recipe.title}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                onError={(e) => {
+                  // Final fallback: deterministic picsum
+                  const seed = encodeURIComponent(recipe.title || 'recipe')
+                  ;(e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/nutri-${seed}/600/400`
+                }}
+              />
             </div>
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-1.5">
                 <Badge variant="outline" className="text-[10px]">{recipe.category}</Badge>
-                <Badge variant={difficultyColor[recipe.difficulty] ?? 'secondary'} className="text-[10px]">{recipe.difficulty}</Badge>
+                <Badge variant={difficultyColor[recipe.difficulty] ?? 'secondary'} className="text-[10px]">
+                  {difficultyLabel[recipe.difficulty] ?? recipe.difficulty}
+                </Badge>
               </div>
               <h3 className="font-semibold text-sm leading-tight">{recipe.title}</h3>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">

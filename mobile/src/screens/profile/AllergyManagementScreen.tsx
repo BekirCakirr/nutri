@@ -41,7 +41,7 @@ export default function AllergyManagementScreen() {
 
   return (
     <ScreenWrapper scrollable={false} padded={false}>
-      <AppHeader title="Alerji Yönetimi" onBack={() => navigation.goBack()} />
+      <AppHeader title="Alerji Yönetimi" subtitle="Demo Verisi" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Info card */}
         <View style={st.warningCard}>

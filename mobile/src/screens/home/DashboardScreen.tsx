@@ -15,8 +15,13 @@ import { StreakCounter } from '../../components/tracking/StreakCounter'
 import { XPBar } from '../../components/gamification/XPBar'
 import { DietitianCard } from '../../components/dietitian/DietitianCard'
 import { NotificationBadge } from '../../components/notifications/NotificationBadge'
-import { useMeals, useTracking, useDietitian, useGamification } from '../../hooks'
+import { useMeals, useTracking, useDietitian, useGamification, useNotifications } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
+
+function getAvatarUri(email?: string | null): string {
+  const seed = email && email.length > 0 ? email : 'guest'
+  return `https://i.pravatar.cc/300?u=${encodeURIComponent(seed)}`
+}
 import { DEFAULT_CALORIE_TARGET } from '../../lib/constants'
 import { colors, nutritionColors } from '../../theme/colors'
 import { borderRadius, spacing } from '../../theme/spacing'
@@ -44,15 +49,18 @@ export default function DashboardScreen() {
   const { todayCalories, todayMacros, waterGlasses, addWater, waterTarget, loadToday, exerciseMinutes } = useTracking()
   const { pairedDietitian, loadPairedDietitian } = useDietitian()
   const { xp, xpToNextLevel, level, streak, loadAll } = useGamification()
+  const { unreadCount, loadNotifications } = useNotifications()
 
   useEffect(() => {
-    fetchTodayMeals()
-    loadToday()
-    loadPairedDietitian()
-    loadAll()
-  }, [fetchTodayMeals, loadToday, loadPairedDietitian, loadAll])
+    fetchTodayMeals().catch(() => {})
+    loadToday().catch(() => {})
+    loadPairedDietitian().catch(() => {})
+    loadAll().catch(() => {})
+    loadNotifications().catch(() => {})
+  }, [fetchTodayMeals, loadToday, loadPairedDietitian, loadAll, loadNotifications])
 
-  const mealAnimStyles = useStaggeredList(todayMeals?.length || 0, 200)
+  const safeTodayMeals = Array.isArray(todayMeals) ? todayMeals : []
+  const mealAnimStyles = useStaggeredList(safeTodayMeals.length, 200)
 
   // Extract user profile data (handles both flat and nested profile from backend)
   const userProfile = useMemo(() => {
@@ -63,7 +71,8 @@ export default function DashboardScreen() {
     const carbTarget = Number(p?.carb_target_g || user?.carb_target_g) || 250
     const fatTarget = Number(p?.fat_target_g || user?.fat_target_g) || 65
     const userWaterTarget = Number(p?.daily_water_target || user?.daily_water_target) || 8
-    return { displayName, calorieTarget, proteinTarget, carbTarget, fatTarget, waterTarget: userWaterTarget }
+    const longestStreak = Number(p?.longest_streak || user?.longest_streak) || 0
+    return { displayName, calorieTarget, proteinTarget, carbTarget, fatTarget, waterTarget: userWaterTarget, longestStreak }
   }, [user])
 
   const dailyGoals = [
@@ -84,7 +93,7 @@ export default function DashboardScreen() {
         <View style={styles.headerLeft}>
           <View style={styles.avatarWrapper}>
             <Image
-              source={require('../../../assets/logo-icon.png')}
+              source={{ uri: getAvatarUri(user?.email) }}
               style={styles.headerLogo}
             />
           </View>
@@ -98,7 +107,9 @@ export default function DashboardScreen() {
           style={styles.notifButton}
         >
           <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
-          <NotificationBadge count={2} size="sm" style={styles.badgePos} />
+          {unreadCount > 0 ? (
+            <NotificationBadge count={unreadCount} size="sm" style={styles.badgePos} />
+          ) : null}
         </AnimatedPressable>
       </View>
 
@@ -153,7 +164,7 @@ export default function DashboardScreen() {
       {/* Streak + XP Row (Premium Gamification) */}
       <View style={styles.gamificationRow}>
         <View style={styles.gamificationItem}>
-          <StreakCounter count={streak || 0} bestStreak={14} />
+          <StreakCounter count={streak || 0} bestStreak={userProfile.longestStreak} />
         </View>
         <View style={styles.gamificationItem}>
           <XPBar
@@ -207,17 +218,17 @@ export default function DashboardScreen() {
       {/* Today's Meals */}
       <SectionHeader title="Bugünün Öğünleri" style={styles.sectionMargin} />
       <View style={{ gap: spacing.md, marginBottom: spacing.xl }}>
-        {todayMeals && todayMeals.length > 0 ? (
-          todayMeals.map((meal, index) => (
-            <Animated.View key={meal.id} style={mealAnimStyles?.[index]}>
+        {safeTodayMeals.length > 0 ? (
+          safeTodayMeals.map((meal, index) => (
+            <Animated.View key={meal?.id ?? `meal-${index}`} style={mealAnimStyles[index]}>
               <View style={styles.mealCardShadow}>
                 <MealCard
-                  mealType={mealTypeMap[meal.type] || 'snack'}
-                  time={meal.time || ''}
-                  totalCalories={meal.totalNutrition?.calories || 0}
-                  foods={(meal.items || []).map((i) => ({
-                    name: i.food?.name || 'Bilinmeyen',
-                    calories: Math.round((i.food?.nutrition?.calories || 0) * (i.quantity || 1)),
+                  mealType={mealTypeMap[meal?.type as string] || 'snack'}
+                  time={meal?.time || ''}
+                  totalCalories={meal?.totalNutrition?.calories || 0}
+                  foods={(Array.isArray(meal?.items) ? meal.items : []).map((i) => ({
+                    name: i?.food?.name || 'Bilinmeyen',
+                    calories: Math.round((i?.food?.nutrition?.calories || 0) * (i?.quantity || 1)),
                   }))}
                 />
               </View>

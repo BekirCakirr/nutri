@@ -30,22 +30,25 @@ const suggestedPrompts = [
   { icon: FileText, label: 'Hasta raporu özetle', prompt: 'Ayşe Yılmaz hastasının son 1 aylık ilerlemesini özetle.' },
 ]
 
-const welcomeMessage: ChatMessage = {
+const buildWelcomeMessage = (): ChatMessage => ({
   id: 'welcome',
   role: 'assistant',
   content: 'Merhaba! NutriAI asistanınızım. Size diyet planı oluşturma, besin analizi, hasta raporu hazırlama ve beslenme önerileri konularında yardımcı olabilirim. Nasıl yardımcı olabilirim?',
   timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-}
+})
 
 export default function AIAssistantPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([welcomeMessage])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [buildWelcomeMessage()])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
     }
   }, [messages, isLoading])
 
@@ -70,11 +73,14 @@ export default function AIAssistantPage() {
       const aiMessage: ChatMessage = {
         id: String(Date.now() + 1),
         role: 'assistant',
-        content: reply.content || 'Yanıt alınamadı, lütfen tekrar deneyin.',
+        content: (reply.content && reply.content.trim().length > 0)
+          ? reply.content
+          : 'Yanıt alınamadı, lütfen tekrar deneyin.',
         timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
       }
       setMessages((prev) => [...prev, aiMessage])
-    } catch {
+    } catch (err) {
+      console.error('AI chat error:', err)
       const errorMessage: ChatMessage = {
         id: String(Date.now() + 1),
         role: 'assistant',

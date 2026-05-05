@@ -159,9 +159,9 @@ export default function MealLogScreen() {
 
       <View style={styles.mealsListWrapper}>
         {MEAL_TYPES.map((type) => {
-          const mealsForType = mealsByType[type]
-          const config = mealTypeConfig[type]
-          const color = nutritionColors.mealType[type]
+          const mealsForType = mealsByType[type] || []
+          const config = mealTypeConfig[type] || mealTypeConfig.snack
+          const color = nutritionColors.mealType[type] || nutritionColors.mealType.snack
 
           if (mealsForType.length === 0) {
             const idx = cardIndex++
@@ -198,7 +198,14 @@ export default function MealLogScreen() {
                 <View style={styles.mealCardShadow}>
                   <MealCard
                     mealType={meal.type}
-                    foods={(meal.items || []).map((i) => ({ name: i.food?.name || 'Bilinmeyen', calories: Math.round((i.food?.nutrition?.calories || 0) * (i.quantity || 1)) }))}
+                    foods={(meal.items || []).map((i) => {
+                      const servingSize = i.food?.servingSize || 1
+                      const mult = (i.quantity || 0) / servingSize
+                      return {
+                        name: i.food?.name || 'Bilinmeyen',
+                        calories: Math.round((i.food?.nutrition?.calories || 0) * mult),
+                      }
+                    })}
                     totalCalories={Math.round(meal.totalNutrition?.calories || 0)}
                     time={meal.time}
                     onPress={() => navigation.navigate('MealDetail', { mealId: meal.id })}

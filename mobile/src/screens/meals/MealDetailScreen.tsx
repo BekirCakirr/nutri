@@ -5,6 +5,7 @@ import {
   Alert,
   StyleSheet,
   Animated,
+  Image,
 } from 'react-native'
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
@@ -134,6 +135,18 @@ export default function MealDetailScreen() {
 
   return (
     <ScreenWrapper scrollable>
+      {/* Mock meal hero image (picsum fallback) */}
+      <Animated.View style={[styles.heroWrap, fadeIn.style]}>
+        <Image
+          source={{ uri: `https://picsum.photos/seed/food-${meal.id}/600/300` }}
+          style={styles.heroImage}
+        />
+        <View style={[styles.heroBadge, { backgroundColor: typeColor }]}>
+          <Ionicons name={typeIcon as keyof typeof Ionicons.glyphMap} size={16} color="#FFF" />
+          <Text style={styles.heroBadgeText}>{typeLabel}</Text>
+        </View>
+      </Animated.View>
+
       {/* Meal Type Header */}
       <Animated.View style={[styles.header, fadeIn.style]}>
         <View style={[styles.typeIconCircle, { backgroundColor: typeColor + '20' }]}>
@@ -149,17 +162,21 @@ export default function MealDetailScreen() {
       <SectionHeader title="Yiyecekler" style={styles.sectionHeader} />
 
       <View style={styles.foodList}>
-        {meal.items.map((item, index) => (
-          <FoodListItem
-            key={`${item.food.id}-${index}`}
-            name={item.food.name}
-            brand={item.food.brand}
-            calories={Math.round(
-              item.food.nutrition.calories * (item.quantity / item.food.servingSize),
-            )}
-            servingSize={`${item.quantity} ${item.unit}`}
-          />
-        ))}
+        {(Array.isArray(meal.items) ? meal.items : []).map((item, index) => {
+          const servingSize = item.food?.servingSize || 1
+          const mult = (item.quantity || 0) / servingSize
+          return (
+            <FoodListItem
+              key={`${item.food?.id ?? 'item'}-${index}`}
+              name={item.food?.name || 'Bilinmeyen'}
+              brand={item.food?.brand}
+              calories={Math.round((item.food?.nutrition?.calories || 0) * mult)}
+              servingSize={`${item.quantity} ${item.unit}`}
+              showThumbnail
+              imageSeed={item.food?.id || `${index}-${item.food?.name}`}
+            />
+          )
+        })}
       </View>
 
       {/* Nutrition Label */}
@@ -209,6 +226,33 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.lg,
     color: colors.text.disabled,
     marginTop: spacing.md,
+  },
+  heroWrap: {
+    marginBottom: spacing.lg,
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+    ...shadows.sm,
+  },
+  heroImage: {
+    width: '100%',
+    height: 180,
+    backgroundColor: colors.border,
+  },
+  heroBadge: {
+    position: 'absolute',
+    bottom: spacing.md,
+    left: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    borderRadius: borderRadius.md,
+    gap: 6,
+  },
+  heroBadgeText: {
+    color: '#FFFFFF',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semibold,
   },
   header: {
     flexDirection: 'row',

@@ -86,6 +86,10 @@ export function AppSidebar() {
   const userInitials = user
     ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
     : 'DY'
+  // Pravatar fallback for stable demo avatars when backend has no avatar URL
+  const avatarSrc =
+    user?.avatar ||
+    (user?.email ? `https://i.pravatar.cc/150?u=${encodeURIComponent(user.email)}` : undefined)
 
   const handleLogout = () => {
     logout()
@@ -181,7 +185,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border p-3">
         <div className="flex items-center gap-3 rounded-lg px-2 py-1.5">
           <Avatar className="h-8 w-8 ring-2 ring-primary/10">
-            {user?.avatar && <AvatarImage src={user.avatar} alt={userName} />}
+            {avatarSrc && <AvatarImage src={avatarSrc} alt={userName} />}
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
               {userInitials}
             </AvatarFallback>

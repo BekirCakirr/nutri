@@ -66,15 +66,15 @@ export default function SettingsPage() {
             <User className="h-3.5 w-3.5" />
             Profil
           </TabsTrigger>
-          <TabsTrigger value="working-hours" className="gap-1.5">
+          <TabsTrigger value="working-hours" className="gap-1.5" title="Yakinda">
             <Clock className="h-3.5 w-3.5" />
             Calısma Saatleri
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-1.5">
+          <TabsTrigger value="notifications" className="gap-1.5" title="Yakinda">
             <Bell className="h-3.5 w-3.5" />
             Bildirimler
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-1.5">
+          <TabsTrigger value="security" className="gap-1.5" title="Yakinda">
             <Shield className="h-3.5 w-3.5" />
             Guvenlik
           </TabsTrigger>
@@ -185,12 +185,8 @@ export default function SettingsPage() {
                 })}
               </div>
               <div className="flex justify-end mt-5">
-                <Button onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
+                <Button disabled title="Yakinda">
+                  <Save className="h-4 w-4" />
                   Kaydet
                 </Button>
               </div>
@@ -251,7 +247,7 @@ export default function SettingsPage() {
                 <Input id="confirm-password" type="password" />
               </div>
               <div className="flex justify-end">
-                <Button onClick={handleSave} disabled={isSaving}>
+                <Button disabled title="Yakinda">
                   <Shield className="h-4 w-4" />
                   Sifreyi Degistir
                 </Button>

@@ -56,9 +56,16 @@ export default function VideoCallPage() {
       <div className="flex-1 flex flex-col">
         {/* Video */}
         <div className="flex-1 relative">
-          {/* Remote Video (placeholder) */}
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
-            <div className="text-center animate-fade-up">
+          {/* Remote Video (placeholder with telemed background) */}
+          <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=800"
+              alt="Telekonsültasyon"
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
+              onError={(e) => { e.currentTarget.style.display = 'none' }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/60 to-gray-950/90" />
+            <div className="text-center animate-fade-up relative z-10">
               <Avatar className="h-28 w-28 mx-auto mb-4 ring-4 ring-gray-700/50">
                 <AvatarFallback className="text-3xl bg-gray-800 text-gray-300">AY</AvatarFallback>
               </Avatar>

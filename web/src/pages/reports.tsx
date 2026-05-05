@@ -106,9 +106,15 @@ export default function ReportsPage() {
   const [selectedPatient, setSelectedPatient] = useState('all')
   const { patients: allPatients, isLoading: patientsLoading } = usePatients()
 
+  // Dynamic default dates: last 7 days
+  const today = new Date()
+  const weekAgo = new Date(today); weekAgo.setDate(today.getDate() - 7)
+  const fmtDate = (d: Date) => d.toISOString().split('T')[0]
+
   // Derive patient summary from real patient data
+  const safeAllPatients = Array.isArray(allPatients) ? allPatients : []
   const patientSummary = useMemo(() =>
-    allPatients.map((p: any) => ({
+    safeAllPatients.map((p: any) => ({
       id: p.id,
       name: `${p.firstName || p.first_name || ''} ${p.lastName || p.last_name || ''}`.trim() || 'Hasta',
       adherence: p.adherence_score ?? p.adherenceScore ?? 0,
@@ -117,12 +123,12 @@ export default function ReportsPage() {
       weight: p.weight_change || p.weightChange ? `${(p.weight_change || p.weightChange) > 0 ? '+' : ''}${p.weight_change || p.weightChange} kg` : '-',
       status: p.status ?? 'active',
     })),
-    [allPatients],
+    [safeAllPatients],
   )
 
-  const activePatientCount = allPatients.filter((p: any) => p.status === 'active').length
-  const avgAdherence = allPatients.length > 0
-    ? Math.round(allPatients.reduce((sum: number, p: any) => sum + (p.adherenceScore ?? 0), 0) / allPatients.length)
+  const activePatientCount = safeAllPatients.filter((p: any) => p.status === 'active').length
+  const avgAdherence = safeAllPatients.length > 0
+    ? Math.round(safeAllPatients.reduce((sum: number, p: any) => sum + (p.adherenceScore ?? 0), 0) / safeAllPatients.length)
     : 0
 
   if (patientsLoading) return <DashboardSkeleton />
@@ -193,11 +199,11 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-muted-foreground">Baslangic Tarihi</Label>
-              <Input type="date" defaultValue="2026-02-18" />
+              <Input type="date" defaultValue={fmtDate(weekAgo)} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-muted-foreground">Bitis Tarihi</Label>
-              <Input type="date" defaultValue="2026-02-25" />
+              <Input type="date" defaultValue={fmtDate(today)} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-muted-foreground">Hasta</Label>
@@ -234,7 +240,7 @@ export default function ReportsPage() {
         />
         <StatCard
           title="Toplam Hasta"
-          value={allPatients.length}
+          value={safeAllPatients.length}
           icon={Utensils}
           color="yellow"
         />

@@ -75,8 +75,9 @@ export default function InviteCodePage() {
 
   useEffect(() => {
     if (!isLoading && hookCodes) {
-      if (hookCodes.length > 0) {
-        setCodes(hookCodes.map((c: any) => ({
+      const safeCodes = Array.isArray(hookCodes) ? hookCodes : []
+      if (safeCodes.length > 0) {
+        setCodes(safeCodes.map((c: any) => ({
           id: c.id,
           code: c.code ?? '',
           createdAt: c.createdAt?.split('T')[0] ?? '',
@@ -264,15 +265,29 @@ export default function InviteCodePage() {
             <DialogDescription>Bu QR kodu hastanıza gosterin veya paylasin.</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center py-6">
-            <div className="flex h-48 w-48 items-center justify-center rounded-xl border-2 border-dashed border-border bg-secondary/50 mb-4">
-              <div className="text-center text-muted-foreground">
-                <QrCode className="mx-auto mb-2 h-16 w-16" />
-                <p className="text-xs">QR Kod Alanı</p>
-              </div>
+            <div className="flex h-52 w-52 items-center justify-center rounded-xl border bg-white p-3 mb-4 shadow-sm">
+              {selectedCode ? (
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(selectedCode)}`}
+                  alt={`QR Kod: ${selectedCode}`}
+                  className="h-full w-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  <QrCode className="mx-auto mb-2 h-16 w-16" />
+                  <p className="text-xs">QR Kod Alanı</p>
+                </div>
+              )}
             </div>
             <code className="rounded-lg bg-secondary px-4 py-2 font-mono text-sm font-medium">
               {selectedCode}
             </code>
+            <p className="text-xs text-muted-foreground mt-3 text-center max-w-xs">
+              Hastanız bu QR kodu mobil uygulamadan tarayarak hesabınıza bağlanabilir.
+            </p>
           </div>
         </DialogContent>
       </Dialog>

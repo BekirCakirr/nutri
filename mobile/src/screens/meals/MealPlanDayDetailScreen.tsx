@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
+import type { StackNavigationProp } from '@react-navigation/stack'
 import type { MealsStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
@@ -10,6 +11,7 @@ import { usePlanStore } from '../../stores/planStore'
 import { colors } from '../../theme/colors'
 
 type Route = RouteProp<MealsStackParamList, 'MealPlanDayDetail'>
+type Nav = StackNavigationProp<MealsStackParamList, 'MealPlanDayDetail'>
 
 const mealTypeLabels: Record<string, { label: string; icon: string; color: string }> = {
   breakfast: { label: 'Kahvaltı', icon: 'sunny-outline', color: '#F59E0B' },
@@ -40,23 +42,34 @@ const mockDayItems = [
 ]
 
 export default function MealPlanDayDetailScreen() {
-  const navigation = useNavigation()
+  const navigation = useNavigation<Nav>()
   const route = useRoute<Route>()
-  const { date } = route.params
+  const { date } = route.params ?? { date: new Date().toISOString().split('T')[0] }
 
   const activePlan = usePlanStore((s) => s.activePlan)
   const loadActivePlan = usePlanStore((s) => s.loadActivePlan)
   const [loading, setLoading] = useState(!activePlan)
 
   useEffect(() => {
+    let cancelled = false
     if (!activePlan) {
-      loadActivePlan().finally(() => setLoading(false))
+      loadActivePlan()
+        .catch(() => {})
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
     } else {
       setLoading(false)
     }
+    return () => {
+      cancelled = true
+    }
   }, [activePlan, loadActivePlan])
 
-  const d = new Date(date)
+  const safeDate = date && !Number.isNaN(new Date(date).getTime())
+    ? date
+    : new Date().toISOString().split('T')[0]
+  const d = new Date(safeDate)
   const mappedDayOfWeek = d.getDay() === 0 ? 7 : d.getDay()
   const dayLabel = `${turkishDays[d.getDay()]}, ${d.getDate()} ${turkishMonths[d.getMonth()]}`
 
@@ -71,8 +84,9 @@ export default function MealPlanDayDetailScreen() {
     )
   }
 
-  // Use backend data or mock
-  const backendItems = activePlan?.items?.filter((i) => i.day_of_week === mappedDayOfWeek) || []
+  // Use backend data or mock — backend may return day_of_week as string or number
+  const allItems = Array.isArray(activePlan?.items) ? (activePlan?.items ?? []) : []
+  const backendItems = allItems.filter((i) => Number(i?.day_of_week) === mappedDayOfWeek)
   const dayItems = backendItems.length > 0 ? backendItems : mockDayItems
 
   // Calculate totals

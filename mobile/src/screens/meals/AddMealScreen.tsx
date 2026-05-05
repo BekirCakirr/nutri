@@ -36,6 +36,7 @@ export default function AddMealScreen() {
   const [items, setItems] = useState<MealItem[]>([])
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
+  const [entryMethod, setEntryMethod] = useState<'manual' | 'photo_ai'>('manual')
 
   // Handle returned food from FoodDetail
   useEffect(() => {
@@ -53,11 +54,13 @@ export default function AddMealScreen() {
       // Clear params
       navigation.setParams({ selectedFood: undefined, selectedQuantity: undefined, selectedUnit: undefined })
     }
-    if (params?.aiFoods) {
+    if (params?.aiFoods && Array.isArray(params.aiFoods) && params.aiFoods.length > 0) {
+      const aiFoodsArr = params.aiFoods
+      setEntryMethod('photo_ai')
       setItems((prev) => {
         const newItems = [...prev]
-        params.aiFoods!.forEach((aiItem) => {
-          if (!newItems.some((i) => i.food.id === aiItem.food.id)) {
+        aiFoodsArr.forEach((aiItem) => {
+          if (aiItem?.food?.id && !newItems.some((i) => i.food.id === aiItem.food.id)) {
             newItems.push(aiItem)
           }
         })
@@ -70,11 +73,13 @@ export default function AddMealScreen() {
   const totals = useMemo(() => {
     let calories = 0, protein = 0, carbs = 0, fat = 0
     for (const item of items) {
-      const mult = item.quantity / item.food.servingSize
-      calories += item.food.nutrition.calories * mult
-      protein += item.food.nutrition.protein * mult
-      carbs += item.food.nutrition.carbs * mult
-      fat += item.food.nutrition.fat * mult
+      if (!item?.food?.nutrition) continue
+      const servingSize = item.food.servingSize || 1
+      const mult = (item.quantity || 0) / servingSize
+      calories += (item.food.nutrition.calories || 0) * mult
+      protein += (item.food.nutrition.protein || 0) * mult
+      carbs += (item.food.nutrition.carbs || 0) * mult
+      fat += (item.food.nutrition.fat || 0) * mult
     }
     return {
       calories: Math.round(calories),
@@ -95,11 +100,11 @@ export default function AddMealScreen() {
       const now = new Date()
       const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
       const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-      await addMeal(mealType, items, date, time)
+      await addMeal(mealType, items, date, time, entryMethod)
       navigation.goBack()
-    } catch {
+    } catch (err: any) {
       const { Alert } = require('react-native')
-      Alert.alert('Hata', 'Öğün kaydedilemedi. Lütfen tekrar deneyin.')
+      Alert.alert('Hata', err?.message || 'Öğün kaydedilemedi. Lütfen tekrar deneyin.')
     } finally {
       setSaving(false)
     }
@@ -120,20 +125,27 @@ export default function AddMealScreen() {
         </View>
       ) : (
         <View style={styles.itemsList}>
-          {items.map((item, index) => (
-            <FoodListItem
-              key={`${item.food.id}-${index}`}
-              name={item.food.name}
-              brand={item.food.brand}
-              calories={Math.round(item.food.nutrition.calories * (item.quantity / item.food.servingSize))}
-              servingSize={`${item.quantity} ${item.unit}`}
-              rightAction={
-                <TouchableOpacity onPress={() => removeItem(index)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                  <Ionicons name="trash-outline" size={20} color={colors.error} />
-                </TouchableOpacity>
-              }
-            />
-          ))}
+          {items.map((item, index) => {
+            const servingSize = item.food?.servingSize || 1
+            const mult = (item.quantity || 0) / servingSize
+            const itemCalories = Math.round((item.food?.nutrition?.calories || 0) * mult)
+            return (
+              <FoodListItem
+                key={`${item.food?.id ?? 'item'}-${index}`}
+                name={item.food?.name || 'Bilinmeyen'}
+                brand={item.food?.brand}
+                calories={itemCalories}
+                servingSize={`${item.quantity} ${item.unit}`}
+                showThumbnail
+                imageSeed={item.food?.id || `${index}-${item.food?.name}`}
+                rightAction={
+                  <TouchableOpacity onPress={() => removeItem(index)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                    <Ionicons name="trash-outline" size={20} color={colors.error} />
+                  </TouchableOpacity>
+                }
+              />
+            )
+          })}
         </View>
       )}
 

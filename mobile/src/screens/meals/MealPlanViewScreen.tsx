@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -112,15 +112,59 @@ const mockPlan: WeeklyPlan = {
   ],
 }
 
+function buildDaysFromItems(plan: WeeklyPlan | null | undefined): NonNullable<WeeklyPlan['days']> {
+  if (!plan) return []
+  if (Array.isArray(plan.days) && plan.days.length > 0) return plan.days
+  const items = Array.isArray(plan.items) ? plan.items : []
+  if (items.length === 0) return []
+
+  const start = new Date()
+  start.setDate(start.getDate() - start.getDay() + 1)
+  const grouped: Record<number, NonNullable<WeeklyPlan['days']>[number]> = {}
+  for (const it of items) {
+    const dow = Number(it?.day_of_week) || 1
+    const d = new Date(start)
+    d.setDate(d.getDate() + (dow - 1))
+    const dayKey = d.toISOString().split('T')[0]
+    if (!grouped[dow]) {
+      grouped[dow] = { day: dayKey, totalCalories: 0, meals: [] }
+    }
+    const cal = Number(it?.calories) || 0
+    grouped[dow].totalCalories += cal
+    grouped[dow].meals.push({
+      type: (it?.meal_type as 'breakfast' | 'lunch' | 'dinner' | 'snack') || 'snack',
+      name: String(it?.food_name ?? ''),
+      foods: [],
+      nutrition: {
+        calories: cal,
+        protein: Number(it?.protein) || 0,
+        carbs: Number(it?.carbs) || 0,
+        fat: Number(it?.fat) || 0,
+        fiber: 0,
+        sugar: 0,
+        sodium: 0,
+      },
+    })
+  }
+  return Object.keys(grouped)
+    .map((k) => Number(k))
+    .sort((a, b) => a - b)
+    .map((k) => grouped[k])
+}
+
 export default function MealPlanViewScreen() {
   const navigation = useNavigation<Nav>()
   const { activePlan, loadActivePlan } = usePlan()
 
   useEffect(() => {
-    loadActivePlan()
+    loadActivePlan().catch(() => {})
   }, [loadActivePlan])
 
-  const plan = activePlan?.days?.length ? activePlan : mockPlan
+  const builtDays = buildDaysFromItems(activePlan) ?? []
+  const hasRealPlan = (activePlan?.days?.length ?? 0) > 0 || builtDays.length > 0
+  const plan: WeeklyPlan = hasRealPlan
+    ? ({ ...(activePlan as WeeklyPlan), days: builtDays.length > 0 ? builtDays : (activePlan?.days ?? []) })
+    : mockPlan
   const planDays = plan.days ?? []
   const totalDays = planDays.length
   const avgCals = totalDays > 0
@@ -131,12 +175,18 @@ export default function MealPlanViewScreen() {
     <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="Beslenme Planı" onBack={() => navigation.goBack()} />
       <ScrollView style={s.scroll} showsVerticalScrollIndicator={false}>
+        {/* Hero banner image */}
+        <Image
+          source={{ uri: 'https://picsum.photos/seed/healthy-food-plate/800/400' }}
+          style={s.heroImage}
+          resizeMode="cover"
+        />
         {/* Plan overview */}
         <View style={s.overviewCard}>
           <View style={s.overviewBadge}>
             <Ionicons name="nutrition" size={16} color="#FFF" />
           </View>
-          <Text style={s.planTitle}>{(plan as any).name || 'Haftalık Plan'}</Text>
+          <Text style={s.planTitle}>{plan.name || 'Haftalık Plan'}</Text>
           <Text style={s.planSubtitle}>Diyetisyeniniz tarafından sizin için hazırlandı</Text>
           <View style={s.statsRow}>
             <View style={s.statBox}>
@@ -171,7 +221,7 @@ export default function MealPlanViewScreen() {
               key={index}
               style={[s.dayCard, isToday && s.dayCardToday]}
               activeOpacity={0.7}
-              onPress={() => navigation.navigate('MealPlanDayDetail', { date: dayPlan.day })}
+              onPress={() => navigation.navigate('MealPlanDayDetail', { date: dayPlan.day || new Date().toISOString().split('T')[0] })}
             >
               <View style={s.dayHeader}>
                 <View style={s.dayNameRow}>
@@ -208,6 +258,13 @@ const s = StyleSheet.create({
     backgroundColor: '#F8FAF9',
     paddingHorizontal: 20,
     paddingTop: 16,
+  },
+  heroImage: {
+    width: '100%',
+    height: 140,
+    borderRadius: 20,
+    marginBottom: 16,
+    backgroundColor: '#E8F0EC',
   },
   overviewCard: {
     backgroundColor: colors.primary.main,

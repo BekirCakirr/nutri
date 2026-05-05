@@ -6,7 +6,7 @@ import type { ProfileStackParamList } from '../../navigation/types'
 import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { AppHeader } from '../../components/common/AppHeader'
 import { useAuthStore } from '../../stores/authStore'
-import * as authApi from '../../services/api/auth'
+import apiClient from '../../services/api/client'
 import { colors } from '../../theme/colors'
 import { fontWeights } from '../../theme/typography'
 
@@ -15,33 +15,48 @@ type Nav = StackNavigationProp<ProfileStackParamList>
 export default function EditProfileScreen() {
   const navigation = useNavigation<Nav>()
   const user = useAuthStore((s) => s.user)
-  const raw = user as any
+  const raw = (user ?? {}) as Record<string, unknown>
 
-  const profile = raw?.profile || raw || {}
-  const initName = `${profile.first_name || raw?.firstName || ''} ${profile.last_name || raw?.lastName || ''}`.trim() || ''
-  const initEmail = raw?.email || ''
-  const initPhone = profile.phone || raw?.phone || ''
+  const profile = ((raw?.profile as Record<string, unknown>) || raw || {}) as Record<string, unknown>
+  const firstName = String(profile.first_name ?? raw?.firstName ?? raw?.first_name ?? '')
+  const lastName = String(profile.last_name ?? raw?.lastName ?? raw?.last_name ?? '')
+  const initName = `${firstName} ${lastName}`.trim()
+  const initEmail = String(raw?.email ?? '')
+  const initPhone = String(profile.phone ?? raw?.phone ?? '')
 
   const [name, setName] = useState(initName)
-  const [email, setEmail] = useState(initEmail)
+  const [email] = useState(initEmail)
   const [phone, setPhone] = useState(initPhone)
   const [saving, setSaving] = useState(false)
 
-  const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || '?'
+  const initials = (name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map((n: string) => (n && n[0]) ? n[0] : '')
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || '?'
 
   const handleSave = async () => {
+    if (saving) return
+    const trimmed = name.trim()
+    if (!trimmed) {
+      Alert.alert('Eksik Bilgi', 'Ad Soyad alanı boş olamaz.')
+      return
+    }
     setSaving(true)
     try {
-      const parts = name.trim().split(/\s+/)
-      await authApi.updateUser({
-        firstName: parts[0] || '',
-        lastName: parts.slice(1).join(' ') || '',
-        phone,
-      } as any)
+      const parts = trimmed.split(/\s+/)
+      // Backend expects snake_case (PUT /patients/me)
+      await apiClient.put('/patients/me', {
+        first_name: parts[0] || '',
+        last_name: parts.slice(1).join(' ') || '',
+      })
       Alert.alert('Başarılı', 'Profiliniz güncellendi.')
       navigation.goBack()
-    } catch {
-      Alert.alert('Hata', 'Profil güncellenemedi.')
+    } catch (err) {
+      console.warn('Profil güncellenemedi:', err)
+      Alert.alert('Hata', 'Profil güncellenemedi. Lütfen tekrar deneyin.')
     } finally {
       setSaving(false)
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -22,38 +22,52 @@ export default function PhotoAnalysisScreen() {
 
   useEffect(() => {
     async function fetchAnalysis() {
-      if (!route.params.base64) {
+      const base64 = route.params?.base64
+      if (!base64) {
         setErrorMsg('Fotoğraf bulunamadı. Lütfen tekrar deneyin.')
         setAnalyzing(false)
         return
       }
       try {
-        const res = await analyzeImage(route.params.base64)
-        if (!res.foods || res.foods.length === 0) {
-          setErrorMsg('AI yemeği tanıyamadı. Daha net bir fotoğraf çekip tekrar deneyin.')
+        const res = await analyzeImage(base64)
+        // Filtre: Geçerli isim VE kalori > 0 olan besinleri al
+        const validFoods = (res?.foods || []).filter(
+          (f) => (f?.name || '').trim() && (f?.name || '') !== 'Bilinmeyen Besin' && Number(f?.calories) > 0
+        )
+
+        if (validFoods.length === 0) {
+          setErrorMsg('Bu fotoğrafta yemek tespit edilemedi. Lütfen daha net bir fotoğraf çekmeyi deneyin.')
         } else {
-          setResult(res)
+          setResult({ foods: validFoods, confidence: res.confidence })
         }
-      } catch (error) {
-        console.warn('AI analysis failed', error)
-        setErrorMsg('AI servisine ulaşılamadı. İnternet bağlantınızı kontrol edin.')
+      } catch (error: any) {
+        const detail = error?.message || 'Bilinmeyen hata'
+        // eslint-disable-next-line no-console
+        console.error('AI analiz hatası:', detail)
+        setErrorMsg(`AI analiz başarısız: ${detail}`)
       } finally {
         setAnalyzing(false)
       }
     }
     fetchAnalysis()
-  }, [route.params.base64])
+  }, [route.params?.base64])
 
-  const totalCal = result?.foods.reduce((s, f) => s + f.calories, 0) ?? 0
+  const totalCal = (result?.foods ?? []).reduce((s, f) => s + (Number(f?.calories) || 0), 0)
 
   return (
     <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader title="AI Analizi" onBack={() => navigation.goBack()} />
-      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }}showsVerticalScrollIndicator={false}>
-        {/* Photo preview placeholder */}
+      <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 20, paddingTop: 16 }} showsVerticalScrollIndicator={false}>
+        {/* Photo preview */}
         <View style={{ height: 192, backgroundColor: '#1A2E23', borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginBottom: 24, overflow: 'hidden' }}>
-          <Ionicons name="image-outline" size={48} color="rgba(255,255,255,0.4)" />
-          <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, marginTop: 8 }}>Fotoğraf önizleme</Text>
+          {route.params?.photoUri ? (
+            <Image source={{ uri: route.params.photoUri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          ) : (
+            <>
+              <Ionicons name="image-outline" size={48} color="rgba(255,255,255,0.4)" />
+              <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, marginTop: 8 }}>Fotoğraf önizleme</Text>
+            </>
+          )}
         </View>
 
         {analyzing ? (
@@ -82,9 +96,9 @@ export default function PhotoAnalysisScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A2E23' }}>
-                  %{Math.round(result.confidence * 100)} güvenilirlik
+                  %{Math.round((result?.confidence ?? 0) * 100)} güvenilirlik
                 </Text>
-                <Text style={{ fontSize: 12, color: '#5A7264' }}>{result.foods.length} besin tespit edildi</Text>
+                <Text style={{ fontSize: 12, color: '#5A7264' }}>{result?.foods?.length ?? 0} besin tespit edildi</Text>
               </View>
               <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A5C37' }}>{totalCal} kcal</Text>
             </View>
@@ -112,39 +126,46 @@ export default function PhotoAnalysisScreen() {
             <View style={{ marginTop: 16, gap: 12, marginBottom: 32 }}>
               <TouchableOpacity
                 style={{ backgroundColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center', shadowColor: '#1A5C37', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
-                onPress={() => navigation.navigate('AdjustPortions', { analysisId: 'mock' })}
-              >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>Porsiyonları Düzenle</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ borderWidth: 2, borderColor: '#1A5C37', borderRadius: 12, paddingVertical: 16, alignItems: 'center' , backgroundColor: '#FFFFFF' }}onPress={() => {
-                  const mappedFoods = result.foods.map((f, i) => ({
-                    food: {
-                      id: `ai-${Date.now()}-${i}`,
-                      name: f.name,
-                      category: 'other' as const,
-                      servingSize: 1,
-                      servingUnit: f.portion,
-                      nutrition: {
-                        calories: f.calories,
-                        protein: f.protein,
-                        carbs: f.carbs,
-                        fat: f.fat
+                onPress={() => {
+                  const ts = Date.now()
+                  const mappedFoods = result.foods
+                    .filter((f) => (f?.name || '').trim() && (Number(f?.calories) || 0) > 0)
+                    .map((f, i) => {
+                      const grams = parseFloat(String(f?.portion || '').replace(/[^\d.]/g, '')) || 100
+                      return {
+                        food: {
+                          id: `ai-${ts}-${i}`,
+                          name: f?.name || 'Bilinmeyen',
+                          category: 'other' as const,
+                          servingSize: grams,
+                          servingUnit: 'g',
+                          nutrition: {
+                            calories: Number(f?.calories) || 0,
+                            protein: Number(f?.protein) || 0,
+                            carbs: Number(f?.carbs) || 0,
+                            fat: Number(f?.fat) || 0,
+                          },
+                        },
+                        quantity: grams,
+                        unit: 'g',
                       }
-                    },
-                    quantity: 1,
-                    unit: f.portion
-                  }))
-                  
+                    })
+
                   // Cross tab navigation to MealsTab -> AddMeal
                   // @ts-expect-error - cross-stack navigation param typing
                   navigation.navigate('MealsTab', {
                     screen: 'AddMeal',
-                    params: { aiFoods: mappedFoods }
+                    params: { aiFoods: mappedFoods },
                   })
                 }}
               >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A5C37' }}>Öğüne Ekle ✅</Text>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>Öğüne Ekle ✓</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ borderWidth: 2, borderColor: '#1A5C37', borderRadius: 12, paddingVertical: 14, alignItems: 'center', backgroundColor: '#FFFFFF' }}
+                onPress={() => navigation.goBack()}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A5C37' }}>Yeni Fotoğraf Çek</Text>
               </TouchableOpacity>
             </View>
           </>

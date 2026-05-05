@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
-import { approveMeal, rejectMeal } from '@/services/meal.service'
+import { approveMeal, rejectMeal, getMeals } from '@/services/meal.service'
 import {
   Search,
   Check,
@@ -579,41 +579,100 @@ function KanbanColumn({
 /* ─── Main Page Component ──────────────────────── */
 
 export default function MealReviewPage() {
-  // NOTE: backend /meals/history endpoint requires patientId for dietitians
-  // (current API design returns 400 when called without one).
-  // This page shows aggregated reviews across all patients, so we fall back
-  // to mock data here. Real per-patient meals are visible via patient detail.
-  const hookMeals: any[] = []
-  const isLoading = false
   const [reviews, setReviews] = useState<MealReview[]>([])
   const [search, setSearch] = useState('')
   const [mealTypeFilter, setMealTypeFilter] = useState('all')
   const [notes, setNotes] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Map API meals to review format when available
+  // Fetch all dietitian's patients' meals (backend now supports this)
   useEffect(() => {
-    if (Array.isArray(hookMeals) && hookMeals.length > 0) {
-      const mapped: MealReview[] = hookMeals.map((m: any) => ({
-        id: m.id,
-        patientName: m.patientName ?? 'Hasta',
-        patientId: m.patientId ?? '',
-        date: m.date ?? m.logDate ?? '',
-        mealType: m.type === 'breakfast' ? 'Kahvaltı' : m.type === 'lunch' ? 'Öğle' : m.type === 'dinner' ? 'Akşam' : 'Ara Öğün',
-        items: Array.isArray(m.items) ? m.items.map((i: any) => `${i.name ?? i.foodName ?? ''} (${i.portion ?? ''})`) : [],
-        totalCalories: m.calories ?? m.totalCalories ?? 0,
-        protein: m.protein ?? 0,
-        carbs: m.carbohydrates ?? m.carbs ?? 0,
-        fat: m.fat ?? 0,
-        imageUrl: m.imageUrl ?? null,
-        status: (m.dietitianViewed ? 'approved' : 'pending') as MealReview['status'],
-        aiScore: m.aiScore ?? 75,
-        aiSummary: m.aiSummary ?? '',
-      }))
-      setReviews(mapped)
-    } else {
-      setReviews(mockMealReviews)
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await getMeals({ startDate: '2020-01-01', endDate: '2099-12-31' })
+        const items = Array.isArray(res?.items) ? res.items : []
+        if (cancelled) return
+        if (items.length > 0) {
+          const mapped: MealReview[] = items.map((m: any) => {
+            // axios interceptor converts snake_case → camelCase, so prefer camelCase keys
+            const mealType = m.mealType ?? m.meal_type ?? m.type ?? ''
+            const tr =
+              mealType === 'breakfast' ? 'Kahvaltı'
+              : mealType === 'lunch' ? 'Öğle'
+              : mealType === 'dinner' ? 'Akşam'
+              : 'Ara Öğün'
+
+            // Sum item-level macros when meal-level totals are null (common for manual entries)
+            const itemList = Array.isArray(m.items) ? m.items : []
+            const sumField = (key: string) =>
+              itemList.reduce((acc: number, i: any) => acc + Number(i?.[key] ?? 0), 0)
+
+            const totalCalories = Number(m.totalCalories ?? m.total_calories ?? 0) || sumField('calories')
+            const protein = Number(m.totalProtein ?? m.total_protein ?? 0) || sumField('protein')
+            const carbs = Number(m.totalCarbs ?? m.total_carbs ?? 0) || sumField('carbs')
+            const fat = Number(m.totalFat ?? m.total_fat ?? 0) || sumField('fat')
+
+            const firstName = m.patientFirstName ?? m.patient_first_name ?? ''
+            const lastName = m.patientLastName ?? m.patient_last_name ?? ''
+            const patientName = m.patientName || `${firstName} ${lastName}`.trim() || 'Hasta'
+
+            const photoUrl = m.photoUrl ?? m.photo_url ?? m.imageUrl ?? null
+            // Mock thumbnail when no photo (deterministic by mealId)
+            const imageUrl = photoUrl || `https://picsum.photos/seed/${m.id}/400/300`
+
+            const dietitianViewed = m.dietitianViewed ?? m.dietitian_viewed ?? false
+            const dietitianFeedback: string = m.dietitianFeedback ?? m.dietitian_feedback ?? ''
+            // Heuristic: if feedback text contains rejection keywords, treat as rejected
+            const isRejected = dietitianViewed && /reddet|red\b|uygun değil|onaylanma/i.test(dietitianFeedback)
+            const status: MealReview['status'] = isRejected
+              ? 'rejected'
+              : dietitianViewed
+                ? 'approved'
+                : 'pending'
+
+            // Simple AI score heuristic when backend doesn't provide one
+            const aiScore = Number(m.aiScore ?? (totalCalories > 0 && totalCalories < 700 ? 82 : 70))
+            const entryMethod = m.entryMethod ?? m.entry_method
+            return {
+              id: m.id,
+              patientName,
+              patientId: m.patientId ?? m.patient_id ?? '',
+              date: String(m.logDate ?? m.log_date ?? m.date ?? '').slice(0, 10),
+              mealType: tr as MealReview['mealType'],
+              items: itemList.map((i: any) => {
+                const name = i.foodName ?? i.food_name ?? i.name ?? ''
+                const grams = i.finalAmountG ?? i.final_amount_g ?? i.amount ?? ''
+                return grams ? `${name} (${grams}g)` : name
+              }),
+              totalCalories: Math.round(totalCalories),
+              protein: Math.round(protein),
+              carbs: Math.round(carbs),
+              fat: Math.round(fat),
+              imageUrl,
+              status,
+              aiScore,
+              aiSummary:
+                m.aiSummary ??
+                dietitianFeedback ??
+                (entryMethod === 'photo_ai'
+                  ? 'AI fotoğraf analizi ile eklendi.'
+                  : 'Manuel olarak kaydedilmiş öğün.'),
+            }
+          })
+          setReviews(mapped)
+        } else {
+          setReviews(mockMealReviews)
+        }
+      } catch {
+        if (!cancelled) setReviews(mockMealReviews)
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
     }
-  }, [hookMeals])
+    load()
+    return () => { cancelled = true }
+  }, [])
 
   const handleApprove = async (id: string) => {
     const note = notes[id] || ''

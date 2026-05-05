@@ -43,6 +43,7 @@ export default function AllergyManagementScreen() {
     <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Alerji Yönetimi"
+        subtitle="Demo Verisi"
         onBack={() => navigation.goBack()}
       />
       <ScrollView style={{ flex: 1, backgroundColor: '#F8FAF9', paddingHorizontal: 16, paddingTop: 16 }}>

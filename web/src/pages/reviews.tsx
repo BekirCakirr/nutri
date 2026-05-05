@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
@@ -13,12 +13,14 @@ import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
 import { useReviews } from '@/hooks/use-reviews'
+import { useAuthStore } from '@/stores/auth-store'
 import type { Review } from '@/types/review'
 
 type ExtendedReview = Review & {
   rating?: number;
   dietitianResponse?: string;
   patientName: string;
+  patientAvatar?: string;
 }
 
 const mockReviews: ExtendedReview[] = [
@@ -26,52 +28,52 @@ const mockReviews: ExtendedReview[] = [
     id: 'mock-r1', reviewerId: 'p1', reviewerName: 'Ayşe Yılmaz', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 5, rating: 5, title: 'Harika bir deneyim', comment: 'Diyetisyenim beni çok iyi anlıyor, kişiye özel plan hazırladı. İlk ayda 4 kilo verdim. Kesinlikle tavsiye ederim!',
     helpfulCount: 12, unhelpfulCount: 0, isVerified: true, isAnonymous: false,
-    patientName: 'Ayşe Yılmaz', createdAt: '2026-04-10T10:00:00Z', updatedAt: '2026-04-10T10:00:00Z',
+    patientName: 'Ayşe Yılmaz', patientAvatar: 'https://i.pravatar.cc/80?u=ayse', createdAt: '2026-04-10T10:00:00Z', updatedAt: '2026-04-10T10:00:00Z',
     dietitianResponse: 'Teşekkür ederim Ayşe Hanım, başarılarınız devam edecek!',
   },
   {
     id: 'mock-r2', reviewerId: 'p2', reviewerName: 'Mehmet Kaya', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 4, rating: 4, title: 'Memnunum', comment: 'Planlar gerçekçi ve uygulanabilir. Sadece randevu saatleri biraz daha esnek olabilir. Genel olarak çok memnunum.',
     helpfulCount: 8, unhelpfulCount: 1, isVerified: true, isAnonymous: false,
-    patientName: 'Mehmet Kaya', createdAt: '2026-04-08T14:30:00Z', updatedAt: '2026-04-08T14:30:00Z',
+    patientName: 'Mehmet Kaya', patientAvatar: 'https://i.pravatar.cc/80?u=mehmet', createdAt: '2026-04-08T14:30:00Z', updatedAt: '2026-04-08T14:30:00Z',
   },
   {
     id: 'mock-r3', reviewerId: 'p3', reviewerName: 'Fatma Demir', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 5, rating: 5, title: 'Çok profesyonel', comment: 'Her görüşmede detaylı bilgi veriyor, sorularıma sabırla cevap veriyor. Kan değerlerim düzeldi, enerji seviyem arttı.',
     helpfulCount: 15, unhelpfulCount: 0, isVerified: true, isAnonymous: false,
-    patientName: 'Fatma Demir', createdAt: '2026-04-05T09:15:00Z', updatedAt: '2026-04-05T09:15:00Z',
+    patientName: 'Fatma Demir', patientAvatar: 'https://i.pravatar.cc/80?u=fatma', createdAt: '2026-04-05T09:15:00Z', updatedAt: '2026-04-05T09:15:00Z',
     dietitianResponse: 'Fatma Hanım, sağlık değerlerinizdeki iyileşme beni çok mutlu etti. Devam edelim!',
   },
   {
     id: 'mock-r4', reviewerId: 'p4', reviewerName: 'Zeynep Çelik', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 3, rating: 3, title: 'İdare eder', comment: 'Beslenme planı fena değil ama biraz daha çeşitlilik olabilirdi. Aynı yemekler tekrar ediyor.',
     helpfulCount: 5, unhelpfulCount: 2, isVerified: true, isAnonymous: false,
-    patientName: 'Zeynep Çelik', createdAt: '2026-04-02T16:45:00Z', updatedAt: '2026-04-02T16:45:00Z',
+    patientName: 'Zeynep Çelik', patientAvatar: 'https://i.pravatar.cc/80?u=zeynep', createdAt: '2026-04-02T16:45:00Z', updatedAt: '2026-04-02T16:45:00Z',
   },
   {
     id: 'mock-r5', reviewerId: 'p5', reviewerName: 'Ali Öztürk', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 5, rating: 5, title: 'Sonuçlar muhteşem', comment: 'Spor ve beslenmeyi birlikte planlıyoruz. 3 ayda hedef kilomu yakaladım. Kas kütlem arttı, yağ oranım düştü.',
     helpfulCount: 20, unhelpfulCount: 0, isVerified: true, isAnonymous: false,
-    patientName: 'Ali Öztürk', createdAt: '2026-03-28T11:00:00Z', updatedAt: '2026-03-28T11:00:00Z',
+    patientName: 'Ali Öztürk', patientAvatar: 'https://i.pravatar.cc/80?u=ali', createdAt: '2026-03-28T11:00:00Z', updatedAt: '2026-03-28T11:00:00Z',
   },
   {
     id: 'mock-r6', reviewerId: 'p6', reviewerName: 'Selin Aydın', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 4, rating: 4, title: 'İyi takip', comment: 'Uygulama üzerinden takip çok pratik. Öğün fotoğraflarına hızlı geri dönüş yapıyor. Tek eksik video görüşme seçeneği.',
     helpfulCount: 7, unhelpfulCount: 0, isVerified: true, isAnonymous: false,
-    patientName: 'Selin Aydın', createdAt: '2026-03-25T08:30:00Z', updatedAt: '2026-03-25T08:30:00Z',
+    patientName: 'Selin Aydın', patientAvatar: 'https://i.pravatar.cc/80?u=selin', createdAt: '2026-03-25T08:30:00Z', updatedAt: '2026-03-25T08:30:00Z',
   },
   {
     id: 'mock-r7', reviewerId: 'p7', reviewerName: 'Hakan Yıldız', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 4, rating: 4, title: 'Güvenilir ve bilgili', comment: 'Diyabet hastası olarak özel planıma çok dikkat ediyor. Şeker değerlerim kontrol altında. Teşekkürler.',
     helpfulCount: 10, unhelpfulCount: 1, isVerified: true, isAnonymous: false,
-    patientName: 'Hakan Yıldız', createdAt: '2026-03-20T13:00:00Z', updatedAt: '2026-03-20T13:00:00Z',
+    patientName: 'Hakan Yıldız', patientAvatar: 'https://i.pravatar.cc/80?u=hakan', createdAt: '2026-03-20T13:00:00Z', updatedAt: '2026-03-20T13:00:00Z',
     dietitianResponse: 'Hakan Bey, düzenli takibiniz sayesinde harika ilerliyorsunuz.',
   },
   {
     id: 'mock-r8', reviewerId: 'p8', reviewerName: 'Elif Arslan', targetType: 'dietitian', targetId: 'd1', status: 'approved',
     overallRating: 3, rating: 3, title: 'Fena değil ama gelişebilir', comment: 'Genel yaklaşım iyi fakat hafta sonu programları biraz zor oluyor. Sosyal hayata uygun alternatifler sunulabilir.',
     helpfulCount: 4, unhelpfulCount: 3, isVerified: true, isAnonymous: false,
-    patientName: 'Elif Arslan', createdAt: '2026-03-15T17:20:00Z', updatedAt: '2026-03-15T17:20:00Z',
+    patientName: 'Elif Arslan', patientAvatar: 'https://i.pravatar.cc/80?u=elifarslan', createdAt: '2026-03-15T17:20:00Z', updatedAt: '2026-03-15T17:20:00Z',
   },
 ]
 
@@ -104,12 +106,14 @@ function getRatingBadge(rating: number) {
 
 export default function ReviewsPage() {
   const { reviews: fetchedReviews, averageRating: apiAverageRating, fetchReviews, respondToReview, isLoading } = useReviews()
+  const user = useAuthStore(s => s.user)
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
 
   useEffect(() => {
-    fetchReviews()
-  }, [])
+    // Backend requires UUID; only call when we have an authenticated dietitian id
+    fetchReviews(user?.id)
+  }, [user?.id, fetchReviews])
 
   const handleReply = (reviewId: string) => {
     respondToReview(reviewId, replyText)
@@ -118,8 +122,10 @@ export default function ReviewsPage() {
   }
 
   // Use mock data as fallback when API returns empty
-  const reviews = fetchedReviews.length > 0 ? fetchedReviews : (mockReviews as unknown as Review[])
-  const averageRating = fetchedReviews.length > 0 ? apiAverageRating : 4.1
+  const safeFetched = Array.isArray(fetchedReviews) ? fetchedReviews : []
+  const usingMockData = safeFetched.length === 0
+  const reviews = usingMockData ? (mockReviews as unknown as Review[]) : safeFetched
+  const averageRating = usingMockData ? 4.1 : apiAverageRating
 
   // Derive stats from real data
   const totalReviews = reviews.length
@@ -136,6 +142,9 @@ export default function ReviewsPage() {
     <PageContainer
       title="Degerlendirmeler"
       description="Hastalarınızın degerlendirmeleri ve yorumları"
+      actions={usingMockData ? (
+        <Badge variant="warning" className="text-[11px]">Demo Veri</Badge>
+      ) : undefined}
     >
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 animate-in-stagger">
@@ -219,8 +228,9 @@ export default function ReviewsPage() {
               <CardContent className="p-5 sm:p-6">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-10 w-10 shrink-0">
+                    {review.patientAvatar && <AvatarImage src={review.patientAvatar} alt={review.patientName} />}
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                      {review.patientName.split(' ').map(n => n[0]).join('')}
+                      {(review.patientName ?? '').split(' ').map(n => n[0]).join('') || '?'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 space-y-2">

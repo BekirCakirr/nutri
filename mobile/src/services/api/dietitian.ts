@@ -16,6 +16,14 @@ export async function requestPairing(code: string): Promise<Dietitian> {
   return (data.data ?? data) as Dietitian;
 }
 
+/**
+ * Onboarding alias — same as requestPairing but with a clearer name.
+ * Sends `{ inviteCode }` in the JSON body (NOT as query param).
+ */
+export async function pairWithDietitian(code: string): Promise<Dietitian> {
+  return requestPairing(code);
+}
+
 export async function unpairDietitian(): Promise<void> {
   // TODO: Backend unpair endpoint needed
 }

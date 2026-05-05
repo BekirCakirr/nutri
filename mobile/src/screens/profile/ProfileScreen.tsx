@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -88,9 +88,17 @@ export default function ProfileScreen() {
     return { fullName, currentWeight, weightLost, userStreak, userXP }
   }, [user, streak, xp])
 
-  const displayName = profileData.fullName
+  const displayName = profileData.fullName || 'Kullanıcı'
   const displayEmail = user?.email || ''
-  const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+  const initials = (displayName || '')
+    .split(' ')
+    .filter(Boolean)
+    .map((n: string) => n.charAt(0))
+    .filter(Boolean)
+    .join('')
+    .toUpperCase() || 'U'
+  const avatarSeed = displayEmail || displayName || 'guest'
+  const avatarUri = `https://i.pravatar.cc/300?u=${encodeURIComponent(avatarSeed)}`
 
   // Dynamic stats from real data
   const stats = [
@@ -109,7 +117,8 @@ export default function ProfileScreen() {
             <View style={st.glowBlue} />
             <View style={st.headerRow}>
               <View style={st.avatar}>
-                <Text style={st.avatarText}>{initials}</Text>
+                <Image source={{ uri: avatarUri }} style={st.avatarImage} />
+                <Text style={st.avatarFallback}>{initials}</Text>
               </View>
               <View style={st.headerInfo}>
                 <Text style={st.headerName}>{displayName}</Text>
@@ -182,7 +191,9 @@ const st = StyleSheet.create({
   glowGreen: { position: 'absolute', top: -40, right: -40, width: 160, height: 160, backgroundColor: '#10B981', opacity: 0.2, borderRadius: 80 },
   glowBlue: { position: 'absolute', bottom: -40, left: -40, width: 128, height: 128, backgroundColor: '#3B82F6', opacity: 0.2, borderRadius: 64 },
   headerRow: { flexDirection: 'row', alignItems: 'center', zIndex: 10 },
-  avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', overflow: 'hidden' },
+  avatarImage: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%', borderRadius: 32 },
+  avatarFallback: { position: 'absolute', fontSize: 24, fontWeight: fontWeights.bold, color: '#fff', opacity: 0 },
   avatarText: { fontSize: 24, fontWeight: fontWeights.bold, color: '#fff' },
   headerInfo: { flex: 1 },
   headerName: { fontSize: 22, fontWeight: fontWeights.bold, color: '#fff', marginBottom: 2 },

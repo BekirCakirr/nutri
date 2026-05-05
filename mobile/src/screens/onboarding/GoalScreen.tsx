@@ -7,6 +7,7 @@ import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { GoalSelector } from '../../components/onboarding/GoalSelector'
 import { Button } from '../../components/ui/Button'
+import { useOnboardingStore, type OnboardingData } from '../../stores/onboardingStore'
 import { colors } from '../../theme/colors'
 
 type Nav = StackNavigationProp<OnboardingStackParamList, 'Goal'>
@@ -17,18 +18,26 @@ const goals = [
   { id: 'maintain', title: 'Kilo Korumak', description: 'Mevcut kilonuzu koruma hedefi' },
   { id: 'health', title: 'Sağlıklı Beslenmek', description: 'Genel sağlık ve dengeli beslenme' },
   { id: 'muscle', title: 'Kas Geliştirmek', description: 'Kas kütlesi artırma ve şeklini koruma' },
-]
+] as const
 
 export default function GoalScreen() {
   const navigation = useNavigation<Nav>()
-  const [selectedGoal, setSelectedGoal] = useState('')
+  const storedGoal = useOnboardingStore((s) => s.goalType)
+  const setGoal = useOnboardingStore((s) => s.setGoal)
+
+  const [selectedGoal, setSelectedGoal] = useState<string>(storedGoal)
+
+  const handleContinue = () => {
+    setGoal(selectedGoal as OnboardingData['goalType'])
+    navigation.navigate('Allergy')
+  }
 
   return (
     <ScreenWrapper padded={false}>
       <OnboardingStep title="Hedefiniz" description="Beslenme hedefinizi seçin. Planlarınız buna göre oluşturulacak." currentStep={2} totalSteps={7}>
-        <GoalSelector goals={goals} selectedGoalId={selectedGoal} onSelect={setSelectedGoal} title="" style={{ padding: 0 }} />
+        <GoalSelector goals={[...goals]} selectedGoalId={selectedGoal} onSelect={setSelectedGoal} title="" style={{ padding: 0 }} />
         <View style={styles.spacer} />
-        <Button title="Devam Et" onPress={() => navigation.navigate('Allergy')} disabled={!selectedGoal} fullWidth size="lg" style={styles.btn} />
+        <Button title="Devam Et" onPress={handleContinue} disabled={!selectedGoal} fullWidth size="lg" style={styles.btn} />
       </OnboardingStep>
     </ScreenWrapper>
   )

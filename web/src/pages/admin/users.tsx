@@ -16,7 +16,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Select,
   SelectContent,
@@ -258,6 +258,7 @@ export default function AdminUsersPage() {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
+                      <AvatarImage src={`https://i.pravatar.cc/80?u=${encodeURIComponent(user.email)}`} alt={user.name} />
                       <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(user.name))}>
                         {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
@@ -288,17 +289,20 @@ export default function AdminUsersPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem disabled>
                         <Eye className="mr-2 h-4 w-4" />
                         Profili Görüntüle
+                        <span className="ml-auto text-[10px] text-muted-foreground">Yakında</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem disabled>
                         <Mail className="mr-2 h-4 w-4" />
                         E-posta Gönder
+                        <span className="ml-auto text-[10px] text-muted-foreground">Yakında</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem disabled>
                         <Shield className="mr-2 h-4 w-4" />
                         Rol Değiştir
+                        <span className="ml-auto text-[10px] text-muted-foreground">Yakında</span>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

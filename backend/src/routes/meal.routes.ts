@@ -16,6 +16,7 @@ const createMealSchema = z.object({
     "afternoon_snack",
     "dinner",
     "evening_snack",
+    "snack",
     "other",
   ]),
   logDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tarih formati YYYY-MM-DD olmali"),
@@ -25,6 +26,11 @@ const createMealSchema = z.object({
         foodId: z.number().int().positive().optional(),
         foodName: z.string().optional(),
         amount: z.number().positive(),
+        // AI-pre-computed nutrition (photo analysis vs.)
+        calories: z.number().nonnegative().optional(),
+        protein: z.number().nonnegative().optional(),
+        carbs: z.number().nonnegative().optional(),
+        fat: z.number().nonnegative().optional(),
       })
     )
     .min(1, "En az bir besin ogesi gerekli"),
@@ -43,10 +49,13 @@ const updateMealSchema = z.object({
       "afternoon_snack",
       "dinner",
       "evening_snack",
+      "snack",
       "other",
     ])
     .optional(),
   notes: z.string().optional(),
+  dietitianFeedback: z.string().optional(),
+  dietitianViewed: z.boolean().optional(),
 });
 
 // ── Routes ───────────────────────────────────────────────────────────────────
@@ -81,7 +90,7 @@ router.post(
 router.put(
   "/:id",
   authenticate,
-  authorize("patient"),
+  // Both patient (own meal) and dietitian (own patients' meal — review/feedback) allowed
   validate(updateMealSchema),
   mealController.updateMeal
 );

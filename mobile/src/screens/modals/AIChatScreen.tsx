@@ -25,9 +25,9 @@ export default function AIChatScreen() {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 100)
   }, [])
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return
-    const text = input.trim()
+  const sendText = async (rawText: string) => {
+    const text = rawText.trim()
+    if (!text || isLoading) return
 
     const userMessage: AIMessage = {
       id: 'user-' + Date.now(),
@@ -42,11 +42,14 @@ export default function AIChatScreen() {
     try {
       const aiMessage = await sendAIMessage(text)
       setMessages(prev => [...prev, aiMessage])
-    } catch {
+    } catch (err: any) {
+      const apiMsg = err?.response?.data?.message || err?.message
       const errorMessage: AIMessage = {
         id: 'err-' + Date.now(),
         role: 'assistant',
-        content: 'AI servisine ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',
+        content: apiMsg
+          ? `AI yanıt veremedi: ${apiMsg}`
+          : 'AI servisine ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',
         timestamp: new Date().toISOString(),
       }
       setMessages(prev => [...prev, errorMessage])
@@ -55,8 +58,13 @@ export default function AIChatScreen() {
     }
   }
 
+  const handleSend = () => {
+    sendText(input)
+  }
+
   const handleSuggestion = (text: string) => {
-    setInput(text)
+    if (isLoading) return
+    sendText(text)
   }
 
   return (

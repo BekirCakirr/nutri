@@ -130,7 +130,7 @@ export default function NotificationsScreen() {
           />
         }
       >
-        {notifications.length === 0 ? (
+        {!Array.isArray(notifications) || notifications.length === 0 ? (
           <View style={st.emptyContainer}>
             <View style={st.emptyIcon}>
               <Ionicons name="notifications-off-outline" size={56} color={colors.text.disabled} />
@@ -140,17 +140,18 @@ export default function NotificationsScreen() {
           </View>
         ) : (
           <View style={st.list}>
-            {notifications.map((noti) => {
+            {notifications.map((noti, idx) => {
+              if (!noti) return null
               const raw = noti as Record<string, unknown>
               const notiType = noti.type || (raw.type as string) || 'system'
               const isRead = noti.read ?? (raw.is_read as boolean) ?? false
-              const title = noti.title || (raw.title as string) || ''
+              const title = noti.title || (raw.title as string) || 'Bildirim'
               const body = noti.body || (raw.body as string) || (raw.message as string) || ''
               const time = formatTime(noti.createdAt || (raw.created_at as string))
 
               return (
                 <TouchableOpacity
-                  key={noti.id}
+                  key={noti.id ?? `noti-${idx}`}
                   style={[st.card, isRead ? st.cardRead : st.cardUnread]}
                   activeOpacity={0.7}
                   onPress={() => handleNotificationPress(noti)}

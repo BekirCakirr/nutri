@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -58,8 +58,14 @@ export default function FavoritesScreen() {
                 activeOpacity={0.7}
                 onPress={() => navigation.navigate('FoodDetail', { foodId: item.id })}
               >
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-                  <Ionicons name="heart" size={20} color="#F59E0B" />
+                <View style={{ marginRight: 12 }}>
+                  <Image
+                    source={{ uri: `https://picsum.photos/seed/food-${item.id}/120/120` }}
+                    style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FEF3C7' }}
+                  />
+                  <View style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: 9, backgroundColor: '#F59E0B', alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="heart" size={10} color="#FFFFFF" />
+                  </View>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A2E23' }}>{item.name}</Text>

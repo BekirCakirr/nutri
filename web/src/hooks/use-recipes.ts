@@ -13,23 +13,85 @@ export interface Recipe {
   id: string;
   name: string;
   description: string;
-  category: "breakfast" | "lunch" | "dinner" | "snack" | "dessert";
+  category: string;
   cuisineType: string;
   preparationTime: number;
   cookingTime: number;
   servings: number;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: "easy" | "medium" | "hard" | string;
   calories: number;
   protein: number;
   carbohydrates: number;
   fat: number;
   fiber: number;
-  ingredients: Array<{ name: string; amount: string; calories: number }>;
+  ingredients: Array<{ name: string; amount: string; calories?: number }>;
   instructions: string[];
   tags: string[];
   imageUrl: string;
   createdBy: string;
   createdAt: string;
+}
+
+// ── Normalize backend recipe shape (camelCased by axios) into Recipe ──────
+function toNumber(v: unknown, fallback = 0): number {
+  if (typeof v === "number") return v;
+  if (typeof v === "string") {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : fallback;
+  }
+  return fallback;
+}
+
+function deriveCategoryFromTags(tags: string[]): string {
+  const tagSet = new Set(tags.map((t) => t.toLowerCase()));
+  if (tagSet.has("çorba") || tagSet.has("corba")) return "Çorba";
+  if (tagSet.has("salata")) return "Salata";
+  if (tagSet.has("kahvaltı") || tagSet.has("kahvalti")) return "Kahvaltı";
+  if (tagSet.has("tatlı") || tagSet.has("tatli") || tagSet.has("dessert")) return "Tatlı";
+  if (tagSet.has("smoothie") || tagSet.has("içecek") || tagSet.has("icecek")) return "İçecek";
+  if (tagSet.has("atıştırmalık") || tagSet.has("atistirmalik") || tagSet.has("snack")) return "Atıştırmalık";
+  if (tagSet.has("sandviç") || tagSet.has("sandvic")) return "Atıştırmalık";
+  return "Ana Yemek";
+}
+
+function splitInstructions(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.map(String);
+  if (typeof raw === "string") {
+    return raw
+      .split(/\n+/)
+      .map((s) => s.replace(/^\s*\d+\.\s*/, "").trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeRecipe(item: unknown): Recipe {
+  const r = (item ?? {}) as Record<string, unknown>;
+  const tags = Array.isArray(r.tags) ? (r.tags as string[]) : [];
+  return {
+    id: String(r.id ?? ""),
+    name: String(r.name ?? r.title ?? ""),
+    description: String(r.description ?? ""),
+    category: String(r.category ?? deriveCategoryFromTags(tags)),
+    cuisineType: String(r.cuisineType ?? ""),
+    preparationTime: toNumber(r.prepTimeMin ?? r.preparationTime),
+    cookingTime: toNumber(r.cookTimeMin ?? r.cookingTime),
+    servings: toNumber(r.servings, 1),
+    difficulty: String(r.difficulty ?? "easy"),
+    calories: toNumber(r.caloriesPerServing ?? r.calories),
+    protein: toNumber(r.proteinPerServing ?? r.protein),
+    carbohydrates: toNumber(r.carbsPerServing ?? r.carbohydrates),
+    fat: toNumber(r.fatPerServing ?? r.fat),
+    fiber: toNumber(r.fiber),
+    ingredients: Array.isArray(r.ingredients)
+      ? (r.ingredients as Array<{ name: string; amount: string }>)
+      : [],
+    instructions: splitInstructions(r.instructions),
+    tags,
+    imageUrl: typeof r.imageUrl === "string" ? r.imageUrl : "",
+    createdBy: String(r.createdBy ?? ""),
+    createdAt: String(r.createdAt ?? ""),
+  };
 }
 
 interface CreateRecipeData {
@@ -65,7 +127,8 @@ export function useRecipes() {
     setError(null);
     try {
       const response = await getRecipes();
-      setRecipes(response.items as unknown as Recipe[]);
+      const safeItems = Array.isArray(response.items) ? response.items : [];
+      setRecipes(safeItems.map(normalizeRecipe));
     } catch {
       setError("Failed to fetch recipes");
     } finally {

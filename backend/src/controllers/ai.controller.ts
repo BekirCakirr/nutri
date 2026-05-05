@@ -48,6 +48,27 @@ export async function analyzeMeal(
   }
 }
 
+export async function generatePlan(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const result = await aiService.generatePlan(req.user!.userId, req.body);
+    sendSuccess({
+      res,
+      data: result,
+      message: "AI plani olusturuldu",
+    });
+  } catch (err: any) {
+    if (err.statusCode) {
+      sendError({ res, message: err.message, statusCode: err.statusCode });
+      return;
+    }
+    next(err);
+  }
+}
+
 export async function getChatHistory(
   req: Request,
   res: Response,

@@ -4,7 +4,10 @@ import { storage } from '@/services/storage';
 
 const apiClient = axios.create({
   baseURL: API_URL,
-  timeout: 15000,
+  timeout: 30000,
+  // Allow large bodies (base64 images can easily be 1-5MB)
+  maxBodyLength: 20 * 1024 * 1024,
+  maxContentLength: 20 * 1024 * 1024,
   headers: {
     'Content-Type': 'application/json',
   },

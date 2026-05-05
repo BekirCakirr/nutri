@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
@@ -41,7 +42,7 @@ function formatTime(dateStr?: string): string {
 
 export default function ConversationListScreen() {
   const navigation = useNavigation<Nav>()
-  const { conversations, loadConversations, unreadCount } = useMessages()
+  const { conversations, loadConversations } = useMessages()
   const currentUserId = useAuthStore((s) => s.user?.id)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -59,9 +60,14 @@ export default function ConversationListScreen() {
   }, [loadConversations])
 
   const getRecipientName = (conv: Conversation): string => {
-    // The conversation may have participant info from the backend
-    // We need to find the participant that's not the current user
     const raw = conv as Record<string, unknown>
+    // Backend flat shape: other_user_first_name / other_user_last_name
+    const flatFirst = raw.other_user_first_name as string | undefined
+    const flatLast = raw.other_user_last_name as string | undefined
+    if (flatFirst || flatLast) {
+      const full = `${flatFirst ?? ''} ${flatLast ?? ''}`.trim()
+      if (full) return full
+    }
     const participants = raw.participants_info || raw.participantsInfo
     if (Array.isArray(participants)) {
       const other = participants.find(
@@ -98,7 +104,11 @@ export default function ConversationListScreen() {
 
   const getLastMessageTime = (conv: Conversation): string => {
     const raw = conv as Record<string, unknown>
-    const time = conv.updatedAt || conv.lastMessage?.timestamp || (raw.updated_at as string)
+    const time =
+      (raw.last_message_at as string) ||
+      conv.updatedAt ||
+      conv.lastMessage?.timestamp ||
+      (raw.updated_at as string)
     return formatTime(time)
   }
 
@@ -108,16 +118,25 @@ export default function ConversationListScreen() {
   }
 
   const renderConversation = ({ item }: { item: Conversation }) => {
-    const name = getRecipientName(item)
+    const name = getRecipientName(item) || 'Diyetisyen'
     const preview = getLastMessagePreview(item)
     const time = getLastMessageTime(item)
     const unread = getUnreadCount(item)
-    const initials = name
+    const initials = (name || 'D')
       .split(' ')
-      .map((n) => n[0])
+      .filter(Boolean)
+      .map((n) => (n && n[0]) ? n[0] : '')
       .join('')
       .toUpperCase()
-      .slice(0, 2)
+      .slice(0, 2) || 'D'
+
+    const raw = item as Record<string, unknown>
+    const avatarSeed =
+      (raw.other_user_email as string) ||
+      (raw.other_user_avatar as string) ||
+      name ||
+      String(item.id)
+    const avatarUri = `https://i.pravatar.cc/300?u=${encodeURIComponent(avatarSeed)}`
 
     return (
       <TouchableOpacity
@@ -131,6 +150,7 @@ export default function ConversationListScreen() {
         }
       >
         <View style={[st.avatar, unread > 0 && st.avatarActive]}>
+          <Image source={{ uri: avatarUri }} style={st.avatarImage} />
           <Text style={st.avatarText}>{initials}</Text>
           <View style={[st.onlineDot]} />
         </View>
@@ -189,8 +209,8 @@ export default function ConversationListScreen() {
         </View>
       ) : (
         <FlatList
-          data={conversations}
-          keyExtractor={(item) => item.id}
+          data={Array.isArray(conversations) ? conversations : []}
+          keyExtractor={(item, idx) => item?.id ?? `conv-${idx}`}
           renderItem={renderConversation}
           contentContainerStyle={st.list}
           refreshControl={
@@ -250,14 +270,23 @@ const st = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 14,
     position: 'relative',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
   },
   avatarActive: {
     backgroundColor: colors.primary[100],
   },
   avatarText: {
+    position: 'absolute',
     fontSize: fontSizes.md,
     fontWeight: fontWeights.bold,
     color: colors.primary[700],
+    opacity: 0,
   },
   onlineDot: {
     position: 'absolute',

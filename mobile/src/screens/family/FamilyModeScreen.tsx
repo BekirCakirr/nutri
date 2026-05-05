@@ -28,7 +28,7 @@ export default function FamilyModeScreen() {
     <ScreenWrapper scrollable={false} padded={false}>
       <AppHeader
         title="Aile Modu"
-        subtitle="3 Üye Aktif"
+        subtitle="3 Üye Aktif (Demo)"
         onBack={() => navigation.goBack()}
       />
       

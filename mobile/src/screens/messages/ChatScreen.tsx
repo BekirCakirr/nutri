@@ -7,6 +7,7 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -33,7 +34,17 @@ function formatMessageTime(timestamp: string): string {
 export default function ChatScreen() {
   const navigation = useNavigation<Nav>()
   const route = useRoute<Route>()
-  const { conversationId, recipientName } = route.params
+  const conversationId = route.params?.conversationId || ''
+  const recipientName = route.params?.recipientName || 'Diyetisyen'
+  const recipientAvatarUri = `https://i.pravatar.cc/300?u=${encodeURIComponent(
+    conversationId || recipientName,
+  )}`
+  const recipientAvatar = (
+    <Image
+      source={{ uri: recipientAvatarUri }}
+      style={{ width: 40, height: 40, borderRadius: 20 }}
+    />
+  )
 
   const {
     messages,
@@ -49,6 +60,10 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null)
 
   useEffect(() => {
+    if (!conversationId) {
+      setLoading(false)
+      return
+    }
     setActiveChat(conversationId)
     Promise.all([
       loadMessages(conversationId),
@@ -119,6 +134,7 @@ export default function ChatScreen() {
         <ChatHeader
           name={recipientName}
           subtitle="Diyetisyen"
+          avatar={recipientAvatar}
           onBack={() => navigation.goBack()}
         />
         <View style={st.center}>
@@ -139,6 +155,7 @@ export default function ChatScreen() {
         name={recipientName}
         subtitle="Diyetisyen"
         isOnline
+        avatar={recipientAvatar}
         onBack={() => navigation.goBack()}
       />
 
@@ -151,7 +168,7 @@ export default function ChatScreen() {
         <FlatList
           ref={flatListRef}
           data={sortedMessages}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, idx) => item?.id ?? `msg-${idx}`}
           renderItem={renderMessage}
           contentContainerStyle={st.messageList}
           showsVerticalScrollIndicator={false}
@@ -163,8 +180,8 @@ export default function ChatScreen() {
 
       <ChatInput
         onSend={handleSend}
-        disabled={sending}
-        placeholder="Mesaj yazın..."
+        disabled={sending || !conversationId}
+        placeholder={conversationId ? 'Mesaj yazın...' : 'Konuşma yüklenemedi'}
       />
     </KeyboardAvoidingView>
   )

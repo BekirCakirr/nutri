@@ -17,7 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Dialog,
@@ -49,6 +49,8 @@ import { useAppointments } from '@/hooks/use-appointments'
 interface AppointmentItem {
   id: string
   patientName: string
+  patientEmail?: string
+  avatarUrl: string
   date: string
   time: string
   endTime: string
@@ -56,6 +58,10 @@ interface AppointmentItem {
   mode: 'video' | 'in_person' | 'phone'
   status: 'upcoming' | 'completed' | 'cancelled'
   notes?: string
+}
+
+function pravatarFor(seed: string): string {
+  return `https://i.pravatar.cc/150?u=${encodeURIComponent(seed)}`
 }
 
 /* ─── Type mapping ──────────────────────────────── */
@@ -181,6 +187,12 @@ const statusConfig = {
 /* ─── Mock / fallback data ─────────────────────── */
 
 function getMockAppointments(): AppointmentItem[] {
+  const emailMap: Record<string, string> = {
+    'Ayşe Yılmaz': 'ayse.yilmaz@email.com',
+    'Mehmet Kaya': 'mehmet.kaya@email.com',
+    'Fatma Demir': 'fatma.demir@email.com',
+    'Zeynep Çelik': 'zeynep.celik@email.com',
+  }
   const today = new Date()
   const fmt = (d: Date) => d.toISOString().slice(0, 10)
   const offset = (days: number) => {
@@ -300,7 +312,10 @@ function getMockAppointments(): AppointmentItem[] {
       status: 'completed',
       notes: 'Alerjik reaksiyon sonrası acil beslenme planı düzenlemesi yapıldı.',
     },
-  ]
+  ].map((a) => ({
+    ...a,
+    avatarUrl: pravatarFor(emailMap[a.patientName] ?? a.patientName),
+  })) as AppointmentItem[]
 }
 
 const mockAppointments = getMockAppointments()
@@ -359,17 +374,22 @@ export default function AppointmentsPage() {
 
   // Map API appointments to local type, fall back to mock data when API returns empty
   const allAppointments: AppointmentItem[] = useMemo(() => {
-    const mapped = rawAppointments.map((a: any) => ({
-      id: a.id,
-      patientName: a.patientName ?? 'Hasta',
-      date: a.date ?? '',
-      time: a.startTime ?? '',
-      endTime: a.endTime ?? '',
-      type: mapTypeLabel(a.type),
-      mode: mapMode(a.type),
-      status: mapStatus(a.status),
-      notes: a.notes,
-    }))
+    const mapped = (Array.isArray(rawAppointments) ? rawAppointments : []).map((a: any) => {
+      const email = a.patientEmail || a.patientName || a.id
+      return {
+        id: a.id,
+        patientName: a.patientName ?? 'Hasta',
+        patientEmail: a.patientEmail,
+        avatarUrl: pravatarFor(email),
+        date: a.date ?? '',
+        time: a.startTime ?? '',
+        endTime: a.endTime ?? '',
+        type: mapTypeLabel(a.type),
+        mode: mapMode(a.type),
+        status: mapStatus(a.status),
+        notes: a.notes,
+      } as AppointmentItem
+    })
     return mapped.length > 0 ? mapped : mockAppointments
   }, [rawAppointments])
 
@@ -741,6 +761,7 @@ function AppointmentRow({
 
       {/* Avatar */}
       <Avatar className="h-10 w-10 shrink-0">
+        <AvatarImage src={apt.avatarUrl} alt={apt.patientName} />
         <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(apt.patientName))}>
           {getInitials(apt.patientName)}
         </AvatarFallback>

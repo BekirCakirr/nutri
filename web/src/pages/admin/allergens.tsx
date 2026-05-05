@@ -45,6 +45,7 @@ import { StatCard } from '@/components/shared/stat-card'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface Allergen {
   id: number
@@ -81,7 +82,8 @@ export default function AdminAllergensPage() {
       const { data } = await api.get('/allergens')
       // Interceptor unwraps envelope: data = { allergens: [...] } (keys already camelCased)
       const d = data as any
-      const list: Allergen[] = (d.allergens ?? d.data?.allergens ?? (Array.isArray(d) ? d : []))
+      const raw = d.allergens ?? d.data?.allergens ?? (Array.isArray(d) ? d : [])
+      const list: Allergen[] = (Array.isArray(raw) ? raw : [])
         .map((a: any) => ({
           id: a.id,
           name: a.name,
@@ -294,9 +296,18 @@ export default function AdminAllergensPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span tabIndex={0}>
+                              <Button variant="ghost" size="icon" disabled className="h-8 w-8 pointer-events-none">
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Yakında</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <Button
                         variant="ghost"
                         size="icon"

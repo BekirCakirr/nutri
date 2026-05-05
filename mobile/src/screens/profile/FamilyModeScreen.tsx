@@ -26,7 +26,7 @@ export default function FamilyModeScreen() {
 
   return (
     <ScreenWrapper scrollable={false} padded={false}>
-      <AppHeader title="Aile Modu" onBack={() => navigation.goBack()} />
+      <AppHeader title="Aile Modu" subtitle="Demo Verisi" onBack={() => navigation.goBack()} />
       <ScrollView style={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Toggle */}
         <View style={st.toggleCard}>

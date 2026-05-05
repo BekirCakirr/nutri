@@ -30,12 +30,24 @@ function mapAppointment(raw: any): any {
     noShow: 'no_show',
   };
 
+  // Normalize date: backend returns full ISO timestamp via appointment_date
+  // The week grid compares against YYYY-MM-DD strings, so slice it.
+  const rawDate = raw.date ?? raw.appointmentDate ?? '';
+  const date = typeof rawDate === 'string' && rawDate.length >= 10 ? rawDate.slice(0, 10) : rawDate;
+
+  // Normalize times: backend returns "10:00:00" → trim seconds to "10:00"
+  const trimTime = (t: any) => {
+    if (typeof t !== 'string') return '';
+    return t.length >= 5 ? t.slice(0, 5) : t;
+  };
+
   return {
     ...raw,
-    date: raw.date ?? raw.appointmentDate ?? '',
-    startTime: raw.startTime ?? '',
-    endTime: raw.endTime ?? '',
+    date,
+    startTime: trimTime(raw.startTime),
+    endTime: trimTime(raw.endTime),
     patientName: raw.patientName ?? ([raw.patientFirstName, raw.patientLastName].filter(Boolean).join(' ') || 'Hasta'),
+    patientEmail: raw.patientEmail ?? '',
     nutritionistId: raw.dietitianId ?? raw.nutritionistId ?? '',
     dietitianId: raw.dietitianId ?? raw.nutritionistId ?? '',
     status: statusMap[raw.status] ?? raw.status ?? 'scheduled',

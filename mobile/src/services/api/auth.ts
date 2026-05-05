@@ -17,7 +17,25 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthResponse> {
-  const { data } = await apiClient.post('/auth/register/patient', payload);
+  // Backend expects firstName/lastName; map from "name" if needed
+  const raw = payload as RegisterPayload & { name?: string; firstName?: string; lastName?: string; inviteCode?: string }
+  let firstName = raw.firstName
+  let lastName = raw.lastName
+  if ((!firstName || !lastName) && raw.name) {
+    const parts = String(raw.name).trim().split(/\s+/)
+    firstName = firstName || parts[0] || 'Kullanici'
+    lastName = lastName || parts.slice(1).join(' ') || 'Hasta'
+  }
+
+  const body: Record<string, unknown> = {
+    email: payload.email,
+    password: payload.password,
+    firstName: firstName || 'Kullanici',
+    lastName: lastName || 'Hasta',
+  }
+  if (raw.inviteCode) body.inviteCode = raw.inviteCode
+
+  const { data } = await apiClient.post('/auth/register/patient', body);
   const result = data.data ?? data;
   const token = result.tokens?.accessToken ?? result.token;
   if (token) {

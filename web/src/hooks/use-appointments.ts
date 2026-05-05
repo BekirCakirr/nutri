@@ -60,7 +60,7 @@ export function useAppointments(patientId?: string) {
       setError(null);
       try {
         const response = await getAppointments();
-        const items = response.items as unknown as Appointment[];
+        const items = (Array.isArray(response.items) ? response.items : []) as unknown as Appointment[];
         const filtered = pid
           ? items.filter((a) => a.patientId === pid)
           : items;
@@ -130,12 +130,13 @@ export function useAppointments(patientId?: string) {
     [],
   );
 
-  // Derived state
-  const upcoming = appointments
+  // Derived state — guard against non-array states
+  const safeAppointments = Array.isArray(appointments) ? appointments : [];
+  const upcoming = safeAppointments
     .filter((a) => a.status === "scheduled")
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const past = appointments
+  const past = safeAppointments
     .filter((a) => a.status === "completed" || a.status === "cancelled")
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

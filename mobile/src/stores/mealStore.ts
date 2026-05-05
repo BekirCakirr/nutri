@@ -8,10 +8,12 @@ interface MealState {
   currentMeal: Meal | null;
 }
 
+type EntryMethod = 'manual' | 'photo_ai' | 'barcode' | 'voice' | 'ocr' | 'text_ai';
+
 interface MealActions {
   loadTodayMeals: () => Promise<void>;
   loadMealHistory: (startDate: string, endDate: string) => Promise<void>;
-  addMeal: (type: MealType, items: MealItem[], date: string, time: string) => Promise<void>;
+  addMeal: (type: MealType, items: MealItem[], date: string, time: string, entryMethod?: EntryMethod) => Promise<void>;
   removeMeal: (id: string) => Promise<void>;
   updateMeal: (id: string, data: Partial<Meal>) => Promise<void>;
   setCurrentMeal: (meal: Meal | null) => void;
@@ -34,8 +36,8 @@ export const useMealStore = create<MealStore>((set, get) => ({
     set({ mealHistory: meals });
   },
 
-  addMeal: async (type, items, date, time) => {
-    const meal = await mealApi.addMeal(type, items, date, time);
+  addMeal: async (type, items, date, time, entryMethod = 'manual') => {
+    const meal = await mealApi.addMeal(type, items, date, time, entryMethod);
     set((state) => ({ todayMeals: [...state.todayMeals, meal] }));
   },
 

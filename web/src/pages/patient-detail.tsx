@@ -30,7 +30,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { CalorieChart } from '@/components/charts/calorie-chart'
@@ -60,39 +60,48 @@ const mealTypeLabels: Record<string, string> = {
 
 function buildChartData(meals: any[], patient: any) {
   const dayLabels = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt']
-  const target = Number(patient?.daily_calorie_target ?? patient?.dailyCalorieTarget) || 1800
-  const targetWeight = Number(patient?.target_weight_kg ?? patient?.targetWeight) || 65
+  const target = Number(patient?.dailyCalorieTarget ?? patient?.daily_calorie_target) || 1800
+  const targetWeight = Number(patient?.targetWeightKg ?? patient?.target_weight_kg ?? patient?.targetWeight) || 65
+
+  // Sum from items when totals are null (backend often leaves totals null)
+  const sumItem = (items: any[], field: string) =>
+    (Array.isArray(items) ? items : []).reduce((sum, it) => sum + Number(it?.[field] ?? 0), 0)
 
   // Group meals by day of week for calorie chart
   const calByDay: Record<string, number> = {}
   const macroTotals = { protein: 0, carbs: 0, fat: 0 }
   for (const m of (meals || [])) {
     const raw = m as any
-    const dateStr = raw.log_date || raw.logDate || raw.date || ''
+    const dateStr = raw.logDate || raw.log_date || raw.date || raw.loggedAt || ''
     const d = new Date(dateStr)
     const label = dayLabels[d.getDay()] || '?'
-    const cal = Number(raw.total_calories ?? raw.totalCalories ?? raw.calories ?? 0)
+    const cal = Number(raw.totalCalories ?? raw.total_calories ?? raw.calories ?? 0) || sumItem(raw.items, 'calories')
+    const prot = Number(raw.totalProtein ?? raw.total_protein ?? 0) || sumItem(raw.items, 'protein')
+    const carbs = Number(raw.totalCarbs ?? raw.total_carbs ?? 0) || sumItem(raw.items, 'carbs')
+    const fat = Number(raw.totalFat ?? raw.total_fat ?? 0) || sumItem(raw.items, 'fat')
     calByDay[label] = (calByDay[label] || 0) + cal
-    macroTotals.protein += Number(raw.total_protein ?? raw.totalProtein ?? 0)
-    macroTotals.carbs += Number(raw.total_carbs ?? raw.totalCarbs ?? 0)
-    macroTotals.fat += Number(raw.total_fat ?? raw.totalFat ?? 0)
+    macroTotals.protein += prot
+    macroTotals.carbs += carbs
+    macroTotals.fat += fat
   }
 
   const calorieData = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
     .filter((d) => calByDay[d] != null)
     .map((d) => ({ date: d, calories: Math.round(calByDay[d]), target }))
 
+  // Average per day across distinct meal days for macro pie
+  const distinctDays = Object.keys(calByDay).length || 1
   const macroData = [
-    { name: 'Protein', value: Math.round(macroTotals.protein / Math.max(meals?.length || 1, 1)), color: 'hsl(210, 100%, 50%)' },
-    { name: 'Karbonhidrat', value: Math.round(macroTotals.carbs / Math.max(meals?.length || 1, 1)), color: 'hsl(45, 100%, 50%)' },
-    { name: 'Yağ', value: Math.round(macroTotals.fat / Math.max(meals?.length || 1, 1)), color: 'hsl(140, 70%, 45%)' },
+    { name: 'Protein', value: Math.round(macroTotals.protein / distinctDays), color: 'hsl(210, 100%, 50%)' },
+    { name: 'Karbonhidrat', value: Math.round(macroTotals.carbs / distinctDays), color: 'hsl(45, 100%, 50%)' },
+    { name: 'Yağ', value: Math.round(macroTotals.fat / distinctDays), color: 'hsl(140, 70%, 45%)' },
   ]
 
   // Weight data from patient profile (minimal — current + target)
-  const currentWeight = Number(patient?.current_weight_kg ?? patient?.weight) || 0
+  const currentWeight = Number(patient?.currentWeightKg ?? patient?.current_weight_kg ?? patient?.weight) || 0
   const weightData = currentWeight > 0
     ? [
-        { date: 'Başlangıç', weight: currentWeight + 4, target: targetWeight },
+        { date: 'Başlangıç', weight: Math.round((currentWeight + 4) * 10) / 10, target: targetWeight },
         { date: 'Güncel', weight: currentWeight, target: targetWeight },
       ]
     : []
@@ -220,40 +229,76 @@ export default function PatientDetailPage() {
   // Map API patient to display format, safely handling snake_case vs camelCase
   type RawPatient = {
     id: string; first_name?: string; firstName?: string; last_name?: string; lastName?: string;
-    dateOfBirth?: string; date_of_birth?: string; birth_date?: string; age?: number;
+    dateOfBirth?: string; date_of_birth?: string; birth_date?: string; birthDate?: string; age?: number;
     email?: string; phone?: string; status?: string; gender?: string;
-    height?: number; height_cm?: number; current_weight_kg?: number; weight?: number;
+    height?: number; height_cm?: number; heightCm?: number;
+    current_weight_kg?: number; currentWeightKg?: number; weight?: number;
+    target_weight_kg?: number; targetWeightKg?: number; targetWeight?: number;
     body_fat_percentage?: number; bodyFatPercentage?: number;
     goals?: string[]; goal_type?: string; goalType?: string;
     adherence_score?: number; adherenceScore?: number;
     daily_calorie_target?: number; dailyCalorieTarget?: number;
+    protein_target_g?: number; proteinTargetG?: number;
+    carb_target_g?: number; carbTargetG?: number;
+    fat_target_g?: number; fatTargetG?: number;
     allergies?: string[]; diet_type?: string; dietType?: string; dietaryPreference?: string;
     createdAt?: string; created_at?: string; next_appointment?: string; nextAppointment?: string;
+    avatar_url?: string; avatarUrl?: string; profile_photo_url?: string; profilePhotoUrl?: string;
   };
   const p = apiPatient as unknown as RawPatient
+  const heightCmNum = Number(p.heightCm ?? p.height_cm ?? p.height ?? 0)
+  const weightKgNum = Number(p.currentWeightKg ?? p.current_weight_kg ?? p.weight ?? 0)
+  const targetWeightNum = Number(p.targetWeightKg ?? p.target_weight_kg ?? p.targetWeight ?? 0)
+  const goalLabels: Record<string, string> = {
+    weight_loss: 'Kilo Verme',
+    weight_gain: 'Kilo Alma',
+    muscle_gain: 'Kas Kazanma',
+    maintenance: 'Kilo Koruma',
+    disease_management: 'Hastalik Yonetimi',
+  }
+  const dietLabels: Record<string, string> = {
+    normal: 'Standart',
+    vegetarian: 'Vejeteryan',
+    vegan: 'Vegan',
+    keto: 'Keto',
+    paleo: 'Paleo',
+    mediterranean: 'Akdeniz',
+  }
+  const rawGoal = (Array.isArray(p.goals) ? p.goals[0] : undefined) ?? p.goalType ?? p.goal_type ?? ''
+  const rawDiet = p.dietType ?? p.diet_type ?? p.dietaryPreference ?? 'normal'
+  const fullName = `${p.firstName ?? p.first_name ?? ''} ${p.lastName ?? p.last_name ?? ''}`.trim() || 'Isimsiz Hasta'
+  const emailLower = (p.email ?? '').toLowerCase().trim()
+  const avatarUrl = p.avatarUrl ?? p.avatar_url ?? p.profilePhotoUrl ?? p.profile_photo_url
+    ?? (emailLower ? `https://i.pravatar.cc/150?u=${encodeURIComponent(emailLower)}` : '')
   const patientData = {
     id: p.id,
-    fullName: `${p.first_name ?? p.firstName ?? ''} ${p.last_name ?? p.lastName ?? ''}`.trim() || 'İsimsiz Hasta',
-    age: (p.dateOfBirth || p.date_of_birth || p.birth_date) 
-      ? Math.floor((Date.now() - new Date((p.dateOfBirth || p.date_of_birth || p.birth_date) as string).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) 
+    fullName,
+    age: (p.birthDate || p.dateOfBirth || p.date_of_birth || p.birth_date)
+      ? Math.floor((Date.now() - new Date((p.birthDate || p.dateOfBirth || p.date_of_birth || p.birth_date) as string).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
       : (p.age || 30),
     email: p.email ?? '-',
-    phone: p.phone ?? '-',
+    phone: p.phone || 'Belirtilmemis',
     status: p.status ?? 'active',
-    gender: p.gender === 'female' ? 'Kadın' : p.gender === 'male' ? 'Erkek' : 'Belirtilmemiş',
-    heightCm: p.height ?? p.height_cm ?? 0,
-    weightKg: p.current_weight_kg ?? p.weight ?? 0,
-    bmi: ((p.height ?? p.height_cm) && (p.current_weight_kg ?? p.weight)) 
-      ? Math.round((((p.current_weight_kg ?? p.weight) as number) / ((((p.height ?? p.height_cm) as number) / 100) ** 2)) * 10) / 10 
+    gender: p.gender === 'female' ? 'Kadin' : p.gender === 'male' ? 'Erkek' : 'Belirtilmemis',
+    heightCm: heightCmNum,
+    weightKg: weightKgNum,
+    targetWeightKg: targetWeightNum,
+    weightDelta: targetWeightNum > 0 ? Math.round((weightKgNum - targetWeightNum) * 10) / 10 : 0,
+    bmi: heightCmNum > 0 && weightKgNum > 0
+      ? Math.round((weightKgNum / ((heightCmNum / 100) ** 2)) * 10) / 10
       : 0,
-    bodyFatPercentage: p.body_fat_percentage ?? p.bodyFatPercentage ?? 0,
-    goal: p.goals?.[0] ?? p.goal_type ?? p.goalType ?? 'Belirtilmemiş',
-    adherenceScore: p.adherence_score ?? p.adherenceScore ?? 0,
-    dailyCalorieTarget: p.daily_calorie_target ?? p.dailyCalorieTarget ?? 2000,
-    allergies: p.allergies ?? [],
-    dietaryPreference: p.diet_type ?? p.dietType ?? p.dietaryPreference ?? 'Standart',
+    bodyFatPercentage: Number(p.bodyFatPercentage ?? p.body_fat_percentage ?? 0),
+    goal: goalLabels[rawGoal] ?? (rawGoal || 'Belirtilmemis'),
+    adherenceScore: Math.round(Number(p.adherenceScore ?? p.adherence_score ?? 0)),
+    dailyCalorieTarget: Math.round(Number(p.dailyCalorieTarget ?? p.daily_calorie_target ?? 2000)),
+    proteinTargetG: Math.round(Number(p.proteinTargetG ?? p.protein_target_g ?? 0)),
+    carbTargetG: Math.round(Number(p.carbTargetG ?? p.carb_target_g ?? 0)),
+    fatTargetG: Math.round(Number(p.fatTargetG ?? p.fat_target_g ?? 0)),
+    allergies: Array.isArray(p.allergies) ? p.allergies : [],
+    dietaryPreference: dietLabels[rawDiet] ?? rawDiet ?? 'Standart',
     startDate: p.createdAt ?? p.created_at ?? new Date().toISOString(),
-    nextAppointment: p.next_appointment ?? p.nextAppointment ?? 'Yok',
+    nextAppointment: p.nextAppointment ?? p.next_appointment ?? 'Yok',
+    avatarUrl,
   }
 
   const initials = patientData.fullName
@@ -290,6 +335,9 @@ export default function PatientDetailPage() {
               {/* Avatar + basic info */}
               <div className="flex items-center gap-4 flex-1 min-w-0">
                 <Avatar className="h-16 w-16 shrink-0">
+                  {patientData.avatarUrl ? (
+                    <AvatarImage src={patientData.avatarUrl} alt={patientData.fullName} />
+                  ) : null}
                   <AvatarFallback
                     className={cn('text-xl font-bold', getInitialColor(patientData.fullName))}
                   >
@@ -299,7 +347,16 @@ export default function PatientDetailPage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-xl font-bold tracking-tight">{patientData.fullName}</h1>
-                    <Badge variant="success">Aktif</Badge>
+                    {(() => {
+                      const statusMap: Record<string, { label: string; variant: 'success' | 'destructive' | 'info' | 'warning' }> = {
+                        active: { label: 'Aktif', variant: 'success' },
+                        inactive: { label: 'Pasif', variant: 'destructive' },
+                        onboarding: { label: 'Yeni', variant: 'info' },
+                        paused: { label: 'Duraklatilmis', variant: 'warning' },
+                      }
+                      const s = statusMap[patientData.status] ?? statusMap.active
+                      return <Badge variant={s.variant}>{s.label}</Badge>
+                    })()}
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground">
                     {patientData.age} yas, {patientData.gender} &middot; {patientData.goal} &middot;{' '}
@@ -331,10 +388,12 @@ export default function PatientDetailPage() {
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">Kilo</p>
                   <p className="text-lg font-bold tabular-nums">{patientData.weightKg} kg</p>
-                  <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 justify-center mt-0.5">
-                    <TrendingDown className="h-3 w-3" />
-                    -4 kg
-                  </span>
+                  {patientData.targetWeightKg > 0 && (
+                    <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 justify-center mt-0.5">
+                      <TrendingDown className="h-3 w-3" />
+                      Hedef {patientData.targetWeightKg} kg
+                    </span>
+                  )}
                 </div>
                 <Separator orientation="vertical" className="h-12 hidden sm:block" />
                 <div className="text-center">
@@ -470,10 +529,17 @@ export default function PatientDetailPage() {
                         value: patientData.allergies.length > 0 ? null : 'Yok',
                         badges: patientData.allergies,
                       },
-                      { label: 'Baslangic Tarihi', value: patientData.startDate },
+                      {
+                        label: 'Baslangic Tarihi',
+                        value: patientData.startDate
+                          ? new Date(patientData.startDate).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })
+                          : '-',
+                      },
                       {
                         label: 'Sonraki Randevu',
-                        value: patientData.nextAppointment,
+                        value: patientData.nextAppointment && patientData.nextAppointment !== 'Yok'
+                          ? new Date(patientData.nextAppointment).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })
+                          : 'Yok',
                       },
                     ].map((row, idx) => (
                       <div key={row.label}>
@@ -531,37 +597,49 @@ export default function PatientDetailPage() {
               <CardContent>
                 {mealsLoading ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">Yukleniyor...</p>
-                ) : meals.length === 0 ? (
+                ) : !Array.isArray(meals) || meals.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4 text-center">Henuz ogun kaydı yok.</p>
                 ) : (
                 <div className="space-y-2">
                   {meals.map((meal) => {
-                    const mealTypeLabel = mealTypeLabels[meal.type] || meal.name || meal.type
-                    const itemsText = meal.items?.map((i) => i.name).join(', ') || meal.notes || ''
+                    const m = meal as any
+                    const mealKey = m.mealType ?? m.type ?? ''
+                    const mealTypeLabel = mealTypeLabels[mealKey] || m.name || mealKey || 'Ogun'
+                    const items = Array.isArray(m.items) ? m.items : (Array.isArray(m.entries) ? m.entries : [])
+                    const itemsText = items.map((i: any) => i.foodName ?? i.name ?? i.customName ?? '').filter(Boolean).join(', ')
+                      || m.notes
+                      || ''
+                    const mealCalories = Math.round(
+                      Number(m.totalCalories ?? m.calories ?? 0)
+                      || items.reduce((sum: number, it: any) => sum + Number(it.calories ?? 0), 0)
+                    )
+                    const dateStr = m.logDate ?? m.date ?? m.loggedAt ?? ''
+                    const dateLabel = dateStr
+                      ? new Date(dateStr).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' })
+                      : ''
+                    const isConfirmed = m.userConfirmed ?? m.dietitianViewed ?? m.logged ?? false
                     return (
                     <div
-                      key={meal.id}
+                      key={m.id}
                       className="flex items-center gap-4 rounded-lg border px-4 py-3 transition-colors hover:bg-secondary/50"
                     >
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
-                        {(() => { const Icon = getMealTypeIcon(mealTypeLabel); return <Icon className="h-5 w-5 text-muted-foreground" />; })()}
+                        {(() => { const Icon = getMealTypeIcon(mealKey || mealTypeLabel); return <Icon className="h-5 w-5 text-muted-foreground" />; })()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-medium">{mealTypeLabel}</p>
-                          <Badge
-                            variant={meal.logged ? 'success' : 'warning'}
-                          >
-                            {meal.logged ? 'Onayli' : 'Bekliyor'}
+                          <Badge variant={isConfirmed ? 'success' : 'warning'}>
+                            {isConfirmed ? 'Onayli' : 'Bekliyor'}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{itemsText}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{itemsText}</p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-sm font-semibold tabular-nums">
-                          {meal.calories} kcal
+                          {mealCalories} kcal
                         </p>
-                        <p className="text-xs text-muted-foreground">{meal.date}</p>
+                        <p className="text-xs text-muted-foreground">{dateLabel}</p>
                       </div>
                     </div>
                     )
@@ -670,7 +748,7 @@ export default function PatientDetailPage() {
                       -0.5 kg bu hafta
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">Hedef: 65 kg</p>
+                  <p className="text-xs text-muted-foreground mt-2">Hedef: {patientData.targetWeightKg || 65} kg</p>
                 </CardContent>
               </Card>
 
@@ -733,7 +811,7 @@ export default function PatientDetailPage() {
             <CardContent>
               {appointmentsLoading ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">Yukleniyor...</p>
-              ) : appointments.length === 0 ? (
+              ) : !Array.isArray(appointments) || appointments.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">Henuz randevu yok.</p>
               ) : (
               <div className="space-y-2">
@@ -770,7 +848,7 @@ export default function PatientDetailPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{typeLabel}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {apt.date} &middot; {apt.startTime}
+                          {apt.date ? new Date(apt.date).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''} &middot; {(apt.startTime || '').slice(0, 5)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -798,7 +876,8 @@ export default function PatientDetailPage() {
         {/* ─── Mesajlar ─────────────────────────────────────── */}
         {activeTab === 'messages' && (() => {
           // Find the conversation for this patient
-          const patientConversation = conversations.find((c: any) => (Array.isArray(c?.participantIds) && c.participantIds.includes(id)) || c?.participantId === id || c?.id === id)
+          const safeConversations = Array.isArray(conversations) ? conversations : []
+          const patientConversation = safeConversations.find((c: any) => (Array.isArray(c?.participantIds) && c.participantIds.includes(id)) || c?.participantId === id || c?.id === id)
           return (
           <Card>
             <CardHeader>

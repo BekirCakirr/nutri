@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { usePatients } from '@/hooks/use-patients'
 import { createPlan } from '@/services/plan.service'
+import { generatePlan as aiGeneratePlan, type GeneratedPlanItem } from '@/services/ai.service'
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
 import {
   Save,
@@ -293,6 +294,107 @@ export default function PlanCreatorPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [planDuration, setPlanDuration] = useState<'7' | '14' | '28'>('7')
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
+  const [isGeneratingDayAI, setIsGeneratingDayAI] = useState(false)
+
+  // Backend → frontend slot mapping
+  const dayOfWeekToTr: Record<number, string> = {
+    1: 'Pazartesi', 2: 'Salı', 3: 'Çarşamba', 4: 'Perşembe',
+    5: 'Cuma', 6: 'Cumartesi', 7: 'Pazar',
+  }
+  const mealTypeToTr: Record<string, string> = {
+    breakfast: 'Kahvaltı',
+    morning_snack: 'Ara Öğün',
+    lunch: 'Öğle',
+    afternoon_snack: 'Ara Öğün',
+    dinner: 'Akşam',
+    evening_snack: 'Ara Öğün',
+    snack: 'Ara Öğün',
+  }
+
+  function aiItemsToSlots(aiItems: GeneratedPlanItem[]): Record<string, PlanItem[]> {
+    const next: Record<string, PlanItem[]> = {}
+    aiItems.forEach((it, idx) => {
+      const dayTr = dayOfWeekToTr[it.dayOfWeek] ?? 'Pazartesi'
+      const mealTr = mealTypeToTr[it.mealType] ?? 'Öğle'
+      const key = `${dayTr}-${mealTr}`
+      const slot = next[key] || []
+      slot.push({
+        id: `ai-${Date.now()}-${idx}`,
+        name: it.foodName,
+        portion: `${it.amountG}g`,
+        calories: it.calories,
+        protein: it.protein,
+        carbs: it.carbs,
+        fat: it.fat,
+      })
+      next[key] = slot
+    })
+    return next
+  }
+
+  async function handleGenerateAIPlan() {
+    if (!selectedPatient) {
+      toast.error('Lütfen önce bir hasta seçin.')
+      return
+    }
+    setIsGeneratingAI(true)
+    const toastId = toast.loading('AI haftalık plan oluşturuyor — Gemini düşünüyor...')
+    try {
+      const result = await aiGeneratePlan({
+        patientId: selectedPatient,
+        dailyCalorieTarget: dailyTargets.calories,
+        durationDays: Number(planDuration),
+      })
+      if (!result.items || result.items.length === 0) {
+        toast.error('AI plan oluşturamadı, lütfen tekrar deneyin.', { id: toastId })
+        return
+      }
+      const slots = aiItemsToSlots(result.items)
+      setItems(slots)
+      if (result.title) setPlanTitle(result.title)
+      toast.success(`AI ${result.items.length} öğün önerdi — düzenleyip yayınlayabilirsin.`, { id: toastId })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'AI plan oluşturulamadı.'
+      toast.error(msg, { id: toastId })
+    } finally {
+      setIsGeneratingAI(false)
+    }
+  }
+
+  async function handleGenerateAIDay() {
+    if (!selectedPatient) {
+      toast.error('Lütfen önce bir hasta seçin.')
+      return
+    }
+    setIsGeneratingDayAI(true)
+    const toastId = toast.loading(`AI ${selectedDay} günü için öneri hazırlıyor...`)
+    try {
+      const result = await aiGeneratePlan({
+        patientId: selectedPatient,
+        dailyCalorieTarget: dailyTargets.calories,
+        durationDays: 7,
+      })
+      if (!result.items || result.items.length === 0) {
+        toast.error('AI öneri oluşturamadı.', { id: toastId })
+        return
+      }
+      const dayIdx = days.indexOf(selectedDay as typeof days[number]) + 1
+      const dayItems = result.items.filter((it) => it.dayOfWeek === dayIdx)
+      if (dayItems.length === 0) {
+        toast.error(`${selectedDay} için öneri bulunamadı.`, { id: toastId })
+        return
+      }
+      const slots = aiItemsToSlots(dayItems)
+      setItems((prev) => ({ ...prev, ...slots }))
+      toast.success(`${selectedDay} için ${dayItems.length} öğün önerisi yüklendi.`, { id: toastId })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'AI öneri oluşturulamadı.'
+      toast.error(msg, { id: toastId })
+    } finally {
+      setIsGeneratingDayAI(false)
+    }
+  }
 
   // Day name → dayOfWeek (Pazartesi=1 ... Pazar=7) mapping
   const dayOfWeekMap: Record<string, number> = {
@@ -595,12 +697,13 @@ export default function PlanCreatorPage() {
             {/* AI suggestion button */}
             <div className="md:col-span-3 flex gap-2">
               <Button
-                disabled
-                title="Yakında kullanılabilir olacak"
-                className="flex-1 h-9 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md opacity-60 cursor-not-allowed"
+                onClick={handleGenerateAIPlan}
+                disabled={isGeneratingAI || !selectedPatient}
+                title={!selectedPatient ? 'Önce hasta seçin' : 'Gemini ile haftalık plan üret'}
+                className="flex-1 h-9 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md disabled:opacity-60"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                AI ile Plan Oluştur
+                <Sparkles className={cn('h-3.5 w-3.5', isGeneratingAI && 'animate-spin')} />
+                {isGeneratingAI ? 'Oluşturuluyor...' : 'AI ile Plan Oluştur'}
               </Button>
             </div>
           </div>
@@ -1026,14 +1129,15 @@ export default function PlanCreatorPage() {
 
               {/* AI suggestion shortcut */}
               <Button
-                disabled
-                title="Yakında kullanılabilir olacak"
+                onClick={handleGenerateAIDay}
+                disabled={isGeneratingDayAI || !selectedPatient}
+                title={!selectedPatient ? 'Önce hasta seçin' : `${selectedDay} için Gemini önerisi`}
                 variant="outline"
                 size="sm"
-                className="w-full text-xs gap-1.5 border-violet-200 text-violet-700 dark:border-violet-800/40 dark:text-violet-400 opacity-60 cursor-not-allowed"
+                className="w-full text-xs gap-1.5 border-violet-200 text-violet-700 dark:border-violet-800/40 dark:text-violet-400 disabled:opacity-60"
               >
-                <Sparkles className="h-3 w-3" />
-                Bu gün için AI önerisi al
+                <Sparkles className={cn('h-3 w-3', isGeneratingDayAI && 'animate-spin')} />
+                {isGeneratingDayAI ? 'AI çalışıyor...' : 'Bu gün için AI önerisi al'}
               </Button>
             </CardContent>
           </Card>

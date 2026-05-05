@@ -125,15 +125,15 @@ export default function FoodDetailScreen() {
 
   return (
     <ScreenWrapper scrollable>
-      {/* Food Image or Category Icon */}
+      {/* Food Image (placeholder via picsum if no real image) */}
       <Animated.View style={fadeIn.style}>
-        {food.image ? (
-          <Image source={{ uri: food.image }} style={styles.foodImage} />
-        ) : (
-          <View style={[styles.iconPlaceholder, { backgroundColor: iconColor + '20' }]}>
-            <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={56} color={iconColor} />
-          </View>
-        )}
+        <Image
+          source={{ uri: food.image || `https://picsum.photos/seed/food-${food.id}/600/400` }}
+          style={styles.foodImage}
+        />
+        <View style={[styles.imageBadge, { backgroundColor: iconColor + 'E6' }]}>
+          <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={18} color="#FFFFFF" />
+        </View>
       </Animated.View>
 
       {/* Food Name & Brand */}
@@ -198,6 +198,17 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     marginBottom: spacing.lg,
     backgroundColor: colors.border,
+  },
+  imageBadge: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.sm,
   },
   iconPlaceholder: {
     width: 120,

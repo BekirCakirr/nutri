@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Progress } from '@/components/ui/progress'
 import {
   Table,
@@ -62,6 +62,7 @@ interface Patient {
   weight: number
   targetWeight: number
   bmi: number
+  avatarUrl: string
 }
 
 
@@ -105,28 +106,38 @@ export default function PatientListPage() {
   // Map store patients to local Patient type
   type RawListPatient = {
     id: string; firstName?: string; lastName?: string; email?: string;
-    dateOfBirth?: string; gender?: string; status?: string;
+    dateOfBirth?: string; birthDate?: string; gender?: string; status?: string;
     adherenceScore?: number; lastVisit?: string; nextAppointment?: string;
-    height?: number; weight?: number; targetWeight?: number;
+    height?: number; heightCm?: number;
+    weight?: number; currentWeightKg?: number;
+    targetWeight?: number; targetWeightKg?: number;
+    avatarUrl?: string; profilePhotoUrl?: string;
   };
 
   const mappedPatients: Patient[] = useMemo(() =>
-    allPatients.map((rawP) => {
+    (Array.isArray(allPatients) ? allPatients : []).map((rawP) => {
       const p = rawP as unknown as RawListPatient;
+      const dob = p.dateOfBirth ?? p.birthDate ?? '';
+      const heightV = Number(p.heightCm ?? p.height ?? 0);
+      const weightV = Number(p.currentWeightKg ?? p.weight ?? 0);
+      const targetV = Number(p.targetWeightKg ?? p.targetWeight ?? 0);
+      const emailLower = (p.email ?? '').toLowerCase().trim();
+      const avatar = p.avatarUrl ?? p.profilePhotoUrl ?? (emailLower ? `https://i.pravatar.cc/150?u=${encodeURIComponent(emailLower)}` : '');
       return {
         id: p.id,
         firstName: p.firstName ?? '',
         lastName: p.lastName ?? '',
         email: p.email ?? '',
-        age: computeAge(p.dateOfBirth),
+        age: computeAge(dob),
         gender: p.gender === 'female' ? 'female' as const : 'male' as const,
         status: (p.status ?? 'active') as Patient['status'],
-        adherence: p.adherenceScore ?? 0,
+        adherence: Math.round(Number(p.adherenceScore ?? 0)),
         lastVisit: p.lastVisit ?? '',
         nextAppointment: p.nextAppointment ?? null,
-        weight: p.weight ?? 0,
-        targetWeight: p.targetWeight ?? (p.weight ? p.weight - 5 : 0),
-        bmi: computeBmi(p.height, p.weight),
+        weight: weightV,
+        targetWeight: targetV || (weightV ? Math.round((weightV - 5) * 10) / 10 : 0),
+        bmi: computeBmi(heightV, weightV),
+        avatarUrl: avatar,
       };
     })
   , [allPatients])
@@ -203,7 +214,7 @@ export default function PatientListPage() {
                     <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10"><AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
+                          <Avatar className="h-10 w-10">{patient.avatarUrl ? <AvatarImage src={patient.avatarUrl} alt={fullName} /> : null}<AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-medium truncate">{fullName}</p>
@@ -244,7 +255,7 @@ export default function PatientListPage() {
                       <TableRow key={patient.id} className="cursor-pointer" onClick={() => navigate(`/patients/${patient.id}`)}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9"><AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
+                            <Avatar className="h-9 w-9">{patient.avatarUrl ? <AvatarImage src={patient.avatarUrl} alt={fullName} /> : null}<AvatarFallback className={cn('text-xs font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
                             <div>
                               <p className="text-sm font-medium leading-tight">{fullName}</p>
                               <p className="text-xs text-muted-foreground">{patient.age} yaş</p>
@@ -278,7 +289,7 @@ export default function PatientListPage() {
                   <Card key={patient.id} className="cursor-pointer transition-all hover:shadow-md py-0 gap-0" onClick={() => navigate(`/patients/${patient.id}`)}>
                     <CardContent className="p-5">
                       <div className="flex items-start gap-3 mb-4">
-                        <Avatar className="h-11 w-11"><AvatarFallback className={cn('text-sm font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
+                        <Avatar className="h-11 w-11">{patient.avatarUrl ? <AvatarImage src={patient.avatarUrl} alt={fullName} /> : null}<AvatarFallback className={cn('text-sm font-semibold', getInitialColor(fullName))}>{initials}</AvatarFallback></Avatar>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium leading-tight">{fullName}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{patient.age} yaş, {patient.weight} kg</p>

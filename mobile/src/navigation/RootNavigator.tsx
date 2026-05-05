@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, View, StyleSheet } from 'react-native'
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import type { RootStackParamList } from './types'
 import { useAuthStore } from '../stores/authStore'
+import { colors } from '../theme/colors'
 
 import AuthStack from './AuthStack'
 import OnboardingStack from './OnboardingStack'
@@ -25,10 +27,27 @@ export default function RootNavigator() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const isOnboarded = useAuthStore((s) => s.isOnboarded)
   const checkAuth = useAuthStore((s) => s.checkAuth)
+  const [bootstrapped, setBootstrapped] = useState(false)
 
   useEffect(() => {
+    let mounted = true
     checkAuth()
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setBootstrapped(true)
+      })
+    return () => {
+      mounted = false
+    }
   }, [checkAuth])
+
+  if (!bootstrapped) {
+    return (
+      <View style={styles.splash}>
+        <ActivityIndicator size="large" color={colors.primary.main} />
+      </View>
+    )
+  }
 
   return (
     <Stack.Navigator
@@ -67,3 +86,12 @@ export default function RootNavigator() {
     </Stack.Navigator>
   )
 }
+
+const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background.default,
+  },
+})

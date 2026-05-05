@@ -91,7 +91,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     getNotifications().then((data: any[]) => {
-      const mapped = data.map((n: any) => ({
+      const mapped = (Array.isArray(data) ? data : []).map((n: any) => ({
         id: n.id,
         type: mapNotificationType(n.type ?? 'system'),
         title: n.title ?? '',
@@ -172,7 +172,7 @@ export default function NotificationsPage() {
               ) : (
                 <div className="divide-y divide-border">
                   {filtered.map((notification, index) => {
-                    const config = typeConfig[notification.type]
+                    const config = typeConfig[notification.type] ?? typeConfig.system
                     const Icon = config.icon
                     return (
                       <div

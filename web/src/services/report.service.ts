@@ -15,9 +15,15 @@ interface ApiReportListResponse {
 }
 
 export async function getReports(filters?: ReportFilters): Promise<Report[]> {
-  const { data } = await api.get("/reports/weekly", { params: filters });
-  const result = data as ApiReportListResponse;
-  return result.reports ?? (Array.isArray(data) ? (data as Report[]) : []);
+  try {
+    const { data } = await api.get("/reports/weekly", { params: filters });
+    const result = data as ApiReportListResponse;
+    return result.reports ?? (Array.isArray(data) ? (data as Report[]) : []);
+  } catch {
+    // Backend returns 404 when dietitian has no patient profile (current API design).
+    // Don't crash the page — return empty list and let UI show empty state.
+    return [];
+  }
 }
 
 export async function generateReport(params: {

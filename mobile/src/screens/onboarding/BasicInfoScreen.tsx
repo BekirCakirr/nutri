@@ -7,8 +7,8 @@ import { ScreenWrapper } from '../../components/common/ScreenWrapper'
 import { OnboardingStep } from '../../components/onboarding/OnboardingStep'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
+import { useOnboardingStore } from '../../stores/onboardingStore'
 import { colors } from '../../theme/colors'
-import { spacing } from '../../theme/spacing'
 import { fontWeights } from '../../theme/typography'
 
 type Nav = StackNavigationProp<OnboardingStackParamList, 'BasicInfo'>
@@ -17,16 +17,36 @@ const genders = [
   { id: 'female', label: 'Kadın', emoji: '👩' },
   { id: 'male', label: 'Erkek', emoji: '👨' },
   { id: 'other', label: 'Diğer', emoji: '🧑' },
-]
+] as const
 
 export default function BasicInfoScreen() {
   const navigation = useNavigation<Nav>()
-  const [birthDate, setBirthDate] = useState('')
-  const [gender, setGender] = useState('')
-  const [height, setHeight] = useState('')
-  const [weight, setWeight] = useState('')
+  const store = useOnboardingStore()
+  const setBasicInfo = useOnboardingStore((s) => s.setBasicInfo)
 
-  const canContinue = birthDate.trim() && gender && height.trim() && weight.trim()
+  // Local input state (kept in sync with store on continue)
+  const [birthDate, setBirthDate] = useState(store.birthDate)
+  const [gender, setGender] = useState<string>(store.gender)
+  const [height, setHeight] = useState(store.heightCm ? String(store.heightCm) : '')
+  const [weight, setWeight] = useState(store.currentWeightKg ? String(store.currentWeightKg) : '')
+
+  const heightNum = parseFloat(height.replace(',', '.'))
+  const weightNum = parseFloat(weight.replace(',', '.'))
+  const canContinue =
+    birthDate.trim().length >= 8 &&
+    gender !== '' &&
+    Number.isFinite(heightNum) && heightNum > 50 && heightNum < 260 &&
+    Number.isFinite(weightNum) && weightNum > 20 && weightNum < 400
+
+  const handleContinue = () => {
+    setBasicInfo({
+      birthDate: birthDate.trim(),
+      gender: gender as 'male' | 'female' | 'other',
+      heightCm: heightNum,
+      currentWeightKg: weightNum,
+    })
+    navigation.navigate('Goal')
+  }
 
   return (
     <ScreenWrapper keyboardAvoiding padded={false}>
@@ -65,7 +85,7 @@ export default function BasicInfoScreen() {
         </View>
 
         <View style={styles.spacer} />
-        <Button title="Devam Et" onPress={() => navigation.navigate('Goal')} disabled={!canContinue} fullWidth size="lg" style={styles.btn} />
+        <Button title="Devam Et" onPress={handleContinue} disabled={!canContinue} fullWidth size="lg" style={styles.btn} />
       </OnboardingStep>
     </ScreenWrapper>
   )

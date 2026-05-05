@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from '@/components/shared/stat-card'
@@ -28,7 +28,12 @@ import { MacroPieChart } from '@/components/charts/macro-pie-chart'
 import { useAuthStore } from '@/stores/auth-store'
 import { usePatients } from '@/hooks/use-patients'
 import { useAppointments } from '@/hooks/use-appointments'
+import { getNotifications } from '@/services/notification.service'
 import { cn } from '@/lib/utils'
+
+// Generate a deterministic avatar URL for a patient (presentation visuals)
+const avatarUrl = (seed: string) =>
+  `https://i.pravatar.cc/150?u=${encodeURIComponent(seed || 'patient')}`
 
 interface RecentActivity {
   id: string
@@ -36,6 +41,31 @@ interface RecentActivity {
   patient: string
   description: string
   time: string
+}
+
+// Map backend notification types to activity feed icon types
+function mapNotificationType(t: string): RecentActivity['type'] {
+  if (t === 'meal_review' || t === 'meal') return 'meal'
+  if (t === 'appointment') return 'appointment'
+  if (t === 'message') return 'message'
+  return 'alert'
+}
+
+// Format an ISO timestamp to "HH:mm" (Turkish locale)
+function fmtTime(iso: string): string {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return ''
+  }
+}
+
+// Extract a patient name from notification body, e.g. "Ayse Yilmaz kahvalti..."
+function extractPatientName(body: string): string {
+  if (!body) return ''
+  const match = body.match(/^([A-ZÇĞİÖŞÜ][a-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]+)+)/)
+  return match ? match[1] : ''
 }
 
 // ---------------------------------------------------------------------------
@@ -265,6 +295,7 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
   const { allPatients, fetchPatients } = usePatients()
   const { appointments, upcoming, fetchAppointments, error: appointmentsError } = useAppointments()
+  const [notifications, setNotifications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const greeting = useMemo(() => getGreeting(), [])
@@ -272,7 +303,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const load = async () => {
-      try { await Promise.allSettled([fetchPatients(), fetchAppointments()]) } catch {}
+      try {
+        const results = await Promise.allSettled([
+          fetchPatients(),
+          fetchAppointments(),
+          getNotifications().catch(() => []),
+        ])
+        const notifResult = results[2]
+        if (notifResult.status === 'fulfilled') {
+          const raw = notifResult.value as any
+          // Backend returns array directly after axios envelope unwrap
+          const list = Array.isArray(raw) ? raw : raw?.notifications ?? []
+          setNotifications(list)
+        }
+      } catch {}
       setIsLoading(false)
     }
     load()
@@ -283,20 +327,33 @@ export default function DashboardPage() {
   }, [appointmentsError])
 
   // Use real data when available, otherwise fall back to mocks
-  const effectivePatients = allPatients.length > 0 ? allPatients : MOCK_PATIENTS as any[]
-  const effectiveAppointments = appointments.length > 0 ? appointments : MOCK_APPOINTMENTS as any[]
-  const effectiveUpcoming = upcoming.length > 0
-    ? upcoming
+  const safePatients = Array.isArray(allPatients) ? allPatients : []
+  const safeAppointments = Array.isArray(appointments) ? appointments : []
+  const safeUpcoming = Array.isArray(upcoming) ? upcoming : []
+  const effectivePatients = safePatients.length > 0 ? safePatients : MOCK_PATIENTS as any[]
+  const effectiveAppointments = safeAppointments.length > 0 ? safeAppointments : MOCK_APPOINTMENTS as any[]
+  const effectiveUpcoming = safeUpcoming.length > 0
+    ? safeUpcoming
     : MOCK_APPOINTMENTS.filter((a) => a.status === 'scheduled') as any[]
 
   // Derive dashboard data from real data (with mock fallback)
   const upcomingAppointments = useMemo(() =>
-    effectiveUpcoming.slice(0, 3).map((a: any) => ({
-      id: a.id,
-      patient: a.patientName ?? 'Hasta',
-      time: a.startTime ?? '—',
-      type: a.type === 'follow_up' ? 'Kontrol' : a.type === 'initial' ? 'İlk Görüşme' : 'Görüşme',
-    }))
+    effectiveUpcoming.slice(0, 3).map((a: any) => {
+      // Backend format: appointment_date + start_time, patient_first_name + patient_last_name
+      const firstName = a.patientFirstName ?? a.patientName?.split(' ')?.[0] ?? ''
+      const lastName = a.patientLastName ?? a.patientName?.split(' ')?.slice(1).join(' ') ?? ''
+      const fullName = a.patientName ?? `${firstName} ${lastName}`.trim() ?? 'Hasta'
+      const startTime = a.startTime ?? a.start_time ?? '—'
+      // Strip seconds if backend returns "HH:MM:SS"
+      const time = typeof startTime === 'string' ? startTime.slice(0, 5) : startTime
+      return {
+        id: a.id,
+        patient: fullName,
+        avatar: avatarUrl(a.patientEmail || fullName),
+        time,
+        type: a.type === 'follow_up' ? 'Kontrol' : a.type === 'initial' ? 'İlk Görüşme' : a.type === 'online' ? 'Online' : 'Görüşme',
+      }
+    })
   , [effectiveUpcoming])
 
   const attentionPatients = useMemo(() =>
@@ -306,14 +363,25 @@ export default function DashboardPage() {
       .map((p: any) => ({
         id: p.id,
         name: `${p.firstName} ${p.lastName}`,
+        avatar: p.avatar || p.profilePhotoUrl || avatarUrl(p.email || `${p.firstName}${p.lastName}`),
         reason: (p.adherenceScore ?? 0) < 30 ? 'Düşük plan uyumu' : 'Orta düzey plan uyumu',
         severity: ((p.adherenceScore ?? 0) < 30 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
       }))
   , [effectivePatients])
 
   const recentActivities: RecentActivity[] = useMemo(() => {
-    // If we have real appointment data, derive activity feed from it
-    if (appointments.length > 0) {
+    // Prefer real notifications when available — richer content per type
+    if (Array.isArray(notifications) && notifications.length > 0) {
+      return notifications.slice(0, 5).map((n: any, i: number) => ({
+        id: n.id ?? String(i),
+        type: mapNotificationType(n.type),
+        patient: extractPatientName(n.body) || n.title || 'Bildirim',
+        description: n.body || n.title || '',
+        time: fmtTime(n.createdAt),
+      }))
+    }
+    // Fallback to appointment-derived feed
+    if (Array.isArray(appointments) && appointments.length > 0) {
       return appointments.slice(0, 5).map((a: any, i: number) => ({
         id: a.id ?? String(i),
         type: 'appointment' as const,
@@ -322,9 +390,9 @@ export default function DashboardPage() {
         time: a.date ?? '',
       }))
     }
-    // Otherwise use mock activities with richer content
+    // Final mock fallback
     return MOCK_RECENT_ACTIVITIES
-  }, [appointments])
+  }, [notifications, appointments])
 
   if (isLoading) {
     return (
@@ -422,6 +490,12 @@ export default function DashboardPage() {
                 onClick={() => navigate('/appointments')}
               >
                 <span className="text-sm font-semibold tabular-nums text-primary">{apt.time}</span>
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src={apt.avatar} alt={apt.patient} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">
+                    {apt.patient.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <p className="text-sm font-medium leading-tight">{apt.patient}</p>
                   <p className="text-xs text-muted-foreground">{apt.type}</p>
@@ -518,6 +592,7 @@ export default function DashboardPage() {
                   onClick={() => navigate(`/patients/${patient.id}`)}
                 >
                   <Avatar className="h-9 w-9">
+                    <AvatarImage src={patient.avatar} alt={patient.name} />
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                       {patient.name
                         .split(' ')

@@ -1,18 +1,29 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { Animated, Easing } from 'react-native'
 import { duration, stagger } from '../../theme/animations'
 
+const MAX_ITEMS = 20
+
+/**
+ * Returns staggered fade+slide animation styles for a list.
+ * Allocates a fixed pool of MAX_ITEMS Animated.Values once, then
+ * exposes only the slice needed for the current itemCount. This
+ * keeps hook order stable across renders even as the list grows.
+ */
 export function useStaggeredList(itemCount: number, baseDelay = 0) {
-  const maxItems = Math.min(itemCount, 20)
-  const anims = useRef(
-    Array.from({ length: maxItems }, () => ({
+  // Always allocate a fixed-size pool to keep hook order stable.
+  const pool = useRef(
+    Array.from({ length: MAX_ITEMS }, () => ({
       opacity: new Animated.Value(0),
       translateY: new Animated.Value(12),
     })),
   ).current
 
+  const safeCount = Math.max(0, Math.min(itemCount || 0, MAX_ITEMS))
+
   useEffect(() => {
-    const animations = anims.slice(0, maxItems).map((anim, index) => {
+    if (safeCount <= 0) return
+    const animations = pool.slice(0, safeCount).map((anim, index) => {
       const delay = baseDelay + index * stagger.normal
       return Animated.parallel([
         Animated.timing(anim.opacity, {
@@ -32,10 +43,15 @@ export function useStaggeredList(itemCount: number, baseDelay = 0) {
       ])
     })
     Animated.parallel(animations).start()
-  }, [itemCount])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeCount, baseDelay])
 
-  return anims.slice(0, maxItems).map((anim) => ({
-    opacity: anim.opacity,
-    transform: [{ translateY: anim.translateY }],
-  }))
+  return useMemo(
+    () =>
+      pool.slice(0, safeCount).map((anim) => ({
+        opacity: anim.opacity,
+        transform: [{ translateY: anim.translateY }],
+      })),
+    [safeCount, pool],
+  )
 }
