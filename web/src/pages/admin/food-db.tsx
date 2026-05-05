@@ -311,12 +311,9 @@ export default function AdminFoodDBPage() {
               return (
               <TableRow key={food.id}>
                 <TableCell>
-                  <img
-                    src={(food as any).imageUrl || (food as any).image_url || `https://picsum.photos/seed/food-${slugify(food.name)}/56/40`}
-                    alt={food.name}
-                    className="h-10 w-14 rounded-md object-cover bg-muted"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/food-${slugify(food.name)}/56/40` }}
-                  />
+                  <div className="h-10 w-10 rounded-md bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
+                    {(food.name || '?').charAt(0).toUpperCase()}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm font-medium">{food.name}</span>

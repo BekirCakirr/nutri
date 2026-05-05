@@ -108,7 +108,16 @@ export default function AdminDietitians() {
     try {
       const result = await fetchAdminUsers({ role: 'dietitian', page: 1, limit: 100, search: search.trim() || undefined })
       setDietitians(result.items.map(toDietitianRow))
-    } catch (error) {
+    } catch (error: any) {
+      const msg = error?.message || ''
+      if (msg.includes('yetkiniz') || msg.includes('FORBIDDEN') || msg.includes('admin')) {
+        // Stale auth — clear and redirect to admin login
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('nutriai-auth')
+        window.location.href = '/admin/login'
+        return
+      }
       console.error('Failed to load dietitians:', error)
     }
   }, [search])

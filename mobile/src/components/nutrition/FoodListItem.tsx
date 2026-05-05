@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, ViewStyle, Image } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
 import { colors } from '../../theme/colors'
 import { spacing } from '../../theme/spacing'
 import { fontSizes, fontWeights } from '../../theme/typography'
@@ -34,10 +34,9 @@ export const FoodListItem: React.FC<FoodListItemProps> = ({
       style={[styles.container, style]}
     >
       {showThumbnail && (
-        <Image
-          source={{ uri: `https://picsum.photos/seed/food-${imageSeed ?? name}/120/120` }}
-          style={styles.thumb}
-        />
+        <View style={[styles.thumb, styles.thumbFallback]}>
+          <Text style={styles.thumbInitial}>{(name || '?').charAt(0).toUpperCase()}</Text>
+        </View>
       )}
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={1}>
@@ -71,6 +70,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: spacing.sm + 2,
     backgroundColor: colors.border,
+  },
+  thumbFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E8F0EC',
+  },
+  thumbInitial: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A5C37',
   },
   content: {
     flex: 1,

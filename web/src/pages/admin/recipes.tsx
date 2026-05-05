@@ -245,12 +245,9 @@ export default function AdminRecipesPage() {
                 <TableRow key={recipe.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <img
-                        src={(recipe as any).imageUrl || (recipe as any).image_url || `https://picsum.photos/seed/recipe-${recipeSlug(recipe.name)}/64/48`}
-                        alt={recipe.name}
-                        className="h-12 w-16 rounded-md object-cover bg-muted shrink-0"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/recipe-${recipeSlug(recipe.name)}/64/48` }}
-                      />
+                      <div className="h-12 w-12 rounded-md bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-700 dark:text-amber-400 font-semibold text-base shrink-0">
+                        {(recipe.name || '?').charAt(0).toUpperCase()}
+                      </div>
                       <div className="min-w-0">
                         <span className="text-sm font-medium block truncate">{recipe.name}</span>
                         {recipe.description && (
