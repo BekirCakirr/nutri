@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
+import { avatarFor } from '../../lib/avatar'
 import {
   View,
   FlatList,
@@ -36,9 +37,7 @@ export default function ChatScreen() {
   const route = useRoute<Route>()
   const conversationId = route.params?.conversationId || ''
   const recipientName = route.params?.recipientName || 'Diyetisyen'
-  const recipientAvatarUri = `https://i.pravatar.cc/300?u=${encodeURIComponent(
-    conversationId || recipientName,
-  )}`
+  const recipientAvatarUri = avatarFor(recipientName || conversationId)
   const recipientAvatar = (
     <Image
       source={{ uri: recipientAvatarUri }}

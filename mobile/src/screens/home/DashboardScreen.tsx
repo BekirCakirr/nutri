@@ -18,9 +18,10 @@ import { NotificationBadge } from '../../components/notifications/NotificationBa
 import { useMeals, useTracking, useDietitian, useGamification, useNotifications } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
-function getAvatarUri(email?: string | null): string {
-  const seed = email && email.length > 0 ? email : 'guest'
-  return `https://i.pravatar.cc/300?u=${encodeURIComponent(seed)}`
+import { avatarFor } from '../../lib/avatar'
+function getAvatarUri(email?: string | null, name?: string | null): string {
+  const seed = `${name ?? ''} ${email ?? ''}`.trim() || 'guest'
+  return avatarFor(seed)
 }
 import { DEFAULT_CALORIE_TARGET } from '../../lib/constants'
 import { colors, nutritionColors } from '../../theme/colors'
@@ -93,7 +94,7 @@ export default function DashboardScreen() {
         <View style={styles.headerLeft}>
           <View style={styles.avatarWrapper}>
             <Image
-              source={{ uri: getAvatarUri(user?.email) }}
+              source={{ uri: getAvatarUri(user?.email, `${user?.firstName ?? ''} ${user?.lastName ?? ''}`) }}
               style={styles.headerLogo}
             />
           </View>

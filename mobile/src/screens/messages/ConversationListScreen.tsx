@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { avatarFor } from '../../lib/avatar'
 import {
   View,
   Text,
@@ -136,7 +137,7 @@ export default function ConversationListScreen() {
       (raw.other_user_avatar as string) ||
       name ||
       String(item.id)
-    const avatarUri = `https://i.pravatar.cc/300?u=${encodeURIComponent(avatarSeed)}`
+    const avatarUri = avatarFor(`${name} ${avatarSeed}`)
 
     return (
       <TouchableOpacity

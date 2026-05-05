@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react'
+import { avatarFor } from '../../lib/avatar'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
@@ -97,8 +98,8 @@ export default function ProfileScreen() {
     .filter(Boolean)
     .join('')
     .toUpperCase() || 'U'
-  const avatarSeed = displayEmail || displayName || 'guest'
-  const avatarUri = `https://i.pravatar.cc/300?u=${encodeURIComponent(avatarSeed)}`
+  const avatarSeed = `${displayName} ${displayEmail}`.trim() || 'guest'
+  const avatarUri = avatarFor(avatarSeed)
 
   // Dynamic stats from real data
   const stats = [
