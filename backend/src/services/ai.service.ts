@@ -211,26 +211,11 @@ export async function analyzeMeal(
   userId: string,
   imageUrl: string // This is expected to be a base64 string
 ): Promise<MealAnalysisResult> {
+  // Empty fallback — frontend will show "tespit edilemedi" error and prompt user to retry.
+  // No hardcoded "Izgara Somon" garbage that confuses users when Gemini fails.
   const fallbackResult: MealAnalysisResult = {
-    foods: [
-      {
-        name: "Izgara Somon",
-        estimatedGrams: 200,
-        calories: 412,
-        protein: 45,
-        carbs: 0,
-        fat: 24,
-      },
-      {
-        name: "Mevsim Yeşillikleri",
-        estimatedGrams: 150,
-        calories: 45,
-        protein: 2,
-        carbs: 8,
-        fat: 1,
-      }
-    ],
-    rawAnalysis: "Tabağınızı inceledim, harika bir somon ve yeşillik tabağı! Yaklaşık 457 kalori içeriyor ve harika bir protein kaynağı. Sağlıklı seçimleriniz için tebrikler!",
+    foods: [],
+    rawAnalysis: "AI yemek tespiti yapamadı. Lütfen daha net bir fotoğraf çekin veya birkaç saniye sonra tekrar deneyin.",
   };
 
   if (!env.geminiApiKey) {
