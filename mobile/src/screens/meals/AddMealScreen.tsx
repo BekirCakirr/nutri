@@ -101,7 +101,11 @@ export default function AddMealScreen() {
       const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
       const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
       await addMeal(mealType, items, date, time, entryMethod)
-      navigation.goBack()
+      // After save, route user to MealLog (today's meals list) so they can see
+      // the meal they just added — works whether they came from AI photo flow
+      // (CameraTab cross-stack) or manual flow.
+      // @ts-expect-error - cross-stack navigation typing
+      navigation.navigate('MealsTab', { screen: 'MealLog' })
     } catch (err: any) {
       const { Alert } = require('react-native')
       Alert.alert('Hata', err?.message || 'Öğün kaydedilemedi. Lütfen tekrar deneyin.')
