@@ -39,6 +39,7 @@ import { MacroPieChart } from '@/components/charts/macro-pie-chart'
 import { WaterIntakeChart } from '@/components/charts/water-intake-chart'
 import { DetailPageSkeleton } from '@/components/shared/page-skeletons'
 import { cn } from '@/lib/utils'
+import { avatarFor } from '@/lib/avatar'
 import { usePatientDetail } from '@/hooks/use-patient-detail'
 import { useMeals } from '@/hooks/use-meals'
 import { useAppointments } from '@/hooks/use-appointments'
@@ -269,7 +270,7 @@ export default function PatientDetailPage() {
   const fullName = `${p.firstName ?? p.first_name ?? ''} ${p.lastName ?? p.last_name ?? ''}`.trim() || 'Isimsiz Hasta'
   const emailLower = (p.email ?? '').toLowerCase().trim()
   const avatarUrl = p.avatarUrl ?? p.avatar_url ?? p.profilePhotoUrl ?? p.profile_photo_url
-    ?? (emailLower ? `https://i.pravatar.cc/150?u=${encodeURIComponent(emailLower)}` : '')
+    ?? avatarFor(`${fullName} ${emailLower}`)
   const patientData = {
     id: p.id,
     fullName,

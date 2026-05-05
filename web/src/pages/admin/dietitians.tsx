@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { avatarFor } from '@/lib/avatar'
 import {
   Search,
   CheckCircle2,
@@ -242,7 +243,7 @@ export default function AdminDietitians() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={`https://i.pravatar.cc/80?u=${encodeURIComponent(dietitian.email)}`} alt={dietitian.name} />
+                        <AvatarImage src={avatarFor(`${dietitian.name} ${dietitian.email}`, 80)} alt={dietitian.name} />
                         <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(dietitian.name))}>
                           {dietitian.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>

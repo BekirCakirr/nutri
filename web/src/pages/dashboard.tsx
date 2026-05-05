@@ -31,9 +31,9 @@ import { useAppointments } from '@/hooks/use-appointments'
 import { getNotifications } from '@/services/notification.service'
 import { cn } from '@/lib/utils'
 
-// Generate a deterministic avatar URL for a patient (presentation visuals)
-const avatarUrl = (seed: string) =>
-  `https://i.pravatar.cc/150?u=${encodeURIComponent(seed || 'patient')}`
+import { avatarFor } from '@/lib/avatar'
+// Generate a deterministic, gender-aware avatar URL for a patient
+const avatarUrl = (seed: string) => avatarFor(seed || 'patient')
 
 interface RecentActivity {
   id: string

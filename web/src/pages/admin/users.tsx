@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { avatarFor } from '@/lib/avatar'
 import {
   Search,
   Filter,
@@ -258,7 +259,7 @@ export default function AdminUsersPage() {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={`https://i.pravatar.cc/80?u=${encodeURIComponent(user.email)}`} alt={user.name} />
+                      <AvatarImage src={avatarFor(`${user.name} ${user.email}`, 80)} alt={user.name} />
                       <AvatarFallback className={cn('text-xs font-semibold', getInitialColor(user.name))}>
                         {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>

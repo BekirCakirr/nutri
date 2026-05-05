@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { avatarFor } from '@/lib/avatar'
 import { useMessages } from '@/hooks/use-messages'
 import { useAuthStore } from '@/stores/auth-store'
 import { ChatSkeleton } from '@/components/shared/page-skeletons'
@@ -78,7 +79,7 @@ function getInitials(name: string): string {
 }
 
 function pravatarFor(seed: string): string {
-  return `https://i.pravatar.cc/150?u=${encodeURIComponent(seed)}`
+  return avatarFor(seed)
 }
 
 function groupMessagesByDate(messages: Message[]): { date: string; messages: Message[] }[] {

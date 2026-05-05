@@ -24,7 +24,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { avatarFor, mealPhotoFor } from '@/lib/avatar'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -233,6 +234,7 @@ function MealCard({
       {/* Card header: patient info + meal type */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3">
         <Avatar className="h-9 w-9 shrink-0">
+          <AvatarImage src={avatarFor(review.patientName)} alt={review.patientName} />
           <AvatarFallback className={cn('text-xs font-semibold', getAvatarColor(review.patientName))}>
             {getInitials(review.patientName)}
           </AvatarFallback>
@@ -618,8 +620,8 @@ export default function MealReviewPage() {
             const patientName = m.patientName || `${firstName} ${lastName}`.trim() || 'Hasta'
 
             const photoUrl = m.photoUrl ?? m.photo_url ?? m.imageUrl ?? null
-            // Mock thumbnail when no photo (deterministic by mealId)
-            const imageUrl = photoUrl || `https://picsum.photos/seed/${m.id}/400/300`
+            // Curated Turkish food image based on meal type (no laptop/ocean random crap)
+            const imageUrl = photoUrl || mealPhotoFor(mealType, m.id)
 
             const dietitianViewed = m.dietitianViewed ?? m.dietitian_viewed ?? false
             const dietitianFeedback: string = m.dietitianFeedback ?? m.dietitian_feedback ?? ''

@@ -30,6 +30,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { avatarFor } from '@/lib/avatar'
 import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/stores/auth-store'
 import { useNotificationStore } from '@/stores/notification-store'
@@ -86,10 +87,10 @@ export function AppSidebar() {
   const userInitials = user
     ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
     : 'DY'
-  // Pravatar fallback for stable demo avatars when backend has no avatar URL
+  // Gender-aware pravatar fallback for stable demo avatars
   const avatarSrc =
     user?.avatar ||
-    (user?.email ? `https://i.pravatar.cc/150?u=${encodeURIComponent(user.email)}` : undefined)
+    avatarFor(`${user?.firstName ?? ''} ${user?.lastName ?? ''} ${user?.email ?? ''}`)
 
   const handleLogout = () => {
     logout()

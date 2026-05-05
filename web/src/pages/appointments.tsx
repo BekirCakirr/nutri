@@ -42,6 +42,7 @@ import { CalendarSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PageContainer } from '@/components/shared/page-container'
 import { cn } from '@/lib/utils'
+import { avatarFor } from '@/lib/avatar'
 import { useAppointments } from '@/hooks/use-appointments'
 
 /* ─── Types ─────────────────────────────────────── */
@@ -61,7 +62,7 @@ interface AppointmentItem {
 }
 
 function pravatarFor(seed: string): string {
-  return `https://i.pravatar.cc/150?u=${encodeURIComponent(seed)}`
+  return avatarFor(seed)
 }
 
 /* ─── Type mapping ──────────────────────────────── */

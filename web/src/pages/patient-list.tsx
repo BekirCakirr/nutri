@@ -34,6 +34,7 @@ import { PageContainer } from '@/components/shared/page-container'
 import { ListPageSkeleton } from '@/components/shared/page-skeletons'
 import { EmptyState } from '@/components/shared/empty-state'
 import { cn } from '@/lib/utils'
+import { avatarFor } from '@/lib/avatar'
 import { usePatients } from '@/hooks/use-patients'
 
 function computeAge(dateOfBirth: string | undefined): number {
@@ -122,7 +123,7 @@ export default function PatientListPage() {
       const weightV = Number(p.currentWeightKg ?? p.weight ?? 0);
       const targetV = Number(p.targetWeightKg ?? p.targetWeight ?? 0);
       const emailLower = (p.email ?? '').toLowerCase().trim();
-      const avatar = p.avatarUrl ?? p.profilePhotoUrl ?? (emailLower ? `https://i.pravatar.cc/150?u=${encodeURIComponent(emailLower)}` : '');
+      const avatar = p.avatarUrl ?? p.profilePhotoUrl ?? avatarFor(`${p.firstName ?? ''} ${p.lastName ?? ''} ${emailLower}`);
       return {
         id: p.id,
         firstName: p.firstName ?? '',

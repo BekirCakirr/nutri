@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { avatarFor } from '@/lib/avatar'
 import { Link } from 'react-router-dom'
 import {
   Users,
@@ -271,7 +272,7 @@ export default function AdminDashboardPage() {
                   className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-secondary/50"
                 >
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={`https://i.pravatar.cc/80?u=${encodeURIComponent(reg.email)}`} alt={reg.name} />
+                    <AvatarImage src={avatarFor(`${reg.name} ${reg.email}`, 80)} alt={reg.name} />
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                       {reg.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>

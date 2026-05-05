@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { avatarFor } from '@/lib/avatar'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { useUiStore } from '@/stores/ui-store'
@@ -34,10 +35,10 @@ export function AppHeader() {
   const userInitials = user
     ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
     : 'U'
-  // Pravatar fallback uses email-keyed identicon for stable demo avatars
+  // Gender-aware pravatar fallback for stable demo avatars
   const avatarSrc =
     user?.avatar ||
-    (user?.email ? `https://i.pravatar.cc/150?u=${encodeURIComponent(user.email)}` : undefined)
+    avatarFor(`${user?.firstName ?? ''} ${user?.lastName ?? ''} ${user?.email ?? ''}`)
 
   const handleLogout = () => {
     logout()
