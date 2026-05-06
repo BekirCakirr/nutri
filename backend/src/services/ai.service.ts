@@ -57,7 +57,7 @@ interface PlanGenerateResult {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent";
 
 const SYSTEM_PROMPT =
   "Sen NutriAI, Turkce konusan bir beslenme ve diyet asistanisin. Hastaya beslenme, diyet, saglikli yasam konularinda yardimci ol. Tibbi teshis koyma, sadece genel beslenme onerileri sun.";
