@@ -46,7 +46,10 @@ interface BackendEnvelope<T = unknown> {
  */
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 15_000,
+  // 60s — Gemini AI calls (chat, plan generate, vision) can take 20-40s.
+  // Most non-AI endpoints respond in <500ms; the higher cap only matters when
+  // backend itself is slow.
+  timeout: 60_000,
   headers: {
     "Content-Type": "application/json",
   },
