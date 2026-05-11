@@ -10,10 +10,12 @@ build/
 .env
 .env.local
 .env.production
+.env.*.local
 
-# IDE
+# IDE / editor
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 
@@ -25,9 +27,12 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Uploads
-uploads/*
-!uploads/.gitkeep
+# Uploads (user-generated meal photos)
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # Docker volumes
 pgdata/
+
+# Misc
+*.tsbuildinfo
